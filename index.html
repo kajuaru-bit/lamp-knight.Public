@@ -193,7 +193,7 @@ body.mobile .ref{display:none}
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.22　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.23　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -478,6 +478,7 @@ const WDEF = {
   bloat3:  { id: 'bloat3',  name: '連射燈球', tag: '連發・漸大', mode: 'tap', cd: 1.1, desc: '一次連發 3 顆慢速膨脹燈球（飛行中變大、傷害 3 → 6），連發之間冷卻較長' },
   vial:    { id: 'vial',    name: '毒瓶', tag: '拋擲・毒池', mode: 'tap', cd: 1.1, th: 7, desc: '丟出一瓶毒液，落地形成毒池 3 秒：敵人站在裡面每秒受 2 點傷害並沾毒（之後 3 秒每秒再受 1 點）（詛咒沼澤主題武器）' },
   scim:    { id: 'scim',    name: '彎刀迴旋', tag: '迴旋', mode: 'tap', cd: 0.8, th: 8, desc: '擲出一把彎刀，弧線飛出去再飛回來，來回都會貫穿敵人並清除敵人光球；接住它會立刻重置冷卻（沙漠主題武器）' },
+  orb:     { id: 'orb',     name: '小光點', tag: '自走・護盾', mode: 'hold', cd: 0.1, desc: '放開時小光點會自己衝向最近的敵人，撞到造成傷害（不用瞄準）；按住 F 讓它回到身邊繞著你轉，擋掉敵人的子彈，但不會攻擊' },
   lure:    { id: 'lure',    name: '蟲餌', tag: '誘引', mode: 'hold', cd: 0.1, desc: '按住在前方放出氣味，最多同時兩個；吸引附近的蟲系敵人，70 像素內的敵人每秒受到 2 點傷害；放開後氣味還會留 3 秒' }
 };
 const WLIST = Object.keys(WDEF);
@@ -1462,7 +1463,7 @@ function loadRoom() {
     const nJ = kind === 'boss' ? 2 : run.layer === 0 ? 2 : 3;
     for (let i = 0; i < nJ * 8 && jellies.length < nJ; i++) { const jx = rr(ROOM.x + 160, ROOM.x + ROOM.w - 120), jy = rr(ROOM.y + 90, ROOM.y + ROOM.h - 90); if (room.obs.some(o => overlap(inflate(o, 30), { x: jx, y: jy, w: 1, h: 1 }))) continue; jellies.push({ x: jx, y: jy, r: 17, hp: 3, t: rand() * 6, a: rand() * TAU, flash: 0 }); }
   }
-  lure = null; lures = []; enemies = []; slows = []; p.flowers = []; bullets = []; pickups = []; swings = []; beams = []; rings = []; walls = []; hazards = []; vials = []; ppools = []; timers = []; tobs = []; frosts = []; blinds = []; erupts = []; slows = []; tapT.on = false; absorbs = [];
+  p.orb = null; lure = null; lures = []; enemies = []; slows = []; p.flowers = []; bullets = []; pickups = []; swings = []; beams = []; rings = []; walls = []; hazards = []; vials = []; ppools = []; timers = []; tobs = []; frosts = []; blinds = []; erupts = []; slows = []; tapT.on = false; absorbs = [];
   if (th() === 2 && kind === 'combat') placeDecor();
   if (th() === 7 && (kind === 'combat' || kind === 'boss')) placeSwamp();
   if (th() === 8 && (kind === 'combat' || kind === 'boss')) placeDesert();
@@ -3724,7 +3725,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.22　手機版：橫向握持效果最佳' : '可玩原型 v2.22　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.23　手機版：橫向握持效果最佳' : '可玩原型 v2.23　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch();
@@ -3931,8 +3932,36 @@ function updateClassTimers(dt) {
     if (p.shieldT > 4 && p.shield < mx) { p.shield = Math.min(mx, p.shield + 0.5 * dt * (upN('c_shield') >= 2 ? 1.3 : 1)); }
   }
 }
+function updateOrb(dt, holding) {
+  let o = p.orb; if (!o) o = p.orb = { x: p.x, y: p.y - 20, vx: 0, vy: 0, a: 0, rec: 0, mode: 'seek' };
+  o.a += dt * 4.2; o.mode = holding ? 'guard' : 'seek';
+  if (o.mode === 'guard') {
+    const tx = p.x + Math.cos(o.a) * 36, ty = p.y - 4 + Math.sin(o.a) * 36;
+    o.x += (tx - o.x) * Math.min(1, dt * 14); o.y += (ty - o.y) * Math.min(1, dt * 14); o.vx = o.vy = 0;
+    for (const b of bullets) if (b.own === 'e' && !b.dead && (Math.hypot(b.x - o.x, b.y - o.y) < b.r + 13 || Math.abs(Math.hypot(b.x - p.x, b.y - p.y) - 36) < b.r + 9)) { b.dead = true; burst(b.x, b.y, 5, ['#fff6d8', C.amber], 110, true); sfx('tick'); }
+    return;
+  }
+  if (o.rec > 0) o.rec -= dt;
+  let tg = null, bd = 1e9; for (const e of enemies) { if (e.dead || e.spawn > 0 || e.sleep || e.burrow) continue; const d0 = Math.hypot(e.x - o.x, e.y - o.y); if (d0 < bd) { bd = d0; tg = e; } }
+  if (tg && o.rec <= 0) { const dx = tg.x - o.x, dy = tg.y - o.y, dd = Math.hypot(dx, dy) || 1; o.vx += (dx / dd * 430 - o.vx) * Math.min(1, dt * 7); o.vy += (dy / dd * 430 - o.vy) * Math.min(1, dt * 7); }
+  else { const tx = p.x + Math.cos(o.a * 0.5) * 46, ty = p.y - 10 + Math.sin(o.a * 0.5) * 46; o.vx += ((tx - o.x) * 4 - o.vx) * Math.min(1, dt * 5); o.vy += ((ty - o.y) * 4 - o.vy) * Math.min(1, dt * 5); }
+  o.x = clamp(o.x + o.vx * dt, ROOM.x + 6, ROOM.x + ROOM.w - 6); o.y = clamp(o.y + o.vy * dt, ROOM.y + 6, ROOM.y + ROOM.h - 6);
+  for (const e of enemies) {
+    if (e.dead || e.spawn > 0 || e.sleep || e.burrow || (run.t - (e.oh || -9)) < 0.4) continue;
+    if (Math.hypot(e.x - o.x, e.y - o.y) < e.r + 9) { e.oh = run.t; const dx = e.x - o.x, dy = e.y - o.y, dd = Math.hypot(dx, dy) || 1; killKind = 'orb'; hitEnemy(e, 3 * p.dmgMul * pierceDmg(), dx / dd, dy / dd, 260, true); killKind = null; o.vx = -dx / dd * 260; o.vy = -dy / dd * 260; o.rec = 0.28; burst(o.x, o.y, 6, ['#fff6d8', C.amber], 130, true); }
+  }
+  for (const q of tobs) if ((run.t - (q.dh || -9)) >= 0.5 && o.x > q.x - 8 && o.x < q.x + q.w + 8 && o.y > q.y - 8 && o.y < q.y + q.h + 8) { q.dh = run.t; damageTob(q, 3 * p.dmgMul); }
+}
+function drawOrb() {
+  const o = p.orb; if (!o || p.weapons[p.w] !== 'orb' || state === 'menu') return;
+  ctx.save(); ctx.translate(o.x, o.y);
+  ctx.globalAlpha = 0.3; ctx.fillStyle = '#ffe9a8'; circ(ctx, 0, 0, o.mode === 'guard' ? 20 : 17); ctx.globalAlpha = 1;
+  ctx.fillStyle = '#fff6d8'; circ(ctx, 0, 0, 9); ctx.fillStyle = C.amber; star4(ctx, 0, 0, 12, time * 3); ctx.restore();
+  if (o.mode === 'guard') { ctx.strokeStyle = 'rgba(255,230,160,.45)'; ctx.lineWidth = 3; ctx.setLineDash([6, 8]); ctx.beginPath(); ctx.arc(p.x, p.y - 4, 36, 0, TAU); ctx.stroke(); ctx.setLineDash([]); }
+}
 function updateWeapons(dt) {
   const wid = p.weapons[p.w], holding = keys.f && !p.near && state === 'play';
+  if (wid === 'orb' && state === 'play') updateOrb(dt, holding); else if (wid !== 'orb') p.orb = null;
   const target = wid === 'dance' ? (holding ? 12 : 4.2) : 0;
   p.danceW = (p.danceW || 0) + (target - (p.danceW || 0)) * Math.min(1, dt * 4); p.danceA = (p.danceA || 0) + p.danceW * dt;
   p.danceFast = wid === 'dance' && holding;
@@ -4514,6 +4543,7 @@ function drawLight() {
   if (room.wisps) for (const w of room.wisps) hole(g, w.x, w.y, 80, 0.55);
   if (room.mush) { for (const m of room.mush) hole(g, m.x, m.y - 4, m.cd <= 0 ? 60 : 36, m.cd <= 0 ? 0.6 : 0.3); for (const l of room.hang) if (l.alive) hole(g, l.x, l.y + 8, 56, 0.55); for (const li of room.lights) hole(g, li.x, li.y, li.r * Math.min(1, li.t), 0.85); }
   for (const f of p.flowers) hole(g, f.x, f.y - 14, 70, 0.55);
+  if (p.orb && p.weapons[p.w] === 'orb') hole(g, p.orb.x, p.orb.y, 70, 0.6);
   if (canExit()) hole(g, ROOM.x + ROOM.w + 6, DOOR.y, 120, 0.9);
   for (const q of parts) if (q.glow) hole(g, q.x, q.y, 26, 0.5 * Math.max(0, q.life));
   if (absorbs.length) { g.globalCompositeOperation = 'source-over'; for (const a of absorbs) { const gr = g.createRadialGradient(a.x, a.y, a.r * 0.2, a.x, a.y, a.r); gr.addColorStop(0, 'rgba(2,4,14,0.96)'); gr.addColorStop(1, 'rgba(2,4,14,0)'); g.fillStyle = gr; g.beginPath(); g.arc(a.x, a.y, a.r, 0, TAU); g.fill(); } g.globalCompositeOperation = 'destination-out'; }
@@ -4574,7 +4604,7 @@ function render() {
   ctx.translate(-cam.x, -cam.y);
   if (room.big) { ctx.fillStyle = '#2f2f38'; ctx.fillRect(cam.x - 30, cam.y - 30, W + 60, H + 60); }
   ctx.drawImage(room.bg, 0, 0, WORLD.w, WORLD.h);
-  drawDoor(); drawProp(); drawBlinds(); drawDecor(); drawSwamp(); drawVials();
+  drawDoor(); drawProp(); drawBlinds(); drawDecor(); drawSwamp(); drawVials(); drawOrb();
   for (const a of absorbs) { ctx.save(); ctx.globalAlpha = Math.min(0.5, a.t * 0.4); ctx.strokeStyle = '#b8a0ff'; ctx.lineWidth = 2; ctx.setLineDash([6, 8]); ctx.beginPath(); ctx.arc(a.x, a.y, a.r, 0, TAU); ctx.stroke(); ctx.restore(); }
   for (const it of room.items) drawItem(it);
   drawStall();
