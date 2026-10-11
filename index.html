@@ -193,7 +193,7 @@ body.mobile .ref{display:none}
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.21　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.22　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -477,6 +477,7 @@ const WDEF = {
   fan:     { id: 'fan',     name: '紙扇', tag: '風刃', mode: 'tap', cd: 0.5, th: 3, desc: '展開扇面，射出三道會穿透的短程風刃（中華古代主題武器）' },
   bloat3:  { id: 'bloat3',  name: '連射燈球', tag: '連發・漸大', mode: 'tap', cd: 1.1, desc: '一次連發 3 顆慢速膨脹燈球（飛行中變大、傷害 3 → 6），連發之間冷卻較長' },
   vial:    { id: 'vial',    name: '毒瓶', tag: '拋擲・毒池', mode: 'tap', cd: 1.1, th: 7, desc: '丟出一瓶毒液，落地形成毒池 3 秒：敵人站在裡面每秒受 2 點傷害並沾毒（之後 3 秒每秒再受 1 點）（詛咒沼澤主題武器）' },
+  scim:    { id: 'scim',    name: '彎刀迴旋', tag: '迴旋', mode: 'tap', cd: 0.8, th: 8, desc: '擲出一把彎刀，弧線飛出去再飛回來，來回都會貫穿敵人並清除敵人光球；接住它會立刻重置冷卻（沙漠主題武器）' },
   lure:    { id: 'lure',    name: '蟲餌', tag: '誘引', mode: 'hold', cd: 0.1, desc: '按住在前方放出氣味，最多同時兩個；吸引附近的蟲系敵人，70 像素內的敵人每秒受到 2 點傷害；放開後氣味還會留 3 秒' }
 };
 const WLIST = Object.keys(WDEF);
@@ -774,6 +775,9 @@ ACH.push(
   { id: 'wish', name: '心誠則靈', desc: '在許願池連續獲得 2 次獎勵' },
   { id: 'bigSpender', name: '一擲千金', desc: '在華麗許願池一次投入共 30 燈芯以上' },
   { id: 'fakeSlay', name: '假貨退散', desc: '擊敗偽商人' },
+  { id: 'rushWin', name: '連戰連勝', desc: '在連戰事件房中連續擊倒兩位 Boss' },
+  { id: 'swampWalk', name: '趟過沼澤', desc: '在詛咒沼澤那一層，不踩進任何毒池或毒雲就打倒 Boss' },
+  { id: 'purifier', name: '淨化者', desc: '身上有 3 個詛咒印記的狀態下，打倒詛咒沼澤的 Boss' },
   { id: 'mimicSlay', name: '識破寶相', desc: '在同一個房間不受傷地擊敗兩隻寶相怪' },
   { id: 'inkIn', name: '墨裡來去', desc: '在致盲區域裡擊敗一隻敵人（技能、隊友或火舞棍）' },
   { id: 'balloon', name: '氣球洩氣', desc: '用已經脹到最大的膨脹燈球擊敗一隻敵人' },
@@ -1520,6 +1524,7 @@ function updateSwamp(dt) {
   room.sw = room.sw.filter(z => z.ttl === undefined || z.ttl > 0);
   if (state !== 'play') return;
   const inP = room.sw.some(z => z.k === 'pool' && Math.hypot(p.x - z.x, p.y - z.y) < z.r);
+  if (inP) run.poolHitL = run.layer;
   if (inP && !(p.dashing > 0)) { p.poiT = (p.poiT || 0) + dt; if (!run.poiTip) { run.poiTip = true; toast('毒水——踩久了會一直扣血，走出去！', 2.4); } if (p.poiT >= 2) { p.poiT = 0; hurtFrom('poison', 1, 0, 0); } } else p.poiT = Math.max(0, (p.poiT || 0) - dt * 0.5);
   if (inMud() && !run.mudTip) { run.mudTip = true; toast('爛泥——走得變慢了', 2); }
 }
@@ -1605,7 +1610,7 @@ function rushDefeated() {
       const b = bossDef(true), e = makeBoss(Object.assign({}, b, { hp: Math.round(b.hp * 0.6) }), ROOM.x + ROOM.w * 0.62, DOOR.y); room.timed = null; e.pin = { x: e.x, y: e.y };
     });
   } else {
-    r.on = false; room.cleared = true; sfx('clear'); const cx = ROOM.x + ROOM.w / 2, cy = DOOR.y + 120;
+    r.on = false; room.cleared = true; unlockAch('rushWin'); sfx('clear'); const cx = ROOM.x + ROOM.w / 2, cy = DOOR.y + 120;
     for (const dx of [-120, 0, 120]) room.items.push(makeItem('upgrade', cx + dx, cy, 'choose'));
     if (r.t > 20) dropCoins(cx, cy - 60, 6);
     toast('連戰全勝！選一個強化' + (r.t > 20 ? '（剩餘時間多，另有燈芯）' : ''), 3.2);
@@ -1657,7 +1662,7 @@ function updateChase(dt) {
 }
 function newRun() {
   resetPlayer(); follow = true; fEdge = 0; hudSig = ''; parts = [];
-  run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
+  run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
   for (const w of p.weapons) rec.seenW[w] = 1;
   allies = [];
   { let t = cleared ? shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8]).slice(0, 3) : [0, 1, 2];
@@ -2395,7 +2400,7 @@ function recBoss() {
 }
 function bossDefeated() {
   recBoss(); if ((run.frz || 0) >= 5) unlockAch('calm');
-  bullets = []; room.cleared = true; toast(bossDef().name + '倒下了'); clearAdds();
+  bullets = []; room.cleared = true; toast(bossDef().name + '倒下了'); clearAdds(); if (th() === 7) { if (run.poolHitL !== run.layer) unlockAch('swampWalk'); if (p.curse >= 3) unlockAch('purifier'); }
   if (!room.hurt) unlockAch('flawless'); endRun(true);
   if (!cleared) { cleared = true; try { localStorage.setItem('lampknight.cleared', '1'); } catch (e) { /* storage is optional */ } }
   later(1.8, () => say(th() === 2 ? STORY.bossEnd : (STORY.bossDown[bossDef().kind] || []).concat([{ who: '旁白', text: '最深處的光靜靜等著，要由你決定它的去向。' }]), () => { show('choice', true); setState('choice'); }));
@@ -2403,7 +2408,7 @@ function bossDefeated() {
 function midBossDefeated() {
   recBoss();
   if (room.timed && room.timed.on) { room.timed.on = false; spawnOre(); }
-  bullets = []; room.cleared = true; toast(bossDef().name + '倒下了'); clearAdds();
+  bullets = []; room.cleared = true; toast(bossDef().name + '倒下了'); clearAdds(); if (th() === 7) { if (run.poolHitL !== run.layer) unlockAch('swampWalk'); if (p.curse >= 3) unlockAch('purifier'); }
   { const bk = bossDef().kind; if (th() === 0) { rec.gardenBoss = rec.gardenBoss || {}; rec.gardenBoss[bk] = 1; saveRec(); if (rec.gardenBoss.mid1 && rec.gardenBoss.bloom && rec.gardenBoss.hive) unlockAch('gardenAll'); } if (STORY.bossDown[bk]) later(1.6, () => say(STORY.bossDown[bk])); }
   if (!room.hurt) unlockAch('flawless'); if (!room.skillUsed) unlockAch('noskill');
   pickups.push({ kind: 'oil', x: ROOM.x + ROOM.w - 170, y: DOOR.y + 40, t: 0 });
@@ -2461,6 +2466,7 @@ function attack() {
   else if (wid === 'ember') { shoot(ox, oy, ang + (rand() - .5) * 0.14, 540, 6, 2 * dm, 'ember', 1.1); sfx('fly'); }
   else if (wid === 'scatter') { for (let k = -2; k <= 2; k++) shoot(ox, oy, ang + k * 0.16 + (rand() - .5) * 0.05, 580, 5, 2 * dm, 'pellet', 0.5); sfx('flame'); }
   else if (wid === 'lance') { shoot(ox, oy, ang, 780, 6, 7 * dm * pd, 'lance', 0.8, true); sfx('blade'); }
+  else if (wid === 'scim') { const b = shoot(ox, oy, ang, 500, 11, 3 * dm * pd, 'rang', 9, true); b.t = 0; b.tOut = 0.55 * rm; b.back = false; b.rot = 0; b.curve = (rand() < 0.5 ? 1 : -1); sfx('blade'); }
   else if (wid === 'rang') { const b = shoot(ox, oy, ang, 520, 10, 3.5 * dm * pd, 'rang', 9, true); b.t = 0; b.tOut = 0.5 * rm; b.back = false; b.rot = 0; sfx('blade'); }
   else if (wid === 'whip') {
     const len = 230 * rm, wd = 34, x0 = p.x, y0 = p.y - 4;
@@ -3191,6 +3197,7 @@ function startDash(e, ang, spd, dur) { e.dash = { t: dur, vx: Math.cos(ang) * sp
 function updateBoss2(e, dt, nx, ny, d) {
   const k0 = e.kind, k = (k0 === 'idragon' || k0 === 'vdragon' || k0 === 'serpent' || k0 === 'nightmare') ? 'dragon' : k0 === 'kraken' ? 'shan' : (k0 === 'golem' || k0 === 'mirrorgiant' || k0 === 'toad' || k0 === 'rootking' || k0 === 'scorpking' || k0 === 'mummyking') ? 'giant' : k0, ratio = e.hp / e.maxHp, phase = ratio > 0.6 ? 1 : ratio > 0.3 ? 2 : 3; e.phase = phase;
   updateMarks(e, dt); e.mx = 0; e.my = 0;
+  if (e.dig > 0) { e.dig -= dt; e.burrow = true; if (e.dig <= 0) { e.dig = 0; e.burrow = false; e.x = clamp(p.x + rr(-70, 70), ROOM.x + 60, ROOM.x + ROOM.w - 60); e.y = clamp(p.y + rr(-70, 70), ROOM.y + 60, ROOM.y + ROOM.h - 60); const o = rand() * TAU; for (let i = 0; i < 10; i++) bossShot(e, e.x, e.y, o + i / 10 * TAU, 130, false, 8); burst(e.x, e.y, 16, ['#e3c995', '#b08a52'], 190, true); shake = Math.max(shake, 6); sfx('kill'); } else return; }
   if (e.tongue) { e.tongue.t -= dt; if (e.tongue.t <= 0) { const tg = e.tongue; e.tongue = null; if (Math.hypot(p.x - tg.x, p.y - tg.y) < 48 && state === 'play') { const dd = Math.hypot(e.x - p.x, e.y - p.y) || 1; p.kx = (e.x - p.x) / dd * 700; p.ky = (e.y - p.y) / dd * 700; for (let i = -2; i <= 2; i++) bossShot(e, e.x, e.y, Math.atan2(p.y - e.y, p.x - e.x) + i * 0.28, 130, false, 10); hurtFrom('B:toad', 1, 0, 0); } else { for (let i = -1; i <= 1; i++) bossShot(e, e.x, e.y, Math.atan2(p.y - e.y, p.x - e.x) + i * 0.3, 130, false, 10); } } }
   if (k0 === 'nightmare') { e.dk = (e.dk === undefined ? 6 : e.dk) - dt; if (e.dk <= 0) { e.dk = 11; p.nmDim = 3.5; toast('夢魘吞掉了光——視野縮小了！', 1.8); } }
   const cx = ROOM.x + ROOM.w / 2, cy = ROOM.y + ROOM.h / 2, ang = Math.atan2(p.y - e.y, p.x - e.x), frz = th() === 1;
@@ -3229,7 +3236,7 @@ function updateBoss2(e, dt, nx, ny, d) {
   // 週期召喚
   if ((phase >= 3 && (k === 'giant' || k === 'shan')) || (phase >= 2 && (k0 === 'vdragon' || k0 === 'nightmare'))) {
     e.summon -= dt;
-    if (e.summon <= 0 && enemies.length < 7) { e.summon = k === 'giant' ? 13 : 10; for (let j = 0; j < 2; j++) { const s2 = spawnEnemy(k0 === 'scorpking' ? 'scorpion' : k0 === 'mummyking' ? 'duster' : k0 === 'toad' ? 'jumper' : k0 === 'rootking' ? 'spore' : k0 === 'nightmare' ? 'faceless' : k0 === 'mirrorgiant' ? 'rusher' : k0 === 'vdragon' ? 'firebird' : k0 === 'golem' ? 'lavaslime' : k === 'giant' ? 'snowball' : 'crawler', clamp(e.x + (j ? 90 : -90), ROOM.x + 30, ROOM.x + ROOM.w - 30), clamp(e.y + rr(-40, 40), ROOM.y + 30, ROOM.y + ROOM.h - 30)); s2.spawn = 0.8; } toast(k0 === 'scorpking' ? '小蠍子爬了出來' : k0 === 'mummyking' ? '沙塵鬼捲了起來' : k0 === 'toad' ? '小青蛙跳了出來' : k0 === 'rootking' ? '毒孢子飄了出來' : k0 === 'vdragon' ? '火鳥從翅膀飛出來' : k0 === 'golem' ? '熔岩團滾了出來' : k === 'giant' ? '雪團滾了出來' : '墨團從畫裡掉出來'); }
+    if (e.summon <= 0 && enemies.length < 7) { e.summon = k === 'giant' ? 13 : 10; for (let j = 0; j < 2; j++) { const s2 = spawnEnemy(k0 === 'scorpking' ? 'scorpion' : k0 === 'mummyking' ? (phase >= 3 ? 'mummy' : 'duster') : k0 === 'toad' ? 'jumper' : k0 === 'rootking' ? 'spore' : k0 === 'nightmare' ? 'faceless' : k0 === 'mirrorgiant' ? 'rusher' : k0 === 'vdragon' ? 'firebird' : k0 === 'golem' ? 'lavaslime' : k === 'giant' ? 'snowball' : 'crawler', clamp(e.x + (j ? 90 : -90), ROOM.x + 30, ROOM.x + ROOM.w - 30), clamp(e.y + rr(-40, 40), ROOM.y + 30, ROOM.y + ROOM.h - 30)); s2.spawn = 0.8; } toast(k0 === 'scorpking' ? '小蠍子爬了出來' : k0 === 'mummyking' ? '沙塵鬼捲了起來' : k0 === 'toad' ? '小青蛙跳了出來' : k0 === 'rootking' ? '毒孢子飄了出來' : k0 === 'vdragon' ? '火鳥從翅膀飛出來' : k0 === 'golem' ? '熔岩團滾了出來' : k === 'giant' ? '雪團滾了出來' : '墨團從畫裡掉出來'); }
   }
   e.cd -= dt;
   if (e.cd > 0 || e.fanQ || e.bliz > 0) return;
@@ -3243,8 +3250,13 @@ function updateBoss2(e, dt, nx, ny, d) {
     else { const n = 16, off = rand() * TAU; for (let i = 0; i < n; i++) bossShot(e, e.x, e.y, off + i / n * TAU, 170, k0 === 'dragon'); sfx('hit'); }
   } else if (k === 'giant') {
     e.cd = [2.8, 2.3, 1.9][phase - 1] * e.fire;
-    const pool = k0 === 'rootking' ? (phase === 1 ? ['stomp', 'thorn'] : ['stomp', 'thorn', 'lava']) : k0 === 'toad' ? (phase === 1 ? ['stomp', 'tongue'] : ['stomp', 'tongue', 'lava']) : phase === 1 ? ['stomp', 'throw'] : ['stomp', 'throw', (k0 === 'golem' || k0 === 'scorpking' || k0 === 'mummyking') ? 'lava' : 'blizzard'], a = pickOf(pool);
-    if (a === 'thorn') { const ux = Math.cos(ang), uy = Math.sin(ang), n = phase === 3 ? 8 : 6; for (let i = 1; i <= n; i++) markStrike(e, e.x + ux * i * 80, e.y + uy * i * 80, 34, 0.7 + i * 0.1, i % 2 ? { ring: 4 } : {}); toast('根刺！', 1.2); }
+    const pool = k0 === 'mummyking' ? (phase === 1 ? ['stomp', 'wrap'] : phase === 2 ? ['stomp', 'wrap', 'trap'] : ['stomp', 'wrap', 'trap', 'lava']) : k0 === 'scorpking' ? (phase === 1 ? ['stomp', 'sting'] : phase === 2 ? ['stomp', 'sting', 'dig'] : ['stomp', 'sting', 'dig', 'storm']) : k0 === 'rootking' ? (phase === 1 ? ['stomp', 'thorn'] : ['stomp', 'thorn', 'lava']) : k0 === 'toad' ? (phase === 1 ? ['stomp', 'tongue'] : ['stomp', 'tongue', 'lava']) : phase === 1 ? ['stomp', 'throw'] : ['stomp', 'throw', (k0 === 'golem' || k0 === 'scorpking' || k0 === 'mummyking') ? 'lava' : 'blizzard'], a = pickOf(pool);
+    if (a === 'wrap') { for (let i = -1; i <= 1; i++) { const b = bossShot(e, e.x, e.y, ang + i * 0.3, 95, false, 10); b.root = true; b.wrap = true; } toast('繃帶！被纏到會定身', 1.2); sfx('hit'); }
+    else if (a === 'trap') { room.sw = room.sw || []; room.sw.push({ x: p.x, y: p.y, r: 62, k: 'quick', ttl: 7 }); markStrike(e, p.x, p.y, 50, 1.0, { ring: 6 }); toast('腳下的沙在下陷！', 1.4); }
+    else if (a === 'sting') { markStrike(e, p.x, p.y, 46, 0.8, {}); later(0.55, () => { if (!e.dead && state === 'play') markStrike(e, p.x, p.y, 46, 0.8, {}); }); later(1.1, () => { if (!e.dead && state === 'play') markStrike(e, p.x, p.y, 46, 0.8, { ring: 6 }); }); toast('尾針連刺！', 1.4); }
+    else if (a === 'dig') { e.dig = 1.5; e.burrow = true; toast('鑽進沙裡了——小心從哪裡冒出來', 1.6); }
+    else if (a === 'storm') { room.storm = { t: 4, sx: (rand() < 0.5 ? -1 : 1) * 70 }; room.stT = 25; toast('蠍王掀起沙塵暴！', 1.6); }
+    else if (a === 'thorn') { const ux = Math.cos(ang), uy = Math.sin(ang), n = phase === 3 ? 8 : 6; for (let i = 1; i <= n; i++) markStrike(e, e.x + ux * i * 80, e.y + uy * i * 80, 34, 0.7 + i * 0.1, i % 2 ? { ring: 4 } : {}); toast('根刺！', 1.2); }
     else if (a === 'tongue') { e.tongue = { t: 0.8, x: p.x, y: p.y }; markStrike(e, p.x, p.y, 40, 0.8, {}); toast('舌頭！快移開', 1.2); }
     else
     if (a === 'lava') { const n = phase === 3 ? 5 : 4; for (let i = 0; i < n; i++) markStrike(e, i === 0 ? p.x : p.x + rr(-240, 240), i === 0 ? p.y : p.y + rr(-170, 170), 58, 1.0, { ring: 6 }); toast(th() === 8 ? '沙刺突起！' : th() === 7 ? '毒液噴發！' : '熔岩噴發！', 1.2); }
@@ -3712,7 +3724,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.21　手機版：橫向握持效果最佳' : '可玩原型 v2.21　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.22　手機版：橫向握持效果最佳' : '可玩原型 v2.22　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch();
@@ -3982,7 +3994,8 @@ function updatePlay(dt) {
       b.t += dt; b.life = 9; b.rot += dt * 18;
       for (const o of bullets) if (o.own === 'e' && !o.dead && Math.hypot(o.x - b.x, o.y - b.y) < o.r + b.r + 8) { o.dead = true; burst(o.x, o.y, 4, [C.paper, C.amber], 100, true); }
       if (!b.back && (b.t >= b.tOut || outOfRoom(b) || hitsObstacle(b))) { b.back = true; b.hit = []; }
-      if (b.back) { const dx = p.x - b.x, dy = p.y - b.y, dd = Math.hypot(dx, dy) || 1; b.vx = dx / dd * 580; b.vy = dy / dd * 580; if (dd < p.r + 14) { b.dead = true; continue; } }
+      if (b.curve && !b.back) { const ca = b.curve * 1.2 * dt, cs = Math.cos(ca), sn = Math.sin(ca), vx0 = b.vx; b.vx = vx0 * cs - b.vy * sn; b.vy = vx0 * sn + b.vy * cs; }
+      if (b.back) { const dx = p.x - b.x, dy = p.y - b.y, dd = Math.hypot(dx, dy) || 1; b.vx = dx / dd * 580; b.vy = dy / dd * 580; if (dd < p.r + 14) { b.dead = true; if (b.curve) { p.cd = 0; toast('接住了！冷卻重置', 1); } continue; } }
       else { b.x = clamp(b.x, ROOM.x + 4, ROOM.x + ROOM.w - 4); b.y = clamp(b.y, ROOM.y + 4, ROOM.y + ROOM.h - 4); }
     } else {
       if (b.life <= 0 || outOfRoom(b)) { b.dead = true; continue; }
@@ -4006,7 +4019,7 @@ function updatePlay(dt) {
         }
       }
     } else if (Math.hypot(p.x - b.x, p.y - b.y) < p.r + b.r - 2) {
-      const l = Math.hypot(b.vx, b.vy) || 1; if (b.fan) b.fan.hit = true; hurtFrom(b.src || 'bullet', b.dmg, b.vx / l, b.vy / l, b.frz ? 1 : undefined); if (b.root) { p.rootT = 0.5; toast('被藤蔓纏住了', 1.2); } if (p.iframes > 0.9 || b.root) b.dead = true;
+      const l = Math.hypot(b.vx, b.vy) || 1; if (b.fan) b.fan.hit = true; hurtFrom(b.src || 'bullet', b.dmg, b.vx / l, b.vy / l, b.frz ? 1 : undefined); if (b.root) { p.rootT = 0.5; toast(b.wrap ? '被繃帶纏住了' : '被藤蔓纏住了', 1.2); } if (p.iframes > 0.9 || b.root) b.dead = true;
     }
   }
   for (const b of bullets) if (b.own === 'e' && !b.dead) for (const n of allies) if (!n.down && n.iframes <= 0 && Math.hypot(n.x - b.x, n.y - b.y) < n.r + b.r) { hurtNpc(n, 1); b.dead = true; break; }
