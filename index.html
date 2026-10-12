@@ -112,6 +112,8 @@ body.mobile .bar{display:none}
 .achpop.show{animation:achpop 3.2s ease-out forwards}
 @keyframes achpop{0%{opacity:0;transform:translate(-50%,-14px)}10%,80%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
 .ach div{display:flex;gap:.8cqw;align-items:center}.ach div>span:last-child{display:block}.ach .medal{flex:none;line-height:0}
+.longrow{display:flex;gap:.8cqw;align-items:center;justify-content:center;margin:.6cqw auto 0;padding:.5cqw 1.2cqw;background:#2a2238;border:1px solid #6b5a3a;color:var(--paper);font-size:clamp(10px,1.35cqw,16px);cursor:pointer;max-width:92%}.longrow b{color:var(--amber)}.longrow input{width:1.6em;height:1.6em;flex:none}
+.pager{display:flex;gap:1.2cqw;align-items:center;justify-content:center;margin-top:.8cqw;color:var(--paper-dim);font-size:clamp(10px,1.35cqw,16px)}.pager button{font:inherit;color:var(--paper);background:#3b2f1c;border:1px solid #6b5a3a;padding:.3cqw 1.4cqw;cursor:pointer}.pager button[disabled]{opacity:.35;cursor:default}
 .ach{display:grid;grid-template-columns:1fr 1fr;gap:.5cqw 1.6cqw}
 .ach div{font-size:clamp(10px,1.35cqw,16px);padding:.4cqw .6cqw;background:#241d34;color:#8d8099}
 .ach div.got{background:#3b2f1c;color:var(--paper)}
@@ -194,7 +196,7 @@ body.mobile .ref{display:none}
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.26　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.27　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -245,6 +247,7 @@ body.mobile .ref{display:none}
         <p>很久以前，世界由一盞大燈照亮。燈熄之後，黑暗裡長出了怪物。</p>
         <div class="classes" id="classes"></div>
         <div class="infowrap"><canvas class="prev" id="prevMenu" width="200" height="200"></canvas><div class="clsinfo" id="clsInfo"></div></div>
+        <label class="longrow" for="optLong" id="lblLong" hidden><input type="checkbox" id="optLong"><span><b>長線作戰</b>　6 層（每個主題 2 層）、第 3 層起有精英敵人、第 4 層起 Boss 有第二形態；約 25–35 分鐘，每層自動存檔</span></label>
         <div class="menurow"><button class="btn" id="btnStart" type="button">開始冒險<kbd>F</kbd></button><button class="btn alt" id="btnCost" type="button">造型<kbd>C</kbd></button><button class="btn alt" id="btnAch" type="button">成就<kbd>V</kbd></button><button class="btn alt" id="btnStat" type="button">統計<kbd>B</kbd></button></div>
         <div class="menurow savebar"><button class="btn" id="btnCont" type="button" hidden>繼續上次存檔<kbd>G</kbd></button><button class="btn alt" id="btnFolder" type="button">選存檔資料夾</button><button class="btn alt" id="btnExport" type="button">匯出遊玩紀錄</button><button class="btn alt" id="btnImport" type="button">匯入遊玩紀錄</button><input type="file" id="fileImport" accept=".json,application/json" hidden></div>
         <p class="quiet" id="saveInfo"></p>
@@ -374,7 +377,6 @@ body.mobile .ref{display:none}
         <label for="optAuto"><input type="checkbox" id="optAuto" checked><span>自動瞄準（按 T 也能切換）：沒有按 WASD 時瞄準最近的敵人，沒有敵人就朝向移動方向。關掉後，沒按 WASD 時一律朝向移動方向。</span></label>
         <label for="optSound"><input type="checkbox" id="optSound" checked><span>音效</span></label>
         <label for="optUnlock"><input type="checkbox" id="optUnlock"><span>測試用：解鎖全部職業（正式規則：首次通關後才能選其他職業）</span></label>
-        <label for="optLong" id="lblLong" hidden><input type="checkbox" id="optLong"><span>長線作戰：6 層（每個主題 2 層）、第 3 層起出現精英敵人、第 4 層起 Boss 有第二形態（約 25–35 分鐘；每層自動存檔，可中途離開）</span></label>
         <label for="optNpc"><input type="checkbox" id="optNpc"><span>測試用：第 2、3 層一定有事件房（事件房才會遇到可邀請的隊友）</span></label>
         <label for="optTheme"><span>測試用：最後一層的主題　<select id="optTheme"><option value="auto">自動</option><option value="0">花園</option><option value="1">極地</option><option value="2">提燈洞窟</option><option value="4">深海（部分）</option><option value="5">火山（部分）</option><option value="6">夢境（部分）</option><option value="7">詛咒沼澤</option><option value="8">沙漠（部分）</option><option value="3">中華古代</option></select></span></label>
         <label for="optGarden"><span>測試用：第 1 層（花園）的 Boss　<select id="optGarden"><option value="auto">自動（首次通關前固定荊棘園丁，之後隨機）</option><option value="gardener">荊棘園丁</option><option value="bloom">巨花</option><option value="hive">蟲群母巢</option></select></span></label>
@@ -830,7 +832,7 @@ const CLSCOS = {
   mage: { name: '紙帽摺法', opts: { cone: { name: '尖帽' }, boat: { name: '紙船帽', clears: 1 }, crown: { name: '摺紙冠', clears: 3 } } }
 };
 for (const k in CLSCOS) for (const o in CLSCOS[k].opts) CLSCOS[k].opts[o].cl = k;
-function cosRows() { const cid = CLS[state === 'menu' || state === 'sub' ? chosen : p.cls].id; return [{ key: 'lamp', name: '提燈樣式', set: LAMPS }, { key: 'cape', name: '披風顏色', set: CAPES }, { key: 'c_' + cid, name: CLS.find(c => c.id === cid).name + '・' + CLSCOS[cid].name, set: CLSCOS[cid].opts }]; }
+function cosRows() { const cid = CLS[state === 'menu' || state === 'sub' ? chosen : p.cls].id; const clsSet = {}; CLS.forEach((c, i) => { if (clsUnlocked(i)) clsSet[i] = { name: c.name }; }); return [{ key: '__cls', name: '職業', set: clsSet }, { key: 'lamp', name: '提燈樣式', set: LAMPS }, { key: 'cape', name: '披風顏色', set: CAPES }, { key: 'c_' + cid, name: CLS.find(c => c.id === cid).name + '・' + CLSCOS[cid].name, set: CLSCOS[cid].opts }]; }
 function clsCos(cid) { const o = CLSCOS[cid].opts, v = rec.cos['c_' + cid]; return o[v] && cosOk(o, v) ? v : Object.keys(o)[0]; }
 function cosOk(set, id) { const o = set[id]; if (o.cl) return (o.alt && !!rec.ach[o.alt]) || (!o.clears || ((rec.byCls[o.cl] || {}).clears || 0) >= o.clears) && (!o.req || !!rec.ach[o.req]); return !o.req || !!rec.ach[o.req]; }
 function cosLockText(o) { return o.cl && o.req ? ACH_BY[o.req].name : o.cl ? '用' + CLS.find(c => c.id === o.cl).name + '通關 ' + o.clears + ' 次' : ACH_BY[o.req].name; }
@@ -2186,7 +2188,8 @@ function selectClass(i) {
   if (i < 0 || i >= CLS.length) return;
   chosen = i; renderClasses(); sfx('tick');
 }
-let subKind = '', subRow = 0;
+let subKind = '', subRow = 0, achPage = 0;
+const ACH_PER = 12;
 const ENAME = { wisp: '鬼火精', jumper: '跳蛙', spore: '毒孢子', ghost: '幽靈', sleepwalker: '夢遊者', crawler: '小影', shooter: '射手影', brute: '蠻力影', splitter: '分裂影', splitter2: '大分裂影', bomber: '炸彈影', shield: '盾衛', shield2: '輕盾衛', summoner: '召喚影', budling: '花苞', moth: '飛蛾', vine: '藤蔓', frostneedle: '霜針', snowball: '雪球', mist: '霧靈', icecluster: '冰簇', crane: '紙鶴', blindbomb: '墨炸彈', bloater: '膨脹魚', blindshark: '盲鯊', deepworm: '深海蟲', trenchghost: '海溝幽靈', abyss: '深淵水母', sparker: '火星炮', lavaslime: '熔岩史萊姆', lizard: '火蜥蜴', firebat: '火蝠', ifrit: '炎魔', flion: '火焰獅', lavaworm: '熔岩蟲', fireelem: '火元素', firebird: '火鳥', faceless: '無臉人', rusher: '衝鋒怪', mirrorman: '鏡面人', fleer: '逃跑影', mimic: '寶相怪', fakemerch: '偽商人', mark: '地面預警攻擊', ground: '地面傷害', bullet: '敵方子彈', other: '其他',
   'B:keeper': '守燈人', 'B:lmid': '燈影看守', 'B:dragon': '冰龍', 'B:giant': '風雪巨人', 'B:shan': '山靈', 'B:idragon': '水墨龍', 'B:nian': '年獸', 'B:kraken': '古代海怪', 'B:serpent': '深海巨蛇', 'B:golem': '熔岩魔像', 'B:toad': '巨大蟾蜍', 'B:mummyking': '木乃伊王', 'B:scorpking': '巨大蠍王', 'B:rootking': '腐根樹妖', 'B:vdragon': '炎龍', 'B:nightmare': '夢魘看守', 'B:mirrorgiant': '巨大鏡面人', 'B:gardener': '荊棘園丁', 'B:bloom': '花王', 'B:hive': '蜂巢后' };
 const enameOf = k => ENAME[k] || (k.startsWith('B:') ? 'Boss' : k);
@@ -2199,16 +2202,17 @@ function statHtml() {
 function renderSub() {
   const body = $('subBody'); $('prevCost').hidden = subKind !== 'cost';
   if (subKind === 'cost') {
-    $('subTitle').textContent = '造型'; $('subHint').textContent = 'W／S 選項目，A／D 換造型，F 返回。造型只改外觀；灰色的在成就或通關後解鎖。最後一列是目前選中職業的專屬造型（回到選單換職業再看其他職業的）';
+    $('subTitle').textContent = '造型'; $('subHint').textContent = 'W／S 選項目，A／D 換造型，F 返回。第一列可以直接換職業（最後一列是該職業的專屬造型）；造型只改外觀，灰色的在成就或通關後解鎖';
     body.innerHTML = cosRows().map((r, i) => '<div class="subrow' + (i === subRow ? ' on' : '') + '"><b>' + r.name + '</b>' + Object.keys(r.set).map(id => {
-      const o = r.set[id], ok = cosOk(r.set, id), cur = (r.key.startsWith('c_') ? clsCos(r.key.slice(2)) : rec.cos[r.key]) === id;
+      const o = r.set[id], ok = cosOk(r.set, id), cur = r.key === '__cls' ? +id === chosen : (r.key.startsWith('c_') ? clsCos(r.key.slice(2)) : rec.cos[r.key]) === id;
       return '<button type="button" class="opt' + (cur ? ' cur' : '') + (ok ? '' : ' lock') + '" data-r="' + i + '" data-id="' + id + '">' + o.name + (ok ? '' : '（' + cosLockText(o) + '）') + '</button>';
     }).join('') + '</div>').join('');
   } else if (subKind === 'stat') {
     $('subTitle').textContent = '統計'; $('subHint').textContent = 'F 返回。死因從這版開始記錄；通關率以「出發」與「通關」次數計算'; body.innerHTML = statHtml();
   } else {
-    $('subTitle').textContent = '成就　' + Object.keys(rec.ach).length + ' / ' + ACH.length; $('subHint').textContent = 'F 返回。達成後可以解鎖造型';
-    body.innerHTML = '<div class="ach">' + ACH.map(a => '<div class="' + (rec.ach[a.id] ? 'got' : '') + '"><span class="medal">' + medalSvg(!!rec.ach[a.id], 26) + '</span><span><b>' + a.name + '</b>' + a.desc + '</span></div>').join('') + '</div>';
+    const pages = Math.max(1, Math.ceil(ACH.length / ACH_PER)); achPage = clamp(achPage, 0, pages - 1);
+    $('subTitle').textContent = '成就　' + Object.keys(rec.ach).length + ' / ' + ACH.length; $('subHint').textContent = 'W／A 上一頁，S／D 下一頁，F 返回。達成後可以解鎖造型';
+    body.innerHTML = '<div class="ach">' + ACH.slice(achPage * ACH_PER, (achPage + 1) * ACH_PER).map(a => '<div class="' + (rec.ach[a.id] ? 'got' : '') + '"><span class="medal">' + medalSvg(!!rec.ach[a.id], 26) + '</span><span><b>' + a.name + '</b>' + a.desc + '</span></div>').join('') + '</div><div class="pager"><button type="button" data-pg="-1"' + (achPage <= 0 ? ' disabled' : '') + '>上一頁</button><span>第 ' + (achPage + 1) + ' / ' + pages + ' 頁</span><button type="button" data-pg="1"' + (achPage >= pages - 1 ? ' disabled' : '') + '>下一頁</button></div>';
   }
 }
 function refreshGuide() {
@@ -2217,11 +2221,13 @@ function refreshGuide() {
   $('guide').textContent = need ? '第一次通關了！' + (!rec.seenC ? '按 C 看看造型' : '') + (!rec.seenC && !rec.seenV ? '，' : '') + (!rec.seenV ? '按 V 看看成就' : '') : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('btnCost').classList.toggle('pulse', cleared && !rec.seenC); $('btnAch').classList.toggle('pulse', cleared && !rec.seenV);
 }
-function openSub(kind) { if (state !== 'menu') return; if (kind === 'cost') rec.seenC = true; else if (kind === 'ach') rec.seenV = true; saveRec(); subKind = kind; subRow = 0; show('sub', true); setState('sub'); renderSub(); sfx('tick'); }
+function openSub(kind) { if (state !== 'menu') return; achPage = 0; if (kind === 'cost') rec.seenC = true; else if (kind === 'ach') rec.seenV = true; saveRec(); subKind = kind; subRow = 0; show('sub', true); setState('sub'); renderSub(); sfx('tick'); }
 function closeSub() { show('sub', false); setState('menu'); refreshGuide(); sfx('tick'); }
 function subMove(k) {
+  if (subKind === 'ach') { achPage += (k === 'w' || k === 'a') ? -1 : 1; renderSub(); sfx('tick'); return; }
   if (subKind !== 'cost') return;
   if (k === 'w' || k === 's') { subRow = (subRow + (k === 'w' ? -1 : 1) + cosRows().length) % cosRows().length; }
+  else if (cosRows()[subRow].key === '__cls') { const ids = Object.keys(cosRows()[0].set).map(Number); const i = ids.indexOf(chosen); selectClass(ids[(i + (k === 'a' ? -1 : 1) + ids.length) % ids.length]); }
   else { const r = cosRows()[subRow], ids = Object.keys(r.set).filter(id => cosOk(r.set, id)), i = ids.indexOf(r.key.startsWith('c_') ? clsCos(r.key.slice(2)) : rec.cos[r.key]); rec.cos[r.key] = ids[(i + (k === 'a' ? -1 : 1) + ids.length) % ids.length]; saveRec(); }
   renderSub(); sfx('tick');
 }
@@ -3787,7 +3793,7 @@ function tapWorld(ev) {
   const r = cv.getBoundingClientRect(); if (!r.width) return false;
   const cover = $('stage').classList.contains('cover'), sc = cover ? Math.max(r.width / W, r.height / H) : r.width / W;
   const ox = cover ? (r.width - W * sc) / 2 : 0, oy = cover ? (r.height - H * sc) / 2 : 0;
-  tapT.x = (ev.clientX - r.left - ox) / sc + cam.x; tapT.y = (ev.clientY - r.top - oy) / sc + cam.y; return true;
+  tapT.x = (ev.clientX - r.left - ox) / sc + cam.x + 14; tapT.y = (ev.clientY - r.top - oy) / sc + cam.y - 14; return true;
 }
 cv.addEventListener('pointerdown', ev => { if (!mobile || state !== 'play') return; if (tapWorld(ev)) { tapT.on = true; tapT.id = ev.pointerId; tapT.t = 0; } });
 cv.addEventListener('pointermove', ev => { if (tapT.on && ev.pointerId === tapT.id) tapWorld(ev); });
@@ -3796,7 +3802,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.26　手機版：橫向握持效果最佳' : '可玩原型 v2.26　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.27　手機版：橫向握持效果最佳' : '可玩原型 v2.27　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch();
@@ -3838,7 +3844,7 @@ btn('btnExport', () => exportSave());
 btn('btnImport', () => { if (state === 'menu') $('fileImport').click(); });
 $('fileImport').addEventListener('change', ev => { importSave(ev.target.files && ev.target.files[0]); ev.target.value = ''; });
 btn('btnSubClose', () => { if (state === 'sub') closeSub(); });
-$('subBody').addEventListener('click', ev => { const t = ev.target; if (state !== 'sub' || subKind !== 'cost' || !t.dataset || t.dataset.id === undefined) return; const r = cosRows()[parseInt(t.dataset.r, 10)]; subRow = parseInt(t.dataset.r, 10); if (cosOk(r.set, t.dataset.id)) { rec.cos[r.key] = t.dataset.id; saveRec(); sfx('tick'); } renderSub(); });
+$('subBody').addEventListener('click', ev => { const pg = ev.target && ev.target.dataset && ev.target.dataset.pg; if (state === 'sub' && subKind === 'ach' && pg) { achPage += parseInt(pg, 10); renderSub(); sfx('tick'); return; } const t = ev.target; if (state !== 'sub' || subKind !== 'cost' || !t.dataset || t.dataset.id === undefined) return; const r = cosRows()[parseInt(t.dataset.r, 10)]; subRow = parseInt(t.dataset.r, 10); if (r.key === '__cls') { selectClass(+t.dataset.id); } else if (cosOk(r.set, t.dataset.id)) { rec.cos[r.key] = t.dataset.id; saveRec(); sfx('tick'); } renderSub(); });
 btn('btnMenu1', () => { if (state === 'over') toMenu(); });
 btn('btnMenu2', () => { if (state === 'ending') toMenu(); });
 btn('btnResume', () => resumeGame());
