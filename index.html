@@ -37,6 +37,7 @@ body.mobile .bar{display:none}
 .lamp{width:1.6cqw;height:2.2cqw;border-radius:50% 50% 38% 38%;background:#2a2440;box-shadow:.2cqw .3cqw 0 rgba(0,0,0,.5);transition:background .15s}
 .lamp.on{background:var(--amber);box-shadow:.2cqw .3cqw 0 rgba(0,0,0,.5),0 0 1.4cqw rgba(255,179,71,.75)}
 .lamp.off{display:none}
+.plamp{display:inline-block;width:.8em;height:1.1em;border-radius:50% 50% 38% 38%;background:#2a2440;margin-right:.55em;vertical-align:-.18em;box-shadow:.1em .15em 0 rgba(0,0,0,.5)}.plamp.on{background:var(--amber);box-shadow:.1em .15em 0 rgba(0,0,0,.5),0 0 .7em rgba(255,179,71,.85)}
 .lamp.shd{background:#27344a;border-radius:30%}.lamp.shd.on{background:#8fd0ff;box-shadow:.2cqw .3cqw 0 rgba(0,0,0,.5),0 0 1.2cqw rgba(143,208,255,.7)}.lamp.shd.half{background:#5f87a8}
 .pills{display:flex;flex-direction:column;align-items:flex-end;gap:.5cqw}
 .pill{font-size:clamp(9px,1.2cqw,15px);line-height:1.3;background:rgba(240,228,200,.92);color:#2a2236;padding:.35cqw 1cqw;box-shadow:.2cqw .3cqw 0 rgba(0,0,0,.45)}
@@ -193,7 +194,7 @@ body.mobile .ref{display:none}
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.23　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.24　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -245,7 +246,7 @@ body.mobile .ref{display:none}
         <div class="classes" id="classes"></div>
         <div class="infowrap"><canvas class="prev" id="prevMenu" width="200" height="200"></canvas><div class="clsinfo" id="clsInfo"></div></div>
         <div class="menurow"><button class="btn" id="btnStart" type="button">開始冒險<kbd>F</kbd></button><button class="btn alt" id="btnCost" type="button">造型<kbd>C</kbd></button><button class="btn alt" id="btnAch" type="button">成就<kbd>V</kbd></button><button class="btn alt" id="btnStat" type="button">統計<kbd>B</kbd></button></div>
-        <div class="menurow savebar"><button class="btn" id="btnCont" type="button" hidden>繼續上次存檔<kbd>G</kbd></button><button class="btn alt" id="btnFolder" type="button">選存檔資料夾</button><button class="btn alt" id="btnExport" type="button">匯出存檔</button><button class="btn alt" id="btnImport" type="button">匯入存檔</button><input type="file" id="fileImport" accept=".json,application/json" hidden></div>
+        <div class="menurow savebar"><button class="btn" id="btnCont" type="button" hidden>繼續上次存檔<kbd>G</kbd></button><button class="btn alt" id="btnFolder" type="button">選存檔資料夾</button><button class="btn alt" id="btnExport" type="button">匯出遊玩紀錄</button><button class="btn alt" id="btnImport" type="button">匯入遊玩紀錄</button><input type="file" id="fileImport" accept=".json,application/json" hidden></div>
         <p class="quiet" id="saveInfo"></p>
         <p class="quiet" id="guide">W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。</p>
       </div>
@@ -287,6 +288,7 @@ body.mobile .ref{display:none}
             <button class="btn" id="btnResume" type="button">繼續<kbd>F</kbd></button>
             <button class="btn alt" id="btnAuto" type="button"></button>
             <button class="btn alt" id="btnSnd" type="button"></button>
+            <button class="btn alt" id="btnLeave" type="button">中途離開（匯出探索進度）</button>
             <button class="btn alt" id="btnQuit" type="button">放棄這局，換職業</button>
             <p class="quiet">W／S 選擇，F 確定；P、Esc 繼續</p>
             <p class="quiet">滑鼠：角色跑向游標，按住暫停追隨　WASD：攻擊方向　F：攻擊／拿取　Q、E：換武器　空白鍵：職業技能</p>
@@ -1439,6 +1441,7 @@ function loadRoom() {
   const priorEv = run.plan.slice(0, run.step).filter(k => k === 'event').length;
   let variant = null;
   if (kind === 'treasure' && (run.forceVariant === 'mimic' || (cleared && rand() < 0.25))) variant = 'mimic';
+  if (kind === 'treasure' && !variant && (run.forceVariant === 'mystery' || (cleared && rand() < 0.2))) variant = 'mystery';
   if (kind === 'event') {
     if (run.forceVariant) variant = run.forceVariant;
     else if (run.layer === 1 && priorEv === 0) variant = 'normal';
@@ -1709,6 +1712,7 @@ function setupSpecial() {
   }
   if (k === 'event' && room.variant === 'well') { room.items.push({ kind: 'well', id: 'well', x: cx, y: cy, group: 'well', price: 4, n: 0, streak: 0, taken: false }); return; }
   if (k === 'event' && room.variant === 'grand') { room.items.push({ kind: 'well', id: 'grand', x: cx, y: cy - 50, group: 'well', price: 5, n: 0, spent: 0, taken: false }); return; }
+  if (k === 'treasure' && room.variant === 'mystery') { room.items.push({ kind: 'mystery', id: 'mystery', x: cx, y: cy, group: 'prop', price: 0, taken: false }); return; }
   if (k === 'treasure' || (k === 'event' && room.variant === 'mimic')) {
     add('weapon', cx - 120, 'choose'); add('weapon', cx, 'choose'); add('upgrade', cx + 120, 'choose');
     for (const it of room.items) if (it.group === 'choose' && rand() < 0.15) { it.kind = 'coins'; it.id = 'coins'; it.amount = 12 + Math.floor(rand() * 9); it.prem = false; }
@@ -1729,6 +1733,7 @@ function setupSpecial() {
 const DING_LINES = ['嗡——有緣之人，取走吧。', '三百年沒人敲我了……', '鼎中無物，心中有物。', '摸夠了沒？那就收下吧。', '天下沒有白拿的東西——這次例外。', '叩鼎問天，天說：給你。'];
 function itemInfo(it) {
   if (it.kind === 'coins') return { name: '一袋燈芯', desc: '燈芯 +' + it.amount + '（穩定但沒有成長）' };
+  if (it.kind === 'mystery') return { name: '神祕寶箱', desc: it.used ? '箱子已經空了' : '只有一個「？」。打開會得到隨機獎勵（可能是武器、強化、精良強化、燈芯或燈火）' };
   if (it.kind === 'ding') return { name: '古鼎', desc: it.used ? '鼎已經安靜下來了' : '青銅古鼎，傳說摸一下會賜予一件寶物（只能一次）' };
   if (it.kind === 'well') return it.id === 'grand'
     ? { name: '華麗許願池', desc: '第 n 次投入 5×n 燈芯：5、10、15、20、25。次數越多機率與品質越高，第 5 次保底；得到獎勵後池就乾涸' + (it.dry ? '（已乾涸）' : '') }
@@ -1802,6 +1807,17 @@ function interact(it) {
     else if (roll < 82) { const w = weaponOffer(shelfIds('weapon')); if (w) { giveWeapon(w); toast('鼎中浮出武器：' + WDEF[w].name, 2.2); } else { p.coins += 12; toast('鼎中湧出 12 燈芯'); } }
     else if (roll < 92) { healP(2); toast('鼎中暖光湧出：燈火 +2', 2); }
     else { p.coins += 12; toast('鼎中湧出 12 燈芯'); }
+    hudSig = ''; hintSig = ''; return;
+  }
+  if (it.kind === 'mystery') {
+    if (it.used) { toast('箱子已經空了', 1.2); return; }
+    it.used = true; sfx('pick'); burst(it.x, it.y - 20, 30, ['#ffe08a', C.amber, '#fff6d8', C.violet], 230, true); shake = Math.max(shake, 4);
+    const roll = rand() * 100;
+    if (roll < 30) { const w = weaponOffer(shelfIds('weapon')); if (w) { giveWeapon(w); toast('「？」打開了：武器「' + WDEF[w].name + '」', 2.4); } else { p.coins += 15; toast('「？」打開了：燈芯 +15', 2.2); } }
+    else if (roll < 58) { const uid = upgradeOffer(shelfIds('upgrade')) || 'oil'; applyUpgrade(uid, false); toast('「？」打開了：強化「' + UPG[uid].name + '」', 2.4); }
+    else if (roll < 78) { const uid = upgradeOffer(shelfIds('upgrade'), true) || upgradeOffer(shelfIds('upgrade')) || 'oil'; applyUpgrade(uid, premOk(uid)); toast('「？」打開了：精良強化「' + UPG[uid].name + '」', 2.6); }
+    else if (roll < 90) { const n = 12 + Math.floor(rand() * 9); p.coins += n; toast('「？」打開了：燈芯 +' + n, 2.2); }
+    else { healP(3); toast('「？」打開了：燈火 +3', 2.2); }
     hudSig = ''; hintSig = ''; return;
   }
   if (it.kind === 'well') { wellThrow(it); return; }
@@ -1882,6 +1898,7 @@ function updateHint() {
   if (it) {
     const info = itemInfo(it); let act;
     if (it.kind === 'themesel') act = 'F 切換必遇主題（目前：' + (run.themePick >= 0 ? TNAMES[run.themePick] : '隨機') + '）';
+    else if (it.kind === 'mystery') act = it.used ? '' : 'F 打開「？」';
     else if (it.kind === 'ding') act = it.used ? '' : 'F 觸摸古鼎';
     else if (it.kind === 'well') act = it.dry ? '池水已經乾涸' : (it.id === 'grand' ? (it.n >= 5 ? '池水平靜了' : 'F 投入 ' + (5 * (it.n + 1)) + ' 燈芯（第 ' + (it.n + 1) + ' / 5 次）') : (it.n >= 6 ? '池水平靜了' : 'F 投入 4 燈芯（第 ' + (it.n + 1) + ' / 6 次）')) + (!it.dry && it.n < (it.id === 'grand' ? 5 : 6) && p.coins < (it.id === 'grand' ? 5 * (it.n + 1) : 4) ? '（燈芯不夠）' : '');
     else if (it.kind === 'weapon') act = p.weapons.length < 3 ? 'F 拿取' : 'F 取代手上的「' + WDEF[p.weapons[p.w]].name + '」';
@@ -1919,6 +1936,7 @@ function announceRoom() {
   else if (allies.length && rand() < 0.5) { const n = pickOf(allies.filter(a => !a.down)); if (n) later(2.4, () => toast(n.def.short + '：「' + pickOf(n.def.chat) + '」', 2.8)); }
   if (room.variant === 'fake') { toast('商人房：用燈芯交換'); later(0.2, () => toast('商人：「客官，要看看嗎？」', 1.2)); }
   else if (room.variant === 'mimic') toast('寶箱房：挑一樣帶走');
+  else if (room.variant === 'mystery') toast('神祕寶箱房：只有一個「？」，打開看看', 2.6);
   else if (room.variant === 'well') toast('許願池：投 4 燈芯碰碰運氣（最多 6 次）', 2.8);
   else if (room.variant === 'grand') toast('華麗許願池：越投越貴，但越投越靈', 2.8);
   else if (room.kind === 'treasure') toast('寶箱房：挑一樣帶走');
@@ -2204,11 +2222,11 @@ function toMenu() {
 }
 /* 結算畫面等的選項：W／S 換選項，F 確定 */
 let scrSel = 0;
-const SCR_IDS = { over: ['btnRetry', 'btnMenu1'], ending: ['btnAgain', 'btnMenu2'], pause: ['btnResume', 'btnAuto', 'btnSnd', 'btnQuit'], choice: ['btnLight', 'btnDark'] };
+const SCR_IDS = { over: ['btnRetry', 'btnMenu1'], ending: ['btnAgain', 'btnMenu2'], pause: ['btnResume', 'btnAuto', 'btnSnd', 'btnLeave', 'btnQuit'], choice: ['btnLight', 'btnDark'] };
 const SCR_ACT = {
   over: [() => restart(), () => toMenu()],
   ending: [() => { show('ending', false); restart(); }, () => toMenu()],
-  pause: [() => resumeGame(), () => { optAuto.checked = !optAuto.checked; refreshPauseOpts(); sfx('tick'); }, () => { optSound.checked = !optSound.checked; refreshPauseOpts(); sfx('tick'); }, () => { show('pause', false); endRun(false); toMenu(); }],
+  pause: [() => resumeGame(), () => { optAuto.checked = !optAuto.checked; refreshPauseOpts(); sfx('tick'); }, () => { optSound.checked = !optSound.checked; refreshPauseOpts(); sfx('tick'); }, () => leaveMidway(), () => { show('pause', false); endRun(false); toMenu(); }],
   choice: [() => pickEnding(0), () => pickEnding(1)]
 };
 function scrRender() { const ids = SCR_IDS[state]; if (!ids) return; ids.forEach((id, i) => $(id).classList.toggle('on', i === scrSel)); }
@@ -2233,8 +2251,8 @@ function buffLines() {
   return L.join('\n');
 }
 function refreshPauseOpts() {
-  $('btnAuto').textContent = '自動瞄準：' + (optAuto.checked ? '開' : '關') + '（T）';
-  $('btnSnd').textContent = '音效：' + (optSound.checked ? '開' : '關') + '（M）';
+  $('btnAuto').innerHTML = '<i class="plamp' + (optAuto.checked ? ' on' : '') + '"></i>自動瞄準（T）';
+  $('btnSnd').innerHTML = '<i class="plamp' + (optSound.checked ? ' on' : '') + '"></i>音效（M）';
 }
 function fillPause() {
   const c = CLS[p.cls];
@@ -2316,18 +2334,45 @@ async function pickFolder() {
     updateSaveUi();
   } catch (e) { const bf = $('btnFolder'); if (bf && e && e.name !== 'AbortError') { bf.disabled = true; bf.textContent = '資料夾：此頁面不支援'; } toast(e && e.name === 'AbortError' ? '已取消選擇資料夾' : '沒有連結資料夾（這個頁面被瀏覽器擋下），請改用「匯出／匯入存檔」', 3.2); }
 }
-function exportSave() {
-  const d = readSaveLocal(); if (!d) { toast('目前沒有存檔可以匯出'); return; }
-  const txt = JSON.stringify(d);
-  const fallback = () => { try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'application/json' })); a.download = 'lamp-knight-save.json'; a.click(); toast('已匯出 lamp-knight-save.json', 2.2); } catch (e) { toast('這個頁面不能下載檔案', 2.4); } };
+function saveFile(name, txt, okMsg) {
+  const fallback = () => { try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'application/json' })); a.download = name; a.click(); toast(okMsg, 2.4); } catch (e) { toast('這個頁面不能下載檔案', 2.4); } };
   try {
-    if (window.claude && window.claude.use) window.claude.use('downloads').then(dl => { if (!dl) return fallback(); return dl.save({ filename: 'lamp-knight-save.json', data: new Blob([txt], { type: 'application/json' }) }).then(() => toast('已匯出 lamp-knight-save.json', 2.2)).catch(() => toast('已取消匯出', 1.8)); }).catch(fallback);
+    if (window.claude && window.claude.use) window.claude.use('downloads').then(dl => { if (!dl) return fallback(); return dl.save({ filename: name, data: new Blob([txt], { type: 'application/json' }) }).then(() => toast(okMsg, 2.4)).catch(() => toast('已取消匯出', 1.8)); }).catch(() => fallback());
     else fallback();
   } catch (e) { fallback(); }
 }
+function exportSave() { saveFile('lamp-knight-record.json', JSON.stringify({ t: 'record', v: 1, ts: Date.now(), rec }), '已匯出遊玩紀錄（成就、統計等）'); }
+function leaveMidway() {
+  if (state !== 'pause') return;
+  const done = run.layer, thN = Math.min(run.layer, 2) + 1;
+  const d = { t: 'progress', v: 1, ts: Date.now(), cls: CLS[p.cls].name, layersCompleted: done, currentLayer: run.layer + 1, room: (run.step + 1) + '/' + run.plan.length, themes: run.themes.slice(0, thN).map(k => TNAMES[k]), seconds: Math.round(run.t), kills: run.kills, weapons: p.weapons.map(id => WDEF[id].name), hp: p.hp + '/' + p.maxHp };
+  saveFile('lamp-knight-progress.json', JSON.stringify(d, null, 1), '已匯出：完成第 ' + done + ' 層探索（存檔仍保留，可從選單「繼續上次存檔」接著玩）');
+  show('pause', false); toMenu();
+}
+function mergeRecObj(a, b) {
+  for (const k of Object.keys(b)) {
+    const x = a[k], y = b[k];
+    if (y && typeof y === 'object' && !Array.isArray(y)) { if (!x || typeof x !== 'object') a[k] = JSON.parse(JSON.stringify(y)); else mergeRecObj(x, y); }
+    else if (typeof y === 'number') a[k] = Math.max(+x || 0, y);
+    else if (typeof y === 'boolean') a[k] = !!x || y;
+    else if (x === undefined) a[k] = y;
+  }
+}
 function importSave(file) {
   if (!file) return; const rd = new FileReader();
-  rd.onload = () => { try { const d = JSON.parse(rd.result); if (d && d.v === 1) { try { localStorage.setItem(SAVE_KEY, JSON.stringify(d)); } catch (e) { /* ignore */ } applySave(d); } else toast('存檔檔案不正確'); } catch (e) { toast('存檔檔案不正確'); } };
+  rd.onload = () => {
+    try {
+      const d = JSON.parse(rd.result);
+      if (d && d.t === 'record' && d.rec) {
+        const keepCos = rec.cos, bestA = rec.best, bestB = d.rec.best;
+        mergeRecObj(rec, d.rec); rec.cos = keepCos || rec.cos; rec.best = [bestA, bestB].filter(v => v > 0).sort((u, v) => u - v)[0] || 0;
+        if (rec.clears > 0) { cleared = true; try { localStorage.setItem('lampknight.cleared', '1'); } catch (e) { /* optional */ } }
+        saveRec(); renderClasses(); toast('已匯入遊玩紀錄（已和現有紀錄合併，成就 ' + Object.keys(rec.ach).length + ' 個）', 2.8);
+      } else if (d && d.t === 'progress') toast('這是探索進度檔，只是紀錄，不能匯入', 2.6);
+      else if (d && d.v === 1 && d.run) { try { localStorage.setItem(SAVE_KEY, JSON.stringify(d)); } catch (e) { /* ignore */ } applySave(d); }
+      else toast('紀錄檔案不正確');
+    } catch (e) { toast('紀錄檔案不正確'); }
+  };
   rd.readAsText(file);
 }
 try { idb((st, res) => { const q = st.get('dir'); q.onsuccess = () => { if (q.result) saveDirPending = q.result; res(); }; }).catch(() => {}); } catch (e) { /* no idb */ }
@@ -3725,7 +3770,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.23　手機版：橫向握持效果最佳' : '可玩原型 v2.23　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.24　手機版：橫向握持效果最佳' : '可玩原型 v2.24　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch();
@@ -3784,6 +3829,7 @@ function askTwice(id, label, fn) {
 }
 askTwice('btnGiveUp', '放棄這局', () => { if (state === 'pause') resumeGame(); if (state === 'play') die(); });
 askTwice('btnSwap', '換職業', () => { if (state === 'menu' || state === 'dying') return; $('dialog').hidden = true; dlg.done = null; toMenu(); });
+btn('btnLeave', () => { if (state === 'pause') leaveMidway(); });
 btn('btnQuit', () => { if (state === 'pause') { show('pause', false); toMenu(); } });
 $('classes').addEventListener('click', ev => { let t = ev.target; while (t && !(t.dataset && t.dataset.i !== undefined)) t = t.parentNode; if (t && state === 'menu') selectClass(parseInt(t.dataset.i, 10)); });
 optUnlock.addEventListener('change', () => renderClasses());
@@ -4175,6 +4221,16 @@ function drawItem(it) {
     ctx.restore(); return;
   }
   if (it.kind === 'npc') { drawAllyFig({ x: it.x, y: it.y, def: NPCS[it.id], down: false, hp: NPCS[it.id].hp, maxHp: NPCS[it.id].hp, face: -1, t: time, vx: 0, vy: 0, iframes: 0 }); return; }
+  if (it.kind === 'mystery') {
+    ctx.save(); ctx.translate(it.x, it.y); const u = it.used;
+    ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(0, 26, 36, 9, 0, 0, TAU); ctx.fill();
+    if (!u) { ctx.globalAlpha = 0.3 + 0.12 * Math.sin(time * 3); ctx.fillStyle = '#ffe08a'; circ(ctx, 0, -4, 52); ctx.globalAlpha = 1; }
+    setShadow(ctx, 2, 3, 0);
+    ctx.fillStyle = u ? '#5a4a3a' : '#7a4a2a'; rrect(ctx, -30, -4, 60, 32, 5); ctx.fillStyle = u ? '#6a5a4a' : '#9a6234'; rrect(ctx, -30, -22 - (u ? 10 : 0), 60, 20, 7);
+    ctx.fillStyle = u ? '#8a7a5a' : '#e8b030'; ctx.fillRect(-4, -6, 8, 14); noShadow(ctx);
+    if (!u) { ctx.fillStyle = C.dark; ctx.font = '700 26px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('？', 0, -26 + Math.sin(time * 4) * 3); ctx.fillStyle = '#fff6d8'; ctx.fillText('？', 0, -28 + Math.sin(time * 4) * 3); }
+    ctx.restore(); return;
+  }
   if (it.kind === 'ding') {
     ctx.save(); ctx.translate(it.x, it.y); const u = it.used;
     ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(0, 26, 34, 9, 0, 0, TAU); ctx.fill();
