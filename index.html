@@ -194,7 +194,7 @@ body.mobile .ref{display:none}
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.25　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.26　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -367,13 +367,14 @@ body.mobile .ref{display:none}
         <li><b>3 層</b><br><span>每層 3 間戰鬥房加特殊房，最後是 Boss。越深的層，敵人血量與速度越高</span></li>
         <li><b>寶箱房</b><br><span>三選一，免費</span></li>
         <li><b>事件房</b><br><span>兩選一，可能是血量、武器或強化</span></li>
-        <li><b>商人房</b><br><span>每層一定有一間；用燈芯購買，買走後會補上新商品。中間下方的換貨架可付費刷新全部商品（3 燈芯起，每次 +2）。金邊的「精良」強化較貴，但每燈芯換到的效果更多</span></li>
+        <li><b>商人房</b><br><span>每層一定有一間；用燈芯購買，買走後留下空位，付 1 燈芯請商人補貨。中間下方的換貨架可付費刷新全部商品（3 燈芯起，每次 +2）。金邊的「精良」強化較貴，但每燈芯換到的效果更多</span></li>
       </ul>
       <h2 style="margin-top:18px">調整手感</h2>
       <div class="opts">
         <label for="optAuto"><input type="checkbox" id="optAuto" checked><span>自動瞄準（按 T 也能切換）：沒有按 WASD 時瞄準最近的敵人，沒有敵人就朝向移動方向。關掉後，沒按 WASD 時一律朝向移動方向。</span></label>
         <label for="optSound"><input type="checkbox" id="optSound" checked><span>音效</span></label>
         <label for="optUnlock"><input type="checkbox" id="optUnlock"><span>測試用：解鎖全部職業（正式規則：首次通關後才能選其他職業）</span></label>
+        <label for="optLong" id="lblLong" hidden><input type="checkbox" id="optLong"><span>長線作戰：6 層（每個主題 2 層）、第 3 層起出現精英敵人、第 4 層起 Boss 有第二形態（約 25–35 分鐘；每層自動存檔，可中途離開）</span></label>
         <label for="optNpc"><input type="checkbox" id="optNpc"><span>測試用：第 2、3 層一定有事件房（事件房才會遇到可邀請的隊友）</span></label>
         <label for="optTheme"><span>測試用：最後一層的主題　<select id="optTheme"><option value="auto">自動</option><option value="0">花園</option><option value="1">極地</option><option value="2">提燈洞窟</option><option value="4">深海（部分）</option><option value="5">火山（部分）</option><option value="6">夢境（部分）</option><option value="7">詛咒沼澤</option><option value="8">沙漠（部分）</option><option value="3">中華古代</option></select></span></label>
         <label for="optGarden"><span>測試用：第 1 層（花園）的 Boss　<select id="optGarden"><option value="auto">自動（首次通關前固定荊棘園丁，之後隨機）</option><option value="gardener">荊棘園丁</option><option value="bloom">巨花</option><option value="hive">蟲群母巢</option></select></span></label>
@@ -713,7 +714,7 @@ try { const sv = localStorage.getItem('lk.mobile'); mobile = sv === '1' || (sv =
 const p = {};
 try { deaths = parseInt(localStorage.getItem('lampknight.deaths') || '0', 10) || 0; } catch (e) { deaths = 0; }
 
-const optAuto = $('optAuto'), optSound = $('optSound'), optBoss = $('optBoss'), optUnlock = $('optUnlock'), optNpc = $('optNpc'), optGarden = $('optGarden'), optTheme = $('optTheme');
+const optAuto = $('optAuto'), optSound = $('optSound'), optBoss = $('optBoss'), optUnlock = $('optUnlock'), optNpc = $('optNpc'), optLong = $('optLong'), optGarden = $('optGarden'), optTheme = $('optTheme');
 const CLS = [
   { id: 'knight', name: '提燈騎士', role: '均衡', weapon: 'flame', hp: 6, spd: 1, skill: '燈光爆發', sdesc: '放出光波，擊退敵人並清除敵方光球', cd: 9, detail: '光波半徑約 190，對範圍內敵人造成 2 點傷害並大幅擊退，清除範圍內的敵方光球；施放瞬間短暫無敵，可以打碎護盾影的盾。' },
   { id: 'shield', name: '紙盾衛', role: '護盾近戰', weapon: 'pblade', hp: 4, spd: 1, sh: 3, ach: 10, skill: '盾擊', sdesc: '向前衝撞，擊退並暈眩敵人，護盾瞬間回滿', cd: 10, detail: '擁有 3 點護盾（血量只有 4），受傷先扣護盾；脫離受傷 4 秒後，每秒恢復 0.5 點。盾擊向前衝撞約 150 像素，路徑上的敵人受到 2 點傷害、擊退並暈眩 0.5 秒，護盾立刻回滿。' },
@@ -841,7 +842,10 @@ const MATE_CLS = { lamp: 'lampist', ink: 'inkhunter', bell: 'bellman' };
 const mateOpen = id => !!(rec.mates[id] && rec.mates[id].got);
 const mateChance = id => Math.min(1, 0.5 + 0.25 * ((rec.mates[id] || {}).fails || 0));
 const clsUnlocked = i => !!optUnlock.checked || (CLS[i].ach2 && achCount() >= CLS[i].ach2) || (CLS[i].achId ? !!rec.ach[CLS[i].achId] : CLS[i].mate ? mateOpen(CLS[i].mate) : CLS[i].ach ? achCount() >= CLS[i].ach : (i === 0 || cleared));
-const th = () => run.themes[Math.min(run.layer, 2)];
+const lastL = () => run.long ? 5 : 2;
+const thIdx = () => run.long ? Math.min(2, run.layer >> 1) : Math.min(run.layer, 2);
+const dL = () => run.long ? Math.min(2, (run.layer + 1) >> 1) : run.layer;
+const th = () => run.themes[thIdx()];
 const TNAMES = ['花園', '極地', '提燈洞窟', '中華古代', '深海', '火山', '夢境', '詛咒沼澤', '沙漠'];
 function applyThemePick() {
   const base = (run.themeBase || run.themes).slice(), k = run.themePick;
@@ -852,7 +856,7 @@ const LANTERN_MID = { kind: 'lmid', name: '燈影看守', hp: 120 };
 const POLAR_FINAL = { dragon: { kind: 'dragon', name: '冰龍', hp: 190 }, giant: { kind: 'giant', name: '風雪巨人', hp: 210 } };
 const INKB = { shan: { kind: 'shan', name: '山靈', hp: 120 }, idragon: { kind: 'idragon', name: '水墨龍', hp: 130 }, nian: { kind: 'nian', name: '年獸', hp: 110 } };
 function bossDef(finO) {
-  const t = th(), fin = finO !== undefined ? finO : run.layer === 2;
+  const t = th(), fin = finO !== undefined ? finO : run.long ? (run.layer & 1) === 1 : run.layer === 2;
   if (t === 0) { const b = GARDEN[optGarden.value] || GARDEN[run.gardenKind] || GARDEN.gardener; return fin ? Object.assign({}, b, { hp: Math.round(b.hp * 1.6) }) : b; }
   if (t === 1) return fin ? (POLAR_FINAL[run.polarFinal] || POLAR_FINAL.dragon) : (POLAR[run.polarKind] || BOSS[1]);
   if (t === 8) return fin ? { kind: 'scorpking', name: '巨大蠍王', hp: 195 } : { kind: 'mummyking', name: '木乃伊王', hp: 120 };
@@ -1420,7 +1424,7 @@ function shopless(arr, from) {
 function makeLayerPlan(layer) {
   // 第 1 層：商人＋寶箱；第 2 層：商人＋事件；第 3 層：商人。第 2、3 層有 1/3 機率多 1 間特殊房，
   // 焦點房（事件→商人→寶箱輪流）權重 3、其他各 1；本層出現過焦點房後，焦點換下一種
-  const specials = layer === 0 ? ['merchant', 'treasure'] : layer === 1 ? ['merchant', 'event'] : ['merchant'];
+  const specials = layer === 0 ? ['merchant', 'treasure'] : layer === 1 ? ['merchant', 'event'] : run.long && layer >= 2 ? ['merchant', layer % 2 === 0 ? 'treasure' : 'event'] : ['merchant'];
   const focus = FOCUS[run.focus || 0];
   if (layer > 0 && rand() < 1 / 3) {
     const pool = [focus, focus, focus].concat(FOCUS.filter(k => k !== focus));
@@ -1433,8 +1437,8 @@ function makeLayerPlan(layer) {
   return (layer === 0 ? ['start', 'combat'] : ['combat']).concat(rest).concat(['boss']);
 }
 function scaleFor() {
-  const L = run.layer, ci = room ? room.combatIdx : 0;
-  return { hp: SCALE.hp[L] * (1 + 0.08 * ci), spd: SCALE.spd[L], fire: SCALE.fire[L], bul: SCALE.bul[L] };
+  const L = dL(), ci = room ? room.combatIdx : 0;
+  return { hp: SCALE.hp[L] * (run.long ? 1 + 0.08 * Math.max(0, run.layer - 2) : 1) * (1 + 0.08 * ci), spd: SCALE.spd[L], fire: SCALE.fire[L], bul: SCALE.bul[L] };
 }
 function loadRoom() {
   const kind = run.plan[run.step];
@@ -1455,9 +1459,9 @@ function loadRoom() {
   PAL = PALS[th()]; rec.themesSeen[th()] = 1; if (Object.keys(rec.themesSeen).length >= 4) unlockAch('tour');
   const special = kind === 'treasure' || kind === 'event' || kind === 'merchant' || kind === 'start';
   const kindObs = chase ? 'combat' : kind;
-  room = { variant, big, expl: {}, camInit: false, kind, layer: run.layer, theme: th(), step: run.step, combatIdx, seed: Math.floor(rand() * 1e9), obs: makeObstacles(kindObs), chase: chase ? { t: 20, active: true, killed: 0, n: 0, last: null } : null, wave: -1, delay: 0.9, waves: 1, cleared: special, final: kind === 'boss' && run.layer === 2, bg: null, items: [] };
+  room = { variant, big, expl: {}, camInit: false, kind, layer: run.layer, theme: th(), step: run.step, combatIdx, seed: Math.floor(rand() * 1e9), obs: makeObstacles(kindObs), chase: chase ? { t: 20, active: true, killed: 0, n: 0, last: null } : null, wave: -1, delay: 0.9, waves: 1, cleared: special, final: kind === 'boss' && run.layer === lastL(), bg: null, items: [] };
   if (kind === 'combat') {
-    const pr = [0.25, 0.45, 0.65][run.layer];
+    const pr = [0.25, 0.45, 0.65][dL()];
     room.waves = (combatIdx === 0 && run.layer === 0) ? 2 : (rand() < pr ? 3 : 2);
   }
   room.bg = buildBg(room);
@@ -1622,7 +1626,7 @@ function rushDefeated() {
   return true;
 }
 function startChase() {
-  const n = 7 + run.layer; room.chase.n = n;
+  const n = 7 + dL(); room.chase.n = n;
   for (let i = 0; i < n; i++) {
     let sp = null;
     for (let t = 0; t < 60 && !sp; t++) {
@@ -1666,7 +1670,7 @@ function updateChase(dt) {
 }
 function newRun() {
   resetPlayer(); follow = true; fEdge = 0; hudSig = ''; parts = [];
-  run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
+  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
   for (const w of p.weapons) rec.seenW[w] = 1;
   allies = [];
   { let t = cleared ? shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8]).slice(0, 3) : [0, 1, 2];
@@ -1744,6 +1748,7 @@ function itemInfo(it) {
   if (it.kind === 'switch') return { name: '電燈開關', desc: room.lampOn ? '燈開著，整個房間都亮。關掉就回到提燈的視野' : '開燈後，這個房間的可見範圍不受限制' };
   if (it.kind === 'npc') return { name: NPCS[it.id].name, desc: NPCS[it.id].desc + '。血量 ' + NPCS[it.id].hp + '，倒下後清空房間會站起來' };
   if (it.kind === 'ward') return { name: '護身符', desc: '小商人的小物：8 秒內擋下一次傷害（每兩次攻擊擋一次）' };
+  if (it.kind === 'restock') return { name: '空位', desc: '付 1 燈芯請商人補上新商品；也可以直接用換貨架重新抽選全部商品' };
   if (it.kind === 'refresh') return { name: '換貨架', desc: '付費重新抽選三格商品（含燈油）；每刷新一次，價格 +2 燈芯' };
   if (it.kind === 'upgrade' && it.prem) return { name: '★精良　' + PREM[it.id].name, desc: PREM[it.id].desc };
   if (it.kind === 'weapon') { const w = WDEF[it.id]; return { name: w.name + '（' + w.tag + '）', desc: w.desc }; }
@@ -1829,6 +1834,10 @@ function interact(it) {
   }
   if (it.group === 'hpshop') { if (p.hp <= it.hpPrice) { toast('血量不夠，不能用燈火買', 2); sfx('tick'); return; } p.hp -= it.hpPrice; run.bought++; hudSig = ''; toast('用 ' + it.hpPrice + ' 點燈火換走了', 2); }
   if ((it.group === 'shop' || it.group === 'stall') && p.coins < cost(it)) { toast('燈芯不夠'); sfx('tick'); return; }
+  if (it.kind === 'restock') {
+    const cr = cost(it); p.coins -= cr; paid(cr); const idx = room.items.indexOf(it), ni = makeItem(it.slot, it.x, it.y, 'shop', it.id);
+    if (idx >= 0) room.items[idx] = ni; burst(ni.x, ni.y, 8, [C.paper, C.amber], 90, true); toast('商人補上了新商品'); sfx('pick'); hudSig = ''; return;
+  }
   if (it.kind === 'refresh') { const cr = cost(it); p.coins -= cr; paid(cr); refreshShop(it); toast('商品換新了'); sfx('pick'); hudSig = ''; return; }
   if (it.kind === 'heal' && p.hp >= p.maxHp) { toast('血量已經滿了'); sfx('tick'); return; }
   if (it.kind === 'coins') { p.coins += it.amount; toast('燈芯 +' + it.amount); }
@@ -1841,7 +1850,7 @@ function interact(it) {
   if (it.group === 'shop') {
     const cs = cost(it); p.coins -= cs; paid(cs); run.bought++;
     const idx = room.items.indexOf(it);
-    if (idx >= 0 && !it.temp) { const ni = makeItem(it.slot, it.x, it.y, 'shop', it.id); room.items[idx] = ni; burst(ni.x, ni.y, 8, [C.paper, C.amber], 90, true); }
+    if (idx >= 0 && !it.temp) room.items[idx] = { kind: 'restock', id: 'restock', slot: it.slot, x: it.x, y: it.y, price: 1, group: 'shop', taken: false };
   }
   if (it.group === 'choose') for (const o of room.items) if (!o.taken) {
     o.taken = true;
@@ -1902,7 +1911,7 @@ function updateHint() {
     else if (it.kind === 'ding') act = it.used ? '' : 'F 觸摸古鼎';
     else if (it.kind === 'well') act = it.dry ? '池水已經乾涸' : (it.id === 'grand' ? (it.n >= 5 ? '池水平靜了' : 'F 投入 ' + (5 * (it.n + 1)) + ' 燈芯（第 ' + (it.n + 1) + ' / 5 次）') : (it.n >= 6 ? '池水平靜了' : 'F 投入 4 燈芯（第 ' + (it.n + 1) + ' / 6 次）')) + (!it.dry && it.n < (it.id === 'grand' ? 5 : 6) && p.coins < (it.id === 'grand' ? 5 * (it.n + 1) : 4) ? '（燈芯不夠）' : '');
     else if (it.kind === 'weapon') act = p.weapons.length < 3 ? 'F 拿取' : 'F 取代手上的「' + WDEF[p.weapons[p.w]].name + '」';
-    else act = it.kind === 'tutsw' ? (rec.tutOff ? 'F 開啟教學' : 'F 關閉教學') : it.kind === 'noshop' ? (run.noShop ? 'F 取下木牌' : 'F 掛上木牌') : it.kind === 'switch' ? (room.lampOn ? 'F 關燈' : 'F 開燈') : it.kind === 'npc' ? 'F 邀請同行（隊伍 ' + allies.length + ' / 2）' : it.kind === 'refresh' ? 'F 刷新全部商品' : it.kind === 'heal' ? 'F 喝下' : 'F 拿取';
+    else act = it.kind === 'tutsw' ? (rec.tutOff ? 'F 開啟教學' : 'F 關閉教學') : it.kind === 'noshop' ? (run.noShop ? 'F 取下木牌' : 'F 掛上木牌') : it.kind === 'switch' ? (room.lampOn ? 'F 關燈' : 'F 開燈') : it.kind === 'npc' ? 'F 邀請同行（隊伍 ' + allies.length + ' / 2）' : it.kind === 'refresh' ? 'F 刷新全部商品' : it.kind === 'restock' ? 'F 補貨' : it.kind === 'heal' ? 'F 喝下' : 'F 拿取';
     if (it.group === 'shop' || it.group === 'stall') act += '　' + cost(it) + ' 燈芯' + (p.coins < cost(it) ? '（不夠）' : '');
     if (it.group === 'hpshop') act += '　' + it.hpPrice + ' 燈火（血量）' + (p.hp <= it.hpPrice ? '（血量不夠）' : '');
     if (it.group === 'choose') act += '　只能選一樣';
@@ -2151,7 +2160,8 @@ function updateBossBar() {
   const b = enemies.find(e => e.type === 'boss');
   $('boss').classList.toggle('show', !!b);
   if (b) {
-    $('bossName').textContent = bossDef().name + (b.weak > 0 ? '　破綻！' : '');
+    $('bossName').textContent = bossDef().name + (b.p2 ? '　第二形態' : '') + (b.weak > 0 ? '　破綻！' : '');
+    $('bossFill').style.background = b.p2 ? '#a24bd6' : '';
     let frac = b.hp / b.maxHp;
     if (b.layers) frac = (b.layers.reduce((a, l) => a + l.hp, 0) + b.hp) / (b.layerMax + b.maxHp);
     if (room.timed && room.timed.on) $('bossName').textContent += '　限時 ' + Math.ceil(room.timed.t) + ' 秒';
@@ -2163,7 +2173,7 @@ function show(id, on) { $(id).hidden = !on; }
 
 /* ---------- run flow ---------- */
 function renderClasses() {
-  const el = $('classes'); if (!el) return; refreshGuide();
+  const el = $('classes'); if (!el) return; refreshGuide(); $('lblLong').hidden = !(cleared || optUnlock.checked);
   el.innerHTML = CLS.map((c, i) => {
     const ok = clsUnlocked(i), sel = i === chosen;
     return '<button type="button" class="cls' + (sel ? ' sel' : '') + (ok ? '' : ' lock') + '" data-i="' + i + '"><b>' + c.name + (ok ? '' : '（未解鎖）') + '</b></button>';
@@ -2282,7 +2292,7 @@ function updateFade(dt) {
 }
 function bossIntroLines() {
   const k = bossDef().kind;
-  if (run.layer === 2 && th() === 2) return STORY.bossIntro.concat(STORY.bossIntroV[k === 'final' ? 'keeper' : k] || []);
+  if (run.layer === lastL() && th() === 2) return STORY.bossIntro.concat(STORY.bossIntroV[k === 'final' ? 'keeper' : k] || []);
   return STORY.bossTalk[k] || STORY.gardenIntro[k] || STORY.midIntro[1];
 }
 /* ---------- 存檔：每層一個存檔點 ---------- */
@@ -2344,7 +2354,7 @@ function saveFile(name, txt, okMsg) {
 function exportSave() { saveFile('lamp-knight-record.json', JSON.stringify({ t: 'record', v: 1, ts: Date.now(), rec }), '已匯出遊玩紀錄（成就、統計等）'); }
 function leaveMidway() {
   if (state !== 'pause') return;
-  const done = run.layer, thN = Math.min(run.layer, 2) + 1;
+  const done = run.layer, thN = thIdx() + 1;
   const d = { t: 'progress', v: 1, ts: Date.now(), cls: CLS[p.cls].name, layersCompleted: done, currentLayer: run.layer + 1, room: (run.step + 1) + '/' + run.plan.length, themes: run.themes.slice(0, thN).map(k => TNAMES[k]), seconds: Math.round(run.t), kills: run.kills, weapons: p.weapons.map(id => WDEF[id].name), hp: p.hp + '/' + p.maxHp };
   saveFile('lamp-knight-progress.json', JSON.stringify(d, null, 1), '已匯出：完成第 ' + done + ' 層探索（存檔仍保留，可從選單「繼續上次存檔」接著玩）');
   show('pause', false); toMenu();
@@ -2385,7 +2395,7 @@ function goNext() {
     if (p.roomCd > 0) { p.roomCd--; hudSig = ''; }
     if (layerChanged) writeSave();
     const lines = [];
-    if (layerChanged && STORY.layerIntro[run.layer]) lines.push(STORY.layerIntro[run.layer]);
+    if (layerChanged && (!run.long || !(run.layer & 1)) && STORY.layerIntro[run.long ? run.layer >> 1 : run.layer]) lines.push(STORY.layerIntro[run.long ? run.layer >> 1 : run.layer]);
     if (room.kind === 'boss') for (const l of bossIntroLines()) lines.push(l);
     if (lines.length) say(lines, announceRoom); else announceRoom();
   });
@@ -2447,6 +2457,7 @@ function recBoss() {
 function bossDefeated() {
   recBoss(); if ((run.frz || 0) >= 5) unlockAch('calm');
   bullets = []; room.cleared = true; toast(bossDef().name + '倒下了'); clearAdds(); if (th() === 7) { if (run.poolHitL !== run.layer) unlockAch('swampWalk'); if (p.curse >= 3) unlockAch('purifier'); }
+  if (run.long) { rec.longClears = (rec.longClears || 0) + 1; saveRec(); }
   if (!room.hurt) unlockAch('flawless'); endRun(true);
   if (!cleared) { cleared = true; try { localStorage.setItem('lampknight.cleared', '1'); } catch (e) { /* storage is optional */ } }
   later(1.8, () => say(th() === 2 ? STORY.bossEnd : (STORY.bossDown[bossDef().kind] || []).concat([{ who: '旁白', text: '最深處的光靜靜等著，要由你決定它的去向。' }]), () => { show('choice', true); setState('choice'); }));
@@ -2582,6 +2593,7 @@ function sleepBurst(e, nx, ny) {
 }
 function hitEnemy(e, dmg, dx, dy, kb, melee) {
   if (e.spawn > 0 || e.dead || e.burrow) return false;
+  if (e.p2T > 0) { burst(e.x, e.y, 2, ['#ff6a5a'], 60, true); return true; }
   if (e.rev > 0) return false;
   if (e.type === 'ghost' && !ghostLit(e)) {
     if (run.t - (e.passAt || -9) > 0.35) { e.passAt = run.t; burst(e.x, e.y, 3, ['#ffffff'], 60, true); }
@@ -2632,8 +2644,14 @@ function dropCoins(x, y, n) {
   for (let i = 0; i < n; i++) { const a = rand() * TAU, s = rr(40, 130); pickups.push({ kind: 'coin', x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, t: 0 }); }
 }
 let killKind = null;
+function bossPhase2(e) {
+  e.p2 = true; e.p2T = 1.5; e.hp = Math.round(e.maxHp * 0.5); e.spd = (e.spd || 1) * 1.15; e.p2Ring = 4;
+  bullets = []; clearAdds(); burst(e.x, e.y, 50, ['#ff6a5a', '#2a1a2e', C.paper], 280, true); sfx('kill'); shake = Math.max(shake, 10);
+  rings.push({ x: e.x, y: e.y, R: 220, t: 0.6, dur: 0.6 }); toast(bossDef().name + '：還沒結束……（第二形態）', 2.6);
+}
 function killEnemy(e) {
   const boss = e.type === 'boss';
+  if (boss && run.long && run.layer >= 3 && !e.p2 && e.kind !== 'split' && !room.rush) { bossPhase2(e); return; }
   if (e.type === 'duster') { room.sw = room.sw || []; room.sw.push({ x: e.x, y: e.y, r: 50, k: 'quick', ttl: 5 }); burst(e.x, e.y, 12, ['#e3c995', '#b08a52'], 120, true); }
   if (e.type === 'spore') { room.sw = room.sw || []; room.sw.push({ x: e.x, y: e.y, r: 50, k: 'pool', ttl: 4, cloud: true }); burst(e.x, e.y, 14, ['#b8e07a', '#7a5ab0'], 120, true); }
   if (e.type === 'lavaslime') { hazards.push({ x: e.x, y: e.y, r: 56, t: 2.6 }); burst(e.x, e.y, 10, ['#ee6a3c', '#ffd27a'], 150, true); }
@@ -2658,11 +2676,12 @@ function killEnemy(e) {
   if (run.kills % 10 === 0 && Object.keys(rec.kills).reduce((a, k) => a + rec.kills[k], 0) >= 500) unlockAch('kill500');
   burst(e.x, e.y, boss ? 70 : 16, [C.paper, C.amber, '#6b5d96', C.dark], boss ? 300 : 200, boss); sfx('kill'); shake = Math.max(shake, boss ? 14 : 3);
   if (boss) {
-    dropCoins(e.x, e.y, e.kind === 'split' ? 3 : 10);
+    dropCoins(e.x, e.y, (e.kind === 'split' ? 3 : 10) + (e.p2 ? 2 : 0));
     if (room.rush) rushDefeated();
     else if (room.final) { if (!enemies.some(o => o !== e && !o.dead && o.type === 'boss')) bossDefeated(); }
     else midBossDefeated();
   } else {
+    if (e.elite) dropCoins(e.x, e.y, 1);
     if ((e.type === 'splitter' && !(e.gen > 0)) || e.type === 'splitter2') {
       for (const sgn of [-1, 1]) {
         const c = spawnEnemy('splitter', clamp(e.x + sgn * 18, ROOM.x + 20, ROOM.x + ROOM.w - 20), e.y); c.gen = 1; c.r = 10; c.hp = c.maxHp = Math.max(2, Math.round(e.maxHp * (e.type === 'splitter2' ? 0.35 : 0.4))); c.spawn = 0.3; c.kx = sgn * 160;
@@ -2773,7 +2792,7 @@ function zoneSpot(z, r) {
 }
 function wakeGroup(g) { for (const e of enemies) if (e.sleep && e.grp === g) { e.sleep = false; e.cd = rr(0.9, 1.6) * e.fire; burst(e.x, e.y - e.r, 4, [C.amber, C.paper], 90); } }
 function composeWave() {
-  const L = run.layer, ci = room.combatIdx, wn = room.wave;
+  const L = dL(), ci = room.combatIdx, wn = room.wave;
   let budget = Math.min(18, Math.round((3 + L * 2 + ci + wn) * 1.5));
   let types = ['crawler']; if (L > 0 || ci >= 1) types.push('shooter'); if (L > 0 || ci >= 2) { types.push('brute'); types.push('splitter'); }
   if (th() === 0) { types.push('budling'); if (ci >= 1) types.push('moth'); if (ci >= 2) types.push('vine'); }
@@ -2820,6 +2839,7 @@ function spawnWave() {
     for (const t of list.slice(i, i + n)) {
       const sp = zoneSpot(z, ENEMY[t].r) || freeSpot(ENEMY[t].r), e = spawnEnemy(t, sp.x, sp.y);
       e.grp = g; e.zone = z; if (gi > 0) { e.sleep = true; sleepers++; }
+      if (run.long && run.layer >= 2 && rand() < Math.min(0.25, 0.1 + 0.05 * (run.layer - 2))) { e.elite = true; e.hp = e.maxHp = e.hp * 2; e.r *= 1.4; }
     }
     i += n; gi++;
   }
@@ -2827,7 +2847,7 @@ function spawnWave() {
 }
 function revealFake() {
   room.fakeDone = true; room.cleared = false; room.mimic = true; room.lockMsg = '假貨都倒下了';
-  for (const o of room.items) if (o.group === 'shop' && !o.taken) { o.taken = true; const m = spawnEnemy('goodsmon', o.x, o.y + 10); m.spawn = 0.8; burst(o.x, o.y, 12, [C.violet, C.amber], 170, true); }
+  for (const o of room.items) if (o.group === 'shop' && !o.taken && o.kind !== 'restock') { o.taken = true; const m = spawnEnemy('goodsmon', o.x, o.y + 10); m.spawn = 0.8; burst(o.x, o.y, 12, [C.violet, C.amber], 170, true); }
   const fm = spawnEnemy('fakemerch', ROOM.x + ROOM.w / 2, ROOM.y + 100); fm.spawn = 0.9; burst(fm.x, fm.y, 24, [C.violet, C.ember, C.paper], 230, true);
   shake = Math.max(shake, 9); sfx('kill'); toast('商人……露出了獠牙！是偽商人！', 2.8);
 }
@@ -3099,7 +3119,7 @@ function updateEnemy(e, dt) {
       if (e.tele > 0) {
         e.tele -= dt;
         if (e.tele <= 0) {
-          const n = 3 + (run.layer >= 1 ? 1 : 0) + (run.layer >= 2 ? 1 : 0), a0 = Math.atan2(dy, dx), fan = { hit: false, t0: run.t, done: false }; (room.fans = room.fans || []).push(fan);
+          const n = 3 + (dL() >= 1 ? 1 : 0) + (dL() >= 2 ? 1 : 0), a0 = Math.atan2(dy, dx), fan = { hit: false, t0: run.t, done: false }; (room.fans = room.fans || []).push(fan);
           for (let i = 0; i < n; i++) { const b = enemyShot(e, a0 + (i - (n - 1) / 2) * (0.7 / Math.max(1, n - 1)), 150); b.fan = fan; if (e.type === 'icecluster') b.frz = true; }
           sfx('hit'); e.cd = rr(2.2, 3.0) * e.fire;
         }
@@ -3199,7 +3219,13 @@ function updateEnemy(e, dt) {
       const fl = Math.hypot(fx, fy) || 1, v = (d < 150 ? 215 : 190);
       mx = fx / fl * v; my = fy / fl * v; touch = 0; break;
     }
-    case 'boss': updateBoss(e, dt, nx, ny, d); mx = e.mx || 0; my = e.my || 0; break;
+    case 'boss':
+      if (e.p2T > 0) { e.p2T -= dt; e.mx = e.my = 0; }
+      else {
+        updateBoss(e, e.p2 ? dt * 1.2 : dt, nx, ny, d);
+        if (e.p2) { e.p2Ring -= dt; if (e.p2Ring <= 0) { e.p2Ring = 5; const a0 = rand() * TAU; for (let i = 0; i < 14; i++) bossShot(e, e.x, e.y, a0 + i * TAU / 14, 135 * (run.layer >= 4 ? 1.1 : 1), false, 7); rings.push({ x: e.x, y: e.y, R: 90, t: 0.4, dur: 0.4 }); } }
+      }
+      mx = e.mx || 0; my = e.my || 0; break;
   }
   if (e.dead) return;
   if (lured && d < 24) { mx = 0; my = 0; }
@@ -3770,7 +3796,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.25　手機版：橫向握持效果最佳' : '可玩原型 v2.25　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.26　手機版：橫向握持效果最佳' : '可玩原型 v2.26　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch();
@@ -4270,6 +4296,7 @@ function drawItem(it) {
   ctx.translate(0, bob - 8);
   setShadow(ctx, 1.5, 2, 0);
   if (it.kind === 'weapon') { ctx.fillStyle = WCOL[it.id]; star4(ctx, 0, 0, 15, time * 0.6); noShadow(ctx); ctx.fillStyle = C.paper; circ(ctx, 0, 0, 4); }
+  else if (it.kind === 'restock') { ctx.strokeStyle = C.paperDim; ctx.lineWidth = 3; ctx.setLineDash([5, 4]); ctx.strokeRect(-12, -12, 24, 24); ctx.setLineDash([]); ctx.fillStyle = C.amber; ctx.fillRect(-1.5, -7, 3, 14); ctx.fillRect(-7, -1.5, 14, 3); noShadow(ctx); }
   else if (it.kind === 'refresh') { ctx.strokeStyle = C.paper; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(0, 0, 11, 0.4, 4.4); ctx.stroke(); ctx.fillStyle = C.amber; poly(ctx, [[8, -12], [16, -2], [3, -2]]); noShadow(ctx); }
   else if (it.kind === 'coins') { ctx.fillStyle = '#7a4b2a'; rrect(ctx, -11, -8, 22, 20, 6); ctx.fillStyle = C.amber; circ(ctx, 0, 2, 6); ctx.fillStyle = '#ffd98a'; circ(ctx, 0, 2, 3.4); ctx.fillStyle = '#955a30'; rrect(ctx, -8, -13, 16, 6, 3); noShadow(ctx); }
   else if (it.kind === 'upgrade') { if (it.prem) { ctx.fillStyle = '#ffd98a'; ctx.rotate(Math.PI / 4); rrect(ctx, -14, -14, 28, 28, 4); ctx.rotate(-Math.PI / 4); ctx.globalAlpha = 0.5 + 0.3 * Math.sin(time * 5); star4(ctx, 0, -22, 6, time); ctx.globalAlpha = 1; } ctx.fillStyle = C.amber; ctx.rotate(Math.PI / 4); rrect(ctx, -9, -9, 18, 18, 3); ctx.rotate(-Math.PI / 4); noShadow(ctx); ctx.fillStyle = C.paper; circ(ctx, 0, 0, 3.5); }
@@ -4405,6 +4432,8 @@ function drawGardenMark(e) {
   ctx.restore();
 }
 function drawEnemy(e) {
+  if (e.p2 && !e.dead) { ctx.save(); ctx.translate(e.x, e.y); ctx.strokeStyle = 'rgba(255,90,80,' + (0.45 + 0.25 * Math.sin(time * 6)) + ')'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(0, 0, e.r + 10, 0, TAU); ctx.stroke(); for (let i = 0; i < 6; i++) { const a = time * 1.6 + i * TAU / 6; ctx.fillStyle = i % 2 ? '#ff6a5a' : C.paper; ctx.fillRect(Math.cos(a) * (e.r + 18) - 3, Math.sin(a) * (e.r + 18) - 3, 6, 6); } ctx.restore(); }
+  if (e.elite && !e.dead) { ctx.save(); ctx.translate(e.x, e.y); ctx.strokeStyle = 'rgba(255,214,110,' + (0.6 + 0.25 * Math.sin(time * 5 + e.seed)) + ')'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, e.r * 0.2, e.r + 5, 0, TAU); ctx.stroke(); ctx.restore(); }
   const k = e.spawn > 0 ? 1 - e.spawn / (e.type === 'boss' ? 1.4 : 0.7) : 1;
   ctx.save(); ctx.translate(e.x, e.y);
   ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0, e.r * 0.9, e.r * 0.9, e.r * 0.35, 0, 0, TAU); ctx.fill();
