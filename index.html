@@ -544,7 +544,7 @@ const PREM = {
 };
 const PREM_CHANCE = { shop: 0.35, treasure: 0.25, event: 0.15 };
 const upN = id => p.upg[id] || 0;
-const cost = it => { const b = it.price; if (!b || (it.group !== 'shop' && it.group !== 'stall')) return b; return CLS[p.cls].id === 'shopc' ? Math.max(1, b - 4 - (upN('c_shop') >= 1 ? 1 : 0)) : b; };
+const cost = it => { const b = it.price; if (!b || (it.group !== 'shop' && it.group !== 'stall')) return b; return CLS[p.cls].id === 'shopc' ? Math.max(it.kind === 'heal' ? 2 : 1, b - 4 - (upN('c_shop') >= 1 ? 1 : 0)) : b; };
 function paid(n) { if (room.kind !== 'merchant') return; rec.spent = (rec.spent || 0) + n; saveRec(); if (rec.spent >= 50) unlockAch('bizBoom'); }
 const slpOn = () => p.sleepT > 0;
 const slpSpd = () => (slpOn() ? (upN('c_slp') >= 1 ? 0.52 : 0.4) : 1) * (inMud() ? 0.7 : 1) * (inQuick() ? 0.5 : 1);
@@ -1813,8 +1813,8 @@ function interact(it) {
     if (it.used) { toast('箱子已經空了', 1.2); return; }
     it.used = true; sfx('pick'); burst(it.x, it.y - 20, 30, ['#ffe08a', C.amber, '#fff6d8', C.violet], 230, true); shake = Math.max(shake, 4);
     const roll = rand() * 100;
-    if (roll < 30) { const w = weaponOffer(shelfIds('weapon')); if (w) { giveWeapon(w); toast('「？」打開了：武器「' + WDEF[w].name + '」', 2.4); } else { p.coins += 15; toast('「？」打開了：燈芯 +15', 2.2); } }
-    else if (roll < 58) { const uid = upgradeOffer(shelfIds('upgrade')) || 'oil'; applyUpgrade(uid, false); toast('「？」打開了：強化「' + UPG[uid].name + '」', 2.4); }
+    if (roll < 28) { const w = weaponOffer(shelfIds('weapon')); if (w) { giveWeapon(w); toast('「？」打開了：武器「' + WDEF[w].name + '」', 2.4); } else { p.coins += 15; toast('「？」打開了：燈芯 +15', 2.2); } }
+    else if (roll < 53) { const uid = upgradeOffer(shelfIds('upgrade')) || 'oil'; applyUpgrade(uid, false); toast('「？」打開了：強化「' + UPG[uid].name + '」', 2.4); }
     else if (roll < 78) { const uid = upgradeOffer(shelfIds('upgrade'), true) || upgradeOffer(shelfIds('upgrade')) || 'oil'; applyUpgrade(uid, premOk(uid)); toast('「？」打開了：精良強化「' + UPG[uid].name + '」', 2.6); }
     else if (roll < 90) { const n = 12 + Math.floor(rand() * 9); p.coins += n; toast('「？」打開了：燈芯 +' + n, 2.2); }
     else { healP(3); toast('「？」打開了：燈火 +3', 2.2); }
@@ -2512,7 +2512,7 @@ function attack() {
   else if (wid === 'ember') { shoot(ox, oy, ang + (rand() - .5) * 0.14, 540, 6, 2 * dm, 'ember', 1.1); sfx('fly'); }
   else if (wid === 'scatter') { for (let k = -2; k <= 2; k++) shoot(ox, oy, ang + k * 0.16 + (rand() - .5) * 0.05, 580, 5, 2 * dm, 'pellet', 0.5); sfx('flame'); }
   else if (wid === 'lance') { shoot(ox, oy, ang, 780, 6, 7 * dm * pd, 'lance', 0.8, true); sfx('blade'); }
-  else if (wid === 'scim') { const b = shoot(ox, oy, ang, 500, 11, 3 * dm * pd, 'rang', 9, true); b.t = 0; b.tOut = 0.55 * rm; b.back = false; b.rot = 0; b.curve = (rand() < 0.5 ? 1 : -1); sfx('blade'); }
+  else if (wid === 'scim') { const b = shoot(ox, oy, ang, 500, 11, 3.5 * dm * pd, 'rang', 9, true); b.t = 0; b.tOut = 0.55 * rm; b.back = false; b.rot = 0; b.curve = (rand() < 0.5 ? 1 : -1); sfx('blade'); }
   else if (wid === 'rang') { const b = shoot(ox, oy, ang, 520, 10, 3.5 * dm * pd, 'rang', 9, true); b.t = 0; b.tOut = 0.5 * rm; b.back = false; b.rot = 0; sfx('blade'); }
   else if (wid === 'whip') {
     const len = 230 * rm, wd = 34, x0 = p.x, y0 = p.y - 4;
