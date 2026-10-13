@@ -72,6 +72,10 @@ body.mobile .bar{display:none}
 .arc .toast{background:rgba(10,10,36,.92);color:#7df9ff;padding:.5cqw 1.8cqw;border:.25cqw solid #ff4fd8;text-shadow:none}
 .arc .pill{background:#0a0a24;color:#b4b8ff}
 .arc .pill.dim{color:#ffd23f;font-weight:700}
+.fut .toast{background:rgba(11,6,38,.92);color:#6ff3ff;padding:.5cqw 1.8cqw;border:.2cqw solid #00e5ff;border-radius:.6cqw;text-shadow:none}
+.fut .pill{background:#0b0626;color:#b9c4ff}
+.fut .pill.dim{color:#ff7ac0;font-weight:700}
+.fut .hint{background:#0b0626;color:#fff}
 @keyframes toast{0%{opacity:0;transform:translate(-50%,.8cqw)}12%{opacity:1;transform:translate(-50%,0)}75%{opacity:1}100%{opacity:0}}
 
 .dialog{position:absolute;left:8cqw;right:8cqw;bottom:5.5cqw;background:var(--paper);color:#2a2236;padding:1.8cqw 2.6cqw 1.6cqw;box-shadow:.5cqw .7cqw 0 rgba(0,0,0,.55);cursor:pointer;transform:rotate(-.35deg)}
@@ -321,7 +325,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.41　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.42　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -527,7 +531,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
         <label for="optSound"><input type="checkbox" id="optSound" checked><span>音效</span></label>
         <label for="optUnlock"><input type="checkbox" id="optUnlock"><span>測試用：解鎖全部職業（正式規則：首次通關後才能選其他職業）</span></label>
         <label for="optNpc"><input type="checkbox" id="optNpc"><span>測試用：第 2、3 層一定有事件房（事件房才會遇到可邀請的隊友）</span></label>
-        <label for="optTheme"><span>測試用：最後一層的主題　<select id="optTheme"><option value="auto">自動</option><option value="0">花園</option><option value="1">極地</option><option value="2">提燈洞窟</option><option value="4">深海（部分）</option><option value="5">火山（部分）</option><option value="6">夢境（部分）</option><option value="7">詛咒沼澤</option><option value="8">沙漠（部分）</option><option value="3">中華古代</option><option value="9">糖果世界（DLC）</option><option value="10">電玩世界（DLC）</option></select></span></label>
+        <label for="optTheme"><span>測試用：最後一層的主題　<select id="optTheme"><option value="auto">自動</option><option value="0">花園</option><option value="1">極地</option><option value="2">提燈洞窟</option><option value="4">深海（部分）</option><option value="5">火山（部分）</option><option value="6">夢境（部分）</option><option value="7">詛咒沼澤</option><option value="8">沙漠（部分）</option><option value="3">中華古代</option><option value="9">糖果世界（DLC）</option><option value="10">電玩世界（DLC）</option><option value="11">未來世界（DLC）</option></select></span></label>
         <label for="optGarden"><span>測試用：第 1 層（花園）的 Boss　<select id="optGarden"><option value="auto">自動（首次通關前固定荊棘園丁，之後隨機）</option><option value="gardener">荊棘園丁</option><option value="bloom">巨花</option><option value="hive">蟲群母巢</option></select></span></label>
         <label for="optBoss"><span>測試用：第 3 層的最終 Boss　<select id="optBoss"><option value="auto">自動（首次通關前固定守燈人，之後隨機）</option><option value="keeper">守燈人</option><option value="split">分裂守燈人</option><option value="summon">召喚守燈人</option></select></span></label>
       </div>
@@ -572,7 +576,8 @@ const PALS = [
   { ink: '#0c140f', floor: '#2f4033', floor2: '#394c3a', wall1: '#2d3a2a', wall2: '#455a3b', top: '#9fb86a', door: '#6b5b8a' },
   { ink: '#2a1c10', floor: '#d9bd86', floor2: '#e3c995', wall1: '#b08a52', wall2: '#c9a066', top: '#f0dca8', door: '#8e5a32' },
   { ink: '#7a4a86', floor: '#ffe6f0', floor2: '#ffd3e6', wall1: '#ff9ec7', wall2: '#ffc4de', top: '#fff2f8', door: '#c77dff' },
-  { ink: '#12123a', floor: '#2f5f9a', floor2: '#3b73b8', wall1: '#3a3a8c', wall2: '#6a6ae0', top: '#b4b8ff', door: '#ffd23f' }
+  { ink: '#12123a', floor: '#2f5f9a', floor2: '#3b73b8', wall1: '#3a3a8c', wall2: '#6a6ae0', top: '#b4b8ff', door: '#ffd23f' },
+  { ink: '#150b36', floor: '#27346b', floor2: '#303f82', wall1: '#4b2a92', wall2: '#8146e0', top: '#6ff3ff', door: '#ff2e97' }
 ];
 let PAL = PALS[0];
 
@@ -719,7 +724,7 @@ const clsOk = i => !UPG[i].cls || UPG[i].cls === CLS[p.cls].id;
 const reachMul = () => 1 + 0.2 * upN('reach');
 const bigMul = () => 1 + 0.25 * upN('big');
 const pierceDmg = () => 1 + 0.15 * upN('pierce');
-const ENEMY = { crawler: { hp: 4, r: 13 }, shooter: { hp: 5, r: 14 }, brute: { hp: 15, r: 20 }, splitter: { hp: 8, r: 16 }, splitter2: { hp: 14, r: 19 }, bomber: { hp: 6, r: 14 }, shield: { hp: 10, r: 18 }, shield2: { hp: 7, r: 15 }, summoner: { hp: 8, r: 15 }, boss: { hp: 100, r: 36 }, budling: { hp: 12, r: 17 }, moth: { hp: 5, r: 12 }, vine: { hp: 7, r: 14 }, fleer: { hp: 5, r: 13 }, frostneedle: { hp: 5, r: 13 }, snowball: { hp: 9, r: 17 }, snowlet: { hp: 2, r: 10 }, mist: { hp: 8, r: 15 }, mimic: { hp: 10, r: 17 }, icecluster: { hp: 9, r: 15 }, crane: { hp: 7, r: 14 }, goodsmon: { hp: 6, r: 13 }, fakemerch: { hp: 28, r: 18 }, blindbomb: { hp: 6, r: 14 }, bloater: { hp: 7, r: 15 }, blindshark: { hp: 14, r: 20 }, sparker: { hp: 6, r: 13 }, lavaslime: { hp: 8, r: 16 }, lizard: { hp: 9, r: 15 }, firebat: { hp: 4, r: 11 }, ifrit: { hp: 16, r: 22 }, emberling: { hp: 2, r: 9 }, flion: { hp: 15, r: 20 }, lavaworm: { hp: 7, r: 13 }, fireelem: { hp: 8, r: 15 }, firebird: { hp: 3, r: 11 }, trenchghost: { hp: 8, r: 13 }, abyss: { hp: 18, r: 22 }, deepworm: { hp: 16, r: 17 }, wormlet: { hp: 3, r: 10 }, faceless: { hp: 7, r: 15 }, rusher: { hp: 3, r: 12 }, mirrorman: { hp: 12, r: 17 }, ghost: { hp: 7, r: 14 }, sleepwalker: { hp: 6, r: 14 }, wisp: { hp: 6, r: 13 }, jumper: { hp: 9, r: 15 }, spore: { hp: 5, r: 14 }, scorpion: { hp: 8, r: 14 }, mummy: { hp: 12, r: 16 }, bandit: { hp: 7, r: 14 }, duster: { hp: 6, r: 13 }, cactus: { hp: 10, r: 15 }, syrup: { hp: 9, r: 15 }, roller: { hp: 10, r: 15 }, glitch: { hp: 8, r: 14 } };
+const ENEMY = { crawler: { hp: 4, r: 13 }, shooter: { hp: 5, r: 14 }, brute: { hp: 15, r: 20 }, splitter: { hp: 8, r: 16 }, splitter2: { hp: 14, r: 19 }, bomber: { hp: 6, r: 14 }, shield: { hp: 10, r: 18 }, shield2: { hp: 7, r: 15 }, summoner: { hp: 8, r: 15 }, boss: { hp: 100, r: 36 }, budling: { hp: 12, r: 17 }, moth: { hp: 5, r: 12 }, vine: { hp: 7, r: 14 }, fleer: { hp: 5, r: 13 }, frostneedle: { hp: 5, r: 13 }, snowball: { hp: 9, r: 17 }, snowlet: { hp: 2, r: 10 }, mist: { hp: 8, r: 15 }, mimic: { hp: 10, r: 17 }, icecluster: { hp: 9, r: 15 }, crane: { hp: 7, r: 14 }, goodsmon: { hp: 6, r: 13 }, fakemerch: { hp: 28, r: 18 }, blindbomb: { hp: 6, r: 14 }, bloater: { hp: 7, r: 15 }, blindshark: { hp: 14, r: 20 }, sparker: { hp: 6, r: 13 }, lavaslime: { hp: 8, r: 16 }, lizard: { hp: 9, r: 15 }, firebat: { hp: 4, r: 11 }, ifrit: { hp: 16, r: 22 }, emberling: { hp: 2, r: 9 }, flion: { hp: 15, r: 20 }, lavaworm: { hp: 7, r: 13 }, fireelem: { hp: 8, r: 15 }, firebird: { hp: 3, r: 11 }, trenchghost: { hp: 8, r: 13 }, abyss: { hp: 18, r: 22 }, deepworm: { hp: 16, r: 17 }, wormlet: { hp: 3, r: 10 }, faceless: { hp: 7, r: 15 }, rusher: { hp: 3, r: 12 }, mirrorman: { hp: 12, r: 17 }, ghost: { hp: 7, r: 14 }, sleepwalker: { hp: 6, r: 14 }, wisp: { hp: 6, r: 13 }, jumper: { hp: 9, r: 15 }, spore: { hp: 5, r: 14 }, scorpion: { hp: 8, r: 14 }, mummy: { hp: 12, r: 16 }, bandit: { hp: 7, r: 14 }, duster: { hp: 6, r: 13 }, cactus: { hp: 10, r: 15 }, syrup: { hp: 9, r: 15 }, roller: { hp: 10, r: 15 }, glitch: { hp: 8, r: 14 }, laser: { hp: 8, r: 15 } };
 const SHIELD_HP = { shield: 30, shield2: 15 }, NPC_STAY = 90;
 const SCALE = { hp: [1, 1.8, 2.8, 3.4], spd: [1, 1.08, 1.16, 1.22], fire: [1, 0.88, 0.78, 0.7], bul: [1, 1.08, 1.16, 1.22] };
 const BOSS = [
@@ -959,7 +964,7 @@ const ACH = [
   { id: 'weapons', name: '武器愛好者', desc: '拿過 6 種不同的武器' },
   { id: 'endings', name: '兩種選擇', desc: '看過兩種結局' }
 ];
-ACH.push({ id: 'arcBoss', name: '像素魔王擊破', desc: '擊敗像素魔王（電玩世界的最後 Boss）' }, { id: 'endless6', name: '無盡街機', desc: '在電玩世界的無盡模式走到第 6 層' }, { id: 'candyBoss', name: '糖霜巨像擊破', desc: '擊敗糖霜巨像（糖果世界的最後 Boss）' }, { id: 'escortWin', name: '護送小糖', desc: '護送小糖走完糖果世界三層並通關' }, { id: 'sweetSafe', name: '甜蜜護衛', desc: '護送小糖通關，而且他全程沒有受傷' }, { id: 'plants', name: '園藝家', desc: '打破 10 個植物障礙' }, { id: 'gardenAll', name: '花園清掃員', desc: '擊敗花園的三種 Boss' }, { id: 'crit', name: '一擊必殺', desc: '取得暴擊率強化' }, { id: 'classUp', name: '看家本領', desc: '取得職業專屬技能強化' });
+ACH.push({ id: 'futBoss', name: '核心主腦擊破', desc: '擊敗核心主腦（未來世界的最後 Boss）' }, { id: 'guardWin', name: '燈塔守護者', desc: '在未來世界守燈模式通關' }, { id: 'escapeWin', name: '驚險逃離', desc: '在電玩世界逃離模式通關' }, { id: 'arcBoss', name: '像素魔王擊破', desc: '擊敗像素魔王（電玩世界的最後 Boss）' }, { id: 'endless6', name: '無盡街機', desc: '在電玩世界的無盡模式走到第 6 層' }, { id: 'candyBoss', name: '糖霜巨像擊破', desc: '擊敗糖霜巨像（糖果世界的最後 Boss）' }, { id: 'escortWin', name: '護送小糖', desc: '護送小糖走完糖果世界三層並通關' }, { id: 'sweetSafe', name: '甜蜜護衛', desc: '護送小糖通關，而且他全程沒有受傷' }, { id: 'plants', name: '園藝家', desc: '打破 10 個植物障礙' }, { id: 'gardenAll', name: '花園清掃員', desc: '擊敗花園的三種 Boss' }, { id: 'crit', name: '一擊必殺', desc: '取得暴擊率強化' }, { id: 'classUp', name: '看家本領', desc: '取得職業專屬技能強化' });
 function medalSvg(got, size) {
   const c1 = got ? '#ffb347' : '#4a4458', c2 = got ? '#f0e4c8' : '#2d2740', c3 = got ? '#b24a32' : '#3a3350';
   let pts = ''; for (let i = 0; i < 16; i++) { const a = i * Math.PI / 8, r = i % 2 ? 15 : 19; pts += (24 + Math.cos(a) * r).toFixed(1) + ',' + (24 + Math.sin(a) * r).toFixed(1) + ' '; }
@@ -1046,7 +1051,7 @@ const FLV = {
 };
 const ACH_CATS = {
   '職業': ['shieldKeep', 'lightChild', 'goodSleep', 'bizBoom', 'lcombo', 'calm', 'mirror', 'fanFame', 'dreamer', 'triple', 'clearAll', 'classUp'],
-  '主題': ['arcBoss', 'endless6', 'candyBoss', 'escortWin', 'sweetSafe', 'iceAll', 'windStop', 'inkAll', 'miner', 'gardenAll', 'swampWalk', 'purifier', 'inkIn', 'dingKnock', 'dodge', 'balloon', 'tour', 'plants'],
+  '主題': ['futBoss', 'guardWin', 'escapeWin', 'arcBoss', 'endless6', 'candyBoss', 'escortWin', 'sweetSafe', 'iceAll', 'windStop', 'inkAll', 'miner', 'gardenAll', 'swampWalk', 'purifier', 'inkIn', 'dingKnock', 'dodge', 'balloon', 'tour', 'plants'],
   '事件': ['wish', 'bigSpender', 'fakeSlay', 'rushWin', 'mimicSlay', 'fullHouse', 'ally', 'allies3']
 };
 const achCatOf = id => { for (const k in ACH_CATS) if (ACH_CATS[k].indexOf(id) >= 0) return k; return '基本'; };
@@ -1068,7 +1073,7 @@ const lastL = () => run.endless ? 9999 : run.long ? (run.ext ? 8 : 5) : 2;
 const thIdx = () => run.long ? (run.layer >= 6 ? run.layer - 3 : Math.min(2, run.layer >> 1)) : Math.min(run.layer, 2);
 const dL = () => run.long ? (run.layer >= 6 ? 3 : Math.min(2, (run.layer + 1) >> 1)) : Math.min(3, run.layer);
 const th = () => run.themes[thIdx()];
-const TNAMES = ['花園', '極地', '提燈洞窟', '中華古代', '深海', '火山', '夢境', '詛咒沼澤', '沙漠', '糖果世界', '電玩世界'];
+const TNAMES = ['花園', '極地', '提燈洞窟', '中華古代', '深海', '火山', '夢境', '詛咒沼澤', '沙漠', '糖果世界', '電玩世界', '未來世界'];
 function applyThemePick() {
   const base = (run.themeBase || run.themes).slice(), k = run.themePick;
   if (k >= 0 && optTheme.value === 'auto' && base.indexOf(k) < 0) base[1] = k;
@@ -1081,6 +1086,7 @@ function bossDef(finO) {
   const t = th(), fin = finO !== undefined ? finO : run.endless ? run.layer % 3 === 2 : run.long ? ((run.layer & 1) === 1 || run.layer >= 6) : run.layer === 2;
   if (t === 0) { const b = GARDEN[optGarden.value] || GARDEN[run.gardenKind] || GARDEN.gardener; return fin ? Object.assign({}, b, { hp: Math.round(b.hp * 1.6) }) : b; }
   if (t === 1) return fin ? (POLAR_FINAL[run.polarFinal] || POLAR_FINAL.dragon) : (POLAR[run.polarKind] || BOSS[1]);
+  if (t === 11) return fin ? { kind: 'golem', name: '核心主腦', hp: 205, fut: true } : { kind: 'golem', name: '巡邏機甲', hp: 125, fut: true };
   if (t === 10) return fin ? { kind: 'golem', name: '像素魔王', hp: 205, arc: true } : { kind: 'golem', name: '街機巨獸', hp: 125, arc: true };
   if (t === 9) return fin ? { kind: 'golem', name: '糖霜巨像', hp: 205, candy: true } : { kind: 'golem', name: '蛋糕魔像', hp: 125, candy: true };
   if (t === 8) return fin ? { kind: 'scorpking', name: '巨大蠍王', hp: 195 } : { kind: 'mummyking', name: '木乃伊王', hp: 120 };
@@ -1144,7 +1150,7 @@ function sfx(k) {
 const AMB = {
   nb: null, src: null, filt: null, gain: null, th: -1, nextEv: 0,
   // [filterType, freq, Q, gain, lfoRate]
-  P: [['bandpass', 900, 0.6, 0.012], ['lowpass', 500, 0.4, 0.03], ['lowpass', 260, 0.5, 0.01], ['lowpass', 380, 0.7, 0.012], ['lowpass', 180, 0.5, 0.025], ['lowpass', 220, 1.2, 0.03], ['bandpass', 1500, 2, 0.006], ['lowpass', 320, 0.8, 0.012], ['bandpass', 700, 0.5, 0.03], ['bandpass', 2400, 3, 0.004], ['lowpass', 900, 0.5, 0.004]],
+  P: [['bandpass', 900, 0.6, 0.012], ['lowpass', 500, 0.4, 0.03], ['lowpass', 260, 0.5, 0.01], ['lowpass', 380, 0.7, 0.012], ['lowpass', 180, 0.5, 0.025], ['lowpass', 220, 1.2, 0.03], ['bandpass', 1500, 2, 0.006], ['lowpass', 320, 0.8, 0.012], ['bandpass', 700, 0.5, 0.03], ['bandpass', 2400, 3, 0.004], ['lowpass', 900, 0.5, 0.004], ['bandpass', 500, 4, 0.006]],
   ev(th, a) {
     const r = Math.random;
     switch (th) {
@@ -1157,6 +1163,7 @@ const AMB = {
       case 6: { const n = [523, 659, 784, 988, 1175][Math.floor(r() * 5)]; blip(n, n, 0.5, 'triangle', 0.018); } break; // music box
       case 7: blip(180 + r() * 50, 260 + r() * 40, 0.09, 'square', 0.012); setTimeout(() => blip(200, 280, 0.09, 'square', 0.01), 130); break; // frog
       case 8: break;
+      case 11: { const n = [196, 294, 392, 587][Math.floor(r() * 4)]; blip(n, n * 0.5, 0.35, 'sawtooth', 0.01); } break;
       case 10: { const n = [262, 330, 392, 523, 659][Math.floor(r() * 5)]; blip(n, n, 0.08, 'square', 0.012); setTimeout(() => blip(n * 1.5, n * 1.5, 0.08, 'square', 0.01), 110); } break;
       case 9: { const n = [659, 784, 988, 1319][Math.floor(r() * 4)]; blip(n, n * 1.01, 0.18, 'sine', 0.015); setTimeout(() => blip(n * 1.5, n * 1.5, 0.2, 'sine', 0.01), 140); } break;
     }
@@ -1556,6 +1563,7 @@ function drawInkEnemy(e, body) {
   if (th() === 8 && e.skin === 'beetle') { drawDesertEnemy(e); return; }
   if (th() === 9 && CANDY_SKIN[e.type]) { drawCandyEnemy(e); return; }
   if (th() === 10 && ARC_SKIN[e.type]) { drawArcEnemy(e); return; }
+  if (th() === 11 && FUT_SKIN[e.type]) { drawFutEnemy(e); return; }
   if (e.skin === 'ink') {
     ctx.fillStyle = '#1d1b22'; spiky(ctx, r * 1.1, 9, e.t, 0.82); ctx.fillStyle = f ? C.paper : '#2d2a35'; spiky(ctx, r * 0.95, 9, e.t, 0.82);
     ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.arc(-r * 0.2, -r * 0.25, r * 0.5, 3.4, 4.7); ctx.lineTo(-r * 0.2, -r * 0.25); ctx.fill();
@@ -1665,7 +1673,7 @@ function buildBg(rm) {
   } else
   for (let i = 0; i < Math.round(16 * arR); i++) {
     const w = 70 + rng() * 150, h = 50 + rng() * 110, x = ROOM.x + rng() * (ROOM.w - w), y = ROOM.y + rng() * (ROOM.h - h);
-    g.fillStyle = i % 2 ? PAL.floor2 : rm.theme === 10 ? 'rgba(255,255,255,.12)' : rm.theme === 9 ? 'rgba(255,255,255,.4)' : 'rgba(20,14,36,.35)'; poly(g, jagRect(x, y, w, h, 22, 4, rng));
+    g.fillStyle = i % 2 ? PAL.floor2 : rm.theme === 11 ? 'rgba(111,243,255,.08)' : rm.theme === 10 ? 'rgba(255,255,255,.12)' : rm.theme === 9 ? 'rgba(255,255,255,.4)' : 'rgba(20,14,36,.35)'; poly(g, jagRect(x, y, w, h, 22, 4, rng));
   }
   for (let i = 0; i < Math.round(18 * arR); i++) { g.fillStyle = 'rgba(240,228,200,.09)'; star4(g, ROOM.x + rng() * ROOM.w, ROOM.y + rng() * ROOM.h, 3 + rng() * 4, rng() * 3); }
   if (rm.theme === 0) {
@@ -1684,6 +1692,10 @@ function buildBg(rm) {
     for (let i = 0; i < Math.round(36 * arR); i++) { const x = ROOM.x + rng() * ROOM.w, y = ROOM.y + rng() * ROOM.h; g.fillStyle = 'rgba(255,245,200,' + (0.12 + rng() * 0.2) + ')'; star4(g, x, y, 2.5 + rng() * 4, rng() * 3); }
     for (let i = 0; i < Math.round(7 * arR); i++) { const x = ROOM.x + rng() * ROOM.w, y = ROOM.y + rng() * ROOM.h, w = 50 + rng() * 90; g.fillStyle = 'rgba(190,170,255,.07)'; g.beginPath(); g.ellipse(x, y, w, w * 0.45, rng() * 3, 0, TAU); g.fill(); }
     for (let i = 0; i < Math.round(5 * arR); i++) { const x = ROOM.x + 20 + rng() * (ROOM.w - 40), y = ROOM.y + 20 + rng() * (ROOM.h - 40); g.strokeStyle = 'rgba(240,230,255,.2)'; g.lineWidth = 2; g.beginPath(); g.arc(x, y, 9, 0.5, TAU - 0.5); g.stroke(); }
+  }
+  if (rm.theme === 11) {
+    g.strokeStyle = 'rgba(0,229,255,.22)'; g.lineWidth = 2; for (let x = ROOM.x; x <= ROOM.x + ROOM.w; x += 60) { g.beginPath(); g.moveTo(x, ROOM.y); g.lineTo(x, ROOM.y + ROOM.h); g.stroke(); } for (let y = ROOM.y; y <= ROOM.y + ROOM.h; y += 60) { g.beginPath(); g.moveTo(ROOM.x, y); g.lineTo(ROOM.x + ROOM.w, y); g.stroke(); }
+    g.strokeStyle = 'rgba(255,46,151,.4)'; g.lineWidth = 3; for (let i = 0; i < Math.round(9 * arR); i++) { const x = ROOM.x + rng() * ROOM.w, y = ROOM.y + rng() * ROOM.h; g.beginPath(); g.moveTo(x, y); g.lineTo(x + 50 + rng() * 90, y); g.lineTo(x + 50 + rng() * 90, y + 40 + rng() * 60); g.stroke(); g.fillStyle = '#ff2e97'; circ(g, x, y, 4); }
   }
   if (rm.theme === 10) {
     g.strokeStyle = 'rgba(180,200,255,.28)'; g.lineWidth = 2; for (let x = ROOM.x; x <= ROOM.x + ROOM.w; x += 41) { g.beginPath(); g.moveTo(x, ROOM.y); g.lineTo(x, ROOM.y + ROOM.h); g.stroke(); } for (let y = ROOM.y; y <= ROOM.y + ROOM.h; y += 41) { g.beginPath(); g.moveTo(ROOM.x, y); g.lineTo(ROOM.x + ROOM.w, y); g.stroke(); }
@@ -1714,8 +1726,8 @@ function buildBg(rm) {
     for (let i = 0; i < Math.round(14 * arR); i++) { const x = ROOM.x + rng() * ROOM.w, y = ROOM.y + rng() * ROOM.h; for (let k = 0; k < 3; k++) { g.beginPath(); g.arc(x, y + k * 5, 18 + k * 10, Math.PI * 0.15, Math.PI * 0.85); g.stroke(); } }
     for (let i = 0; i < Math.round(8 * arR); i++) { const x = ROOM.x + 20 + rng() * (ROOM.w - 40), y = ROOM.y + 40 + rng() * (ROOM.h - 60); g.strokeStyle = 'rgba(70,110,70,.35)'; g.lineWidth = 3; g.beginPath(); g.moveTo(x, y); g.lineTo(x + rng() * 6 - 3, y - 36); g.stroke(); g.lineWidth = 1.5; for (let k = 1; k < 3; k++) { g.beginPath(); g.moveTo(x, y - k * 12); g.lineTo(x + 12, y - k * 12 - 8); g.stroke(); } }
   }
-  for (const o of rm.obs) { if (rm.theme === 10) drawArcObs(g, o, rng); else if (rm.theme === 9) drawCandyObs(g, o, rng); else if (rm.theme === 0) drawBush(g, o, rng); else if (rm.theme === 1) drawIce(g, o, rng); else if (rm.theme === 3) drawScreen(g, o, rng); else if (rm.theme === 4 || rm.theme === 7) drawBush(g, o, rng); else drawStack(g, o, rng); }
-  if (rm.theme !== 9 && rm.theme !== 10) for (let tx = 0; tx < WORLD.w; tx += W) for (let ty = 0; ty < WORLD.h; ty += H) g.drawImage(paperTex, tx, ty, W, H);
+  for (const o of rm.obs) { if (rm.theme === 11) drawFutObs(g, o, rng); else if (rm.theme === 10) drawArcObs(g, o, rng); else if (rm.theme === 9) drawCandyObs(g, o, rng); else if (rm.theme === 0) drawBush(g, o, rng); else if (rm.theme === 1) drawIce(g, o, rng); else if (rm.theme === 3) drawScreen(g, o, rng); else if (rm.theme === 4 || rm.theme === 7) drawBush(g, o, rng); else drawStack(g, o, rng); }
+  if (rm.theme < 9) for (let tx = 0; tx < WORLD.w; tx += W) for (let ty = 0; ty < WORLD.h; ty += H) g.drawImage(paperTex, tx, ty, W, H);
   return c;
 }
 
@@ -1764,7 +1776,7 @@ function loadRoom() {
   ROOM.w = big ? SZ.w : 820; ROOM.h = big ? SZ.h : 450; DOOR.y = ROOM.y + ROOM.h / 2;
   WORLD.w = big ? ROOM.w + 140 : W; WORLD.h = big ? ROOM.h + 150 : H;
   let combatIdx = 0; for (let i = 0; i < run.step; i++) if (run.plan[i] === 'combat') combatIdx++;
-  PAL = PALS[th()]; stageEl.classList.toggle('candy', th() === 9); stageEl.classList.toggle('arc', th() === 10); rec.themesSeen[th()] = 1; if (Object.keys(rec.themesSeen).length >= 4) unlockAch('tour');
+  PAL = PALS[th()]; stageEl.classList.toggle('candy', th() === 9); stageEl.classList.toggle('arc', th() === 10); stageEl.classList.toggle('fut', th() === 11); rec.themesSeen[th()] = 1; if (Object.keys(rec.themesSeen).length >= 4) unlockAch('tour');
   const special = kind === 'treasure' || kind === 'event' || kind === 'merchant' || kind === 'start';
   const kindObs = chase ? 'combat' : kind;
   room = { variant, big, expl: {}, camInit: false, kind, layer: run.layer, theme: th(), step: run.step, combatIdx, seed: Math.floor(rand() * 1e9), obs: makeObstacles(kindObs), chase: chase ? { t: 20, active: true, killed: 0, n: 0, last: null } : null, wave: -1, delay: 0.9, waves: 1, cleared: special, final: kind === 'boss' && run.layer === lastL(), bg: null, items: [] };
@@ -1772,6 +1784,8 @@ function loadRoom() {
     const pr = [0.25, 0.45, 0.65, 0.8][dL()];
     room.waves = (combatIdx === 0 && run.layer === 0) ? 2 : (rand() < pr ? 3 : 2);
   }
+  if (run.escape && (kind === 'combat' || kind === 'boss')) { room.col = { x: ROOM.x - 12, v: 13 + 2 * run.layer, delay: kind === 'boss' ? 1e9 : 5 }; if (kind === 'boss') room.escT = 120; }
+  if (run.guard && kind === 'combat') { let bx = ROOM.x + ROOM.w * 0.5, by = ROOM.y + ROOM.h * 0.5; for (let t = 0; t < 40; t++) { const x = rr(ROOM.x + 250, ROOM.x + ROOM.w - 250), y = rr(ROOM.y + 90, ROOM.y + ROOM.h - 90); if (!room.obs.some(o => overlap(inflate(o, 54), { x, y, w: 1, h: 1 }))) { bx = x; by = y; break; } } room.beacon = { x: bx, y: by, hp: 12, max: 12, t: 0, hurtT: 0 }; }
   room.bg = buildBg(room);
   jellies = [];
   if (th() === 4 && (kind === 'combat' || kind === 'boss' || chase)) {
@@ -1980,10 +1994,10 @@ function updateChase(dt) {
 function newRun() {
   if (PRAC.on && !PRAC.starting) endPractice();
   resetPlayer(); follow = true; fEdge = 0; hudSig = ''; parts = [];
-  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.dlc = false; run.escort = false; run.escFail = false; run.dlcPrev = null; run.escHurt = 0; run.endless = false; run.syrupTip = false; run.wickN = 0; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
+  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.dlc = false; run.escort = false; run.escFail = false; run.dlcPrev = null; run.escHurt = 0; run.escape = false; run.guard = false; run.endless = false; run.syrupTip = false; run.wickN = 0; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
   for (const w of p.weapons) rec.seenW[w] = 1;
   allies = [];
-  { let t = cleared ? shuffle(run.long ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] : [0, 1, 2, 3, 4, 5, 6, 7, 8]).slice(0, 3) : [0, 1, 2];
+  { let t = cleared ? shuffle(run.long ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] : [0, 1, 2, 3, 4, 5, 6, 7, 8]).slice(0, 3) : [0, 1, 2];
     if (optTheme.value !== 'auto') { const f = +optTheme.value; t = t.filter(x => x !== f); while (t.length < 2) t.push([0, 1, 2, 3, 4, 5, 6, 7, 8].filter(x => x !== f && t.indexOf(x) < 0)[0]); t = t.slice(0, 2).concat([f]); }
     run.themes = t; run.themeBase = t.slice(); run.themePick = -1; }
   run.polarFinal = cleared ? pickOf(['dragon', 'giant']) : 'dragon'; run.inkKind = pickOf(['shan', 'nian', 'idragon']);
@@ -2029,7 +2043,8 @@ function makeItem0(slot, x, y, group, avoid, forcePrem) {
 }
 function setupSpecial() {
   const cx = ROOM.x + ROOM.w / 2, cy = DOOR.y, k = room.kind;
-  if (k === 'start') { room.items.push({ kind: 'switch', id: 'switch', x: ROOM.x + 90, y: ROOM.y + 70, group: 'prop', price: 0, taken: false }); room.items.push({ kind: 'noshop', id: 'noshop', x: ROOM.x + 90, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); if (cleared) room.items.push({ kind: 'themesel', id: 'themesel', x: ROOM.x + 330, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); room.items.push({ kind: 'tutsw', id: 'tutsw', x: ROOM.x + 200, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); if (cleared) room.items.push({ kind: 'arcGo', id: 'arcGo', x: ROOM.x + 740, y: ROOM.y + 170, group: 'prop', price: 0, taken: false });
+  if (k === 'start') { room.items.push({ kind: 'switch', id: 'switch', x: ROOM.x + 90, y: ROOM.y + 70, group: 'prop', price: 0, taken: false }); room.items.push({ kind: 'noshop', id: 'noshop', x: ROOM.x + 90, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); if (cleared) room.items.push({ kind: 'themesel', id: 'themesel', x: ROOM.x + 330, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); room.items.push({ kind: 'tutsw', id: 'tutsw', x: ROOM.x + 200, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); if (cleared) { room.items.push({ kind: 'escGo', id: 'escGo', x: ROOM.x + 650, y: ROOM.y + 170, group: 'prop', price: 0, taken: false }); room.items.push({ kind: 'futGo', id: 'futGo', x: ROOM.x + 650, y: ROOM.y + 80, group: 'prop', price: 0, taken: false }); }
+  if (cleared) room.items.push({ kind: 'arcGo', id: 'arcGo', x: ROOM.x + 740, y: ROOM.y + 170, group: 'prop', price: 0, taken: false });
   if (cleared) room.items.push({ kind: 'dlcGo', id: 'dlcGo', x: ROOM.x + 740, y: ROOM.y + 80, group: 'prop', price: 0, taken: false });
   if (cleared) for (const q of [['pracTh', 570], ['pracLv', 650], ['pracGo', 740]]) room.items.push({ kind: q[0], id: q[0], x: ROOM.x + q[1], y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); if (mobile) room.items.push({ kind: 'tzsw', id: 'tzsw', x: ROOM.x + 450, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); return; }
   const add = (slot, x, group) => room.items.push(makeItem(slot, x, cy, group));
@@ -2066,6 +2081,8 @@ function itemInfo(it) {
     : { name: '許願池', desc: '每次投入 4 燈芯，有機率獲得獎勵。一個池最多投 6 次，第 6 次保底（至少燈火 +1）' };
   if (it.kind === 'tzsw') return { name: '按鍵大小牌', desc: '手機專用：在「標準」與「大」兩種觸控按鈕大小之間切換（也可在暫停頁細調）' };
   if (it.kind === 'tutsw') return { name: '新手教學牌', desc: rec.tutOff ? '教學面板目前關閉。再按一次開啟（電腦版，只在起始房顯示）' : '教學面板開著，會留在畫面下方。按一下可以關閉' };
+  if (it.kind === 'escGo') return { name: '電玩逃離之門（DLC）', desc: run.dlc === 'escape' ? '已選擇：電玩世界逃離模式。再按一次取消' : '電玩世界三層：崩塌線從房間左邊追來，Boss 房暫停崩塌但有 120 秒倒數，要打倒中王與 Boss 才能通關' };
+  if (it.kind === 'futGo') return { name: '未來世界的門（DLC）', desc: run.dlc === 'future' ? '已選擇：未來世界守燈模式。再按一次取消' : '未來世界三層：每間戰鬥房有一座燈塔，有敵人會去攻擊它；燈塔熄滅就失敗，站在旁邊能慢慢修復' };
   if (it.kind === 'arcGo') return { name: '電玩世界的門（DLC）', desc: run.dlc === 'arcade' ? '已選擇：這一局走電玩世界無盡模式。再按一次取消' : '像素風的電玩世界：無盡模式，一層接一層、敵人越來越強，看你能走到第幾層（只計最高層數）' };
   if (it.kind === 'dlcGo') return { name: '糖果世界的門（DLC）', desc: run.dlc === 'candy' ? '已選擇：這一局走糖果世界三層，護送小糖到最後。再按一次取消' : '走一局完整的糖果世界：三層、一般難度、計成就。小糖會同行，由你護送，他倒下就失敗' };
   if (it.kind === 'pracTh') return { name: '練習房・主題牌', desc: '選練習要去的主題（目前：' + TNAMES[PRAC.th] + '）。練習只有一層，不計成就、統計與紙片，也不存檔' };
@@ -2123,7 +2140,7 @@ function interact(it) {
   if (it.taken) return;
   if (it.kind === 'tzsw') { rec.ui.tz = (rec.ui.tz | 0) === 2 ? 1 : 2; saveRec(); applyUi(); sfx('pick'); toast(rec.ui.tz === 2 ? '觸控按鈕：大' : '觸控按鈕：標準'); hintSig = ''; return; }
   if (it.kind === 'tutsw') { rec.tutOff = !rec.tutOff; saveRec(); sfx('pick'); toast(rec.tutOff ? '教學已關閉' : '教學已開啟'); hintSig = ''; tutSig = ''; return; }
-  if (it.kind === 'dlcGo' || it.kind === 'arcGo') { const k = it.kind === 'dlcGo' ? 'candy' : 'arcade'; setDlc(run.dlc === k ? null : k); sfx('pick'); hintSig = ''; return; }
+  if (it.kind === 'dlcGo' || it.kind === 'arcGo' || it.kind === 'escGo' || it.kind === 'futGo') { const k = it.kind === 'dlcGo' ? 'candy' : it.kind === 'arcGo' ? 'arcade' : it.kind === 'escGo' ? 'escape' : 'future'; setDlc(run.dlc === k ? null : k); sfx('pick'); hintSig = ''; return; }
   if (it.kind === 'pracTh') { PRAC.th = (PRAC.th + 1) % TNAMES.length; sfx('pick'); toast('練習主題：' + TNAMES[PRAC.th], 1.6); hintSig = ''; return; }
   if (it.kind === 'pracLv') { PRAC.lv = (PRAC.lv + 1) % PLV.length; sfx('pick'); toast('練習層級：' + PLV[PRAC.lv].n, 2); hintSig = ''; return; }
   if (it.kind === 'pracGo') { sfx('pick'); fadeThen(() => { startPractice(); announceRoom(); }); return; }
@@ -2240,7 +2257,9 @@ function updateHint() {
   let sig = '', html = '';
   if (it) {
     const info = itemInfo(it); let act;
-    if (it.kind === 'arcGo') act = run.dlc === 'arcade' ? 'F 取消電玩世界' : 'F 進入電玩世界（無盡）';
+    if (it.kind === 'escGo') act = run.dlc === 'escape' ? 'F 取消逃離模式' : 'F 進入電玩逃離';
+    else if (it.kind === 'futGo') act = run.dlc === 'future' ? 'F 取消守燈模式' : 'F 進入未來守燈';
+    else if (it.kind === 'arcGo') act = run.dlc === 'arcade' ? 'F 取消電玩世界' : 'F 進入電玩世界（無盡）';
     else if (it.kind === 'dlcGo') act = run.dlc === 'candy' ? 'F 取消糖果世界' : 'F 進入糖果世界（護送）';
     else if (it.kind === 'pracTh') act = 'F 換主題'; else if (it.kind === 'pracLv') act = 'F 換層級'; else if (it.kind === 'pracGo') act = 'F 進入練習房';
     else if (it.kind === 'themesel') act = 'F 切換必遇主題（目前：' + (run.themePick >= 0 ? TNAMES[run.themePick] : '隨機') + '）';
@@ -2531,7 +2550,7 @@ function selectClass(i) {
 }
 let subKind = '', subRow = 0, achPage = 0;
 const ACH_PER = 8;
-const ENAME = { glitch: '故障方塊', syrup: '糖漿罐', roller: '滾滾糖球', escort: '護送對象倒下', wisp: '鬼火精', jumper: '跳蛙', spore: '毒孢子', ghost: '幽靈', sleepwalker: '夢遊者', crawler: '小影', shooter: '射手影', brute: '蠻力影', splitter: '分裂影', splitter2: '大分裂影', bomber: '炸彈影', shield: '盾衛', shield2: '輕盾衛', summoner: '召喚影', budling: '花苞', moth: '飛蛾', vine: '藤蔓', frostneedle: '霜針', snowball: '雪球', mist: '霧靈', icecluster: '冰簇', crane: '紙鶴', blindbomb: '墨炸彈', bloater: '膨脹魚', blindshark: '盲鯊', deepworm: '深海蟲', trenchghost: '海溝幽靈', abyss: '深淵水母', sparker: '火星炮', lavaslime: '熔岩史萊姆', lizard: '火蜥蜴', firebat: '火蝠', ifrit: '炎魔', flion: '火焰獅', lavaworm: '熔岩蟲', fireelem: '火元素', firebird: '火鳥', faceless: '無臉人', rusher: '衝鋒怪', mirrorman: '鏡面人', fleer: '逃跑影', mimic: '寶相怪', fakemerch: '偽商人', mark: '地面預警攻擊', ground: '地面傷害', bullet: '敵方子彈', other: '其他',
+const ENAME = { collapse: '崩塌線', beacon: '燈塔熄滅', laser: '雷射機', glitch: '故障方塊', syrup: '糖漿罐', roller: '滾滾糖球', escort: '護送對象倒下', wisp: '鬼火精', jumper: '跳蛙', spore: '毒孢子', ghost: '幽靈', sleepwalker: '夢遊者', crawler: '小影', shooter: '射手影', brute: '蠻力影', splitter: '分裂影', splitter2: '大分裂影', bomber: '炸彈影', shield: '盾衛', shield2: '輕盾衛', summoner: '召喚影', budling: '花苞', moth: '飛蛾', vine: '藤蔓', frostneedle: '霜針', snowball: '雪球', mist: '霧靈', icecluster: '冰簇', crane: '紙鶴', blindbomb: '墨炸彈', bloater: '膨脹魚', blindshark: '盲鯊', deepworm: '深海蟲', trenchghost: '海溝幽靈', abyss: '深淵水母', sparker: '火星炮', lavaslime: '熔岩史萊姆', lizard: '火蜥蜴', firebat: '火蝠', ifrit: '炎魔', flion: '火焰獅', lavaworm: '熔岩蟲', fireelem: '火元素', firebird: '火鳥', faceless: '無臉人', rusher: '衝鋒怪', mirrorman: '鏡面人', fleer: '逃跑影', mimic: '寶相怪', fakemerch: '偽商人', mark: '地面預警攻擊', ground: '地面傷害', bullet: '敵方子彈', other: '其他',
   'B:keeper': '守燈人', 'B:lmid': '燈影看守', 'B:dragon': '冰龍', 'B:giant': '風雪巨人', 'B:shan': '山靈', 'B:idragon': '水墨龍', 'B:nian': '年獸', 'B:kraken': '古代海怪', 'B:serpent': '深海巨蛇', 'B:golem': '熔岩魔像', 'B:toad': '巨大蟾蜍', 'B:mummyking': '木乃伊王', 'B:scorpking': '巨大蠍王', 'B:rootking': '腐根樹妖', 'B:vdragon': '炎龍', 'B:nightmare': '夢魘看守', 'B:mirrorgiant': '巨大鏡面人', 'B:gardener': '荊棘園丁', 'B:bloom': '花王', 'B:hive': '蜂巢后' };
 const enameOf = k => ENAME[k] || (k.startsWith('B:') ? 'Boss' : k);
 function statHtml() {
@@ -2694,6 +2713,8 @@ function nextShard() {
 }
 function bossIntroLines() {
   const k = bossDef().kind;
+  if (th() === 11) return [{ who: '旁白', text: bossDef().name + '的核心亮了起來，遠處的霓虹一齊閃爍。' }];
+  if (th() === 10) return [{ who: '旁白', text: bossDef().name + '投下硬幣——遊戲開始。' }];
   if (th() === 9) return [{ who: '旁白', text: bossDef().name + '在糖霜裡緩緩站起來，甜甜的香氣變得有點嗆。' }];
   if (run.layer === lastL() && th() === 2) return STORY.bossIntro.concat(STORY.bossIntroV[k === 'final' ? 'keeper' : k] || []);
   return STORY.bossTalk[k] || STORY.gardenIntro[k] || STORY.midIntro[1];
@@ -2817,11 +2838,13 @@ function endPractice() {
   PRAC.on = false; run.practice = false; recBak = null;
 }
 function setDlc(k) {
-  if (run.dlc) { const v = run.dlcPrev; if (v) { run.themes = v.themes; run.themeBase = v.base; run.long = v.long; run.themePick = v.pick; } allies = allies.filter(a => a.id !== 'candy'); run.escort = false; run.endless = false; run.dlc = false; run.dlcPrev = null; }
+  if (run.dlc) { const v = run.dlcPrev; if (v) { run.themes = v.themes; run.themeBase = v.base; run.long = v.long; run.themePick = v.pick; } allies = allies.filter(a => a.id !== 'candy'); run.escort = false; run.endless = false; run.escape = false; run.guard = false; run.dlc = false; run.dlcPrev = null; }
   if (!k) { toast('取消 DLC，回到一般模式', 1.6); return; }
   run.dlc = k; run.dlcPrev = { themes: run.themes.slice(), base: (run.themeBase || run.themes).slice(), long: run.long, pick: run.themePick }; run.long = false; run.themePick = -1;
   if (k === 'candy') { run.themes = [9, 9, 9]; run.escort = true; if (!allies.some(a => a.id === 'candy')) addAlly('candy', p.x - 40, p.y); toast('小糖加入了：護送他走完糖果世界三層', 2.8); }
-  else { run.themes = [10, 10, 10]; run.endless = true; toast('電玩世界・無盡模式：一路往下打，看你能到第幾層', 2.8); }
+  else if (k === 'arcade') { run.themes = [10, 10, 10]; run.endless = true; toast('電玩世界・無盡模式：一路往下打，看你能到第幾層', 2.8); }
+  else if (k === 'escape') { run.themes = [10, 10, 10]; run.escape = true; toast('電玩世界・逃離模式：崩塌線從左邊追來；Boss 房暫停崩塌、120 秒內要打倒', 3.2); }
+  else { run.themes = [11, 11, 11]; run.guard = true; toast('未來世界・守燈模式：戰鬥房裡有一座燈塔，別讓它熄滅', 3); }
   run.themeBase = run.themes.slice();
 }
 function startPractice() {
@@ -2853,7 +2876,7 @@ function die() {
 function fmtT(t) { t = Math.round(t); return Math.floor(t / 60) + ':' + ('0' + (t % 60)).slice(-2); }
 function sumCards(win) {
   const c = CLS[p.cls], up = Object.keys(p.upg).reduce((a, k) => a + (p.upg[k] || 0), 0);
-  const items = [['職業', c.name], ['模式', run.endless ? '電玩無盡' : run.escort ? '糖果護送' : run.long ? (run.ext ? '長線＋追加' : '長線作戰') : '一般'], [win ? '結果' : '倒在', win ? '通關' : '第 ' + (run.layer + 1) + ' 層・' + (KIND_NAME[room.kind] || '')], ['用時', fmtT(run.t)], ['擊敗', run.kills + ' 隻'], ['總傷害', Math.round(run.dmgOut || 0)], ['紙片', '＋' + (run.paperGiven || 0) + '（共 ' + (rec.paper || 0) + '）'], ['受傷', (run.hurtN || 0) + ' 次（−' + Math.round((run.dmgIn || 0) * 10) / 10 + '）'], ['燈芯', '＋' + (run.cIn || 0) + '／－' + (run.cOut || 0)], ['強化', up + ' 個'], ['武器', p.weapons.map(id => WDEF[id].name).join('、')]];
+  const items = [['職業', c.name], ['模式', run.guard ? '未來守燈' : run.escape ? '電玩逃離' : run.endless ? '電玩無盡' : run.escort ? '糖果護送' : run.long ? (run.ext ? '長線＋追加' : '長線作戰') : '一般'], [win ? '結果' : '倒在', win ? '通關' : '第 ' + (run.layer + 1) + ' 層・' + (KIND_NAME[room.kind] || '')], ['用時', fmtT(run.t)], ['擊敗', run.kills + ' 隻'], ['總傷害', Math.round(run.dmgOut || 0)], ['紙片', '＋' + (run.paperGiven || 0) + '（共 ' + (rec.paper || 0) + '）'], ['受傷', (run.hurtN || 0) + ' 次（−' + Math.round((run.dmgIn || 0) * 10) / 10 + '）'], ['燈芯', '＋' + (run.cIn || 0) + '／－' + (run.cOut || 0)], ['強化', up + ' 個'], ['武器', p.weapons.map(id => WDEF[id].name).join('、')]];
   if (!win && run.deathBy) items.push(['死因', enameOf(run.deathBy)]);
   return items.map(a => '<span><small>' + a[0] + '</small><b>' + a[1] + '</b></span>').join('');
 }
@@ -2916,7 +2939,8 @@ function wickDrop() {
   if (p.maxHp < 9) { p.maxHp++; p.hp = Math.min(p.maxHp, p.hp + 1); hudSig = ''; toast('獲得厚燈芯：最大燈火 +1', 2.6); burst(p.x, p.y, 14, [C.amber, C.paper], 150, true); run.wickN = (run.wickN || 0) + 1; }
 }
 function bossDefeated() {
-  if (th() === 10 && !run.practice) unlockAch('arcBoss');
+  if (th() === 11 && !run.practice) { unlockAch('futBoss'); if (run.guard) unlockAch('guardWin'); }
+  if (th() === 10 && !run.practice) { unlockAch('arcBoss'); if (run.escape) unlockAch('escapeWin'); }
   if (th() === 9 && !run.practice) { unlockAch('candyBoss'); if (run.escort && !run.escFail) { unlockAch('escortWin'); if (!run.escHurt) unlockAch('sweetSafe'); } }
   if (run.practice) { bullets = []; room.cleared = true; toast(bossDef().name + '倒下了（練習）'); clearAdds(); sfx('clear'); later(1.8, () => showPrac(true)); return; }
   recBoss(); wickDrop(); run.fin = true; if ((run.frz || 0) >= 5) unlockAch('calm');
@@ -2924,7 +2948,7 @@ function bossDefeated() {
   if (run.long) { if (run.ext) rec.extClears = (rec.extClears || 0) + 1; else rec.longClears = (rec.longClears || 0) + 1; saveRec(); }
   if (!room.hurt) unlockAch('flawless'); endRun(true);
   if (!cleared) { cleared = true; try { localStorage.setItem('lampknight.cleared', '1'); } catch (e) { /* storage is optional */ } }
-  later(1.8, () => say(th() === 9 ? [{ who: '旁白', text: '糖霜融化了，空氣裡留下最初的甜味。' }, { who: '小糖', text: '找到了……謝謝你，提燈人。' }] : th() === 2 ? STORY.bossEnd : (STORY.bossDown[bossDef().kind] || []).concat([{ who: '旁白', text: '最深處的光靜靜等著，要由你決定它的去向。' }]), () => { show('choice', true); setState('choice'); }));
+  later(1.8, () => say(th() === 11 ? [{ who: '旁白', text: '核心熄滅的瞬間，整座城市的霓虹同時安靜下來，又一盞一盞亮起。' }] : th() === 10 ? [{ who: '旁白', text: '螢幕閃了三下，跳出一行字：GAME CLEAR。' }] : th() === 9 ? [{ who: '旁白', text: '糖霜融化了，空氣裡留下最初的甜味。' }, { who: '小糖', text: '找到了……謝謝你，提燈人。' }] : th() === 2 ? STORY.bossEnd : (STORY.bossDown[bossDef().kind] || []).concat([{ who: '旁白', text: '最深處的光靜靜等著，要由你決定它的去向。' }]), () => { show('choice', true); setState('choice'); }));
 }
 function midBossDefeated() {
   if (th() === 10 && !run.practice && bossDef().name === '像素魔王') unlockAch('arcBoss');
@@ -2947,7 +2971,7 @@ function pickEnding(k) {
 function startExt() {
   if (state !== 'ending' || !run.long || run.ext || run.layer !== 5) return;
   show('ending', false); run.ext = true;
-  const rest = shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(t => run.themes.indexOf(t) < 0)).slice(0, 3);
+  const rest = shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].filter(t => run.themes.indexOf(t) < 0)).slice(0, 3);
   run.themes = run.themes.slice(0, 3).concat(rest);
   setState('play'); run.step = run.plan.length - 1; healP(3); hudSig = '';
   toast('繼續探索：高難度 3 層（敵人更強、精英更多）', 3);
@@ -3283,6 +3307,7 @@ function spawnEnemy(type, x, y) {
   if (th() === 7 && SW_SKIN[type]) e.skin = SW_SKIN[type];
   if (th() === 8 && type === 'crawler') e.skin = 'beetle';
   if (th() === 10 && ARC_SKIN[type]) e.skin = ARC_SKIN[type];
+  if (th() === 11 && FUT_SKIN[type]) { e.skin = FUT_SKIN[type]; e.hue = Math.floor(rand() * 4); }
   if (th() === 9 && CANDY_SKIN[type]) { e.skin = CANDY_SKIN[type]; e.hue = Math.floor(rand() * 4); }
   if (th() === 7 && type === 'brute') { e.hp = e.maxHp = Math.round(e.hp * 1.3); }
   if (type === 'sparker' || type === 'faceless' || type === 'sleepwalker') e.noTouch = true;
@@ -3322,6 +3347,7 @@ function composeWave() {
   if (L >= 2 || (L === 1 && ci >= 2)) types.push('splitter2');
   if (th() === 4) { types = types.map(t => t === 'bomber' ? 'blindbomb' : t); if (L === 0 && ci >= 1) types.push('blindbomb'); if (L > 0 || ci >= 1) types.push('bloater'); if (L > 0 || ci >= 1) types.push('blindshark'); if (L > 0 || ci >= 2) types.push('deepworm'); if (L > 0 || ci >= 2) types.push('trenchghost'); if (L > 0 && ci >= 1 || L >= 2) types.push('abyss'); }
   if (th() === 8) { types.push('scorpion'); types.push('cactus'); if (L > 0 || ci >= 1) { types.push('bandit'); types.push('duster'); } if (L > 0 || ci >= 2) types.push('mummy'); }
+  if (th() === 11) { types.push('laser'); if (L > 0 || ci >= 1) types.push('glitch'); }
   if (th() === 10) { types.push('glitch'); if (L > 0 || ci >= 1) types.push('roller'); }
   if (th() === 9) { types.push('syrup'); if (L > 0 || ci >= 1) types.push('roller'); }
   if (th() === 7) { types.push('shooter'); types.push('spore'); if (L > 0 || ci >= 1) { types.push('jumper'); types.push('wisp'); } if (L > 0 || ci >= 2) types.push('brute'); }
@@ -3329,7 +3355,7 @@ function composeWave() {
   if ((th() === 5 || th() === 4) && (L > 0 || ci >= 1)) { types.push('rusher'); }
   if ((th() === 3 || th() === 1) && (L > 0 || ci >= 2)) { types.push('mirrorman'); }
   if (th() === 5) { types = types.map(t => t === 'brute' ? 'flion' : t); if (L > 0 || ci >= 1) { types.push('lavaworm'); types.push('fireelem'); } if (L > 0 || ci >= 2) types.push('ifrit'); types.push('lavaslime'); if (L > 0 || ci >= 1) { types.push('sparker'); types.push('firebat'); } if (L > 0 || ci >= 2) types.push('lizard'); }
-  const cost = { glitch: 3, syrup: 3, roller: 3, scorpion: 2, mummy: 4, bandit: 3, duster: 2, cactus: 3, wisp: 3, jumper: 3, spore: 2, ghost: 3, sleepwalker: 2, faceless: 2, rusher: 2, mirrorman: 4, ifrit: 5, flion: 3, lavaworm: 2, fireelem: 3, trenchghost: 3, abyss: 5, sparker: 3, lavaslime: 2, lizard: 3, firebat: 1, frostneedle: 2, snowball: 3, mist: 3, budling: 3, moth: 2, vine: 3, fleer: 1, crawler: 1, shooter: 2, brute: 3, splitter: 2, splitter2: 4, bomber: 2, shield: 3, shield2: 2, summoner: 4, blindbomb: 3, bloater: 3, blindshark: 3, deepworm: 3, icecluster: 3, crane: 3 }, cap = { glitch: 2, syrup: 2, roller: 2, mummy: 2, bandit: 2, duster: 2, cactus: 2, wisp: 2, jumper: 2, spore: 2, ghost: 2, sleepwalker: 3, faceless: 2, rusher: 4, mirrorman: 1, ifrit: 1, abyss: 1, trenchghost: 1, fireelem: 2, sparker: 2, lizard: 2, crane: 2, blindshark: 2, deepworm: 2, blindbomb: 2, summoner: 1, shield: 3, polar: 2 }, grp = t => t === 'shield2' ? 'shield' : (t === 'frostneedle' || t === 'snowball' || t === 'mist' || t === 'icecluster') ? 'polar' : t, list = [];
+  const cost = { laser: 3, glitch: 3, syrup: 3, roller: 3, scorpion: 2, mummy: 4, bandit: 3, duster: 2, cactus: 3, wisp: 3, jumper: 3, spore: 2, ghost: 3, sleepwalker: 2, faceless: 2, rusher: 2, mirrorman: 4, ifrit: 5, flion: 3, lavaworm: 2, fireelem: 3, trenchghost: 3, abyss: 5, sparker: 3, lavaslime: 2, lizard: 3, firebat: 1, frostneedle: 2, snowball: 3, mist: 3, budling: 3, moth: 2, vine: 3, fleer: 1, crawler: 1, shooter: 2, brute: 3, splitter: 2, splitter2: 4, bomber: 2, shield: 3, shield2: 2, summoner: 4, blindbomb: 3, bloater: 3, blindshark: 3, deepworm: 3, icecluster: 3, crane: 3 }, cap = { laser: 2, glitch: 2, syrup: 2, roller: 2, mummy: 2, bandit: 2, duster: 2, cactus: 2, wisp: 2, jumper: 2, spore: 2, ghost: 2, sleepwalker: 3, faceless: 2, rusher: 4, mirrorman: 1, ifrit: 1, abyss: 1, trenchghost: 1, fireelem: 2, sparker: 2, lizard: 2, crane: 2, blindshark: 2, deepworm: 2, blindbomb: 2, summoner: 1, shield: 3, polar: 2 }, grp = t => t === 'shield2' ? 'shield' : (t === 'frostneedle' || t === 'snowball' || t === 'mist' || t === 'icecluster') ? 'polar' : t, list = [];
   for (let g = 0; g < 40 && budget > 0 && list.length < 14; g++) {
     const t = pickOf(types);
     if (cap[grp(t)] && list.filter(x => grp(x) === grp(t)).length >= cap[grp(t)]) continue;
@@ -3342,7 +3368,7 @@ function composeWave() {
 function makeBoss(b, x, y) {
   {
     const e = spawnEnemy('boss', x, y);
-    e.candy = !!b.candy; e.arc = !!b.arc; e.kind = b.kind; e.hp = e.maxHp = Math.round(b.hp * (run.long ? 1 + 0.12 * Math.max(0, run.layer - 2) : 1)); e.cd = 2.2;
+    e.candy = !!b.candy; e.arc = !!b.arc; e.fut = !!b.fut; e.kind = b.kind; e.hp = e.maxHp = Math.round(b.hp * (run.long ? 1 + 0.12 * Math.max(0, run.layer - 2) : 1)); e.cd = 2.2;
     if (b.kind === 'guard') { e.layers = [{ id: 0, hp: 26, max: 26 }, { id: 1, hp: 18, max: 18 }, { id: 2, hp: 12, max: 12 }]; e.layerMax = 56; e.gapA = 0; }
     if (b.kind === 'ore') room.timed = { t: 60, on: true }; e.gen = 0; e.sc = 1; e.weak = 0; if (b.kind === 'summon' || b.kind === 'hive') e.summon = 2.5;
     if (BOSS2[b.kind]) { e.r = (b.kind === 'giant' || b.kind === 'golem' || b.kind === 'toad' || b.kind === 'rootking' || b.kind === 'scorpking' || b.kind === 'mummyking') ? 56 : (b.kind === 'dragon' || b.kind === 'idragon' || b.kind === 'vdragon' || b.kind === 'serpent') ? 40 : (b.kind === 'shan' || b.kind === 'kraken') ? 50 : 40; e.cd = 2.4; e.summon = 12; if (b.kind === 'nightmare') e.r = 44; if (b.kind === 'mirrorgiant') e.r = 56; }
@@ -3361,6 +3387,7 @@ function spawnWave() {
     for (const t of list.slice(i, i + n)) {
       const sp = zoneSpot(z, ENEMY[t].r) || freeSpot(ENEMY[t].r), e = spawnEnemy(t, sp.x, sp.y);
       e.grp = g; e.zone = z; if (gi > 0) { e.sleep = true; sleepers++; }
+      if (run.guard && room.beacon && room.beacon.hp > 0 && (t === 'crawler' || t === 'brute' || t === 'splitter' || t === 'splitter2') && enemies.filter(q => q.tgtB && !q.dead).length < 2) { e.tgtB = true; e.sleep = false; }
       if (run.long && run.layer >= 2 && rand() < Math.min(0.4, 0.1 + 0.05 * (run.layer - 2))) { e.elite = true; e.hp = e.maxHp = e.hp * 2; e.r *= 1.4; if (!run.eliteTip) { run.eliteTip = true; toast('旁白：這個影子，披著舊提燈人的披風。', 3); } }
     }
     i += n; gi++;
@@ -3417,6 +3444,7 @@ function updateEnemy(e, dt) {
   let tx = p.x, ty = p.y, lured = false;
   if (p.decoy && Math.hypot(p.decoy.x - e.x, p.decoy.y - e.y) < 720) { tx = p.decoy.x; ty = p.decoy.y; }
   if (BUG[e.type] && lures.length) { let bl = null, bd2 = 520; for (const L of lures) { const dd = Math.hypot(L.x - e.x, L.y - e.y); if (dd < bd2) { bd2 = dd; bl = L; } } if (bl) { tx = bl.x; ty = bl.y; lured = true; } }
+  if (e.tgtB && room.beacon && room.beacon.hp > 0) { tx = room.beacon.x; ty = room.beacon.y; }
   const dx = tx - e.x, dy = ty - e.y, d = Math.hypot(dx, dy) || 1, nx = dx / d, ny = dy / d;
   e.x += e.kx * dt; e.y += e.ky * dt; const kd = Math.exp(-9 * dt); e.kx *= kd; e.ky *= kd;
   let mx = 0, my = 0, touch = 1;
@@ -3515,6 +3543,12 @@ function updateEnemy(e, dt) {
     }
     case 'duster': {
       const sw = 46 * Math.sin(e.t * 2.6 + e.seed), v = 64 * e.spd; mx = nx * v + (-ny) * sw; my = ny * v + nx * sw; touch = 1; break;
+    }
+    case 'laser': {
+      e.cd -= dt; const keep = d < 260 ? -1 : d > 380 ? 1 : 0; mx = nx * 30 * e.spd * keep; my = ny * 30 * e.spd * keep; touch = 1;
+      if (e.state === 'walk' && e.cd <= 0 && d < 560) { e.state = 'wind'; e.st = 0.9; e.la = Math.atan2(dy, dx); }
+      if (e.state === 'wind') { e.tele = e.st; e.st -= dt; mx = 0; my = 0; if (e.st <= 0) { e.tele = 0; const a = e.la; for (let i = 0; i < 5; i++) later(i * 0.05, () => { if (!e.dead && state === 'play') { const b = enemyShot(e, a, 420); b.r = 5; } }); sfx('hit'); e.state = 'walk'; e.cd = rr(3, 4.2) * e.fire; } }
+      break;
     }
     case 'glitch': {
       e.cd -= dt; mx = nx * 22 * e.spd; my = ny * 22 * e.spd; touch = 1;
@@ -3865,7 +3899,7 @@ function updateBoss2(e, dt, nx, ny, d) {
     else { const n = 16, off = rand() * TAU; for (let i = 0; i < n; i++) bossShot(e, e.x, e.y, off + i / n * TAU, 170, k0 === 'dragon'); sfx('hit'); }
   } else if (k === 'giant') {
     e.cd = [2.8, 2.3, 1.9][phase - 1] * e.fire;
-    const pool = k0 === 'mummyking' ? (phase === 1 ? ['stomp', 'wrap'] : phase === 2 ? ['stomp', 'wrap', 'trap'] : ['stomp', 'wrap', 'trap', 'lava']) : k0 === 'scorpking' ? (phase === 1 ? ['stomp', 'sting'] : phase === 2 ? ['stomp', 'sting', 'dig'] : ['stomp', 'sting', 'dig', 'storm']) : k0 === 'rootking' ? (phase === 1 ? ['stomp', 'thorn'] : ['stomp', 'thorn', 'lava']) : k0 === 'toad' ? (phase === 1 ? ['stomp', 'tongue'] : ['stomp', 'tongue', 'lava']) : phase === 1 ? ['stomp', 'throw'] : ['stomp', 'throw', (k0 === 'golem' || k0 === 'scorpking' || k0 === 'mummyking') ? 'lava' : 'blizzard'], a = e.arc ? pickOf(phase === 1 ? ['stomp', 'scan', 'sprinkle'] : phase === 2 ? ['stomp', 'scan', 'sprinkle', 'tower'] : ['scan', 'sprinkle', 'tower', 'tower', 'stomp']) : e.candy ? pickOf(phase === 1 ? ['stomp', 'syrup', 'sprinkle'] : phase === 2 ? ['stomp', 'syrup', 'sprinkle', 'tower'] : ['syrup', 'sprinkle', 'tower', 'tower', 'stomp']) : pickOf(pool);
+    const pool = k0 === 'mummyking' ? (phase === 1 ? ['stomp', 'wrap'] : phase === 2 ? ['stomp', 'wrap', 'trap'] : ['stomp', 'wrap', 'trap', 'lava']) : k0 === 'scorpking' ? (phase === 1 ? ['stomp', 'sting'] : phase === 2 ? ['stomp', 'sting', 'dig'] : ['stomp', 'sting', 'dig', 'storm']) : k0 === 'rootking' ? (phase === 1 ? ['stomp', 'thorn'] : ['stomp', 'thorn', 'lava']) : k0 === 'toad' ? (phase === 1 ? ['stomp', 'tongue'] : ['stomp', 'tongue', 'lava']) : phase === 1 ? ['stomp', 'throw'] : ['stomp', 'throw', (k0 === 'golem' || k0 === 'scorpking' || k0 === 'mummyking') ? 'lava' : 'blizzard'], a = (e.arc || e.fut) ? pickOf(phase === 1 ? ['stomp', 'scan', 'sprinkle'] : phase === 2 ? ['stomp', 'scan', 'sprinkle', 'tower'] : ['scan', 'sprinkle', 'tower', 'tower', 'stomp']) : e.candy ? pickOf(phase === 1 ? ['stomp', 'syrup', 'sprinkle'] : phase === 2 ? ['stomp', 'syrup', 'sprinkle', 'tower'] : ['syrup', 'sprinkle', 'tower', 'tower', 'stomp']) : pickOf(pool);
     if (a === 'wrap') { for (let i = -1; i <= 1; i++) { const b = bossShot(e, e.x, e.y, ang + i * 0.3, 95, false, 10); b.root = true; b.wrap = true; } toast('繃帶！被纏到會定身', 1.2); sfx('hit'); }
     else if (a === 'trap') { room.sw = room.sw || []; room.sw.push({ x: p.x, y: p.y, r: 62, k: 'quick', ttl: 7 }); markStrike(e, p.x, p.y, 50, 1.0, { ring: 6 }); toast('腳下的沙在下陷！', 1.4); }
     else if (a === 'sting') { markStrike(e, p.x, p.y, 46, 0.8, {}); later(0.55, () => { if (!e.dead && state === 'play') markStrike(e, p.x, p.y, 46, 0.8, {}); }); later(1.1, () => { if (!e.dead && state === 'play') markStrike(e, p.x, p.y, 46, 0.8, { ring: 6 }); }); toast('尾針連刺！', 1.4); }
@@ -3873,9 +3907,9 @@ function updateBoss2(e, dt, nx, ny, d) {
     else if (a === 'storm') { room.storm = { t: 4, sx: (rand() < 0.5 ? -1 : 1) * 70 }; room.stT = 25; toast('蠍王掀起沙塵暴！', 1.6); }
     else if (a === 'thorn') { const ux = Math.cos(ang), uy = Math.sin(ang), n = phase === 3 ? 8 : 6; for (let i = 1; i <= n; i++) markStrike(e, e.x + ux * i * 80, e.y + uy * i * 80, 34, 0.7 + i * 0.1, i % 2 ? { ring: 4 } : {}); toast('根刺！', 1.2); }
     else if (a === 'syrup') { room.sw = room.sw || []; for (let i = 0; i < 3; i++) { const sx = clamp(i === 0 ? p.x : p.x + rr(-220, 220), ROOM.x + 60, ROOM.x + ROOM.w - 60), sy = clamp(i === 0 ? p.y : p.y + rr(-160, 160), ROOM.y + 60, ROOM.y + ROOM.h - 60); markStrike(e, sx, sy, 50, 1.0, { ring: 6 }); later(1.0, () => { if (!e.dead && room.sw) room.sw.push({ x: sx, y: sy, r: 62, k: 'quick', ttl: 6, candy: true }); }); } toast('糖漿噴灑！', 1.2); }
-    else if (a === 'sprinkle') { const n = phase === 3 ? 4 : 3; for (let w = 0; w < n; w++) later(w * 0.45, () => { if (e.dead || state !== 'play') return; const off = w * 0.31; for (let i = 0; i < 10; i++) bossShot(e, e.x, e.y, off + i / 10 * TAU, 140, false, 6); sfx('hit'); }); toast(e.arc ? '位元彈幕！' : '彩糖粒撒下來！', 1.2); }
-    else if (a === 'scan') { const horiz = rand() < 0.5, n = phase === 3 ? 10 : 8; for (let i = 0; i < n; i++) { const sx = horiz ? ROOM.x + 50 + i * (ROOM.w - 100) / (n - 1) : p.x, sy = horiz ? p.y : ROOM.y + 40 + i * (ROOM.h - 80) / (n - 1); markStrike(e, sx, sy, 34, 0.6 + i * 0.09, {}); } toast('掃描線！', 1.2); }
-    else if (a === 'tower') { const ux = Math.cos(ang), uy = Math.sin(ang), n = phase === 3 ? 7 : 5; for (let i = 1; i <= n; i++) markStrike(e, e.x + ux * i * 90, e.y + uy * i * 90, 44, 0.7 + i * 0.12, i % 2 ? { ring: 6 } : {}); toast(e.arc ? '方塊落下！' : '蛋糕塔坍塌！', 1.2); }
+    else if (a === 'sprinkle') { const n = phase === 3 ? 4 : 3; for (let w = 0; w < n; w++) later(w * 0.45, () => { if (e.dead || state !== 'play') return; const off = w * 0.31; for (let i = 0; i < 10; i++) bossShot(e, e.x, e.y, off + i / 10 * TAU, 140, false, 6); sfx('hit'); }); toast(e.fut ? '能量彈幕！' : e.arc ? '位元彈幕！' : '彩糖粒撒下來！', 1.2); }
+    else if (a === 'scan') { const horiz = rand() < 0.5, n = phase === 3 ? 10 : 8; for (let i = 0; i < n; i++) { const sx = horiz ? ROOM.x + 50 + i * (ROOM.w - 100) / (n - 1) : p.x, sy = horiz ? p.y : ROOM.y + 40 + i * (ROOM.h - 80) / (n - 1); markStrike(e, sx, sy, 34, 0.6 + i * 0.09, {}); } toast(e.fut ? '雷射掃描！' : '掃描線！', 1.2); }
+    else if (a === 'tower') { const ux = Math.cos(ang), uy = Math.sin(ang), n = phase === 3 ? 7 : 5; for (let i = 1; i <= n; i++) markStrike(e, e.x + ux * i * 90, e.y + uy * i * 90, 44, 0.7 + i * 0.12, i % 2 ? { ring: 6 } : {}); toast(e.fut ? '軌道轟炸！' : e.arc ? '方塊落下！' : '蛋糕塔坍塌！', 1.2); }
     else if (a === 'tongue') { e.tongue = { t: 0.8, x: p.x, y: p.y }; markStrike(e, p.x, p.y, 40, 0.8, {}); toast('舌頭！快移開', 1.2); }
     else
     if (a === 'lava') { const n = phase === 3 ? 5 : 4; for (let i = 0; i < n; i++) markStrike(e, i === 0 ? p.x : p.x + rr(-240, 240), i === 0 ? p.y : p.y + rr(-170, 170), 58, 1.0, { ring: 6 }); toast(th() === 8 ? '沙刺突起！' : th() === 7 ? '毒液噴發！' : '熔岩噴發！', 1.2); }
@@ -4012,9 +4046,94 @@ function pixelize() {
   ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.imageSmoothingEnabled = false; ctx.clearRect(0, 0, cv.width, cv.height); ctx.drawImage(pxCv, 0, 0, w, h, 0, 0, w * s, h * s); ctx.restore();
 }
 
+/* ---------- future world (DLC 3) + escape / guard modes ---------- */
+const FUT_SKIN = { crawler: 'drone', shooter: 'turret', brute: 'mech', splitter: 'nano', splitter2: 'nano', bomber: 'mine', laser: 'laser', glitch: 'phase' };
+function drawFutEnemy(e) {
+  const r = e.r, f = e.flash > 0, sk = e.skin, hue = ['#00e5ff', '#ff2e97', '#b6ff3b', '#b388ff'][e.hue | 0], ol = '#0b0626';
+  const glow = (col, rad) => { ctx.save(); ctx.globalAlpha = 0.28; ctx.fillStyle = col; circ(ctx, 0, 0, rad); ctx.restore(); };
+  glow(hue, r * 1.7);
+  if (sk === 'drone') {
+    ctx.fillStyle = ol; poly(ctx, [[0, -r * 1.15], [r * 1.05, -r * 0.55], [r * 1.05, r * 0.55], [0, r * 1.15], [-r * 1.05, r * 0.55], [-r * 1.05, -r * 0.55]]);
+    ctx.fillStyle = f ? C.paper : '#2b2f6e'; poly(ctx, [[0, -r], [r * 0.9, -r * 0.5], [r * 0.9, r * 0.5], [0, r], [-r * 0.9, r * 0.5], [-r * 0.9, -r * 0.5]]);
+    ctx.fillStyle = f ? C.paperDim : hue; circ(ctx, 0, 0, r * 0.42); ctx.strokeStyle = hue; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, r * 1.25, r * 0.4, e.t * 4, 0, TAU); ctx.stroke();
+  } else if (sk === 'turret') {
+    ctx.fillStyle = ol; circ(ctx, 0, 0, r * 1.1); ctx.fillStyle = f ? C.paper : '#2b2f6e'; circ(ctx, 0, 0, r); ctx.fillStyle = hue; circ(ctx, 0, 0, r * 0.55);
+    const a = Math.atan2(p.y - e.y, p.x - e.x); ctx.strokeStyle = hue; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(a) * r * 1.5, Math.sin(a) * r * 1.5); ctx.stroke();
+  } else if (sk === 'mech') {
+    ctx.fillStyle = ol; rrect(ctx, -r * 1.05, -r * 1.05, r * 2.1, r * 2.1, 6); ctx.fillStyle = f ? C.paper : '#3b3f8c'; rrect(ctx, -r, -r, r * 2, r * 2, 5);
+    ctx.fillStyle = hue; ctx.fillRect(-r * 0.7, -r * 0.35, r * 1.4, r * 0.35); ctx.fillStyle = f ? C.paperDim : '#7a7ee8'; ctx.fillRect(-r, r * 0.35, r * 2, 4);
+  } else if (sk === 'nano') {
+    ctx.fillStyle = ol; for (const [x, y] of [[-0.5, -0.3], [0.5, -0.3], [0, 0.55]]) circ(ctx, x * r, y * r, r * 0.62);
+    ctx.fillStyle = f ? C.paper : hue; for (const [x, y] of [[-0.5, -0.3], [0.5, -0.3], [0, 0.55]]) circ(ctx, x * r, y * r, r * 0.5);
+  } else if (sk === 'mine') {
+    ctx.fillStyle = ol; circ(ctx, 0, 0, r * 1.05); for (let i = 0; i < 8; i++) { const a = i * 0.785 + e.t; poly(ctx, [[Math.cos(a - 0.15) * r, Math.sin(a - 0.15) * r], [Math.cos(a) * r * 1.5, Math.sin(a) * r * 1.5], [Math.cos(a + 0.15) * r, Math.sin(a + 0.15) * r]]); }
+    ctx.fillStyle = f ? C.paper : '#2b2f6e'; circ(ctx, 0, 0, r * 0.9); ctx.fillStyle = Math.sin(e.t * 8) > 0 ? '#ff2e97' : '#5a1040'; circ(ctx, 0, 0, r * 0.35);
+  } else if (sk === 'laser') {
+    if (e.tele > 0) { ctx.save(); ctx.globalAlpha = 0.35 + 0.4 * (1 - e.tele / 0.9); ctx.strokeStyle = '#ff2e97'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(e.la) * 700, Math.sin(e.la) * 700); ctx.stroke(); ctx.restore(); }
+    ctx.fillStyle = ol; poly(ctx, [[0, -r * 1.2], [r * 0.9, 0], [0, r * 1.2], [-r * 0.9, 0]]); ctx.fillStyle = f ? C.paper : '#ff2e97'; poly(ctx, [[0, -r], [r * 0.7, 0], [0, r], [-r * 0.7, 0]]); ctx.fillStyle = '#fff'; circ(ctx, 0, 0, r * 0.25);
+  } else { // phase
+    if (e.tele > 0) { ctx.save(); ctx.globalAlpha = 0.5; ctx.strokeStyle = '#00e5ff'; ctx.setLineDash([4, 4]); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(e.lx - e.x, e.ly - e.y, r * 1.3, 0, TAU); ctx.stroke(); ctx.restore(); }
+    ctx.globalAlpha = 0.6 + 0.4 * Math.sin(e.t * 20); ctx.fillStyle = ol; poly(ctx, [[0, -r * 1.15], [r * 1.05, 0], [0, r * 1.15], [-r * 1.05, 0]]); ctx.fillStyle = f ? C.paper : '#b388ff'; poly(ctx, [[0, -r], [r * 0.9, 0], [0, r], [-r * 0.9, 0]]); ctx.globalAlpha = 1;
+  }
+}
+function drawFutBoss(e) {
+  const fl = e.flash > 0, t = e.t, ol = '#0b0626', arm = e.tl && e.tl.act === 'stomp' ? -22 : Math.sin(t * 2) * 6;
+  ctx.save(); ctx.globalAlpha = 0.25; ctx.fillStyle = '#00e5ff'; circ(ctx, 0, 0, 100); ctx.restore();
+  ctx.fillStyle = ol; rrect(ctx, -86, -8 + arm, 34, 52, 8); rrect(ctx, 52, -8 + arm, 34, 52, 8); ctx.fillStyle = fl ? C.paper : '#8146e0'; rrect(ctx, -82, -4 + arm, 26, 44, 6); rrect(ctx, 56, -4 + arm, 26, 44, 6);
+  ctx.fillStyle = ol; poly(ctx, [[0, -78], [62, -40], [62, 40], [0, 78], [-62, 40], [-62, -40]]); ctx.fillStyle = fl ? C.paper : '#2b2f6e'; poly(ctx, [[0, -70], [55, -36], [55, 36], [0, 70], [-55, 36], [-55, -36]]);
+  ctx.strokeStyle = '#00e5ff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-40, -20); ctx.lineTo(-10, -20); ctx.lineTo(0, -34); ctx.moveTo(40, 22); ctx.lineTo(10, 22); ctx.lineTo(0, 36); ctx.stroke();
+  ctx.fillStyle = ol; circ(ctx, 0, 0, 24); ctx.fillStyle = fl ? C.paperDim : '#ff2e97'; circ(ctx, 0, 0, 20); ctx.fillStyle = '#fff'; circ(ctx, Math.cos(e.fa || 0) * 6, Math.sin(e.fa || 0) * 6, 7); ctx.fillStyle = ol; circ(ctx, Math.cos(e.fa || 0) * 8, Math.sin(e.fa || 0) * 8, 3.5);
+  ctx.strokeStyle = '#6ff3ff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, 34, t * 2, t * 2 + 2.2); ctx.stroke();
+}
+function drawFutObs(g, o, rng) {
+  setShadow(g, 0, 4, 0, 'rgba(0,229,255,.35)'); g.fillStyle = '#0b0626'; rrect(g, o.x - 3, o.y - 3, o.w + 6, o.h + 6, 8); noShadow(g);
+  g.fillStyle = '#1d2260'; rrect(g, o.x, o.y, o.w, o.h, 6); g.strokeStyle = '#00e5ff'; g.lineWidth = 3; g.strokeRect(o.x + 3, o.y + 3, o.w - 6, o.h - 6);
+  g.strokeStyle = '#ff2e97'; g.lineWidth = 2; g.beginPath(); if (o.w >= o.h) { g.moveTo(o.x + 10, o.y + o.h / 2); g.lineTo(o.x + o.w - 10, o.y + o.h / 2); } else { g.moveTo(o.x + o.w / 2, o.y + 10); g.lineTo(o.x + o.w / 2, o.y + o.h - 10); } g.stroke();
+  g.fillStyle = '#6ff3ff'; circ(g, o.x + o.w / 2, o.y + o.h / 2, 4);
+}
+function updateModes(dt) {
+  if (state !== 'play') return;
+  const c = room.col;
+  if (c && !room.cleared) {
+    if (room.escT > 0) { room.escT -= dt; if (room.escT <= 0) { c.v = 45; c.delay = 0; toast('時間到！崩塌線加速了！', 2.2); } }
+    if (c.delay > 0) c.delay -= dt; else c.x += c.v * dt;
+    if (p.x - p.r < c.x) { if (p.iframes <= 0) hurtFrom('collapse', 1, 1, 0); p.x = c.x + p.r + 2; }
+    for (const e of enemies) if (e.type !== 'boss' && e.x < c.x - 6) { e.x = c.x + 6; }
+  }
+  const b = room.beacon;
+  if (b && b.hp > 0 && !room.cleared) {
+    b.t += dt; b.hurtT = Math.max(0, b.hurtT - dt);
+    for (const e of enemies) if (e.tgtB && !e.dead && e.spawn <= 0 && Math.hypot(e.x - b.x, e.y - b.y) < e.r + 24 && b.hurtT <= 0) { b.hp -= 1; b.hurtT = 1.3; burst(b.x, b.y, 8, ['#00e5ff', '#ff2e97'], 120, true); sfx('hurt'); }
+    for (const q of bullets) if (q.own === 'e' && !q.dead && Math.hypot(q.x - b.x, q.y - b.y) < q.r + 22) { q.dead = true; b.hp -= 0.5; burst(q.x, q.y, 4, ['#ff2e97'], 90, true); }
+    if (Math.hypot(p.x - b.x, p.y - b.y) < 110 && b.hp < b.max) b.hp = Math.min(b.max, b.hp + 0.3 * dt);
+    if (b.hp <= 0) { b.hp = 0; toast('燈塔熄滅了……', 2); hitSrc = 'beacon'; die(); }
+  }
+}
+function drawModes() {
+  const c = room.col;
+  if (c) {
+    ctx.save(); const x1 = ROOM.x - 70, w = c.x - x1; if (w > 0) {
+      ctx.fillStyle = '#0a0014'; ctx.fillRect(x1, ROOM.y - 60, w, ROOM.h + 120);
+      for (let i = 0; i < 40; i++) { const yy = ROOM.y - 60 + ((i * 37 + Math.floor(time * 12) * 11) % (ROOM.h + 120)); ctx.fillStyle = i % 3 ? '#ff2e97' : '#00e5ff'; ctx.globalAlpha = 0.55; ctx.fillRect(x1 + ((i * 53) % Math.max(10, w)), yy, 30 + (i * 7) % 40, 4); }
+      ctx.globalAlpha = 1; ctx.fillStyle = '#ff2e97'; ctx.fillRect(c.x - 4, ROOM.y - 60, 4, ROOM.h + 120);
+    }
+    ctx.restore();
+    if (room.escT > 0 && !room.cleared) { ctx.save(); ctx.font = '700 22px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#ffd23f'; ctx.strokeStyle = '#0a0a24'; ctx.lineWidth = 4; const tt = 'BOSS 倒數 ' + Math.ceil(room.escT); ctx.strokeText(tt, ROOM.x + ROOM.w / 2, ROOM.y + 26); ctx.fillText(tt, ROOM.x + ROOM.w / 2, ROOM.y + 26); ctx.restore(); }
+  }
+  const b = room.beacon;
+  if (b && b.hp > 0) {
+    ctx.save(); ctx.translate(b.x, b.y); const pul = 1 + Math.sin(b.t * 4) * 0.06;
+    ctx.fillStyle = 'rgba(0,229,255,.2)'; circ(ctx, 0, 0, 44 * pul); ctx.fillStyle = '#0b0626'; rrect(ctx, -14, -6, 28, 34, 5); ctx.fillStyle = '#2b2f6e'; rrect(ctx, -11, -3, 22, 28, 4);
+    ctx.fillStyle = '#0b0626'; circ(ctx, 0, -14, 17); ctx.fillStyle = '#00e5ff'; circ(ctx, 0, -14, 13 * pul); ctx.fillStyle = '#fff'; circ(ctx, -3, -17, 4);
+    const fr = b.hp / b.max; ctx.fillStyle = '#0b0626'; ctx.fillRect(-26, -42, 52, 8); ctx.fillStyle = fr > 0.4 ? '#6ff3ff' : '#ff2e97'; ctx.fillRect(-24, -40, 48 * fr, 4);
+    ctx.restore();
+  }
+}
+
 function drawBoss2(e) {
   if (e.candy) { drawCandyBoss(e); return; }
   if (e.arc) { drawArcBoss(e); return; }
+  if (e.fut) { drawFutBoss(e); return; }
   const k = e.kind, a = e.fa || 0, fl = e.flash > 0, t = e.t;
   if (k === 'nightmare') {
     ctx.globalAlpha = 0.25; ctx.fillStyle = '#b8a8ff'; circ(ctx, 0, -6, 76); ctx.globalAlpha = 1;
@@ -4459,7 +4578,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.41　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.41　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.42　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.42　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -4755,7 +4874,7 @@ function updatePlay(dt) {
   follow = !mouse.down;
   p.iframes = Math.max(0, p.iframes - dt); p.cd = Math.max(0, p.cd - dt); p.noiseT = Math.max(0, (p.noiseT || 0) - dt); p.skillCd = Math.max(0, p.skillCd - dt); if (p.sleepT > 0) { p.sleepT -= dt; p.skillCd = Math.max(0.01, p.sleepT); if (p.sleepT <= 0) wakeUp(false); } updateStall(dt); p.chainT = Math.max(0, p.chainT - dt); fEdge = Math.max(0, fEdge - dt); p.recoil = Math.max(0, p.recoil - dt);
   if (room.big) markExplored();
-  playerMove(dt); updateAllies(dt); aimUpdate(); p.near = room.items.length ? nearestItem() : null; attackUpdate(dt); updateWeapons(dt); updateClassTimers(dt); updateWaves(dt); updateChase(dt); updateRush(dt); updateDecor(dt); updateSwamp(dt); updateTimed(dt); updateBlooms();
+  playerMove(dt); updateAllies(dt); aimUpdate(); p.near = room.items.length ? nearestItem() : null; attackUpdate(dt); updateWeapons(dt); updateClassTimers(dt); updateWaves(dt); updateChase(dt); updateRush(dt); updateDecor(dt); updateSwamp(dt); updateTimed(dt); updateBlooms(); updateModes(dt);
   for (const e of enemies) { updateEnemy(e, dt * slowAt(e.x, e.y, e.type === 'boss')); if (e.pin && !e.dead) { e.x = e.pin.x; e.y = e.pin.y; } }
   for (let i = 0; i < enemies.length; i++) for (let j = i + 1; j < enemies.length; j++) {
     const a = enemies[i], b = enemies[j]; if (a.type === 'boss' || b.type === 'boss') continue;
@@ -4934,6 +5053,13 @@ function drawItem(it) {
     ctx.fillStyle = PAL.wall1; rrect(ctx, -3, -4, 6, 30, 2); ctx.fillStyle = rec.tutOff ? C.paperDim : '#8fc4e4'; rrect(ctx, -26, -26, 52, 28, 4); noShadow(ctx);
     ctx.fillStyle = '#2a2236'; ctx.font = '700 15px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(rec.tutOff ? '教學關' : '教學開', 0, -7);
     ctx.restore(); return;
+  }
+  if (it.kind === 'escGo' || it.kind === 'futGo') {
+    const esc = it.kind === 'escGo', on = run.dlc === (esc ? 'escape' : 'future');
+    ctx.save(); ctx.translate(it.x, it.y); ctx.fillStyle = '#0a0a24'; ctx.fillRect(-22, -38, 44, 56); ctx.fillStyle = on ? '#ffd23f' : esc ? '#a0243c' : '#2b2f6e'; ctx.fillRect(-18, -34, 36, 34);
+    if (esc) { ctx.fillStyle = '#ffd23f'; for (let i = 0; i < 4; i++) poly(ctx, [[-18 + i * 9, -34], [-9 + i * 9, -34], [-18 + i * 9 + 9, -4], [-18 + i * 9, -4]]); }
+    else { ctx.fillStyle = '#00e5ff'; circ(ctx, 0, -18, 9); ctx.fillStyle = '#ff2e97'; ctx.fillRect(-14, -4, 28, 3); }
+    ctx.fillStyle = '#fff'; ctx.font = '700 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(on ? '已選' : esc ? '逃離' : '未來', 0, 32); ctx.restore(); return;
   }
   if (it.kind === 'arcGo') {
     ctx.save(); ctx.translate(it.x, it.y); ctx.fillStyle = '#0a0a24'; ctx.fillRect(-22, -38, 44, 56); ctx.fillStyle = run.dlc === 'arcade' ? '#ffd23f' : '#3a3a8c'; ctx.fillRect(-18, -34, 36, 34);
@@ -5293,7 +5419,7 @@ function drawEyes(e) {
   ctx.save(); ctx.translate(e.x, e.y);
   const ex = clamp((p.x - e.x) / 60, -1, 1) * 1.4, ey = clamp((p.y - e.y) / 60, -1, 1) * 1.4;
   const glow = (x, y, r, col) => { ctx.globalAlpha = 0.35; ctx.fillStyle = col; circ(ctx, x, y, r); ctx.globalAlpha = 1; };
-  if (e.type === 'faceless' || e.type === 'rusher' || e.type === 'mirrorman' || e.type === 'ghost' || e.type === 'sleepwalker' || e.type === 'wisp' || e.type === 'jumper' || e.type === 'spore' || (e.skin && th() === 7 && SW_SKIN[e.type]) || e.type === 'scorpion' || e.type === 'mummy' || e.type === 'bandit' || e.type === 'duster' || e.type === 'cactus' || e.skin === 'beetle' || (th() === 9 && CANDY_SKIN[e.type]) || (th() === 10 && ARC_SKIN[e.type])) { /* 有自己的臉 */ } else if (e.type === 'crawler' || e.type === 'fleer' || e.type === 'budling' || e.type === 'moth' || e.type === 'snowball' || e.type === 'snowlet' || e.type === 'mist') {
+  if (e.type === 'faceless' || e.type === 'rusher' || e.type === 'mirrorman' || e.type === 'ghost' || e.type === 'sleepwalker' || e.type === 'wisp' || e.type === 'jumper' || e.type === 'spore' || (e.skin && th() === 7 && SW_SKIN[e.type]) || e.type === 'scorpion' || e.type === 'mummy' || e.type === 'bandit' || e.type === 'duster' || e.type === 'cactus' || e.skin === 'beetle' || (th() === 9 && CANDY_SKIN[e.type]) || (th() === 10 && ARC_SKIN[e.type]) || (th() === 11 && FUT_SKIN[e.type])) { /* 有自己的臉 */ } else if (e.type === 'crawler' || e.type === 'fleer' || e.type === 'budling' || e.type === 'moth' || e.type === 'snowball' || e.type === 'snowlet' || e.type === 'mist') {
     for (const sx of [-5, 5]) { ctx.fillStyle = C.eye; circ(ctx, sx, -2, 3.6); ctx.fillStyle = C.dark; circ(ctx, sx + ex, -2 + ey, 1.7); }
   } else if (e.type === 'shooter' || e.type === 'vine' || e.type === 'frostneedle') {
     if (e.tele > 0) glow(0, -3, 16, C.amber);
@@ -5332,7 +5458,7 @@ function drawLight() {
   g.save(); g.translate(-cam.x, -cam.y);
   g.globalCompositeOperation = 'destination-out';
   const R = lightR() * (1 + 0.02 * Math.sin(time * 9) + 0.015 * Math.sin(time * 23));
-  if (room.lampOn || th() === 9 || th() === 10) { g.restore(); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H); return R; }
+  if (room.lampOn || th() === 9 || th() === 10 || th() === 11) { g.restore(); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H); return R; }
   hole(g, p.x, p.y, R, 1);
   for (const L of lures) hole(g, L.x, L.y, 70, 0.7);
   if (state === 'play' && p.weapons[p.w] === 'dance') for (const off of [0, Math.PI]) hole(g, p.x + Math.cos((p.danceA || 0) + off) * 74, p.y - 4 + Math.sin((p.danceA || 0) + off) * 74, 60, 0.8);
@@ -5437,7 +5563,7 @@ function render() {
   drawDoor(); drawProp(); drawBlinds(); drawDecor(); drawSwamp(); drawVials(); drawOrb();
   for (const a of absorbs) { ctx.save(); ctx.globalAlpha = Math.min(0.5, a.t * 0.4); ctx.strokeStyle = '#b8a0ff'; ctx.lineWidth = 2; ctx.setLineDash([6, 8]); ctx.beginPath(); ctx.arc(a.x, a.y, a.r, 0, TAU); ctx.stroke(); ctx.restore(); }
   for (const it of room.items) drawItem(it);
-  drawStall();
+  drawStall(); drawModes();
   for (const o of tobs) drawTob(o);
   for (const j of jellies) drawJelly(j);
   for (const k of pickups) drawPickup(k);
@@ -5568,6 +5694,7 @@ function render() {
   }
   ctx.restore();
   if (th() === 10) pixelize();
+  if (th() === 11) { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = 'rgba(0,10,40,.10)'; for (let y = 0; y < cv.height; y += 4 * DPR) ctx.fillRect(0, y, cv.width, DPR); ctx.restore(); }
   drawBigUI();
   if (fade.a > 0) { ctx.fillStyle = 'rgba(8,6,16,' + fade.a + ')'; ctx.fillRect(0, 0, W, H); }
 }
