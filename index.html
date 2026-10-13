@@ -303,7 +303,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.31　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.32　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -580,7 +580,7 @@ const BIG = { w: 1640, h: 900 }, BOSSR = { w: 1250, h: 720 };
 const DOOR = { y: ROOM.y + ROOM.h / 2, h: 110 };
 const WDEF = {
   flame:   { id: 'flame',   name: '燈焰杖', tag: '單發', mode: 'tap',  cd: 0.38, desc: '單發火球，傷害最高' },
-  firefly: { id: 'firefly', name: '螢火弓', tag: '連射', mode: 'auto', cd: 0.11, desc: '按住連射，射速快' },
+  firefly: { id: 'firefly', name: '螢火弓', tag: '連射', mode: 'auto', cd: 0.10, desc: '按住連射，射速快' },
   blade:   { id: 'blade',   name: '提燈刃', tag: '近戰', mode: 'tap',  cd: 0.42, desc: '近身大範圍揮砍' },
   scatter: { id: 'scatter', name: '霰光杖', tag: '散射', mode: 'tap',  cd: 0.62, desc: '五發散射，近距離很痛' },
   lance:   { id: 'lance',   name: '穿光矛', tag: '貫穿', mode: 'tap',  cd: 0.75, desc: '貫穿一整排敵人' },
@@ -591,7 +591,7 @@ const WDEF = {
   oilgun:  { id: 'oilgun',  name: '油燈槍', tag: '補能', mode: 'tap', cd: 0.55, cls: 'oiler', desc: '慢速單發，命中敵人會讓暖光冷卻縮短 0.3 秒' },
   pblade:  { id: 'pblade',  name: '紙盾刃', tag: '近戰', mode: 'tap', cd: 0.35, cls: 'shield', range: 105, half: 1.0, dmg: 3, desc: '小範圍的近戰揮砍，揮砍時會擋掉敵方子彈' },
   watchlamp: { id: 'watchlamp', name: '守夜燈', tag: '單發', mode: 'tap', cd: 0.4, cls: 'watch', desc: '穩定的單發光彈，在自己的光圈內傷害更高' },
-  lamplet: { id: 'lamplet', name: '小火球', tag: '連射', mode: 'auto', cd: 0.22, cls: 'lampist', desc: '連射的小火球，傷害 1.5' },
+  lamplet: { id: 'lamplet', name: '小火球', tag: '連射', mode: 'auto', cd: 0.22, cls: 'lampist', desc: '連射的小火球，傷害 1.8' },
   shadeblade: { id: 'shadeblade', name: '影刃', tag: '近戰連砍', mode: 'auto', cd: 0.25, cls: 'inkhunter', range: 110, half: 0.87, dmg: 2.5, desc: '長按 F 持續揮出近戰扇形（約每 0.25 秒一次）' },
   frostcane: { id: 'frostcane', name: '霜燈杖', tag: '近戰', mode: 'tap', cd: 0.65, cls: 'bellman', range: 135, half: 1.1, dmg: 6, kb: 900, desc: '慢速近戰，擊退很強，傷害 6' },
   bloat:   { id: 'bloat',   name: '膨脹燈球', tag: '漸大', mode: 'tap', cd: 0.5, desc: '單發球體，飛出去會明顯脹大（半徑約 ×6），越大越痛（傷害 5 → 10）' },
@@ -602,7 +602,7 @@ const WDEF = {
   vial:    { id: 'vial',    name: '毒瓶', tag: '拋擲・毒池', mode: 'tap', cd: 1.1, th: 7, desc: '丟出一瓶毒液，落地形成毒池 3 秒：敵人站在裡面每秒受 2 點傷害並沾毒（之後 3 秒每秒再受 1 點）（詛咒沼澤主題武器）' },
   scim:    { id: 'scim',    name: '彎刀迴旋', tag: '迴旋', mode: 'tap', cd: 0.8, th: 8, desc: '擲出一把彎刀，弧線飛出去再飛回來，來回都會貫穿敵人並清除敵人光球；接住它會立刻重置冷卻（沙漠主題武器）' },
   orb:     { id: 'orb',     name: '小光點', tag: '自走・護盾', mode: 'hold', cd: 0.1, desc: '放開時小光點會自己衝向最近的敵人，撞到造成傷害（不用瞄準）；按住 F 讓它回到身邊繞著你轉，擋掉敵人的子彈，但不會攻擊' },
-  lure:    { id: 'lure',    name: '蟲餌', tag: '誘引', mode: 'hold', cd: 0.1, desc: '按住在前方放出氣味，最多同時兩個；吸引附近的蟲系敵人，70 像素內的敵人每秒受到 2 點傷害；放開後氣味還會留 3 秒' }
+  lure:    { id: 'lure',    name: '蟲餌', tag: '誘引', mode: 'hold', cd: 0.1, desc: '按住在前方放出氣味，最多同時兩個；吸引附近的蟲系敵人，70 像素內的敵人每秒受到 2.5 點傷害；放開後氣味還會留 3 秒' }
 };
 const WLIST = Object.keys(WDEF);
 const WCOL = { flame: '#ffb347', firefly: '#d9ff8a', blade: '#f0e4c8', scatter: '#ffb3c6', lance: '#9fe3ff', ember: '#ff8a4a', beam: '#fff2a8', rang: '#e8dcc0', whip: '#ffd27a', oilgun: '#ffcf70', lamplet: '#ffcf70', shadeblade: '#9a8cc8', frostcane: '#bfe3f5', pblade: '#cfe6f5', watchlamp: '#ffe6a0', bloat: '#8fd8ff', bloat3: '#8fd8ff', glance: '#b0f0ff', dance: '#ff7a3c', lure: '#cfe86a', fan: '#e8e4d8' };
@@ -614,15 +614,15 @@ const UPG = {
   hands:  { name: '巧手套', desc: '攻擊間隔 -12%' },
   shade:  { name: '寬燈罩', desc: '燈光範圍 +15%' },
   pierce: { name: '穿透彈', desc: '子彈多穿透 1 隻敵人；本來就會穿透的武器改為傷害 +15%（最多 3 層）', max: 3, price: 13 },
-  big:    { name: '大子彈', desc: '子彈變大 25%，更好命中（最多 2 層）', max: 2, price: 11 },
-  reach:  { name: '長臂', desc: '攻擊範圍 +20%：近戰、光束、長鞭與子彈射程都變長（最多 2 層）', max: 2, price: 11 },
-  crit:   { name: '暴擊符', desc: '暴擊率 +10%，暴擊造成 1.5 倍傷害（最多 4 層）', max: 4, price: 11 },
+  big:    { name: '大子彈', desc: '子彈變大 25%，更好命中（最多 2 層）', max: 2, price: 8 },
+  reach:  { name: '長臂', desc: '攻擊範圍 +20%：近戰、光束、長鞭與子彈射程都變長（最多 2 層）', max: 2, price: 8 },
+  crit:   { name: '暴擊符', desc: '暴擊率 +10%，暴擊造成 1.8 倍傷害（最多 4 層）', max: 4, price: 11 },
   skcd:   { name: '快手印', desc: '職業技能冷卻 −12%（最多 3 層）', max: 3, price: 11 },
   skpow:  { name: '擴音燈罩', desc: '職業技能的範圍與傷害 +20%（最多 3 層）', max: 3, price: 11 },
-  c_echo:  { name: '迴響光波', cls: 'knight', desc: '【提燈騎士專屬】光爆結束 0.5 秒後再放出一道半徑 60% 的光波，傷害 1', max: 2, price: 13 },
+  c_echo:  { name: '迴響光波', cls: 'knight', desc: '【提燈騎士專屬】光爆結束 0.5 秒後再放出一道半徑 60% 的光波，傷害 1', max: 2, price: 10 },
   c_swarm: { name: '螢火增殖', cls: 'hunter', desc: '【螢火獵人專屬】螢火蟲群從 10 隻增加到 14 隻', max: 2, price: 13 },
   c_chain: { name: '連裁', cls: 'cutter', desc: '【剪紙匠專屬】衝刺結束後 1.5 秒內，可以再衝刺一次（不重新計冷卻）', max: 2, price: 13 },
-  c_wall:  { name: '雙層屏障', cls: 'mage', desc: '【折紙術士專屬】同時立起兩道前後相隔的紙牆', max: 2, price: 13 },
+  c_wall:  { name: '雙層屏障', cls: 'mage', desc: '【折紙術士專屬】同時立起兩道前後相隔的紙牆', max: 2, price: 10 },
   c_warm:  { name: '濃縮暖光', cls: 'oiler', desc: '【燈油師專屬】第 1 層：暖光恢復量 +1；第 2 層：暖光冷卻 −20%', max: 2, price: 13 },
   c_shield: { name: '厚紙盾', cls: 'shield', desc: '【紙盾衛專屬】第 1 層：護盾上限 +1；第 2 層：護盾恢復速度 +30%', max: 2, price: 13 },
   c_lantern: { name: '燈籠增產', cls: 'lampist', desc: '【提燈使專屬】第 1 層：小燈籠 +1 盞；第 2 層：再 +1 盞，且火球傷害 +30%', max: 2, price: 13 },
@@ -633,24 +633,24 @@ const UPG = {
   c_slp:   { name: '安眠心得', cls: 'sleepc', desc: '【嗜睡者專屬】第 1 層：睡眠時移速 +30%、視野變大（約血量 2）；第 2 層：醒來的攻擊使範圍內敵人沉睡 2 秒，且睡眠被打到只有 50% 機率醒來', max: 2, price: 13 },
   c_slow:  { name: '時光心得', cls: 'slowc', desc: '【沙漏客專屬】第 1 層：緩速範圍 +20%；第 2 層：持續 +1.5 秒、冷卻 −2 秒，且釋放時清除範圍內敵方光球', max: 2, price: 13 },
   c_bell:  { name: '霜重', cls: 'bellman', desc: '【凜風客專屬】第 1 層：凍結時間 +0.4 秒；第 2 層：凍結的敵人受到的傷害加成再 +10%', max: 2, price: 13 },
-  c_watch: { name: '守夜心得', cls: 'watch', desc: '【守夜人專屬】第 1 層：視野內增傷 +10%；第 2 層：光圈範圍 +15%，且燈火壓制自動施放（按空白鍵開關；關閉時會立刻手動施放一次，想自己抓節奏就保持關閉並在需要時再去開關）', max: 2, price: 13 }
+  c_watch: { name: '守夜心得', cls: 'watch', desc: '【守夜人專屬】第 1 層：視野內增傷 +10%；第 2 層：光圈範圍 +15%，且燈火壓制自動施放（按空白鍵開關；關閉時會立刻手動施放一次，想自己抓節奏就保持關閉並在需要時再去開關）', max: 2, price: 10 }
 };
 const PREM = {
-  wick:   { name: '燈芯罐', desc: '最大血量 +2，並恢復 2', price: 12 },
-  oil:    { name: '精煉烈焰油', desc: '傷害 +50%', price: 12 },
-  shoes:  { name: '疾風紙靴', desc: '移動速度 +25%', price: 12 },
-  hands:  { name: '神速手套', desc: '攻擊間隔 −28%', price: 12 },
-  shade:  { name: '明燈罩', desc: '燈光範圍 +35%', price: 12 },
+  wick:   { name: '燈芯罐', desc: '最大血量 +2，並恢復 2', price: 13 },
+  oil:    { name: '精煉烈焰油', desc: '傷害 +50%', price: 16 },
+  shoes:  { name: '疾風紙靴', desc: '移動速度 +25%', price: 14 },
+  hands:  { name: '神速手套', desc: '攻擊間隔 −28%', price: 16 },
+  shade:  { name: '明燈罩', desc: '燈光範圍 +35%', price: 14 },
   pierce: { name: '雙重穿透彈', desc: '子彈多穿透 2 隻；本來就會穿透的武器傷害 +30%（占 2 層上限）', price: 22, w: 2 },
-  big:    { name: '巨大子彈', desc: '子彈半徑 +50%（占 2 層上限）', price: 19, w: 2 },
-  reach:  { name: '長臂之極', desc: '攻擊範圍 +40%（占 2 層上限）', price: 19, w: 2 },
+  big:    { name: '巨大子彈', desc: '子彈半徑 +50%（占 2 層上限）', price: 14, w: 2 },
+  reach:  { name: '長臂之極', desc: '攻擊範圍 +40%（占 2 層上限）', price: 14, w: 2 },
   crit:   { name: '致命符', desc: '暴擊率 +25%（占 2 層上限）', price: 19, w: 2 },
   skcd:   { name: '疾手印', desc: '職業技能冷卻 −25%（占 2 層上限）', price: 19, w: 2 },
   skpow:  { name: '轟鳴燈罩', desc: '職業技能的範圍與傷害 +45%（占 2 層上限）', price: 19, w: 2 },
-  c_echo:  { name: '雙重迴響', cls: 'knight', desc: '【提燈騎士專屬】第二道光波半徑 100%、傷害 2', price: 22, w: 2 },
+  c_echo:  { name: '雙重迴響', cls: 'knight', desc: '【提燈騎士專屬】第二道光波半徑 100%、傷害 2', price: 18, w: 2 },
   c_swarm: { name: '螢火洪流', cls: 'hunter', desc: '【螢火獵人專屬】螢火蟲群增加到 20 隻', price: 22, w: 2 },
-  c_chain: { name: '連裁・極', cls: 'cutter', desc: '【剪紙匠專屬】衝刺傷害 +30%；衝刺撞到敵人時，結束後恢復 2 燈火', price: 22, w: 2 },
-  c_wall:  { name: '分立屏障', cls: 'mage', desc: '【折紙術士專屬】兩道紙牆改成可以分開立起：施放後 6 秒內可以再立一道', price: 22, w: 2 },
+  c_chain: { name: '連裁・極', cls: 'cutter', desc: '【剪紙匠專屬】衝刺傷害 +30%；衝刺撞到敵人時，結束後恢復 1 燈火', price: 22, w: 2 },
+  c_wall:  { name: '分立屏障', cls: 'mage', desc: '【折紙術士專屬】兩道紙牆改成可以分開立起：施放後 6 秒內可以再立一道', price: 18, w: 2 },
   c_warm:  { name: '暖光・極', cls: 'oiler', desc: '【燈油師專屬】暖光恢復量 +1 且冷卻 −20%（占 2 層）', price: 22, w: 2 },
   c_shield: { name: '鋼紙盾', cls: 'shield', desc: '【紙盾衛專屬】護盾上限 +1 且恢復速度 +30%（占 2 層）', price: 22, w: 2 },
   c_lantern: { name: '燈籠群', cls: 'lampist', desc: '【提燈使專屬】小燈籠增加到 4 盞，火球傷害 +30%（占 2 層）', price: 22, w: 2 },
@@ -661,7 +661,7 @@ const PREM = {
   c_slp:   { name: '安眠心得・極', cls: 'sleepc', desc: '【嗜睡者專屬】睡眠移速 +30%、視野變大、醒來使敵人沉睡 2 秒、被打只有 50% 機率醒來（占 2 層）', price: 22, w: 2 },
   c_slow:  { name: '時光心得・極', cls: 'slowc', desc: '【沙漏客專屬】緩速範圍 +40%、持續 +1.5 秒、冷卻 −2 秒，且釋放時清除範圍內敵方光球（占 2 層）', price: 22, w: 2 },
   c_bell:  { name: '霜重・極', cls: 'bellman', desc: '【凜風客專屬】凍結時間 +0.4 秒且凍結的敵人受到的傷害加成再 +10%（占 2 層）', price: 22, w: 2 },
-  c_watch: { name: '守夜心得・極', cls: 'watch', desc: '【守夜人專屬】增傷 +10%、光圈範圍 +15%，且燈火壓制自動施放（按空白鍵開關；關閉時會立刻手動施放一次，想自己抓節奏就保持關閉並在需要時再去開關）（占 2 層）', price: 22, w: 2 }
+  c_watch: { name: '守夜心得・極', cls: 'watch', desc: '【守夜人專屬】增傷 +10%、光圈範圍 +15%，且燈火壓制自動施放（按空白鍵開關；關閉時會立刻手動施放一次，想自己抓節奏就保持關閉並在需要時再去開關）（占 2 層）', price: 18, w: 2 }
 };
 const PREM_CHANCE = { shop: 0.35, treasure: 0.25, event: 0.15 };
 const upN = id => p.upg[id] || 0;
@@ -1603,7 +1603,7 @@ function loadRoom() {
   if (kind === 'event') {
     if (run.forceVariant) variant = run.forceVariant;
     else if (run.layer === 1 && priorEv === 0) variant = 'normal';
-    else { const W = [['chase', 3], ['mimic', 2], ['well', 2], ['grand', 1], ['normal', 2]].concat(run.noShop ? [] : [['fake', 2]]).concat(run.layer >= 1 ? [['rush', 2]] : []); let r0 = rand() * 10; for (const q of W) { r0 -= q[1]; if (r0 <= 0) { variant = q[0]; break; } } variant = variant || 'normal'; }
+    else { const W = [['chase', 3], ['mimic', 2], ['well', 2], ['grand', 1], ['normal', 2]].concat(run.noShop ? [] : [['fake', 2]]).concat(run.layer >= 1 ? [['rush', 2]] : []); let r0 = rand() * W.reduce((a0, q) => a0 + q[1], 0); for (const q of W) { r0 -= q[1]; if (r0 <= 0) { variant = q[0]; break; } } variant = variant || 'normal'; }
   }
   const chase = variant === 'chase', rush = variant === 'rush';
   const big = kind === 'combat' || kind === 'boss' || chase || rush, SZ = kind === 'boss' ? BOSSR : BIG;
@@ -1838,8 +1838,8 @@ function newRun() {
 }
 
 /* ---------- special rooms ---------- */
-function weaponOffer(exclude) { const c = WLIST.filter(i => !WDEF[i].cls && !(WDEF[i].th !== undefined && run.themes.indexOf(WDEF[i].th) < 0) && p.weapons.indexOf(i) < 0 && exclude.indexOf(i) < 0); return c.length ? pickOf(c) : null; }
-function upgradeOffer(exclude, premOnly) { const c = Object.keys(UPG).filter(i => exclude.indexOf(i) < 0 && clsOk(i) && !(i === 'wick' && p.maxHp >= 9) && !(UPG[i].max && upN(i) >= UPG[i].max) && (!premOnly || premOk(i))); return c.length ? pickOf(c) : null; }
+function weaponOffer(exclude) { const c = WLIST.filter(i => !WDEF[i].cls && !(WDEF[i].th !== undefined && run.themes.indexOf(WDEF[i].th) < 0) && p.weapons.indexOf(i) < 0 && exclude.indexOf(i) < 0); return c.length ? pickOf(c.reduce((a, i) => a.concat(WDEF[i].th !== undefined ? [i, i, i] : [i]), [])) : null; }
+function upgradeOffer(exclude, premOnly) { const c = Object.keys(UPG).filter(i => exclude.indexOf(i) < 0 && clsOk(i) && !(i === 'wick' && p.maxHp >= 9) && !(UPG[i].max && upN(i) >= UPG[i].max) && (!premOnly || premOk(i))); return c.length ? pickOf(c.reduce((a, i) => a.concat(UPG[i].cls ? [i, i] : [i]), [])) : null; }
 function shelfIds(kind, avoid) { return room.items.filter(i => !i.taken && i.kind === kind).map(i => i.id).concat(avoid ? [avoid] : []); }
 // slot：這個格子的類型（heal / weapon / upgrade），商人房補貨時依格子類型補上新商品
 function premOk(id) {
@@ -1884,7 +1884,7 @@ function setupSpecial() {
   } else {
     add('heal', cx - 130, 'shop'); add('upgrade', cx, 'shop'); add(rand() < 0.65 ? 'weapon' : 'upgrade', cx + 130, 'shop');
     room.refreshN = 0;
-    if (rand() < 0.25) { const it4 = makeItem(rand() < 0.5 ? 'weapon' : 'upgrade', cx + 270, cy, 'hpshop', undefined, true); it4.hpPrice = rand() < 0.5 ? 1 : 2; room.items.push(it4); }
+    if (rand() < 0.25) { const it4 = makeItem(rand() < 0.5 ? 'weapon' : 'upgrade', cx + 270, cy, 'hpshop', undefined, true); it4.hpPrice = rand() < 0.5 ? 2 : 3; room.items.push(it4); }
     room.items.push({ kind: 'refresh', id: 'refresh', slot: 'refresh', x: cx, y: cy + 110, price: 3, group: 'stall', taken: false });
   }
 }
@@ -1894,7 +1894,7 @@ function itemInfo(it) {
   if (it.kind === 'mystery') return { name: '神祕寶箱', desc: it.used ? '箱子已經空了' : '只有一個「？」。打開會得到隨機獎勵（可能是武器、強化、精良強化、燈芯或燈火）' };
   if (it.kind === 'ding') return { name: '古鼎', desc: it.used ? '鼎已經安靜下來了' : '青銅古鼎，傳說摸一下會賜予一件寶物（只能一次）' };
   if (it.kind === 'well') return it.id === 'grand'
-    ? { name: '華麗許願池', desc: '第 n 次投入 5×n 燈芯：5、10、15、20、25。次數越多機率與品質越高，第 5 次保底；得到獎勵後池就乾涸' + (it.dry ? '（已乾涸）' : '') }
+    ? { name: '華麗許願池', desc: '第 n 次投入 3×n 燈芯：3、6、9、12、15。次數越多機率與品質越高，第 5 次保底；得到獎勵後池就乾涸' + (it.dry ? '（已乾涸）' : '') }
     : { name: '許願池', desc: '每次投入 4 燈芯，有機率獲得獎勵。一個池最多投 6 次，第 6 次保底（至少燈火 +1）' };
   if (it.kind === 'tzsw') return { name: '按鍵大小牌', desc: '手機專用：在「標準」與「大」兩種觸控按鈕大小之間切換（也可在暫停頁細調）' };
   if (it.kind === 'tutsw') return { name: '新手教學牌', desc: rec.tutOff ? '教學面板目前關閉。再按一次開啟（電腦版，只在起始房顯示）' : '教學面板開著，會留在畫面下方。按一下可以關閉' };
@@ -2020,7 +2020,7 @@ function interact(it) {
 function wellThrow(it) {
   const grand = it.id === 'grand', max = grand ? 5 : 6;
   if (it.dry || it.n >= max) { toast('池水很平靜，沒有回應', 1.6); sfx('tick'); return; }
-  const cost = grand ? 5 * (it.n + 1) : 4;
+  const cost = grand ? 3 * (it.n + 1) : 4;
   if (p.coins < cost) { toast('燈芯不夠'); sfx('tick'); return; }
   p.coins -= cost; it.n++; hudSig = ''; sfx('pick'); burst(it.x, it.y, 8, ['#8fd8ff', '#ffffff'], 120, true);
   const giveUp = prem => { const uid = upgradeOffer(shelfIds('upgrade'), prem) || upgradeOffer(shelfIds('upgrade')) || 'oil'; applyUpgrade(uid, prem && premOk(uid)); };
@@ -2065,7 +2065,7 @@ function updateHint() {
     if (it.kind === 'themesel') act = 'F 切換必遇主題（目前：' + (run.themePick >= 0 ? TNAMES[run.themePick] : '隨機') + '）';
     else if (it.kind === 'mystery') act = it.used ? '' : 'F 打開「？」';
     else if (it.kind === 'ding') act = it.used ? '' : 'F 觸摸古鼎';
-    else if (it.kind === 'well') act = it.dry ? '池水已經乾涸' : (it.id === 'grand' ? (it.n >= 5 ? '池水平靜了' : 'F 投入 ' + (5 * (it.n + 1)) + ' 燈芯（第 ' + (it.n + 1) + ' / 5 次）') : (it.n >= 6 ? '池水平靜了' : 'F 投入 4 燈芯（第 ' + (it.n + 1) + ' / 6 次）')) + (!it.dry && it.n < (it.id === 'grand' ? 5 : 6) && p.coins < (it.id === 'grand' ? 5 * (it.n + 1) : 4) ? '（燈芯不夠）' : '');
+    else if (it.kind === 'well') act = it.dry ? '池水已經乾涸' : (it.id === 'grand' ? (it.n >= 5 ? '池水平靜了' : 'F 投入 ' + (3 * (it.n + 1)) + ' 燈芯（第 ' + (it.n + 1) + ' / 5 次）') : (it.n >= 6 ? '池水平靜了' : 'F 投入 4 燈芯（第 ' + (it.n + 1) + ' / 6 次）')) + (!it.dry && it.n < (it.id === 'grand' ? 5 : 6) && p.coins < (it.id === 'grand' ? 3 * (it.n + 1) : 4) ? '（燈芯不夠）' : '');
     else if (it.kind === 'weapon') act = p.weapons.length < 3 ? 'F 拿取' : 'F 取代手上的「' + WDEF[p.weapons[p.w]].name + '」';
     else act = it.kind === 'tzsw' ? 'F 切換按鍵大小' : it.kind === 'tutsw' ? (rec.tutOff ? 'F 開啟教學' : 'F 關閉教學') : it.kind === 'noshop' ? (run.noShop ? 'F 取下木牌' : 'F 掛上木牌') : it.kind === 'switch' ? (room.lampOn ? 'F 關燈' : 'F 開燈') : it.kind === 'npc' ? 'F 邀請同行（隊伍 ' + allies.length + ' / 2）' : it.kind === 'refresh' ? 'F 刷新全部商品' : it.kind === 'restock' ? 'F 補貨' : it.kind === 'heal' ? 'F 喝下' : 'F 拿取';
     if (it.group === 'shop' || it.group === 'stall') act += '　' + cost(it) + ' 燈芯' + (p.coins < cost(it) ? '（不夠）' : '');
@@ -2419,7 +2419,7 @@ function buffLines() {
   if (upN('pierce')) L.push('穿透 +' + upN('pierce') + '（原本就會穿透的武器傷害 ×' + pierceDmg().toFixed(2) + '）');
   if (upN('big')) L.push('子彈大小 ×' + bigMul().toFixed(2));
   if (upN('reach')) L.push('攻擊範圍 ×' + reachMul().toFixed(2));
-  if (p.crit > 0) L.push('暴擊率 ' + Math.round(p.crit * 100) + '%（暴擊 1.5 倍傷害）');
+  if (p.crit > 0) L.push('暴擊率 ' + Math.round(p.crit * 100) + '%（暴擊 1.8 倍傷害）');
   if (p.cdMul !== 1) L.push('技能冷卻 ×' + p.cdMul.toFixed(2));
   if (p.skillPow !== 1) L.push('技能威力 ×' + p.skillPow.toFixed(2));
   for (const id of Object.keys(UPG)) if (UPG[id].cls && upN(id)) L.push((upN(id) >= 2 ? PREM[id].name : UPG[id].name) + '（職業專屬）');
@@ -2708,15 +2708,15 @@ function attack() {
   else if (wid === 'bloat') { const b = shoot(ox, oy, ang, 480, 4, 5 * dm, 'bloat', 1.4); b.r0 = b.r; b.d0 = b.dmg; b.age = 0; b.grow = { T: 0.85, rk: 6, dk: 2.0 }; sfx('flame'); }
   else if (wid === 'bloat3') { for (let i = 0; i < 3; i++) later(i * 0.12, () => { if (state !== 'play') return; const a2 = p.aim, b = shoot(p.x + a2.x * 24, p.y + a2.y * 24 - 4, Math.atan2(a2.y, a2.x) + (i - 1) * 0.05, 280, 4, 3 * dm, 'bloat', 1.9); b.r0 = b.r; b.d0 = b.dmg; b.age = 0; b.grow = { T: 1.3, rk: 5, dk: 2.0 }; sfx('flame'); }); }
   else if (wid === 'glance') { const b = shoot(ox, oy, ang, 640, 5, 4 * dm * pd, 'glance', 1.0, true); b.r0 = b.r; b.d0 = b.dmg; b.age = 0; b.grow = { T: 0.8, rk: 3.4, dk: 2.0 }; sfx('blade'); }
-  else if (wid === 'oilgun') { const b = shoot(ox, oy, ang, 480, 6, 3 * dm, 'flame', 1.2); b.oil = true; sfx('flame'); }
-  else if (wid === 'lamplet') { shoot(ox, oy, ang + (rand() - .5) * 0.08, 560, 5, 1.5 * dm, 'flame', 1.0); sfx('fly'); }
+  else if (wid === 'oilgun') { const b = shoot(ox, oy, ang, 480, 6, 3.6 * dm, 'flame', 1.2); b.oil = true; sfx('flame'); }
+  else if (wid === 'lamplet') { shoot(ox, oy, ang + (rand() - .5) * 0.08, 560, 5, 1.8 * dm, 'flame', 1.0); sfx('fly'); }
   else if (wid === 'vial') { const dd = Math.min(260, p.target ? Math.hypot(p.target.x - p.x, p.target.y - p.y) : 240); vials.push({ x: ox, y: oy, sx: ox, sy: oy, tx: p.x + a.x * Math.max(120, dd), ty: p.y + a.y * Math.max(120, dd), t: 0, T: 0.5 }); sfx('flame'); }
-  else if (wid === 'fan') { for (const da of [-0.3, 0, 0.3]) shoot(ox, oy, ang + da, 470, 8, 2.5 * dm, 'wind', 0.5, true); sfx('blade'); }
+  else if (wid === 'fan') { for (const da of [-0.3, 0, 0.3]) shoot(ox, oy, ang + da, 470, 8, 2.1 * dm, 'wind', 0.5, true); sfx('blade'); }
   else if (wid === 'watchlamp') { shoot(ox, oy, ang, 520, 7, 4 * dm, 'flame'); sfx('flame'); }
   else if (wid === 'ember') { shoot(ox, oy, ang + (rand() - .5) * 0.14, 540, 6, 2 * dm, 'ember', 1.1); sfx('fly'); }
   else if (wid === 'scatter') { for (let k = -2; k <= 2; k++) shoot(ox, oy, ang + k * 0.16 + (rand() - .5) * 0.05, 580, 5, 2 * dm, 'pellet', 0.5); sfx('flame'); }
   else if (wid === 'lance') { shoot(ox, oy, ang, 780, 6, 7 * dm * pd, 'lance', 0.8, true); sfx('blade'); }
-  else if (wid === 'scim') { const b = shoot(ox, oy, ang, 500, 11, 3.5 * dm * pd, 'rang', 9, true); b.t = 0; b.tOut = 0.55 * rm; b.back = false; b.rot = 0; b.curve = (rand() < 0.5 ? 1 : -1); sfx('blade'); }
+  else if (wid === 'scim') { const b = shoot(ox, oy, ang, 500, 11, 3.0 * dm * pd, 'rang', 9, true); b.t = 0; b.tOut = 0.55 * rm; b.back = false; b.rot = 0; b.curve = (rand() < 0.5 ? 1 : -1); sfx('blade'); }
   else if (wid === 'rang') { const b = shoot(ox, oy, ang, 520, 10, 3.5 * dm * pd, 'rang', 9, true); b.t = 0; b.tOut = 0.5 * rm; b.back = false; b.rot = 0; sfx('blade'); }
   else if (wid === 'whip') {
     const len = 230 * rm, wd = 34, x0 = p.x, y0 = p.y - 4;
@@ -2817,7 +2817,7 @@ function hitEnemy(e, dmg, dx, dy, kb, melee) {
   if (e.frz > 0) dmg *= 1.2 + (upN('c_bell') >= 2 ? 0.1 : 0);
   if (p.shadowBuf > 0 && CLS[p.cls].id === 'inkhunter') { dmg *= 1.5; p.shadowBuf = 0; burst(e.x, e.y - e.r * 0.4, 8, ['#a89ad8', C.paper], 150, true); }
   if (CLS[p.cls].id === 'watch' && Math.hypot(e.x - p.x, e.y - p.y) < lightR()) dmg *= (p.skillLight > 0 ? 1.45 : 1.3) + (upN('c_watch') >= 1 ? 0.1 : 0);
-  if (p.crit > 0 && rand() < p.crit) { dmg *= 1.5; burst(e.x, e.y - e.r * 0.4, 8, ['#fff2a8', C.amber], 170, true); }
+  if (p.crit > 0 && rand() < p.crit) { dmg *= 1.8; burst(e.x, e.y - e.r * 0.4, 8, ['#fff2a8', C.amber], 170, true); }
   e.hp -= dmg; e.flash = 0.09;
   if (e.type === 'deepworm' && e.hp > 0 && !e.split && (e.state === 'wind' || e.hp < e.maxHp * 0.6)) wormSplit(e);
   if (e.garden && !e.healed && !(e.healT > 0) && e.hp > 0 && e.hp <= e.maxHp * 0.5) e.healT = 0.8;
@@ -2834,7 +2834,8 @@ function wormSplit(e) {
   if (!run.wormToast) { run.wormToast = true; toast(wasWind ? '打斷了蠕蟲！牠裂成兩隻小的' : '蠕蟲裂開了！', 2); }
 }
 function dropCoins(x, y, n) {
-  for (let i = 0; i < n; i++) { const a = rand() * TAU, s = rr(40, 130); pickups.push({ kind: 'coin', x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, t: 0 }); }
+  for (let i = 0; i < n; i++) {
+    if (run && run.long && run.layer >= 3 && rand() > 0.74) continue; const a = rand() * TAU, s = rr(40, 130); pickups.push({ kind: 'coin', x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, t: 0 }); }
 }
 let killKind = null;
 function bossPhase2(e) {
@@ -2884,7 +2885,7 @@ function killEnemy(e) {
     else if (e.type === 'mimic') { dropCoins(e.x, e.y, 5); if (rand() < 0.25) { const w = makeItem('weapon', e.x, e.y, 'free'); if (w.id) room.items.push(w); } }
     else if (e.type === 'fleer') { dropCoins(e.x, e.y, 3); if (room.chase) { room.chase.killed++; room.chase.last = { x: e.x, y: e.y }; } }
     else if (e.type === 'sleepwalker') dropCoins(e.x, e.y, 1);
-    else if (rand() < (e.gen > 0 ? 0.4 : 0.6)) dropCoins(e.x, e.y, 1);
+    else if (rand() < (run.layer === 0 ? (e.gen > 0 ? 0.47 : 0.7) : (e.gen > 0 ? 0.4 : 0.6))) dropCoins(e.x, e.y, 1);
     const sb = enemies.find(o => o.type === 'boss' && (o.kind === 'summon' || o.kind === 'hive') && !o.dead);
     if (sb) { if (!(sb.weak > 0)) toast('召喚者露出破綻！'); sb.weak = 2.6; }
   }
@@ -3013,7 +3014,7 @@ function composeWave() {
 function makeBoss(b, x, y) {
   {
     const e = spawnEnemy('boss', x, y);
-    e.kind = b.kind; e.hp = e.maxHp = b.hp; e.cd = 2.2;
+    e.kind = b.kind; e.hp = e.maxHp = Math.round(b.hp * (run.long ? 1 + 0.12 * Math.max(0, run.layer - 2) : 1)); e.cd = 2.2;
     if (b.kind === 'guard') { e.layers = [{ id: 0, hp: 26, max: 26 }, { id: 1, hp: 18, max: 18 }, { id: 2, hp: 12, max: 12 }]; e.layerMax = 56; e.gapA = 0; }
     if (b.kind === 'ore') room.timed = { t: 60, on: true }; e.gen = 0; e.sc = 1; e.weak = 0; if (b.kind === 'summon' || b.kind === 'hive') e.summon = 2.5;
     if (BOSS2[b.kind]) { e.r = (b.kind === 'giant' || b.kind === 'golem' || b.kind === 'toad' || b.kind === 'rootking' || b.kind === 'scorpking' || b.kind === 'mummyking') ? 56 : (b.kind === 'dragon' || b.kind === 'idragon' || b.kind === 'vdragon' || b.kind === 'serpent') ? 40 : (b.kind === 'shan' || b.kind === 'kraken') ? 50 : 40; e.cd = 2.4; e.summon = 12; if (b.kind === 'nightmare') e.r = 44; if (b.kind === 'mirrorgiant') e.r = 56; }
@@ -3992,7 +3993,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.31　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.31　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.32　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.32　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -4076,7 +4077,7 @@ function playerMove(dt) {
     }
     burst(p.x, p.y + 8, 1, [C.paper, C.amber], 40);
     if (p.dashT <= 0 && p.lantDash) { p.lantDash = false; if (!p.dashHit.length && p.lcombo > 0) { p.lcombo = 0; toast('連擊中斷', 0.9); } }
-    if (p.dashT <= 0) { p.vx = p.dashV.x * 0.2; p.vy = p.dashV.y * 0.2; if (upN('c_chain') >= 2 && p.dashHit.length) { healP(2); hudSig = ''; toast('燈火恢復了'); } }
+    if (p.dashT <= 0) { p.vx = p.dashV.x * 0.2; p.vy = p.dashV.y * 0.2; if (upN('c_chain') >= 2 && p.dashHit.length) { healP(1); hudSig = ''; toast('燈火恢復了'); } }
     p.speed = 300; p.walkT += dt * 12; return;
   }
   let tx = 0, ty = 0;
@@ -4219,7 +4220,7 @@ function updateOrb(dt, holding) {
   o.x = clamp(o.x + o.vx * dt, ROOM.x + 6, ROOM.x + ROOM.w - 6); o.y = clamp(o.y + o.vy * dt, ROOM.y + 6, ROOM.y + ROOM.h - 6);
   for (const e of enemies) {
     if (e.dead || e.spawn > 0 || e.sleep || e.burrow || (run.t - (e.oh || -9)) < 0.4) continue;
-    if (Math.hypot(e.x - o.x, e.y - o.y) < e.r + 9) { e.oh = run.t; const dx = e.x - o.x, dy = e.y - o.y, dd = Math.hypot(dx, dy) || 1; killKind = 'orb'; hitEnemy(e, 3 * p.dmgMul * pierceDmg(), dx / dd, dy / dd, 260, true); killKind = null; o.vx = -dx / dd * 260; o.vy = -dy / dd * 260; o.rec = 0.28; burst(o.x, o.y, 6, ['#fff6d8', C.amber], 130, true); }
+    if (Math.hypot(e.x - o.x, e.y - o.y) < e.r + 9) { e.oh = run.t; const dx = e.x - o.x, dy = e.y - o.y, dd = Math.hypot(dx, dy) || 1; killKind = 'orb'; hitEnemy(e, 3.75 * p.dmgMul * pierceDmg(), dx / dd, dy / dd, 260, true); killKind = null; o.vx = -dx / dd * 260; o.vy = -dy / dd * 260; o.rec = 0.28; burst(o.x, o.y, 6, ['#fff6d8', C.amber], 130, true); }
   }
   for (const q of tobs) if ((run.t - (q.dh || -9)) >= 0.5 && o.x > q.x - 8 && o.x < q.x + q.w + 8 && o.y > q.y - 8 && o.y < q.y + q.h + 8) { q.dh = run.t; damageTob(q, 3 * p.dmgMul); }
 }
@@ -4261,7 +4262,7 @@ function updateWeapons(dt) {
   for (const L of lures) {
     if (L.rel) L.t -= dt;
     L.tick -= dt;
-    if (L.tick <= 0) { L.tick = 0.5; for (const e of enemies) if (!e.dead && e.spawn <= 0 && !e.sleep && Math.hypot(e.x - L.x, e.y - L.y) < 70) hitEnemy(e, 1, 0, 0, 0); }
+    if (L.tick <= 0) { L.tick = 0.5; for (const e of enemies) if (!e.dead && e.spawn <= 0 && !e.sleep && Math.hypot(e.x - L.x, e.y - L.y) < 70) hitEnemy(e, 1.25, 0, 0, 0); }
   }
   lures = lures.filter(L => L.t > 0);
 }
@@ -4483,7 +4484,7 @@ function drawItem(it) {
     ctx.fillStyle = dry ? '#3a3445' : '#2d7fa6'; ctx.beginPath(); ctx.ellipse(0, 2, 36, 15, 0, 0, TAU); ctx.fill();
     if (!dry) { ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1.5; for (let k = 0; k < 2; k++) { ctx.beginPath(); ctx.ellipse(0, 2, 10 + ((time * 14 + k * 12) % 24), 4 + ((time * 6 + k * 5) % 10), 0, 0, TAU); ctx.stroke(); } if (grand) { ctx.fillStyle = C.amber; star4(ctx, Math.sin(time * 2) * 18, -4 + Math.cos(time * 3) * 3, 5, time * 3); } }
     if (grand) { ctx.fillStyle = '#8e3b32'; ctx.fillRect(-46, -50, 6, 56); ctx.fillRect(40, -50, 6, 56); ctx.fillStyle = '#e0a93a'; poly(ctx, [[-56, -48], [0, -72], [56, -48], [48, -42], [-48, -42]]); }
-    ctx.fillStyle = C.paper; ctx.font = '700 13px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(dry ? '乾涸' : (grand ? it.n + ' / 5　' + 5 * (it.n + 1) : it.n + ' / 6　4') + (dry ? '' : ' 燈芯'), 0, 40);
+    ctx.fillStyle = C.paper; ctx.font = '700 13px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(dry ? '乾涸' : (grand ? it.n + ' / 5　' + 3 * (it.n + 1) : it.n + ' / 6　4') + (dry ? '' : ' 燈芯'), 0, 40);
     ctx.restore(); return;
   }
   const bob = Math.sin(time * 3 + it.x) * 2.5;
