@@ -130,6 +130,14 @@ body.mobile .bar{display:none}
 .ach div.got{background:#3b2f1c;color:var(--paper)}
 .ach div b{display:block;font-size:1.05em}
 .card.wide{max-width:84cqw;width:100%;gap:1.2cqw}
+.pswing{position:relative;height:56px;margin:-4px auto 6px;width:120px;pointer-events:none}
+.pswing .pl{position:absolute;left:50%;top:0;width:22px;height:30px;margin-left:-11px;border-radius:50% 50% 38% 38%;background:#e8b84a;box-shadow:0 0 14px 4px rgba(255,200,90,.55);transform-origin:50% -18px;animation:pswing 4s ease-in-out infinite}
+.pswing .pl:before{content:"";position:absolute;left:50%;top:-18px;width:2px;height:18px;margin-left:-1px;background:#6b5a3a}
+.pswing .pb{position:absolute;top:34px;width:6px;height:6px;background:#f4ecd6;opacity:0;animation:pdrift 4s ease-in infinite}
+.pswing .b1{left:30%}.pswing .b2{left:52%;animation-delay:1.3s}.pswing .b3{left:70%;animation-delay:2.6s}
+@keyframes pswing{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}}
+@keyframes pdrift{0%{opacity:0;transform:translate(0,-6px) rotate(0)}20%{opacity:.8}100%{opacity:0;transform:translate(14px,22px) rotate(180deg)}}
+@media (prefers-reduced-motion:reduce){.pswing .pl,.pswing .pb{animation:none}}
 .pausegrid{display:grid;grid-template-columns:1.15fr 1fr;gap:2cqw;width:100%;align-items:start}
 .pcol{display:flex;flex-direction:column;gap:1cqw;align-items:stretch}
 .pcol .btn{font-size:clamp(calc(11px*var(--fz,1)),1.6cqw,20px);padding:.7cqw 1.6cqw}
@@ -306,7 +314,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.36　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.37　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -395,6 +403,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
       <div class="mhelp" id="mHelp" hidden></div>
       <div class="card wide">
         <h3>暫停</h3>
+        <div class="pswing" aria-hidden="true"><i class="pl"></i><i class="pb b1"></i><i class="pb b2"></i><i class="pb b3"></i></div>
         <div class="pausegrid">
           <div class="pcol">
             <div class="pausebox"><b id="pClass"></b><span id="pSkillName"></span><span id="pSkillDesc"></span><em id="pSkillCd"></em></div>
@@ -1100,8 +1109,55 @@ function sfx(k) {
     case 'coin': blip(1000, 1500, 0.06, 'triangle', 0.025); break;
     case 'tick': blip(700, 700, 0.04, 'square', 0.02); break;
     case 'clear': blip(400, 800, 0.35, 'triangle', 0.06); break;
+    case 'buy': blip(1200, 1800, 0.07, 'triangle', 0.04); setTimeout(() => blip(1500, 2200, 0.1, 'triangle', 0.035), 70); break;
+    case 'ding': blip(180, 170, 0.9, 'sine', 0.08); blip(360, 350, 0.7, 'sine', 0.04); blip(540, 520, 0.5, 'sine', 0.02); break;
+    case 'sleep': blip(420, 200, 0.5, 'sine', 0.05); setTimeout(() => blip(330, 150, 0.6, 'sine', 0.04), 220); break;
+    case 'stall': blip(600, 800, 0.08, 'square', 0.025); setTimeout(() => blip(800, 1000, 0.08, 'square', 0.025), 90); setTimeout(() => blip(1000, 1300, 0.14, 'triangle', 0.04), 180); break;
   }
 }
+
+/* ---------- ambient loops (synthesized) ---------- */
+const AMB = {
+  nb: null, src: null, filt: null, gain: null, th: -1, nextEv: 0,
+  // [filterType, freq, Q, gain, lfoRate]
+  P: [['bandpass', 900, 0.6, 0.012], ['lowpass', 500, 0.4, 0.03], ['lowpass', 260, 0.5, 0.01], ['lowpass', 380, 0.7, 0.012], ['lowpass', 180, 0.5, 0.025], ['lowpass', 220, 1.2, 0.03], ['bandpass', 1500, 2, 0.006], ['lowpass', 320, 0.8, 0.012], ['bandpass', 700, 0.5, 0.03]],
+  ev(th, a) {
+    const r = Math.random;
+    switch (th) {
+      case 0: blip(2600 + r() * 600, 3000 + r() * 500, 0.05, 'sine', 0.008); break;                       // insects
+      case 1: break;
+      case 2: blip(900 + r() * 200, 400, 0.12, 'sine', 0.02); break;                                        // drip
+      case 3: if (r() < 0.5) { blip(330, 320, 1.4, 'sine', 0.025); blip(660, 650, 0.9, 'sine', 0.01); } else blip(1100 + r() * 300, 700, 0.18, 'sine', 0.012); break; // bell / water
+      case 4: blip(200 + r() * 150, 520 + r() * 200, 0.18, 'sine', 0.02); break;                            // bubble
+      case 5: blip(90 + r() * 40, 50, 0.25, 'sine', 0.04); break;                                           // lava burble
+      case 6: { const n = [523, 659, 784, 988, 1175][Math.floor(r() * 5)]; blip(n, n, 0.5, 'triangle', 0.018); } break; // music box
+      case 7: blip(180 + r() * 50, 260 + r() * 40, 0.09, 'square', 0.012); setTimeout(() => blip(200, 280, 0.09, 'square', 0.01), 130); break; // frog
+      case 8: break;
+    }
+  },
+  tick(dt) {
+    const want = optSound.checked && (state === 'play' || state === 'pause');
+    const a = audio();
+    if (!a) return;
+    if (!want) { if (this.gain) { try { this.gain.gain.setTargetAtTime(0, a.currentTime, 0.15); } catch (e) {} } return; }
+    try {
+      if (!this.src) {
+        const len = a.sampleRate * 2, buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
+        for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+        this.src = a.createBufferSource(); this.src.buffer = buf; this.src.loop = true;
+        this.filt = a.createBiquadFilter(); this.gain = a.createGain(); this.gain.gain.value = 0;
+        this.src.connect(this.filt); this.filt.connect(this.gain); this.gain.connect(a.destination); this.src.start();
+      }
+      const ti = th();
+      if (ti !== this.th) { this.th = ti; const P = this.P[ti] || this.P[0]; this.filt.type = P[0]; this.filt.frequency.value = P[1]; this.filt.Q.value = P[2]; }
+      const P = this.P[this.th] || this.P[0], k = state === 'pause' ? 0.5 : 1;
+      const lfo = 0.65 + 0.35 * Math.sin(performance.now() / (this.th === 8 || this.th === 1 ? 1300 : 2600));
+      this.gain.gain.setTargetAtTime(P[3] * k * lfo, a.currentTime, 0.2);
+      this.nextEv -= dt;
+      if (this.nextEv <= 0) { this.nextEv = 0.6 + Math.random() * 2.2; if (state === 'play') this.ev(this.th, a); }
+    } catch (e) { /* optional */ }
+  }
+};
 
 /* ---------- paper texture + room build ---------- */
 let paperTex = null;
@@ -2009,7 +2065,7 @@ function interact(it) {
   }
   if (it.kind === 'ding') {
     if (it.used) { toast('鼎已經安靜了', 1.2); return; }
-    it.used = true; run.dings = (run.dings || 0) + 1; if (run.dings >= 3) unlockAch('dingKnock'); later(1.5, () => toast('鼎：「' + pickOf(DING_LINES) + '」', 2.6));
+    it.used = true; sfx('ding'); run.dings = (run.dings || 0) + 1; if (run.dings >= 3) unlockAch('dingKnock'); later(1.5, () => toast('鼎：「' + pickOf(DING_LINES) + '」', 2.6));
     sfx('pick'); burst(it.x, it.y - 20, 28, ['#d9b46a', C.amber, C.paper], 220, true); shake = Math.max(shake, 4);
     const roll = rand() * 100;
     if (roll < 40) { const uid = upgradeOffer(shelfIds('upgrade')) || 'oil'; applyUpgrade(uid, false); toast('鼎中浮出強化：' + UPG[uid].name, 2.2); }
@@ -2043,7 +2099,7 @@ function interact(it) {
     const cr = cost(it); p.coins -= cr; paid(cr); const idx = room.items.indexOf(it), ni = makeItem(it.slot, it.x, it.y, 'shop', it.id);
     if (idx >= 0) room.items[idx] = ni; burst(ni.x, ni.y, 8, [C.paper, C.amber], 90, true); toast('商人補上了新商品'); sfx('pick'); hudSig = ''; return;
   }
-  if (it.kind === 'refresh') { const cr = cost(it); p.coins -= cr; paid(cr); refreshShop(it); toast('商品換新了'); sfx('pick'); hudSig = ''; return; }
+  if (it.kind === 'refresh') { const cr = cost(it); p.coins -= cr; paid(cr); refreshShop(it); toast('商品換新了'); sfx('buy'); hudSig = ''; return; }
   if (it.kind === 'heal' && p.hp >= p.maxHp) { toast('血量已經滿了'); sfx('tick'); return; }
   if (it.kind === 'coins') { p.coins += it.amount; toast('燈芯 +' + it.amount); }
   else if (it.kind === 'weapon') giveWeapon(it.id);
@@ -2053,7 +2109,7 @@ function interact(it) {
   it.taken = true;
   burst(it.x, it.y, 12, [C.amber, C.paper], 150, true);
   if (it.group === 'shop') {
-    const cs = cost(it); p.coins -= cs; paid(cs); run.bought++;
+    const cs = cost(it); p.coins -= cs; paid(cs); run.bought++; sfx('buy');
     const idx = room.items.indexOf(it);
     if (idx >= 0 && !it.temp) room.items[idx] = { kind: 'restock', id: 'restock', slot: it.slot, x: it.x, y: it.y, price: 1, group: 'shop', taken: false };
   }
@@ -2879,7 +2935,7 @@ function hitLayer(e, dmg, dx, dy, melee) {
     let da = Math.atan2(-dy, -dx) - e.gapA; da = Math.atan2(Math.sin(da), Math.cos(da));
     if (Math.abs(da) > 0.6) { burst(e.x - dx / l * 80, e.y - dy / l * 80, 4, ['#e6f6ff', C.paper], 110, true); sfx('tick'); return true; }
   }
-  L0.hp -= dmg; e.flash = 0.09; burst(e.x - dx / l * (90 - L0.id * 12), e.y - dy / l * (90 - L0.id * 12), 6, ['#bfe3f5', '#ffffff'], 140, true); sfx('hit');
+  L0.hp -= dmg; e.flash = 0.08; burst(e.x - dx / l * (90 - L0.id * 12), e.y - dy / l * (90 - L0.id * 12), 6, ['#bfe3f5', '#ffffff'], 140, true); sfx('hit');
   if (L0.hp <= 0) {
     e.layers.shift(); sfx('kill'); shake = Math.max(shake, 6);
     if (L0.id === 1 && !e.regenDone) { e.regenDone = true; e.regen = 4; }
@@ -2934,7 +2990,7 @@ function hitEnemy(e, dmg, dx, dy, kb, melee) {
   if (p.shadowBuf > 0 && CLS[p.cls].id === 'inkhunter') { dmg *= 1.5; p.shadowBuf = 0; burst(e.x, e.y - e.r * 0.4, 8, ['#a89ad8', C.paper], 150, true); }
   if (CLS[p.cls].id === 'watch' && Math.hypot(e.x - p.x, e.y - p.y) < lightR()) dmg *= (p.skillLight > 0 ? 1.45 : 1.3) + (upN('c_watch') >= 1 ? 0.1 : 0);
   if (p.crit > 0 && rand() < p.crit) { dmg *= 1.8; burst(e.x, e.y - e.r * 0.4, 8, ['#fff2a8', C.amber], 170, true); }
-  run.dmgOut = (run.dmgOut || 0) + Math.min(dmg, Math.max(0, e.hp)); e.hp -= dmg; e.flash = 0.09;
+  run.dmgOut = (run.dmgOut || 0) + Math.min(dmg, Math.max(0, e.hp)); e.hp -= dmg; e.flash = 0.08;
   if (e.type === 'deepworm' && e.hp > 0 && !e.split && (e.state === 'wind' || e.hp < e.maxHp * 0.6)) wormSplit(e);
   if (e.garden && !e.healed && !(e.healT > 0) && e.hp > 0 && e.hp <= e.maxHp * 0.5) e.healT = 0.8;
   if (e.type !== 'boss') { e.kx += dx * kb; e.ky += dy * kb; }
@@ -2986,6 +3042,7 @@ function bossPhase2(e) {
 function killEnemy(e) {
   const boss = e.type === 'boss';
   if (boss && run.long && run.layer >= 3 && !e.p2 && e.kind !== 'split' && !room.rush) { bossPhase2(e); return; }
+  { const bs = e.type === 'boss'; burst(e.x, e.y, bs ? 30 : 6 + Math.floor(rand() * 5), [PAL.wall2, PAL.top, C.paper], bs ? 260 : 150, false); }
   if (e.type === 'duster') { room.sw = room.sw || []; room.sw.push({ x: e.x, y: e.y, r: 50, k: 'quick', ttl: 5 }); burst(e.x, e.y, 12, ['#e3c995', '#b08a52'], 120, true); }
   if (e.type === 'spore') { room.sw = room.sw || []; room.sw.push({ x: e.x, y: e.y, r: 50, k: 'pool', ttl: 4, cloud: true }); burst(e.x, e.y, 14, ['#b8e07a', '#7a5ab0'], 120, true); }
   if (e.type === 'lavaslime') { hazards.push({ x: e.x, y: e.y, r: 56, t: 2.6 }); burst(e.x, e.y, 10, ['#ee6a3c', '#ffd27a'], 150, true); }
@@ -3933,7 +3990,7 @@ function placeStall() {
   if (lv >= 1) { const x4 = makeItem('upgrade', cx + 140, cy, 'shop', its[1].id); its.push(x4); }
   for (const it of its) { it.temp = true; room.items.push(it); burst(it.x, it.y, 6, [C.paper, C.amber], 90, true); }
   room.tstall = { x: cx - 120, y: cy - 8, t: 12, coinT: 1, line: 0, lineT: 0 };
-  sfx('pick'); toast('臨時攤位開張！12 秒內有效', 1.8); later(0.8, () => { if (room.tstall) toast('小商人：「' + STALL_LINES[0] + '」', 1.6); });
+  sfx('stall'); toast('臨時攤位開張！12 秒內有效', 1.8); later(0.8, () => { if (room.tstall) toast('小商人：「' + STALL_LINES[0] + '」', 1.6); });
 }
 function updateStall(dt) {
   const ts = room.tstall; if (!ts || state !== 'play') return;
@@ -3957,7 +4014,7 @@ function drawStall() {
   ctx.restore();
 }
 function startSleep() {
-  p.sleepT = 5; p.skillCd = 5; sfx('tick'); rings.push({ x: p.x, y: p.y, R: 60, t: 0.5, dur: 0.5 }); hudSig = '';
+  p.sleepT = 5; p.skillCd = 5; sfx('sleep'); rings.push({ x: p.x, y: p.y, R: 60, t: 0.5, dur: 0.5 }); hudSig = '';
   toast(room.kind === 'boss' ? '入眠中……Boss 房睡著很危險！（再按一次可提前醒來）' : '入眠 5 秒：不能攻擊、視野很小（再按一次可提前醒來）', 2.4);
 }
 function wakeUp(early) {
@@ -4138,7 +4195,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.36　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.36　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.37　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.37　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -5117,7 +5174,7 @@ function render() {
   for (const f of bl) { const u = Math.min(1, f.t / 0.5); ctx.fillStyle = f.col; for (let k = 0; k < 5; k++) circ(ctx, f.x + Math.cos(k * 1.2566) * f.s * u * 0.9, f.y + Math.sin(k * 1.2566) * f.s * u * 0.9, f.s * u * 0.55); ctx.fillStyle = '#fff2a8'; circ(ctx, f.x, f.y, f.s * u * 0.45); }
   for (const e of enemies) drawBossMarks(e);
   const list = [];
-  for (const e of enemies) list.push({ y: e.y + e.r, f: () => { drawEnemy(e); if (e.frz > 0) drawFrozenMark(e); if (e.garden && e.spawn <= 0) drawGardenMark(e); if (e.sleep && e.spawn <= 0) { ctx.save(); ctx.fillStyle = C.paperDim; ctx.font = '700 15px sans-serif'; ctx.textAlign = 'center'; const b = Math.sin(time * 2 + e.seed) * 3; ctx.fillText('Z', e.x + e.r * 0.5, e.y - e.r - 6 + b); ctx.font = '700 10px sans-serif'; ctx.fillText('z', e.x + e.r * 0.5 + 10, e.y - e.r - 15 + b); ctx.restore(); } } });
+  for (const e of enemies) list.push({ y: e.y + e.r, f: () => { drawEnemy(e); if (e.flash > 0) { ctx.save(); ctx.globalAlpha = 0.55; ctx.fillStyle = C.paper; circ(ctx, e.x, e.y, e.r * 1.02); ctx.restore(); } if (e.frz > 0) drawFrozenMark(e); if (e.garden && e.spawn <= 0) drawGardenMark(e); if (e.sleep && e.spawn <= 0) { ctx.save(); ctx.fillStyle = C.paperDim; ctx.font = '700 15px sans-serif'; ctx.textAlign = 'center'; const b = Math.sin(time * 2 + e.seed) * 3; ctx.fillText('Z', e.x + e.r * 0.5, e.y - e.r - 6 + b); ctx.font = '700 10px sans-serif'; ctx.fillText('z', e.x + e.r * 0.5 + 10, e.y - e.r - 15 + b); ctx.restore(); } } });
   for (const n of allies) list.push({ y: n.y + 12, f: () => drawAllyFig(n) });
   if (state !== 'over' && state !== 'ending') list.push({ y: p.y + 14, f: drawPlayer });
   list.sort((a, b) => a.y - b.y); for (const it of list) it.f();
@@ -5238,7 +5295,7 @@ function drawPrev(el) {
 let last = 0;
 function frame(ts) {
   const dt = Math.min(0.05, last ? (ts - last) / 1000 : 0.016); last = ts;
-  update(dt); render(); syncTouch();
+  update(dt); render(); syncTouch(); AMB.tick(dt);
   if (state === 'menu') drawPrev($('prevMenu')); else if (state === 'sub' && subKind === 'cost') drawPrev($('prevCost'));
   requestAnimationFrame(frame);
 }
