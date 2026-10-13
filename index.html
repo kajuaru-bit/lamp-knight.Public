@@ -4849,7 +4849,7 @@ function stepView() {
 }
 function applyView() {
   const vb = $('viewbox');
-  if (!port) { stageEl.style.removeProperty('--vh'); view.on = false; view.x = 0; view.y = 0; view.w = W; view.h = H; view.s = 1; view.ok = false; cv.style.cssText = ''; return; }
+  if (!port) { if (stageEl.style.removeProperty) stageEl.style.removeProperty('--vh'); view.on = false; view.x = 0; view.y = 0; view.w = W; view.h = H; view.s = 1; view.ok = false; cv.style.cssText = ''; return; }
   const bw = vb.clientWidth, sh = stageEl.clientHeight; if (!bw || !sh) return;
   const sc = Math.max(bw / 500, bw / W), bh = Math.round(Math.min(sh * 0.62, H * sc));
   stageEl.style.setProperty('--vh', bh + 'px');
