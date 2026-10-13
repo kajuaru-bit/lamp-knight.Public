@@ -196,7 +196,7 @@ body.mobile .ref{display:none}
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.27　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.28　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -621,8 +621,37 @@ const STORY = {
     '「守燈人的燈罩上，有一個小小的指印。是很多年前，一個孩子留下的。」',
     '「那天夜裡，守燈人說：光太亮的時候，沒有人看得見影子裡的人。」',
     '「他蓋上燈罩，是想替影子裡的人留一盞燈。可是影子裡，已經沒有人再被看見。」',
-    '「你手裡的這盞燈，是從他的燈罩縫隙裡漏出來的一點光。」'
+    '「你手裡的這盞燈，是從他的燈罩縫隙裡漏出來的一點光。」',
+    '「畫裡的渡口有一盞船燈。船夫說，燈在，江就不會迷路。」',
+    '「畫師在山腳畫了一盞小燈，是替自己留的。畫完，他就走進畫裡去了。」',
+    '「年獸怕光。可是一年裡，只有最亮的那一夜，大家才記得彼此的名字。」',
+    '「鼎裡的灰很涼，最底下，卻留著一小粒沒冷掉的火。」',
+    '「潛水鐘裡的人說：越往下，光就越像一個承諾。」',
+    '「海溝盡頭有一盞會自己亮起來的燈。不是人點的，是魚的。」',
+    '「古代海怪不是在吞船。它是在找，那盞掉下來的燈。」',
+    '「燈沉下去的時候，水面上，還有人在揮手。」',
+    '「鑄燈匠把最後一爐鐵水，澆進了燈座。他說，燈要被火燒過，才不怕風。」',
+    '「熔岩魔像睡著之前，守著一座爐。爐裡的火，是替遠方的人留的。」',
+    '「炎龍的鱗，是燈油凝成的。牠每吐一次火，就少一點，卻不肯停。」',
+    '「山不是在噴火。是在把埋了太久的光，一口氣還給天空。」',
+    '「夢遊的人提著一盞沒有火的燈，說夢裡用不到火。」',
+    '「鏡子裡的燈比較亮。可是沒有人敢伸手去拿。」',
+    '「夢魘看守原本是守夜人。守得太久，就開始替所有人關燈。」',
+    '「醒來的那一刻，你才發現，手裡的燈一直亮著。」',
+    '「燈夫每晚點一盞鬼火燈，替迷路的人引路。後來路被泥吞了，燈還在引。」',
+    '「詛咒不是從天上掉下來的。是有人不肯放下燈，等得太久，泥都記住了他的名字。」',
+    '「腐根樹妖的根，纏著一根小小的燈柱。它不想拔，也不想被拔。」',
+    '「蟾蜍吞下去的不是光，是替光說話的人。」',
+    '「商隊最後一盞燈掛在最後一匹駱駝的鞍上。後面已經沒有人了，它還是亮著。」',
+    '「木乃伊把燈油抹進繃帶裡，說這樣，下輩子也找得到路。」',
+    '「沙塵暴來的那天，所有的燈都滅了。只有綠洲裡那一盞還在，那是水映出來的。」',
+    '「蠍王的尾針，是用一個舊提燈的鉤子磨成的。」'
   ],
+  // 長線作戰章節「燈的另一端」（第 4–6 層）、精英與 Boss 第二形態台詞
+  chapter: { 3: [{ who: '旁白', text: '走到這裡，燈的光已經照不到來時的路。可是奇怪，影子裡，有人在看你。' }, { who: '提燈騎士', text: '……有人嗎？' }], 4: [{ who: '旁白', text: '那些影子，穿著和你一樣的披風。他們的燈，早就熄了。' }, { who: '提燈騎士', text: '他們也是，來把光帶回去的人。' }], 5: [{ who: '旁白', text: '燈的另一端，不是黑暗。是每一個沒能回去的人。' }, { who: '提燈騎士', text: '那我就帶他們一起。' }] },
+  eliteDown: ['……謝謝。我終於，可以放下了。', '原來燈……還亮著。', '替我，把光帶到最後。'],
+  form2: { giant: '石頭記得每一個踩過我的人。你，是第一個回頭看的。', dragon: '雪、火、水、墨——我本來，都是燈的一部分。', shan: '畫還沒畫完。再等我一筆。', other: '燈罩下面太暗了……可是我，還想再看一眼。', rootking: '根……還記得，那盞燈的名字。', toad: '吞進去的話……全都，還給你。', mummyking: '繃帶底下，還有火。再燒一次，也好。', scorpking: '鉤子，本來是用來掛燈的。', final: '我蓋上燈罩，是怕光，照不到影子裡的人……原來，是你替他們，走到了這裡。' },
+  endExtra: [{ k: 'mates', text: '這一次，燈不是一個人提的。' }, { k: 'noHurt', text: '連一點燈火，都沒有掉。' }, { k: 'long', text: '燈的另一端，也亮了。' }, { k: 'allAch', text: '每一個影子，都有人替它點過燈。' }],
   bossTalk: {
     nightmare: [{ who: '夢魘看守', text: '睡吧……睡著了，就不會痛了。光太刺眼，我替你關掉。' }, { who: '提燈騎士', text: '我還醒著，而且不打算睡。' }],
     mirrorgiant: [{ who: '巨大鏡面人', text: '你想看見真正的自己嗎？來，看看你打出的每一道光。' }, { who: '提燈騎士', text: '我只看前面的路。' }],
@@ -1672,7 +1701,7 @@ function updateChase(dt) {
 }
 function newRun() {
   resetPlayer(); follow = true; fEdge = 0; hudSig = ''; parts = [];
-  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
+  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
   for (const w of p.weapons) rec.seenW[w] = 1;
   allies = [];
   { let t = cleared ? shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8]).slice(0, 3) : [0, 1, 2];
@@ -2296,6 +2325,16 @@ function updateFade(dt) {
   if (fade.dir > 0 && fade.a >= 1) { fade.a = 1; fade.dir = -1; const cb = fade.cb; fade.cb = null; if (cb) cb(); }
   else if (fade.dir < 0 && fade.a <= 0) { fade.a = 0; fade.dir = 0; if (state === 'trans') setState('play'); }
 }
+const SHARD_GRP = { 3: 12, 4: 16, 5: 20, 6: 24, 7: 28, 8: 32 };
+function nextShard() {
+  const n = rec.shardN || 0, main = 12;
+  if (n < main) return n;
+  rec.shardSeen = rec.shardSeen || {};
+  const unseen = g => { for (let i = SHARD_GRP[g]; i < SHARD_GRP[g] + 4; i++) if (!rec.shardSeen[i]) return i; return -1; };
+  const order = [th()].concat(run.themes).concat(Object.keys(SHARD_GRP).map(Number));
+  for (const g of order) if (SHARD_GRP[g] !== undefined) { const i = unseen(g); if (i >= 0) { rec.shardSeen[i] = 1; return i; } }
+  return main + (n % (STORY.shards.length - main));
+}
 function bossIntroLines() {
   const k = bossDef().kind;
   if (run.layer === lastL() && th() === 2) return STORY.bossIntro.concat(STORY.bossIntroV[k === 'final' ? 'keeper' : k] || []);
@@ -2402,6 +2441,7 @@ function goNext() {
     if (layerChanged) writeSave();
     const lines = [];
     if (layerChanged && (!run.long || !(run.layer & 1)) && STORY.layerIntro[run.long ? run.layer >> 1 : run.layer]) lines.push(STORY.layerIntro[run.long ? run.layer >> 1 : run.layer]);
+    if (layerChanged && run.long && STORY.chapter[run.layer]) for (const l of STORY.chapter[run.layer]) lines.push(l);
     if (room.kind === 'boss') for (const l of bossIntroLines()) lines.push(l);
     if (lines.length) say(lines, announceRoom); else announceRoom();
   });
@@ -2478,7 +2518,8 @@ function midBossDefeated() {
 }
 function pickEnding(k) {
   show('choice', false);
-  const en = STORY.endings[k]; rec.endings[k] = 1; if (rec.endings[0] && rec.endings[1]) unlockAch('endings'); saveRec();
+  const en0 = STORY.endings[k], ex = STORY.endExtra.filter(o => o.k === 'mates' ? Object.keys(rec.allies || {}).length >= 3 : o.k === 'noHurt' ? !run.hurtAny : o.k === 'long' ? run.long : achCount() >= ACH.length).slice(0, 2).map(o => ({ who: '旁白', text: o.text }));
+  const en = { title: en0.title, lines: en0.lines.concat(ex) }; rec.endings[k] = 1; if (rec.endings[0] && rec.endings[1]) unlockAch('endings'); saveRec();
   say(en.lines, () => { $('endTitle').textContent = en.title; $('endLine').textContent = en.lines[en.lines.length - 1].text; $('endRecap').textContent = recapText(true); show('ending', true); setState('ending'); });
 }
 function onConfirm() {
@@ -2653,7 +2694,7 @@ let killKind = null;
 function bossPhase2(e) {
   e.p2 = true; e.p2T = 1.5; e.hp = Math.round(e.maxHp * 0.5); e.spd = (e.spd || 1) * 1.15; e.p2Ring = 4;
   bullets = []; clearAdds(); burst(e.x, e.y, 50, ['#ff6a5a', '#2a1a2e', C.paper], 280, true); sfx('kill'); shake = Math.max(shake, 10);
-  rings.push({ x: e.x, y: e.y, R: 220, t: 0.6, dur: 0.6 }); toast(bossDef().name + '：還沒結束……（第二形態）', 2.6);
+  rings.push({ x: e.x, y: e.y, R: 220, t: 0.6, dur: 0.6 }); { const k = e.kind, F = STORY.form2, g = ['giant', 'golem', 'mirrorgiant'].indexOf(k) >= 0 ? 'giant' : ['dragon', 'vdragon', 'idragon', 'serpent', 'nightmare'].indexOf(k) >= 0 ? 'dragon' : ['shan', 'kraken'].indexOf(k) >= 0 ? 'shan' : F[k] ? k : 'other'; toast(bossDef().name + '：「' + F[g] + '」（第二形態）', 3.4); }
 }
 function killEnemy(e) {
   const boss = e.type === 'boss';
@@ -2687,7 +2728,7 @@ function killEnemy(e) {
     else if (room.final) { if (!enemies.some(o => o !== e && !o.dead && o.type === 'boss')) bossDefeated(); }
     else midBossDefeated();
   } else {
-    if (e.elite) dropCoins(e.x, e.y, 1);
+    if (e.elite) { dropCoins(e.x, e.y, 1); if (!room.eliteLine) { room.eliteLine = true; toast('「' + pickOf(STORY.eliteDown) + '」', 2.6); } }
     if ((e.type === 'splitter' && !(e.gen > 0)) || e.type === 'splitter2') {
       for (const sgn of [-1, 1]) {
         const c = spawnEnemy('splitter', clamp(e.x + sgn * 18, ROOM.x + 20, ROOM.x + ROOM.w - 20), e.y); c.gen = 1; c.r = 10; c.hp = c.maxHp = Math.max(2, Math.round(e.maxHp * (e.type === 'splitter2' ? 0.35 : 0.4))); c.spawn = 0.3; c.kx = sgn * 160;
@@ -2716,7 +2757,7 @@ function hurtPlayer(dmg, nx, ny, frz) {
     p.shield = Math.max(0, p.shield - dmg); if (p.shield <= 0) run.shieldZero = true; p.shieldT = 0; room.hurt = true; p.iframes = 1.0; p.kx = nx * 220; p.ky = ny * 220; shake = 5; sfx('hurt'); hudSig = '';
     burst(p.x, p.y, 10, ['#8fd0ff', C.paper], 150, true); return;
   }
-  p.hp = Math.max(0, p.hp - dmg); room.hurt = true; p.iframes = 1.0; p.kx = nx * 300; p.ky = ny * 300; shake = 8; sfx('hurt');
+  p.hp = Math.max(0, p.hp - dmg); room.hurt = true; run.hurtAny = true; p.iframes = 1.0; p.kx = nx * 300; p.ky = ny * 300; shake = 8; sfx('hurt');
   burst(p.x, p.y, 10, [C.paper, C.cape], 160);
   if (p.hp > 0 && p.sleepT > 0 && (upN('c_slp') < 2 || rand() < 0.5)) wakeUp(true);
   if (p.hp <= 0) die();
@@ -2845,7 +2886,7 @@ function spawnWave() {
     for (const t of list.slice(i, i + n)) {
       const sp = zoneSpot(z, ENEMY[t].r) || freeSpot(ENEMY[t].r), e = spawnEnemy(t, sp.x, sp.y);
       e.grp = g; e.zone = z; if (gi > 0) { e.sleep = true; sleepers++; }
-      if (run.long && run.layer >= 2 && rand() < Math.min(0.25, 0.1 + 0.05 * (run.layer - 2))) { e.elite = true; e.hp = e.maxHp = e.hp * 2; e.r *= 1.4; }
+      if (run.long && run.layer >= 2 && rand() < Math.min(0.25, 0.1 + 0.05 * (run.layer - 2))) { e.elite = true; e.hp = e.maxHp = e.hp * 2; e.r *= 1.4; if (!run.eliteTip) { run.eliteTip = true; toast('旁白：這個影子，披著舊提燈人的披風。', 3); } }
     }
     i += n; gi++;
   }
@@ -3802,7 +3843,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.27　手機版：橫向握持效果最佳' : '可玩原型 v2.27　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.28　手機版：橫向握持效果最佳' : '可玩原型 v2.28　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch();
@@ -4146,7 +4187,7 @@ function updatePlay(dt) {
       k.dead = true;
       if (k.kind === 'coin') { p.coins++; sfx('coin'); hudSig = ''; }
       else if (k.kind === 'oil') { sfx('pick'); healP(2); toast('燈油補充，燈亮了一些'); burst(k.x, k.y, 10, [C.amber, C.paper], 140, true); }
-      else { sfx('pick'); burst(k.x, k.y, 12, [C.amber, C.paper], 140, true); say([{ who: '記憶碎片', text: STORY.shards[(rec.shardN || 0) % STORY.shards.length] }]); rec.shardN = (rec.shardN || 0) + 1; saveRec(); }
+      else { sfx('pick'); burst(k.x, k.y, 12, [C.amber, C.paper], 140, true); say([{ who: '記憶碎片', text: STORY.shards[nextShard()] }]); rec.shardN = (rec.shardN || 0) + 1; saveRec(); }
     }
   }
   pickups = pickups.filter(k => !k.dead);
