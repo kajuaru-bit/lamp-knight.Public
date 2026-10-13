@@ -216,7 +216,7 @@ body.mobile #pFollow,body.mobile #pAim{display:none}
 body.port .boss{left:6cqw;right:6cqw;top:19cqw}
 body.port .boss b{font-size:15px;margin-bottom:3px}
 body.port .boss i{height:7px}
-body.port .toast{top:30cqw;font-size:19px;max-width:92cqw}
+body.port .toast{top:30cqw;font-size:16px;max-width:92cqw}
 body.port .hint{bottom:auto;top:calc(var(--vh) - 3cqw);transform:translate(-50%,-100%);font-size:14px;padding:7px 14px;min-width:50cqw;max-width:92cqw}
 body.port .tut{bottom:auto;left:3cqw;top:48cqw;max-width:70cqw;font-size:13px;padding:6px 9px}
 body.port .upl{left:3cqw;bottom:auto;top:calc(var(--vh) - 13cqw);max-width:60cqw;font-size:11px;gap:3px 5px}
@@ -291,12 +291,19 @@ body.port .opt{font-size:14px;padding:6px 10px}
 body.port .pager{font-size:14px;gap:10px}body.port .pager button{padding:6px 14px}
 body.port .recap{font-size:14px}
 body.port .stat{font-size:13px;gap:12px;flex-wrap:wrap}
+
+/* mobile: screens scroll instead of clipping (landscape pause/menu) */
+body.mobile .screen{align-items:flex-start;overflow-y:auto}
+body.mobile .card{margin:auto 0}
+body.mobile #btnResume{position:sticky;top:0;z-index:2}
+body.mobile .pcol p.quiet:last-child{display:none}
+body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 auto}
 </style>
 
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.30　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.31　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -1856,7 +1863,7 @@ function makeItem(slot, x, y, group, avoid, forcePrem) {
 }
 function setupSpecial() {
   const cx = ROOM.x + ROOM.w / 2, cy = DOOR.y, k = room.kind;
-  if (k === 'start') { room.items.push({ kind: 'switch', id: 'switch', x: ROOM.x + 90, y: ROOM.y + 70, group: 'prop', price: 0, taken: false }); room.items.push({ kind: 'noshop', id: 'noshop', x: ROOM.x + 90, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); if (cleared) room.items.push({ kind: 'themesel', id: 'themesel', x: ROOM.x + 330, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); room.items.push({ kind: 'tutsw', id: 'tutsw', x: ROOM.x + 200, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); return; }
+  if (k === 'start') { room.items.push({ kind: 'switch', id: 'switch', x: ROOM.x + 90, y: ROOM.y + 70, group: 'prop', price: 0, taken: false }); room.items.push({ kind: 'noshop', id: 'noshop', x: ROOM.x + 90, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); if (cleared) room.items.push({ kind: 'themesel', id: 'themesel', x: ROOM.x + 330, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); room.items.push({ kind: 'tutsw', id: 'tutsw', x: ROOM.x + 200, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); if (mobile) room.items.push({ kind: 'tzsw', id: 'tzsw', x: ROOM.x + 450, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); return; }
   const add = (slot, x, group) => room.items.push(makeItem(slot, x, cy, group));
   if (k === 'event' && room.variant === 'fake') {
     add('heal', cx - 130, 'shop'); add('upgrade', cx, 'shop'); add(rand() < 0.65 ? 'weapon' : 'upgrade', cx + 130, 'shop'); room.fakeT = 1.2; return;
@@ -1889,6 +1896,7 @@ function itemInfo(it) {
   if (it.kind === 'well') return it.id === 'grand'
     ? { name: '華麗許願池', desc: '第 n 次投入 5×n 燈芯：5、10、15、20、25。次數越多機率與品質越高，第 5 次保底；得到獎勵後池就乾涸' + (it.dry ? '（已乾涸）' : '') }
     : { name: '許願池', desc: '每次投入 4 燈芯，有機率獲得獎勵。一個池最多投 6 次，第 6 次保底（至少燈火 +1）' };
+  if (it.kind === 'tzsw') return { name: '按鍵大小牌', desc: '手機專用：在「標準」與「大」兩種觸控按鈕大小之間切換（也可在暫停頁細調）' };
   if (it.kind === 'tutsw') return { name: '新手教學牌', desc: rec.tutOff ? '教學面板目前關閉。再按一次開啟（電腦版，只在起始房顯示）' : '教學面板開著，會留在畫面下方。按一下可以關閉' };
   if (it.kind === 'themesel') return { name: '主題路標', desc: run.themePick >= 0 ? '這一局一定會遇到「' + TNAMES[run.themePick] + '」。再按換下一個，輪到「隨機」就取消' : '目前是隨機。按一下可以指定一個主題，這一局一定會遇到（通關一次後才有）' };
   if (it.kind === 'noshop') return { name: '商人休息中', desc: run.noShop ? '這一局不會遇到商人房（改成事件房或寶箱房）。再按一次恢復' : '掛上木牌後，這一局不會遇到商人房，原本的位置會換成事件房或寶箱房（挑戰「沒有補給」）' };
@@ -1939,6 +1947,7 @@ function refreshShop(stall) {
 }
 function interact(it) {
   if (it.taken) return;
+  if (it.kind === 'tzsw') { rec.ui.tz = (rec.ui.tz | 0) === 2 ? 1 : 2; saveRec(); applyUi(); sfx('pick'); toast(rec.ui.tz === 2 ? '觸控按鈕：大' : '觸控按鈕：標準'); hintSig = ''; return; }
   if (it.kind === 'tutsw') { rec.tutOff = !rec.tutOff; saveRec(); sfx('pick'); toast(rec.tutOff ? '教學已關閉' : '教學已開啟'); hintSig = ''; tutSig = ''; return; }
   if (it.kind === 'themesel') {
     run.themePick = run.themePick >= TNAMES.length - 1 ? -1 : run.themePick + 1; applyThemePick(); sfx('pick');
@@ -2058,7 +2067,7 @@ function updateHint() {
     else if (it.kind === 'ding') act = it.used ? '' : 'F 觸摸古鼎';
     else if (it.kind === 'well') act = it.dry ? '池水已經乾涸' : (it.id === 'grand' ? (it.n >= 5 ? '池水平靜了' : 'F 投入 ' + (5 * (it.n + 1)) + ' 燈芯（第 ' + (it.n + 1) + ' / 5 次）') : (it.n >= 6 ? '池水平靜了' : 'F 投入 4 燈芯（第 ' + (it.n + 1) + ' / 6 次）')) + (!it.dry && it.n < (it.id === 'grand' ? 5 : 6) && p.coins < (it.id === 'grand' ? 5 * (it.n + 1) : 4) ? '（燈芯不夠）' : '');
     else if (it.kind === 'weapon') act = p.weapons.length < 3 ? 'F 拿取' : 'F 取代手上的「' + WDEF[p.weapons[p.w]].name + '」';
-    else act = it.kind === 'tutsw' ? (rec.tutOff ? 'F 開啟教學' : 'F 關閉教學') : it.kind === 'noshop' ? (run.noShop ? 'F 取下木牌' : 'F 掛上木牌') : it.kind === 'switch' ? (room.lampOn ? 'F 關燈' : 'F 開燈') : it.kind === 'npc' ? 'F 邀請同行（隊伍 ' + allies.length + ' / 2）' : it.kind === 'refresh' ? 'F 刷新全部商品' : it.kind === 'restock' ? 'F 補貨' : it.kind === 'heal' ? 'F 喝下' : 'F 拿取';
+    else act = it.kind === 'tzsw' ? 'F 切換按鍵大小' : it.kind === 'tutsw' ? (rec.tutOff ? 'F 開啟教學' : 'F 關閉教學') : it.kind === 'noshop' ? (run.noShop ? 'F 取下木牌' : 'F 掛上木牌') : it.kind === 'switch' ? (room.lampOn ? 'F 關燈' : 'F 開燈') : it.kind === 'npc' ? 'F 邀請同行（隊伍 ' + allies.length + ' / 2）' : it.kind === 'refresh' ? 'F 刷新全部商品' : it.kind === 'restock' ? 'F 補貨' : it.kind === 'heal' ? 'F 喝下' : 'F 拿取';
     if (it.group === 'shop' || it.group === 'stall') act += '　' + cost(it) + ' 燈芯' + (p.coins < cost(it) ? '（不夠）' : '');
     if (it.group === 'hpshop') act += '　' + it.hpPrice + ' 燈火（血量）' + (p.hp <= it.hpPrice ? '（血量不夠）' : '');
     if (it.group === 'choose') act += '　只能選一樣';
@@ -3983,7 +3992,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.30　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.30　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.31　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.31　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -4418,6 +4427,12 @@ function drawItem(it) {
     if (room.lampOn) { ctx.globalAlpha = 0.3; ctx.fillStyle = C.amber; circ(ctx, 0, 0, 36); ctx.globalAlpha = 1; }
     ctx.restore(); return;
   }
+  if (it.kind === 'tzsw') {
+    ctx.save(); ctx.translate(it.x, it.y); setShadow(ctx, 2, 3, 0);
+    ctx.fillStyle = PAL.wall1; rrect(ctx, -3, -4, 6, 30, 2); ctx.fillStyle = (rec.ui.tz | 0) === 2 ? C.amber : '#c8b6ff'; rrect(ctx, -30, -26, 60, 28, 4); noShadow(ctx);
+    ctx.fillStyle = '#2a2236'; ctx.font = '700 15px sans-serif'; ctx.textAlign = 'center'; ctx.fillText((rec.ui.tz | 0) === 2 ? '按鍵大' : '按鍵標準', 0, -7);
+    ctx.restore(); return;
+  }
   if (it.kind === 'tutsw') {
     ctx.save(); ctx.translate(it.x, it.y); setShadow(ctx, 2, 3, 0);
     ctx.fillStyle = PAL.wall1; rrect(ctx, -3, -4, 6, 30, 2); ctx.fillStyle = rec.tutOff ? C.paperDim : '#8fc4e4'; rrect(ctx, -26, -26, 52, 28, 4); noShadow(ctx);
@@ -4834,9 +4849,10 @@ function stepView() {
 }
 function applyView() {
   const vb = $('viewbox');
-  if (!port) { view.on = false; view.x = 0; view.y = 0; view.w = W; view.h = H; view.s = 1; view.ok = false; cv.style.cssText = ''; return; }
-  const bw = vb.clientWidth, bh = vb.clientHeight; if (!bw || !bh) return;
-  const sc = Math.max(bh / H, bw / 420, bw / W);
+  if (!port) { stageEl.style.removeProperty('--vh'); view.on = false; view.x = 0; view.y = 0; view.w = W; view.h = H; view.s = 1; view.ok = false; cv.style.cssText = ''; return; }
+  const bw = vb.clientWidth, sh = stageEl.clientHeight; if (!bw || !sh) return;
+  const sc = Math.max(bw / 500, bw / W), bh = Math.round(Math.min(sh * 0.62, H * sc));
+  stageEl.style.setProperty('--vh', bh + 'px');
   view.on = true; view.s = sc; view.w = Math.min(W, bw / sc); view.h = Math.min(H, bh / sc); view.ok = false;
   cv.style.position = 'absolute'; cv.style.right = 'auto'; cv.style.bottom = 'auto'; cv.style.width = (W * sc).toFixed(1) + 'px'; cv.style.height = (H * sc).toFixed(1) + 'px';
   stepView();
