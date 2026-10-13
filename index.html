@@ -306,7 +306,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.34　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.35　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -1862,7 +1862,7 @@ function updateChase(dt) {
 }
 function newRun() {
   resetPlayer(); follow = true; fEdge = 0; hudSig = ''; parts = [];
-  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.wickN = 0; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
+  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.wickN = 0; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
   for (const w of p.weapons) rec.seenW[w] = 1;
   allies = [];
   { let t = cleared ? shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8]).slice(0, 3) : [0, 1, 2];
@@ -2678,7 +2678,7 @@ function die() {
 function fmtT(t) { t = Math.round(t); return Math.floor(t / 60) + ':' + ('0' + (t % 60)).slice(-2); }
 function sumCards(win) {
   const c = CLS[p.cls], up = Object.keys(p.upg).reduce((a, k) => a + (p.upg[k] || 0), 0);
-  const items = [['職業', c.name], ['模式', run.long ? (run.ext ? '長線＋追加' : '長線作戰') : '一般'], [win ? '結果' : '倒在', win ? '通關' : '第 ' + (run.layer + 1) + ' 層・' + (KIND_NAME[room.kind] || '')], ['用時', fmtT(run.t)], ['擊敗', run.kills + ' 隻'], ['燈芯', '＋' + (run.cIn || 0) + '／－' + (run.cOut || 0)], ['強化', up + ' 個'], ['武器', p.weapons.map(id => WDEF[id].name).join('、')]];
+  const items = [['職業', c.name], ['模式', run.long ? (run.ext ? '長線＋追加' : '長線作戰') : '一般'], [win ? '結果' : '倒在', win ? '通關' : '第 ' + (run.layer + 1) + ' 層・' + (KIND_NAME[room.kind] || '')], ['用時', fmtT(run.t)], ['擊敗', run.kills + ' 隻'], ['總傷害', Math.round(run.dmgOut || 0)], ['受傷', (run.hurtN || 0) + ' 次（−' + Math.round((run.dmgIn || 0) * 10) / 10 + '）'], ['燈芯', '＋' + (run.cIn || 0) + '／－' + (run.cOut || 0)], ['強化', up + ' 個'], ['武器', p.weapons.map(id => WDEF[id].name).join('、')]];
   if (!win && run.deathBy) items.push(['死因', enameOf(run.deathBy)]);
   return items.map(a => '<span><small>' + a[0] + '</small><b>' + a[1] + '</b></span>').join('');
 }
@@ -2752,7 +2752,8 @@ function midBossDefeated() {
 function pickEnding(k) {
   show('choice', false);
   const en0 = STORY.endings[k], ex = STORY.endExtra.filter(o => o.k === 'mates' ? Object.keys(rec.allies || {}).length >= 3 : o.k === 'noHurt' ? !run.hurtAny : o.k === 'long' ? run.long : achCount() >= ACH.length).slice(0, 2).map(o => ({ who: '旁白', text: o.text }));
-  const en = { title: en0.title, lines: en0.lines.concat(ex) }; rec.endings[k] = 1; if (rec.endings[0] && rec.endings[1]) unlockAch('endings'); saveRec();
+  const extL = run.ext ? [{ who: '旁白', text: '你多走了三層。那些路不是為了誰，只是燈想知道，自己還能照多遠。' }, { who: '旁白', text: '身後的影子們終於安靜了。他們不是被打倒，是被看見。' }, { who: '提燈騎士', text: '……回去吧。這一次，我知道路了。' }] : [];
+  const en = { title: en0.title, lines: en0.lines.concat(ex, extL) }; rec.endings[k] = 1; if (rec.endings[0] && rec.endings[1]) unlockAch('endings'); saveRec();
   say(en.lines, () => { $('endCards').innerHTML = sumCards(true); $('endTitle').textContent = en.title; $('endLine').textContent = en.lines[en.lines.length - 1].text; $('endRecap').textContent = recapText(true); $('btnExt').hidden = !(run.long && !run.ext); show('ending', true); setState('ending'); if ($('btnExt').hidden) { scrSel = 1; scrRender(); } });
 }
 function startExt() {
@@ -2924,7 +2925,7 @@ function hitEnemy(e, dmg, dx, dy, kb, melee) {
   if (p.shadowBuf > 0 && CLS[p.cls].id === 'inkhunter') { dmg *= 1.5; p.shadowBuf = 0; burst(e.x, e.y - e.r * 0.4, 8, ['#a89ad8', C.paper], 150, true); }
   if (CLS[p.cls].id === 'watch' && Math.hypot(e.x - p.x, e.y - p.y) < lightR()) dmg *= (p.skillLight > 0 ? 1.45 : 1.3) + (upN('c_watch') >= 1 ? 0.1 : 0);
   if (p.crit > 0 && rand() < p.crit) { dmg *= 1.8; burst(e.x, e.y - e.r * 0.4, 8, ['#fff2a8', C.amber], 170, true); }
-  e.hp -= dmg; e.flash = 0.09;
+  run.dmgOut = (run.dmgOut || 0) + Math.min(dmg, Math.max(0, e.hp)); e.hp -= dmg; e.flash = 0.09;
   if (e.type === 'deepworm' && e.hp > 0 && !e.split && (e.state === 'wind' || e.hp < e.maxHp * 0.6)) wormSplit(e);
   if (e.garden && !e.healed && !(e.healT > 0) && e.hp > 0 && e.hp <= e.maxHp * 0.5) e.healT = 0.8;
   if (e.type !== 'boss') { e.kx += dx * kb; e.ky += dy * kb; }
@@ -3030,6 +3031,7 @@ function hurtFrom(src, ...a) { hitSrc = src; const ok = p.iframes <= 0 && state 
 function hurtPlayer(dmg, nx, ny, frz) {
   if (p.iframes > 0 || state !== 'play') return;
   if (p.ward > 0) { p.wardTog = !p.wardTog; if (p.wardTog) { p.iframes = 0.6; burst(p.x, p.y, 8, ['#ffe6a0', C.paper], 140, true); sfx('tick'); return; } }
+  run.hurtN = (run.hurtN || 0) + 1; run.dmgIn = (run.dmgIn || 0) + dmg;
   if (p.shield > 0) {
     p.shield = Math.max(0, p.shield - dmg); if (p.shield <= 0) run.shieldZero = true; p.shieldT = 0; room.hurt = true; p.iframes = 1.0; p.kx = nx * 220; p.ky = ny * 220; shake = 5; sfx('hurt'); hudSig = '';
     burst(p.x, p.y, 10, ['#8fd0ff', C.paper], 150, true); return;
@@ -4125,7 +4127,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.34　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.34　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.35　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.35　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
