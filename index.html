@@ -306,7 +306,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.35　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.36　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -360,7 +360,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
         <div class="classes" id="classes"></div>
         <div class="infowrap"><canvas class="prev" id="prevMenu" width="200" height="200"></canvas><div class="clsinfo" id="clsInfo"></div></div>
         <label class="longrow" for="optLong" id="lblLong" hidden><input type="checkbox" id="optLong"><span><b>長線作戰</b>　6 層（每個主題 2 層）、第 3 層起有精英敵人、第 4 層起 Boss 有第二形態；約 25–35 分鐘，每層自動存檔</span></label>
-        <div class="menurow"><button class="btn" id="btnStart" type="button">開始冒險<kbd>F</kbd></button><button class="btn alt" id="btnCost" type="button">造型<kbd>C</kbd></button><button class="btn alt" id="btnAch" type="button">成就<kbd>V</kbd></button><button class="btn alt" id="btnStat" type="button">統計<kbd>B</kbd></button><button class="btn alt" id="btnData" type="button">資料<kbd>N</kbd></button></div>
+        <div class="menurow"><button class="btn" id="btnStart" type="button">開始冒險<kbd>F</kbd></button><button class="btn alt" id="btnCost" type="button">造型<kbd>C</kbd></button><button class="btn alt" id="btnAch" type="button">成就<kbd>V</kbd></button><button class="btn alt" id="btnStat" type="button">統計<kbd>B</kbd></button><button class="btn alt" id="btnData" type="button">資料<kbd>N</kbd></button><button class="btn alt" id="btnGacha" type="button">造型機<kbd>M</kbd></button></div>
         <div class="menurow savebar"><button class="btn" id="btnCont" type="button" hidden>繼續上次存檔<kbd>G</kbd></button><button class="btn alt" id="btnFolder" type="button" hidden>選存檔資料夾</button><button class="btn alt" id="btnExport" type="button" hidden>匯出遊玩紀錄</button><button class="btn alt" id="btnImport" type="button" hidden>匯入遊玩紀錄</button><input type="file" id="fileImport" accept=".json,application/json" hidden></div>
         <p class="quiet" id="saveInfo"></p>
         <p class="quiet" id="guide">W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。</p>
@@ -902,7 +902,7 @@ function loadRec() {
   let r = {}; try { r = JSON.parse(localStorage.getItem(REC_KEY) || '{}') || {}; } catch (e) { r = {}; }
   r.runs = r.runs || 0; r.clears = r.clears || 0; r.time = r.time || 0; r.best = r.best || 0;
   r.deaths = r.deaths || {}; r.kills = r.kills || {}; r.byCls = r.byCls || {}; r.ach = r.ach || {}; r.seenW = r.seenW || {}; r.allies = r.allies || {}; r.endings = r.endings || {};
-  r.tutKeys = r.tutKeys || {}; r.mates = r.mates || {}; r.bossK = r.bossK || {}; r.themesSeen = r.themesSeen || {}; r.sleepKills = r.sleepKills || 0; r.fanKills = r.fanKills || 0; r.cos = r.cos || { lamp: 'warm', cape: 'red' }; r.seenC = !!r.seenC; r.seenV = !!r.seenV;
+  r.paper = r.paper || 0; r.scrap = r.scrap || 0; r.tutKeys = r.tutKeys || {}; r.mates = r.mates || {}; r.bossK = r.bossK || {}; r.themesSeen = r.themesSeen || {}; r.sleepKills = r.sleepKills || 0; r.fanKills = r.fanKills || 0; r.cos = r.cos || { lamp: 'warm', cape: 'red' }; r.seenC = !!r.seenC; r.seenV = !!r.seenV;
   r.ui = Object.assign({ autoDlg: false, dlgSpd: 1, toast: 1, tz: 1, to: 2, lefty: false }, r.ui || {});
   return r;
 }
@@ -965,7 +965,7 @@ ACH.push(
 );
 const ACH_BY = {}; ACH.forEach(a => ACH_BY[a.id] = a);
 function unlockAch(id) {
-  if (rec.ach[id]) return; rec.ach[id] = 1; (rec.achNew = rec.achNew || {})[id] = 1; saveRec();
+  if (rec.ach[id]) return; rec.ach[id] = 1; (rec.achNew = rec.achNew || {})[id] = 1; run.newAch = (run.newAch || 0) + 1; saveRec();
   const pop = $('achPop'); pop.innerHTML = medalSvg(true, 34) + '<span><small>成就達成</small><b>' + ACH_BY[id].name + '</b></span>'; pop.classList.remove('show'); void pop.offsetWidth; pop.classList.add('show');
 }
 const LAMPS = {
@@ -1862,7 +1862,7 @@ function updateChase(dt) {
 }
 function newRun() {
   resetPlayer(); follow = true; fEdge = 0; hudSig = ''; parts = [];
-  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.wickN = 0; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
+  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.wickN = 0; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
   for (const w of p.weapons) rec.seenW[w] = 1;
   allies = [];
   { let t = cleared ? shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8]).slice(0, 3) : [0, 1, 2];
@@ -2432,10 +2432,13 @@ function renderSub() {
     body.innerHTML += '<p class="flv">' + (cv && FLV[ck + '.' + cv] ? '「' + FLV[ck + '.' + cv] + '」' : '') + '</p>';
   } else if (subKind === 'stat') {
     $('subTitle').textContent = '統計'; $('subHint').textContent = 'F 返回。死因從 v2.12 開始記錄；下方的「遊玩遙測」從 v2.34 開始累積，可隨遊玩紀錄匯出匯入'; body.innerHTML = statHtml() + telHtml();
+  } else if (subKind === 'gacha') {
+    $('subTitle').textContent = '造型機'; $('subHint').textContent = 'F 返回。紙片只能用在造型機，沒有真錢，也不影響強度';
+    body.innerHTML = '<div class="datapg"><p><b>開發中</b>　造型機之後會開放：用紙片抽取帽子、面具、衣服、燈飾等外觀。</p><p>目前紙片：<b>' + (rec.paper || 0) + '</b>　紙屑：<b>' + (rec.scrap || 0) + '</b></p><p class="quiet">紙片收入（每局結算）：基本 5；通關 +10；每個新成就 +5；長線作戰每層 +3（追加層每層 +5）。從這個版本開始累積。</p></div>';
   } else if (subKind === 'data') {
     $('subTitle').textContent = '資料'; $('subHint').textContent = 'F 返回。遊玩紀錄＝成就、統計、造型、設定、遙測；匯入時與目前資料合併（取較大值）';
     const d = readSaveLocal();
-    body.innerHTML = '<div class="datapg"><p>' + (d ? '存檔：' + CLS[d.cls].name + '　第 ' + (d.layer + 1) + ' 層　' + new Date(d.ts).toLocaleString() + '（回到選單按「繼續上次存檔」）' : '目前沒有存檔（每一層開始時自動存檔，死亡或通關後清除）') + (saveDir ? '　｜資料夾：已連結' : '') + '</p><div class="menurow"><button type="button" data-act="folder">選存檔資料夾</button><button type="button" data-act="export">匯出遊玩紀錄</button><button type="button" data-act="import">匯入遊玩紀錄</button></div><p>累計 ' + rec.runs + ' 局、通關 ' + rec.clears + ' 次、遊玩 ' + fmtT(rec.time) + '；成就 ' + achCount() + ' / ' + ACH.length + (rec.longMax ? '；長線歷史最遠 第 ' + rec.longMax + ' 層' : '') + '</p><p class="quiet">遊戲中途離開（匯出目前進度）請在遊戲中的暫停頁操作。</p></div>';
+    body.innerHTML = '<div class="datapg"><p>' + (d ? '存檔：' + CLS[d.cls].name + '　第 ' + (d.layer + 1) + ' 層　' + new Date(d.ts).toLocaleString() + '（回到選單按「繼續上次存檔」）' : '目前沒有存檔（每一層開始時自動存檔，死亡或通關後清除）') + (saveDir ? '　｜資料夾：已連結' : '') + '</p><div class="menurow"><button type="button" data-act="folder">選存檔資料夾</button><button type="button" data-act="export">匯出遊玩紀錄</button><button type="button" data-act="import">匯入遊玩紀錄</button></div><p>累計 ' + rec.runs + ' 局、通關 ' + rec.clears + ' 次、遊玩 ' + fmtT(rec.time) + '；紙片 ' + (rec.paper || 0) + '；成就 ' + achCount() + ' / ' + ACH.length + (rec.longMax ? '；長線歷史最遠 第 ' + rec.longMax + ' 層' : '') + '</p><p class="quiet">遊戲中途離開（匯出目前進度）請在遊戲中的暫停頁操作。</p></div>';
   } else {
     const list = ACH.filter(a => (achCat === 'all' || achCatOf(a.id) === achCat) && (achFilter === 'all' || (achFilter === 'got') === !!rec.ach[a.id]));
     const pages = Math.max(1, Math.ceil(list.length / ACH_PER)); achPage = clamp(achPage, 0, pages - 1);
@@ -2656,7 +2659,7 @@ function goNext() {
   fadeThen(() => {
     run.roomN = (run.roomN || 0) + 1;
     let layerChanged = false;
-    if (run.step + 1 >= run.plan.length) { run.layer++; run.step = 0; run.plan = makeLayerPlan(run.layer); layerChanged = true; p.curse = 0; }
+    if (run.step + 1 >= run.plan.length) { run.layer++; run.fin = false; run.step = 0; run.plan = makeLayerPlan(run.layer); layerChanged = true; p.curse = 0; }
     else run.step++;
     loadRoom(); p.x = ROOM.x + 40; p.y = DOOR.y; p.vx = p.vy = p.kx = p.ky = 0; placeAllies();
     if (p.roomCd > 0) { p.roomCd--; hudSig = ''; }
@@ -2678,7 +2681,7 @@ function die() {
 function fmtT(t) { t = Math.round(t); return Math.floor(t / 60) + ':' + ('0' + (t % 60)).slice(-2); }
 function sumCards(win) {
   const c = CLS[p.cls], up = Object.keys(p.upg).reduce((a, k) => a + (p.upg[k] || 0), 0);
-  const items = [['職業', c.name], ['模式', run.long ? (run.ext ? '長線＋追加' : '長線作戰') : '一般'], [win ? '結果' : '倒在', win ? '通關' : '第 ' + (run.layer + 1) + ' 層・' + (KIND_NAME[room.kind] || '')], ['用時', fmtT(run.t)], ['擊敗', run.kills + ' 隻'], ['總傷害', Math.round(run.dmgOut || 0)], ['受傷', (run.hurtN || 0) + ' 次（−' + Math.round((run.dmgIn || 0) * 10) / 10 + '）'], ['燈芯', '＋' + (run.cIn || 0) + '／－' + (run.cOut || 0)], ['強化', up + ' 個'], ['武器', p.weapons.map(id => WDEF[id].name).join('、')]];
+  const items = [['職業', c.name], ['模式', run.long ? (run.ext ? '長線＋追加' : '長線作戰') : '一般'], [win ? '結果' : '倒在', win ? '通關' : '第 ' + (run.layer + 1) + ' 層・' + (KIND_NAME[room.kind] || '')], ['用時', fmtT(run.t)], ['擊敗', run.kills + ' 隻'], ['總傷害', Math.round(run.dmgOut || 0)], ['紙片', '＋' + (run.paperGiven || 0) + '（共 ' + (rec.paper || 0) + '）'], ['受傷', (run.hurtN || 0) + ' 次（−' + Math.round((run.dmgIn || 0) * 10) / 10 + '）'], ['燈芯', '＋' + (run.cIn || 0) + '／－' + (run.cOut || 0)], ['強化', up + ' 個'], ['武器', p.weapons.map(id => WDEF[id].name).join('、')]];
   if (!win && run.deathBy) items.push(['死因', enameOf(run.deathBy)]);
   return items.map(a => '<span><small>' + a[0] + '</small><b>' + a[1] + '</b></span>').join('');
 }
@@ -2701,6 +2704,12 @@ function rollMates() {
   }
   saveRec();
 }
+function paperTotal() {
+  let t = 5 + (run.won ? 10 : 0) + 5 * (run.newAch || 0);
+  if (run.long) { const done = run.fin ? run.layer + 1 : run.layer; t += 3 * Math.min(6, done) + 5 * Math.max(0, done - 6); }
+  return t;
+}
+function settlePaper() { const t = paperTotal(), d = t - (run.paperGiven || 0); if (d > 0) { rec.paper = (rec.paper || 0) + d; run.paperGiven = t; saveRec(); } }
 function endRun(win) {
   if (run.ended) return; run.ended = true; run.won = !!win; clearSave();
   const cl = CLS[p.cls]; rec.runs++; rec.time += run.t;
@@ -2715,10 +2724,10 @@ function endRun(win) {
     if (run.bought === 0 && !run.noShop) unlockAch('nobuy');
     if (run.wGot === 0) unlockAch('oneWeapon');
   }
-  saveRec();
+  settlePaper(); saveRec();
 }
 function showOver() {
-  endRun(false); $('overCards').innerHTML = sumCards(false); $('overRecap').textContent = recapText(false);
+  endRun(false); settlePaper(); $('overCards').innerHTML = sumCards(false); $('overRecap').textContent = recapText(false);
   $('overLine').textContent = STORY.deaths[Math.min(deaths - 1, STORY.deaths.length - 1)] || STORY.deaths[0];
   show('over', true); setState('over');
 }
@@ -2734,7 +2743,7 @@ function wickDrop() {
   if (p.maxHp < 9) { p.maxHp++; p.hp = Math.min(p.maxHp, p.hp + 1); hudSig = ''; toast('獲得厚燈芯：最大燈火 +1', 2.6); burst(p.x, p.y, 14, [C.amber, C.paper], 150, true); run.wickN = (run.wickN || 0) + 1; }
 }
 function bossDefeated() {
-  recBoss(); wickDrop(); if ((run.frz || 0) >= 5) unlockAch('calm');
+  recBoss(); wickDrop(); run.fin = true; if ((run.frz || 0) >= 5) unlockAch('calm');
   bullets = []; room.cleared = true; toast(bossDef().name + '倒下了'); clearAdds(); if (th() === 7) { if (run.poolHitL !== run.layer) unlockAch('swampWalk'); if (p.curse >= 3) unlockAch('purifier'); }
   if (run.long) { if (run.ext) rec.extClears = (rec.extClears || 0) + 1; else rec.longClears = (rec.longClears || 0) + 1; saveRec(); }
   if (!room.hurt) unlockAch('flawless'); endRun(true);
@@ -2754,7 +2763,7 @@ function pickEnding(k) {
   const en0 = STORY.endings[k], ex = STORY.endExtra.filter(o => o.k === 'mates' ? Object.keys(rec.allies || {}).length >= 3 : o.k === 'noHurt' ? !run.hurtAny : o.k === 'long' ? run.long : achCount() >= ACH.length).slice(0, 2).map(o => ({ who: '旁白', text: o.text }));
   const extL = run.ext ? [{ who: '旁白', text: '你多走了三層。那些路不是為了誰，只是燈想知道，自己還能照多遠。' }, { who: '旁白', text: '身後的影子們終於安靜了。他們不是被打倒，是被看見。' }, { who: '提燈騎士', text: '……回去吧。這一次，我知道路了。' }] : [];
   const en = { title: en0.title, lines: en0.lines.concat(ex, extL) }; rec.endings[k] = 1; if (rec.endings[0] && rec.endings[1]) unlockAch('endings'); saveRec();
-  say(en.lines, () => { $('endCards').innerHTML = sumCards(true); $('endTitle').textContent = en.title; $('endLine').textContent = en.lines[en.lines.length - 1].text; $('endRecap').textContent = recapText(true); $('btnExt').hidden = !(run.long && !run.ext); show('ending', true); setState('ending'); if ($('btnExt').hidden) { scrSel = 1; scrRender(); } });
+  say(en.lines, () => { settlePaper(); $('endCards').innerHTML = sumCards(true); $('endTitle').textContent = en.title; $('endLine').textContent = en.lines[en.lines.length - 1].text; $('endRecap').textContent = recapText(true); $('btnExt').hidden = !(run.long && !run.ext); show('ending', true); setState('ending'); if ($('btnExt').hidden) { scrSel = 1; scrRender(); } });
 }
 function startExt() {
   if (state !== 'ending' || !run.long || run.ext || run.layer !== 5) return;
@@ -4099,6 +4108,8 @@ function onKey(e, down) {
   else if (k === 'n') { if (!e.repeat) { if (state === 'menu') openSub('data'); else if (state === 'sub') closeSub(); } }
   else if (k === 'v') { if (!e.repeat) { if (state === 'menu') openSub('ach'); else if (state === 'sub') closeSub(); } }
   else if (k === 't') { if (!e.repeat) { optAuto.checked = !optAuto.checked; if (state === 'pause') refreshPauseOpts(); } }
+  else if (k === 'm' && state === 'menu') { if (!e.repeat) openSub('gacha'); }
+  else if (k === 'm' && state === 'sub') { if (!e.repeat) closeSub(); }
   else if (k === 'm') { if (!e.repeat) { optSound.checked = !optSound.checked; if (state === 'pause') refreshPauseOpts(); } }
 }
 window.addEventListener('keydown', e => onKey(e, true));
@@ -4127,7 +4138,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.35　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.35　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.36　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.36　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -4166,6 +4177,7 @@ btn('btnCost', () => openSub('cost'));
 btn('btnAch', () => openSub('ach'));
 btn('btnStat', () => openSub('stat'));
 btn('btnData', () => openSub('data'));
+btn('btnGacha', () => openSub('gacha'));
 btn('btnCont', () => { const d = readSaveLocal(); if (d && state === 'menu') applySave(d); });
 btn('btnFolder', () => { if (state === 'menu') pickFolder(); });
 btn('btnExport', () => exportSave());
