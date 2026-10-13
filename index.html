@@ -314,7 +314,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.38　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.39　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -520,7 +520,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
         <label for="optSound"><input type="checkbox" id="optSound" checked><span>音效</span></label>
         <label for="optUnlock"><input type="checkbox" id="optUnlock"><span>測試用：解鎖全部職業（正式規則：首次通關後才能選其他職業）</span></label>
         <label for="optNpc"><input type="checkbox" id="optNpc"><span>測試用：第 2、3 層一定有事件房（事件房才會遇到可邀請的隊友）</span></label>
-        <label for="optTheme"><span>測試用：最後一層的主題　<select id="optTheme"><option value="auto">自動</option><option value="0">花園</option><option value="1">極地</option><option value="2">提燈洞窟</option><option value="4">深海（部分）</option><option value="5">火山（部分）</option><option value="6">夢境（部分）</option><option value="7">詛咒沼澤</option><option value="8">沙漠（部分）</option><option value="3">中華古代</option></select></span></label>
+        <label for="optTheme"><span>測試用：最後一層的主題　<select id="optTheme"><option value="auto">自動</option><option value="0">花園</option><option value="1">極地</option><option value="2">提燈洞窟</option><option value="4">深海（部分）</option><option value="5">火山（部分）</option><option value="6">夢境（部分）</option><option value="7">詛咒沼澤</option><option value="8">沙漠（部分）</option><option value="3">中華古代</option><option value="9">糖果世界（DLC）</option></select></span></label>
         <label for="optGarden"><span>測試用：第 1 層（花園）的 Boss　<select id="optGarden"><option value="auto">自動（首次通關前固定荊棘園丁，之後隨機）</option><option value="gardener">荊棘園丁</option><option value="bloom">巨花</option><option value="hive">蟲群母巢</option></select></span></label>
         <label for="optBoss"><span>測試用：第 3 層的最終 Boss　<select id="optBoss"><option value="auto">自動（首次通關前固定守燈人，之後隨機）</option><option value="keeper">守燈人</option><option value="split">分裂守燈人</option><option value="summon">召喚守燈人</option></select></span></label>
       </div>
@@ -563,7 +563,8 @@ const PALS = [
   { ink: '#1a0a08', floor: '#3a2622', floor2: '#46302a', wall1: '#2b1c1a', wall2: '#4a2f2a', top: '#ee6a3c', door: '#c2402f' },
   { ink: '#14102a', floor: '#3b3566', floor2: '#463f78', wall1: '#4a4280', wall2: '#6a5fa8', top: '#d9c8ff', door: '#8f7fd0' },
   { ink: '#0c140f', floor: '#2f4033', floor2: '#394c3a', wall1: '#2d3a2a', wall2: '#455a3b', top: '#9fb86a', door: '#6b5b8a' },
-  { ink: '#2a1c10', floor: '#d9bd86', floor2: '#e3c995', wall1: '#b08a52', wall2: '#c9a066', top: '#f0dca8', door: '#8e5a32' }
+  { ink: '#2a1c10', floor: '#d9bd86', floor2: '#e3c995', wall1: '#b08a52', wall2: '#c9a066', top: '#f0dca8', door: '#8e5a32' },
+  { ink: '#7a4a86', floor: '#ffe6f0', floor2: '#ffd3e6', wall1: '#ff9ec7', wall2: '#ffc4de', top: '#fff2f8', door: '#c77dff' }
 ];
 let PAL = PALS[0];
 
@@ -732,6 +733,9 @@ const NPCS = {
   bell: { short: '老鐘', chat: ['咚——抱歉，習慣了。', '慢慢來，天又不會亮。', '我年紀大了，但還撞得動。'], hurt: '咚！……沒事，我是鐘。', name: '守夜老鐘', hp: 7, spd: 175, range: 300, cd: 1.1, dmg: 2.5, col: '#d9ff8a', desc: '跟著你走，動作慢但很耐打，每發傷害很高。帶著一盞小燈',
     lines: [{ who: '老鐘', text: '夜裡的鐘聲，是提醒大家別睡著。後來，沒人再來敲了。' }, { who: '提燈騎士', text: '我來替你敲。' }] }
 };
+NPCS.candy = { short: '小糖', name: '糖果使者 小糖', esc: true, hp: 8, spd: 185, range: 280, cd: 1.5, dmg: 1, col: '#ff8fc0', desc: '糖果世界的使者。要護送他走完三層，他倒下就失敗',
+  chat: ['這裡的地板是餅乾做的，不要舔。', '再往前就是糖霜山了，我有點緊張，也有點餓。', '你的燈好暖，我快要融化了。'], hurt: '黏、黏住了！',
+  lines: [{ who: '小糖', text: '燈熄之後，糖果世界也停止了甜味。請帶我穿過三層，我想去找回最初的糖。' }] };
 const GARDEN = {
   gardener: { kind: 'mid1', name: '荊棘園丁', hp: 90 },
   bloom: { kind: 'bloom', name: '巨花', hp: 110 },
@@ -1056,7 +1060,7 @@ const lastL = () => run.long ? (run.ext ? 8 : 5) : 2;
 const thIdx = () => run.long ? (run.layer >= 6 ? run.layer - 3 : Math.min(2, run.layer >> 1)) : Math.min(run.layer, 2);
 const dL = () => run.long ? (run.layer >= 6 ? 3 : Math.min(2, (run.layer + 1) >> 1)) : run.layer;
 const th = () => run.themes[thIdx()];
-const TNAMES = ['花園', '極地', '提燈洞窟', '中華古代', '深海', '火山', '夢境', '詛咒沼澤', '沙漠'];
+const TNAMES = ['花園', '極地', '提燈洞窟', '中華古代', '深海', '火山', '夢境', '詛咒沼澤', '沙漠', '糖果世界'];
 function applyThemePick() {
   const base = (run.themeBase || run.themes).slice(), k = run.themePick;
   if (k >= 0 && optTheme.value === 'auto' && base.indexOf(k) < 0) base[1] = k;
@@ -1069,6 +1073,7 @@ function bossDef(finO) {
   const t = th(), fin = finO !== undefined ? finO : run.long ? ((run.layer & 1) === 1 || run.layer >= 6) : run.layer === 2;
   if (t === 0) { const b = GARDEN[optGarden.value] || GARDEN[run.gardenKind] || GARDEN.gardener; return fin ? Object.assign({}, b, { hp: Math.round(b.hp * 1.6) }) : b; }
   if (t === 1) return fin ? (POLAR_FINAL[run.polarFinal] || POLAR_FINAL.dragon) : (POLAR[run.polarKind] || BOSS[1]);
+  if (t === 9) return fin ? { kind: 'golem', name: '糖霜巨像', hp: 205, candy: true } : { kind: 'golem', name: '蛋糕魔像', hp: 125, candy: true };
   if (t === 8) return fin ? { kind: 'scorpking', name: '巨大蠍王', hp: 195 } : { kind: 'mummyking', name: '木乃伊王', hp: 120 };
   if (t === 7) return fin ? { kind: 'toad', name: '巨大蟾蜍', hp: 195 } : { kind: 'rootking', name: '腐根樹妖', hp: 120 };
   if (t === 6) return fin ? { kind: 'mirrorgiant', name: '巨大鏡面人', hp: 200 } : { kind: 'nightmare', name: '夢魘看守', hp: 118 };
@@ -1130,7 +1135,7 @@ function sfx(k) {
 const AMB = {
   nb: null, src: null, filt: null, gain: null, th: -1, nextEv: 0,
   // [filterType, freq, Q, gain, lfoRate]
-  P: [['bandpass', 900, 0.6, 0.012], ['lowpass', 500, 0.4, 0.03], ['lowpass', 260, 0.5, 0.01], ['lowpass', 380, 0.7, 0.012], ['lowpass', 180, 0.5, 0.025], ['lowpass', 220, 1.2, 0.03], ['bandpass', 1500, 2, 0.006], ['lowpass', 320, 0.8, 0.012], ['bandpass', 700, 0.5, 0.03]],
+  P: [['bandpass', 900, 0.6, 0.012], ['lowpass', 500, 0.4, 0.03], ['lowpass', 260, 0.5, 0.01], ['lowpass', 380, 0.7, 0.012], ['lowpass', 180, 0.5, 0.025], ['lowpass', 220, 1.2, 0.03], ['bandpass', 1500, 2, 0.006], ['lowpass', 320, 0.8, 0.012], ['bandpass', 700, 0.5, 0.03], ['bandpass', 2400, 3, 0.004]],
   ev(th, a) {
     const r = Math.random;
     switch (th) {
@@ -1143,6 +1148,7 @@ const AMB = {
       case 6: { const n = [523, 659, 784, 988, 1175][Math.floor(r() * 5)]; blip(n, n, 0.5, 'triangle', 0.018); } break; // music box
       case 7: blip(180 + r() * 50, 260 + r() * 40, 0.09, 'square', 0.012); setTimeout(() => blip(200, 280, 0.09, 'square', 0.01), 130); break; // frog
       case 8: break;
+      case 9: { const n = [659, 784, 988, 1319][Math.floor(r() * 4)]; blip(n, n * 1.01, 0.18, 'sine', 0.015); setTimeout(() => blip(n * 1.5, n * 1.5, 0.2, 'sine', 0.01), 140); } break;
     }
   },
   tick(dt) {
@@ -1538,6 +1544,7 @@ function drawInkEnemy(e, body) {
   if (th() === 6 && DREAM_SKIN[e.type]) { drawDreamSkin(e); return; }
   if (th() === 7 && SW_SKIN[e.type]) { drawSwampEnemy(e); return; }
   if (th() === 8 && e.skin === 'beetle') { drawDesertEnemy(e); return; }
+  if (th() === 9 && CANDY_SKIN[e.type]) { drawCandyEnemy(e); return; }
   if (e.skin === 'ink') {
     ctx.fillStyle = '#1d1b22'; spiky(ctx, r * 1.1, 9, e.t, 0.82); ctx.fillStyle = f ? C.paper : '#2d2a35'; spiky(ctx, r * 0.95, 9, e.t, 0.82);
     ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.arc(-r * 0.2, -r * 0.25, r * 0.5, 3.4, 4.7); ctx.lineTo(-r * 0.2, -r * 0.25); ctx.fill();
@@ -1624,7 +1631,7 @@ function buildBg(rm) {
   noShadow(g);
   for (let i = 0; i < Math.round(16 * arR); i++) {
     const w = 70 + rng() * 150, h = 50 + rng() * 110, x = ROOM.x + rng() * (ROOM.w - w), y = ROOM.y + rng() * (ROOM.h - h);
-    g.fillStyle = i % 2 ? PAL.floor2 : 'rgba(20,14,36,.35)'; poly(g, jagRect(x, y, w, h, 22, 4, rng));
+    g.fillStyle = i % 2 ? PAL.floor2 : rm.theme === 9 ? 'rgba(255,255,255,.4)' : 'rgba(20,14,36,.35)'; poly(g, jagRect(x, y, w, h, 22, 4, rng));
   }
   for (let i = 0; i < Math.round(18 * arR); i++) { g.fillStyle = 'rgba(240,228,200,.09)'; star4(g, ROOM.x + rng() * ROOM.w, ROOM.y + rng() * ROOM.h, 3 + rng() * 4, rng() * 3); }
   if (rm.theme === 0) {
@@ -1643,6 +1650,12 @@ function buildBg(rm) {
     for (let i = 0; i < Math.round(36 * arR); i++) { const x = ROOM.x + rng() * ROOM.w, y = ROOM.y + rng() * ROOM.h; g.fillStyle = 'rgba(255,245,200,' + (0.12 + rng() * 0.2) + ')'; star4(g, x, y, 2.5 + rng() * 4, rng() * 3); }
     for (let i = 0; i < Math.round(7 * arR); i++) { const x = ROOM.x + rng() * ROOM.w, y = ROOM.y + rng() * ROOM.h, w = 50 + rng() * 90; g.fillStyle = 'rgba(190,170,255,.07)'; g.beginPath(); g.ellipse(x, y, w, w * 0.45, rng() * 3, 0, TAU); g.fill(); }
     for (let i = 0; i < Math.round(5 * arR); i++) { const x = ROOM.x + 20 + rng() * (ROOM.w - 40), y = ROOM.y + 20 + rng() * (ROOM.h - 40); g.strokeStyle = 'rgba(240,230,255,.2)'; g.lineWidth = 2; g.beginPath(); g.arc(x, y, 9, 0.5, TAU - 0.5); g.stroke(); }
+  }
+  if (rm.theme === 9) {
+    const sc = ['#ff9ec7', '#9ad9ff', '#ffe08a', '#b6f0b0'];
+    for (let i = 0; i < Math.round(26 * arR); i++) { g.fillStyle = sc[i & 3]; g.globalAlpha = 0.5; circ(g, ROOM.x + rng() * ROOM.w, ROOM.y + rng() * ROOM.h, 3 + rng() * 6); }
+    g.globalAlpha = 0.35; g.strokeStyle = '#fff'; g.lineWidth = 10; for (let i = 0; i < Math.round(5 * arR); i++) { const x = ROOM.x + rng() * ROOM.w, y = ROOM.y + rng() * ROOM.h; g.beginPath(); g.moveTo(x, y); g.lineTo(x + 70, y - 70); g.stroke(); }
+    g.globalAlpha = 1;
   }
   if (rm.theme === 8) {
     for (let i = 0; i < Math.round(12 * arR); i++) { const x = ROOM.x + rng() * ROOM.w, y = ROOM.y + rng() * ROOM.h, w = 60 + rng() * 120; g.strokeStyle = 'rgba(150,110,60,.28)'; g.lineWidth = 2; g.beginPath(); g.arc(x, y, w, Math.PI * 1.1, Math.PI * 1.9); g.stroke(); }
@@ -1664,7 +1677,7 @@ function buildBg(rm) {
     for (let i = 0; i < Math.round(8 * arR); i++) { const x = ROOM.x + 20 + rng() * (ROOM.w - 40), y = ROOM.y + 40 + rng() * (ROOM.h - 60); g.strokeStyle = 'rgba(70,110,70,.35)'; g.lineWidth = 3; g.beginPath(); g.moveTo(x, y); g.lineTo(x + rng() * 6 - 3, y - 36); g.stroke(); g.lineWidth = 1.5; for (let k = 1; k < 3; k++) { g.beginPath(); g.moveTo(x, y - k * 12); g.lineTo(x + 12, y - k * 12 - 8); g.stroke(); } }
   }
   for (const o of rm.obs) { if (rm.theme === 0) drawBush(g, o, rng); else if (rm.theme === 1) drawIce(g, o, rng); else if (rm.theme === 3) drawScreen(g, o, rng); else if (rm.theme === 4 || rm.theme === 7) drawBush(g, o, rng); else drawStack(g, o, rng); }
-  for (let tx = 0; tx < WORLD.w; tx += W) for (let ty = 0; ty < WORLD.h; ty += H) g.drawImage(paperTex, tx, ty, W, H);
+  if (rm.theme !== 9) for (let tx = 0; tx < WORLD.w; tx += W) for (let ty = 0; ty < WORLD.h; ty += H) g.drawImage(paperTex, tx, ty, W, H);
   return c;
 }
 
@@ -1929,10 +1942,10 @@ function updateChase(dt) {
 function newRun() {
   if (PRAC.on && !PRAC.starting) endPractice();
   resetPlayer(); follow = true; fEdge = 0; hudSig = ''; parts = [];
-  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.wickN = 0; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
+  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.dlc = false; run.escort = false; run.escFail = false; run.dlcPrev = null; run.wickN = 0; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
   for (const w of p.weapons) rec.seenW[w] = 1;
   allies = [];
-  { let t = cleared ? shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8]).slice(0, 3) : [0, 1, 2];
+  { let t = cleared ? shuffle(run.long ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] : [0, 1, 2, 3, 4, 5, 6, 7, 8]).slice(0, 3) : [0, 1, 2];
     if (optTheme.value !== 'auto') { const f = +optTheme.value; t = t.filter(x => x !== f); while (t.length < 2) t.push([0, 1, 2, 3, 4, 5, 6, 7, 8].filter(x => x !== f && t.indexOf(x) < 0)[0]); t = t.slice(0, 2).concat([f]); }
     run.themes = t; run.themeBase = t.slice(); run.themePick = -1; }
   run.polarFinal = cleared ? pickOf(['dragon', 'giant']) : 'dragon'; run.inkKind = pickOf(['shan', 'nian', 'idragon']);
@@ -1978,7 +1991,8 @@ function makeItem0(slot, x, y, group, avoid, forcePrem) {
 }
 function setupSpecial() {
   const cx = ROOM.x + ROOM.w / 2, cy = DOOR.y, k = room.kind;
-  if (k === 'start') { room.items.push({ kind: 'switch', id: 'switch', x: ROOM.x + 90, y: ROOM.y + 70, group: 'prop', price: 0, taken: false }); room.items.push({ kind: 'noshop', id: 'noshop', x: ROOM.x + 90, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); if (cleared) room.items.push({ kind: 'themesel', id: 'themesel', x: ROOM.x + 330, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); room.items.push({ kind: 'tutsw', id: 'tutsw', x: ROOM.x + 200, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); if (cleared) for (const q of [['pracTh', 570], ['pracLv', 650], ['pracGo', 740]]) room.items.push({ kind: q[0], id: q[0], x: ROOM.x + q[1], y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); if (mobile) room.items.push({ kind: 'tzsw', id: 'tzsw', x: ROOM.x + 450, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); return; }
+  if (k === 'start') { room.items.push({ kind: 'switch', id: 'switch', x: ROOM.x + 90, y: ROOM.y + 70, group: 'prop', price: 0, taken: false }); room.items.push({ kind: 'noshop', id: 'noshop', x: ROOM.x + 90, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); if (cleared) room.items.push({ kind: 'themesel', id: 'themesel', x: ROOM.x + 330, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); room.items.push({ kind: 'tutsw', id: 'tutsw', x: ROOM.x + 200, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); if (cleared) room.items.push({ kind: 'dlcGo', id: 'dlcGo', x: ROOM.x + 740, y: ROOM.y + 80, group: 'prop', price: 0, taken: false });
+  if (cleared) for (const q of [['pracTh', 570], ['pracLv', 650], ['pracGo', 740]]) room.items.push({ kind: q[0], id: q[0], x: ROOM.x + q[1], y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); if (mobile) room.items.push({ kind: 'tzsw', id: 'tzsw', x: ROOM.x + 450, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); return; }
   const add = (slot, x, group) => room.items.push(makeItem(slot, x, cy, group));
   if (k === 'event' && room.variant === 'fake') {
     add('heal', cx - 130, 'shop'); add('upgrade', cx, 'shop'); add(rand() < 0.65 ? 'weapon' : 'upgrade', cx + 130, 'shop'); room.fakeT = 1.2; return;
@@ -1993,7 +2007,7 @@ function setupSpecial() {
   else if (k === 'event') {
     const kinds = shuffle(['heal', 'weapon', 'upgrade']).slice(0, 2), xs = [cx - 70, cx + 70];
     kinds.forEach((t, i) => add(t, xs[i], 'choose'));
-    const free = Object.keys(NPCS).filter(id => !allies.some(a => a.id === id)), pool = [];
+    const free = Object.keys(NPCS).filter(id => !NPCS[id].esc && !allies.some(a => a.id === id)), pool = [];
     for (const id of free) { const w = cleared && MATE_CLS[id] && !mateOpen(id) ? 3 : 1; for (let k = 0; k < w; k++) pool.push(id); }
     if (allies.length < 2 && free.length) room.items.push({ kind: 'npc', id: pickOf(pool), x: cx, y: cy + 100, group: 'npc', price: 0, taken: false });
   } else {
@@ -2013,6 +2027,7 @@ function itemInfo(it) {
     : { name: '許願池', desc: '每次投入 4 燈芯，有機率獲得獎勵。一個池最多投 6 次，第 6 次保底（至少燈火 +1）' };
   if (it.kind === 'tzsw') return { name: '按鍵大小牌', desc: '手機專用：在「標準」與「大」兩種觸控按鈕大小之間切換（也可在暫停頁細調）' };
   if (it.kind === 'tutsw') return { name: '新手教學牌', desc: rec.tutOff ? '教學面板目前關閉。再按一次開啟（電腦版，只在起始房顯示）' : '教學面板開著，會留在畫面下方。按一下可以關閉' };
+  if (it.kind === 'dlcGo') return { name: '糖果世界的門（DLC）', desc: run.dlc ? '已選擇：這一局走糖果世界三層，護送小糖到最後。再按一次取消' : '走一局完整的糖果世界：三層、一般難度、計成就。小糖會同行，由你護送，他倒下就失敗' };
   if (it.kind === 'pracTh') return { name: '練習房・主題牌', desc: '選練習要去的主題（目前：' + TNAMES[PRAC.th] + '）。練習只有一層，不計成就、統計與紙片，也不存檔' };
   if (it.kind === 'pracLv') return { name: '練習房・層級牌', desc: '選對應的層級與強度（目前：' + PLV[PRAC.lv].n + '）' };
   if (it.kind === 'pracGo') return { name: '練習房的門', desc: '進入練習：' + TNAMES[PRAC.th] + '・' + PLV[PRAC.lv].n + '。打完 Boss 後可選回起始房或再來一次（不限次數）' };
@@ -2068,7 +2083,12 @@ function interact(it) {
   if (it.taken) return;
   if (it.kind === 'tzsw') { rec.ui.tz = (rec.ui.tz | 0) === 2 ? 1 : 2; saveRec(); applyUi(); sfx('pick'); toast(rec.ui.tz === 2 ? '觸控按鈕：大' : '觸控按鈕：標準'); hintSig = ''; return; }
   if (it.kind === 'tutsw') { rec.tutOff = !rec.tutOff; saveRec(); sfx('pick'); toast(rec.tutOff ? '教學已關閉' : '教學已開啟'); hintSig = ''; tutSig = ''; return; }
-  if (it.kind === 'pracTh') { PRAC.th = (PRAC.th + 1) % 9; sfx('pick'); toast('練習主題：' + TNAMES[PRAC.th], 1.6); hintSig = ''; return; }
+  if (it.kind === 'dlcGo') {
+    if (!run.dlc) { run.dlc = true; run.dlcPrev = { themes: run.themes.slice(), base: (run.themeBase || run.themes).slice(), long: run.long, pick: run.themePick }; run.themes = [9, 9, 9]; run.themeBase = run.themes.slice(); run.themePick = -1; run.long = false; run.escort = true; if (!allies.some(a => a.id === 'candy')) { addAlly('candy', p.x - 40, p.y); } toast('小糖加入了：護送他走完糖果世界三層', 2.8); }
+    else { run.dlc = false; run.escort = false; const v = run.dlcPrev; if (v) { run.themes = v.themes; run.themeBase = v.base; run.long = v.long; run.themePick = v.pick; } allies = allies.filter(a => a.id !== 'candy'); toast('取消糖果世界', 1.6); }
+    sfx('pick'); hintSig = ''; return;
+  }
+  if (it.kind === 'pracTh') { PRAC.th = (PRAC.th + 1) % TNAMES.length; sfx('pick'); toast('練習主題：' + TNAMES[PRAC.th], 1.6); hintSig = ''; return; }
   if (it.kind === 'pracLv') { PRAC.lv = (PRAC.lv + 1) % PLV.length; sfx('pick'); toast('練習層級：' + PLV[PRAC.lv].n, 2); hintSig = ''; return; }
   if (it.kind === 'pracGo') { sfx('pick'); fadeThen(() => { startPractice(); announceRoom(); }); return; }
   if (it.kind === 'themesel') {
@@ -2184,7 +2204,8 @@ function updateHint() {
   let sig = '', html = '';
   if (it) {
     const info = itemInfo(it); let act;
-    if (it.kind === 'pracTh') act = 'F 換主題'; else if (it.kind === 'pracLv') act = 'F 換層級'; else if (it.kind === 'pracGo') act = 'F 進入練習房';
+    if (it.kind === 'dlcGo') act = run.dlc ? 'F 取消糖果世界' : 'F 進入糖果世界（護送）';
+    else if (it.kind === 'pracTh') act = 'F 換主題'; else if (it.kind === 'pracLv') act = 'F 換層級'; else if (it.kind === 'pracGo') act = 'F 進入練習房';
     else if (it.kind === 'themesel') act = 'F 切換必遇主題（目前：' + (run.themePick >= 0 ? TNAMES[run.themePick] : '隨機') + '）';
     else if (it.kind === 'mystery') act = it.used ? '' : 'F 打開「？」';
     else if (it.kind === 'ding') act = it.used ? '' : 'F 觸摸古鼎';
@@ -2473,7 +2494,7 @@ function selectClass(i) {
 }
 let subKind = '', subRow = 0, achPage = 0;
 const ACH_PER = 8;
-const ENAME = { wisp: '鬼火精', jumper: '跳蛙', spore: '毒孢子', ghost: '幽靈', sleepwalker: '夢遊者', crawler: '小影', shooter: '射手影', brute: '蠻力影', splitter: '分裂影', splitter2: '大分裂影', bomber: '炸彈影', shield: '盾衛', shield2: '輕盾衛', summoner: '召喚影', budling: '花苞', moth: '飛蛾', vine: '藤蔓', frostneedle: '霜針', snowball: '雪球', mist: '霧靈', icecluster: '冰簇', crane: '紙鶴', blindbomb: '墨炸彈', bloater: '膨脹魚', blindshark: '盲鯊', deepworm: '深海蟲', trenchghost: '海溝幽靈', abyss: '深淵水母', sparker: '火星炮', lavaslime: '熔岩史萊姆', lizard: '火蜥蜴', firebat: '火蝠', ifrit: '炎魔', flion: '火焰獅', lavaworm: '熔岩蟲', fireelem: '火元素', firebird: '火鳥', faceless: '無臉人', rusher: '衝鋒怪', mirrorman: '鏡面人', fleer: '逃跑影', mimic: '寶相怪', fakemerch: '偽商人', mark: '地面預警攻擊', ground: '地面傷害', bullet: '敵方子彈', other: '其他',
+const ENAME = { escort: '護送對象倒下', wisp: '鬼火精', jumper: '跳蛙', spore: '毒孢子', ghost: '幽靈', sleepwalker: '夢遊者', crawler: '小影', shooter: '射手影', brute: '蠻力影', splitter: '分裂影', splitter2: '大分裂影', bomber: '炸彈影', shield: '盾衛', shield2: '輕盾衛', summoner: '召喚影', budling: '花苞', moth: '飛蛾', vine: '藤蔓', frostneedle: '霜針', snowball: '雪球', mist: '霧靈', icecluster: '冰簇', crane: '紙鶴', blindbomb: '墨炸彈', bloater: '膨脹魚', blindshark: '盲鯊', deepworm: '深海蟲', trenchghost: '海溝幽靈', abyss: '深淵水母', sparker: '火星炮', lavaslime: '熔岩史萊姆', lizard: '火蜥蜴', firebat: '火蝠', ifrit: '炎魔', flion: '火焰獅', lavaworm: '熔岩蟲', fireelem: '火元素', firebird: '火鳥', faceless: '無臉人', rusher: '衝鋒怪', mirrorman: '鏡面人', fleer: '逃跑影', mimic: '寶相怪', fakemerch: '偽商人', mark: '地面預警攻擊', ground: '地面傷害', bullet: '敵方子彈', other: '其他',
   'B:keeper': '守燈人', 'B:lmid': '燈影看守', 'B:dragon': '冰龍', 'B:giant': '風雪巨人', 'B:shan': '山靈', 'B:idragon': '水墨龍', 'B:nian': '年獸', 'B:kraken': '古代海怪', 'B:serpent': '深海巨蛇', 'B:golem': '熔岩魔像', 'B:toad': '巨大蟾蜍', 'B:mummyking': '木乃伊王', 'B:scorpking': '巨大蠍王', 'B:rootking': '腐根樹妖', 'B:vdragon': '炎龍', 'B:nightmare': '夢魘看守', 'B:mirrorgiant': '巨大鏡面人', 'B:gardener': '荊棘園丁', 'B:bloom': '花王', 'B:hive': '蜂巢后' };
 const enameOf = k => ENAME[k] || (k.startsWith('B:') ? 'Boss' : k);
 function statHtml() {
@@ -2636,6 +2657,7 @@ function nextShard() {
 }
 function bossIntroLines() {
   const k = bossDef().kind;
+  if (th() === 9) return [{ who: '旁白', text: bossDef().name + '在糖霜裡緩緩站起來，甜甜的香氣變得有點嗆。' }];
   if (run.layer === lastL() && th() === 2) return STORY.bossIntro.concat(STORY.bossIntroV[k === 'final' ? 'keeper' : k] || []);
   return STORY.bossTalk[k] || STORY.gardenIntro[k] || STORY.midIntro[1];
 }
@@ -2764,8 +2786,9 @@ function startPractice() {
   PRAC.starting = false;
   run.practice = true; run.long = !!v.long; run.ext = !!v.ext; run.layer = v.L; run.step = 0;
   run.themes = [0, 1, 2, 3, 4, 5, 6, 7, 8].map(() => PRAC.th); run.themeBase = run.themes.slice(); run.themePick = -1; run.noShop = true;
-  run.plan = ['combat', 'combat', 'boss'];
+  run.plan = ['combat', 'combat', pickOf(['treasure', 'merchant', 'event']), 'boss'];
   loadRoom(); p.x = ROOM.x + 40; p.y = DOOR.y; hudSig = '';
+  p.coins = 25;
   toast('練習：' + TNAMES[PRAC.th] + '・' + v.n, 2.6);
 }
 function showPrac(win) {
@@ -2853,7 +2876,7 @@ function bossDefeated() {
   if (run.long) { if (run.ext) rec.extClears = (rec.extClears || 0) + 1; else rec.longClears = (rec.longClears || 0) + 1; saveRec(); }
   if (!room.hurt) unlockAch('flawless'); endRun(true);
   if (!cleared) { cleared = true; try { localStorage.setItem('lampknight.cleared', '1'); } catch (e) { /* storage is optional */ } }
-  later(1.8, () => say(th() === 2 ? STORY.bossEnd : (STORY.bossDown[bossDef().kind] || []).concat([{ who: '旁白', text: '最深處的光靜靜等著，要由你決定它的去向。' }]), () => { show('choice', true); setState('choice'); }));
+  later(1.8, () => say(th() === 9 ? [{ who: '旁白', text: '糖霜融化了，空氣裡留下最初的甜味。' }, { who: '小糖', text: '找到了……謝謝你，提燈人。' }] : th() === 2 ? STORY.bossEnd : (STORY.bossDown[bossDef().kind] || []).concat([{ who: '旁白', text: '最深處的光靜靜等著，要由你決定它的去向。' }]), () => { show('choice', true); setState('choice'); }));
 }
 function midBossDefeated() {
   if (run.practice) { bullets = []; room.cleared = true; toast(bossDef().name + '倒下了（練習）'); clearAdds(); sfx('clear'); later(1.8, () => showPrac(true)); return; }
@@ -2874,7 +2897,7 @@ function pickEnding(k) {
 function startExt() {
   if (state !== 'ending' || !run.long || run.ext || run.layer !== 5) return;
   show('ending', false); run.ext = true;
-  const rest = shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8].filter(t => run.themes.indexOf(t) < 0)).slice(0, 3);
+  const rest = shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].filter(t => run.themes.indexOf(t) < 0)).slice(0, 3);
   run.themes = run.themes.slice(0, 3).concat(rest);
   setState('play'); run.step = run.plan.length - 1; healP(3); hudSig = '';
   toast('繼續探索：高難度 3 層（敵人更強、精英更多）', 3);
@@ -3173,6 +3196,8 @@ function hurtNpc(n, dmg) {
 function updateAllies(dt) {
   for (const n of allies) {
     n.t += dt; n.iframes = Math.max(0, n.iframes - dt); n.cd = Math.max(0, n.cd - dt);
+    if (n.down && n.def.esc) { if (!run.escFail) { run.escFail = true; hitSrc = 'escort'; die(); } continue; }
+    if (n.def.esc && room.cleared && n.healSeed !== room.seed) { n.healSeed = room.seed; if (n.hp < n.maxHp) { n.hp = Math.min(n.maxHp, n.hp + 2); burst(n.x, n.y, 6, [C.amber, C.paper], 90, true); } }
     if (n.down) { if (room.cleared) { n.down = false; n.hp = n.maxHp; n.iframes = 1; toast(n.def.name + ' 站了起來'); sfx('pick'); } continue; }
     const dx = p.x - n.x, dy = p.y - n.y, d = Math.hypot(dx, dy) || 1;
     // 距離玩家小於 NPC_STAY 就停下，不需要走到玩家的位置
@@ -3206,6 +3231,7 @@ function spawnEnemy(type, x, y) {
   if (th() === 6 && DREAM_SKIN[type]) e.skin = DREAM_SKIN[type];
   if (th() === 7 && SW_SKIN[type]) e.skin = SW_SKIN[type];
   if (th() === 8 && type === 'crawler') e.skin = 'beetle';
+  if (th() === 9 && CANDY_SKIN[type]) e.skin = CANDY_SKIN[type];
   if (th() === 7 && type === 'brute') { e.hp = e.maxHp = Math.round(e.hp * 1.3); }
   if (type === 'sparker' || type === 'faceless' || type === 'sleepwalker') e.noTouch = true;
   e.shieldMax = e.shield; if (type === 'budling' || type === 'moth' || type === 'vine') e.garden = true;
@@ -3262,7 +3288,7 @@ function composeWave() {
 function makeBoss(b, x, y) {
   {
     const e = spawnEnemy('boss', x, y);
-    e.kind = b.kind; e.hp = e.maxHp = Math.round(b.hp * (run.long ? 1 + 0.12 * Math.max(0, run.layer - 2) : 1)); e.cd = 2.2;
+    e.candy = !!b.candy; e.kind = b.kind; e.hp = e.maxHp = Math.round(b.hp * (run.long ? 1 + 0.12 * Math.max(0, run.layer - 2) : 1)); e.cd = 2.2;
     if (b.kind === 'guard') { e.layers = [{ id: 0, hp: 26, max: 26 }, { id: 1, hp: 18, max: 18 }, { id: 2, hp: 12, max: 12 }]; e.layerMax = 56; e.gapA = 0; }
     if (b.kind === 'ore') room.timed = { t: 60, on: true }; e.gen = 0; e.sc = 1; e.weak = 0; if (b.kind === 'summon' || b.kind === 'hive') e.summon = 2.5;
     if (BOSS2[b.kind]) { e.r = (b.kind === 'giant' || b.kind === 'golem' || b.kind === 'toad' || b.kind === 'rootking' || b.kind === 'scorpking' || b.kind === 'mummyking') ? 56 : (b.kind === 'dragon' || b.kind === 'idragon' || b.kind === 'vdragon' || b.kind === 'serpent') ? 40 : (b.kind === 'shan' || b.kind === 'kraken') ? 50 : 40; e.cd = 2.4; e.summon = 12; if (b.kind === 'nightmare') e.r = 44; if (b.kind === 'mirrorgiant') e.r = 56; }
@@ -3807,7 +3833,46 @@ function drawBossMarks(e) {
     ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x + Math.cos(a) * len, e.y + Math.sin(a) * len); ctx.stroke(); ctx.restore();
   }
 }
+/* ---------- candy world (DLC 1) ---------- */
+const CANDY_SKIN = { crawler: 'gummy', shooter: 'lolli', brute: 'cookie', splitter: 'jelly', splitter2: 'jelly', bomber: 'gumdrop' };
+function drawCandyEnemy(e) {
+  const r = e.r, f = e.flash > 0, sk = e.skin, ol = '#8a3d63', hue = ['#ff6f91', '#7bd88f', '#ffd166', '#6ec6ff'][(e.id || Math.floor(e.x * 7 + e.y * 3)) & 3];
+  const eye = (x, y) => { ctx.fillStyle = C.paper; circ(ctx, x, y, r * 0.2); ctx.fillStyle = ol; circ(ctx, x + 1, y, r * 0.1); };
+  if (sk === 'gummy') {
+    ctx.fillStyle = ol; circ(ctx, 0, 0, r * 1.08); circ(ctx, -r * 0.7, -r * 0.9, r * 0.42); circ(ctx, r * 0.7, -r * 0.9, r * 0.42);
+    ctx.fillStyle = f ? C.paper : hue; circ(ctx, 0, 0, r); circ(ctx, -r * 0.7, -r * 0.9, r * 0.34); circ(ctx, r * 0.7, -r * 0.9, r * 0.34);
+    eye(-r * 0.35, -r * 0.1); eye(r * 0.35, -r * 0.1); ctx.fillRect(-r * 0.25, r * 0.3, r * 0.5, 2);
+  } else if (sk === 'lolli') {
+    ctx.strokeStyle = ol; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(0, r * 0.4); ctx.lineTo(0, r * 1.5); ctx.stroke();
+    ctx.fillStyle = ol; circ(ctx, 0, 0, r * 1.1); ctx.fillStyle = f ? C.paper : hue; circ(ctx, 0, 0, r);
+    ctx.strokeStyle = f ? C.paper : '#fff'; ctx.lineWidth = 3; ctx.beginPath(); for (let a = 0; a < 9; a += 0.4) { const rr0 = a / 9 * r * 0.85; ctx.lineTo(Math.cos(a + e.t) * rr0, Math.sin(a + e.t) * rr0); } ctx.stroke();
+  } else if (sk === 'cookie') {
+    ctx.fillStyle = ol; circ(ctx, 0, 0, r * 1.06); ctx.fillStyle = f ? C.paper : '#e0a867'; circ(ctx, 0, 0, r);
+    ctx.fillStyle = f ? C.paperDim : '#6b3f2a'; for (const [x, y] of [[-0.4, -0.4], [0.35, -0.5], [0.5, 0.2], [-0.2, 0.45], [-0.6, 0.1]]) circ(ctx, x * r, y * r, r * 0.16);
+    eye(-r * 0.3, -r * 0.05); eye(r * 0.3, -r * 0.05);
+  } else if (sk === 'jelly') {
+    ctx.fillStyle = ol; ctx.beginPath(); ctx.ellipse(0, 0, r * 1.08, r * 0.82, 0, 0, TAU); ctx.fill(); ctx.fillStyle = f ? C.paper : hue; ctx.beginPath(); ctx.ellipse(0, 0, r, r * 0.74, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.ellipse(-r * 0.3, -r * 0.3, r * 0.3, r * 0.14, -0.5, 0, TAU); ctx.fill(); eye(r * 0.2, 0);
+  } else {
+    ctx.fillStyle = ol; ctx.beginPath(); ctx.arc(0, r * 0.3, r * 1.08, Math.PI, 0); ctx.lineTo(r * 1.08, r * 0.3); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = f ? C.paper : hue; ctx.beginPath(); ctx.arc(0, r * 0.3, r, Math.PI, 0); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = f ? C.paperDim : '#fff'; for (let i = 0; i < 6; i++) circ(ctx, Math.cos(i * 1.7) * r * 0.6, r * 0.3 - Math.abs(Math.sin(i * 2.3)) * r * 0.7, 1.8);
+    eye(-r * 0.3, 0); eye(r * 0.3, 0);
+  }
+}
+function drawCandyBoss(e) {
+  const fl = e.flash > 0, t = e.t, arm = e.tl && e.tl.act === 'stomp' ? -22 : Math.sin(t * 2) * 6, ol = '#8a3d63';
+  ctx.fillStyle = ol; circ(ctx, -66, 10 + arm, 26); circ(ctx, 66, 10 + arm, 26); ctx.fillStyle = fl ? C.paper : '#ffd6a5'; circ(ctx, -66, 8 + arm, 22); circ(ctx, 66, 8 + arm, 22);
+  ctx.fillStyle = ol; rrect(ctx, -62, -36, 124, 96, 18); ctx.fillStyle = fl ? C.paper : '#f7b6d2'; rrect(ctx, -57, -32, 114, 88, 15);
+  ctx.fillStyle = fl ? C.paper : '#ffffff'; for (let i = -4; i <= 4; i++) circ(ctx, i * 12.5, -28 + (i & 1 ? 7 : 0), 9);
+  const sc = ['#6ec6ff', '#ffd166', '#7bd88f', '#ff6f91']; for (let i = 0; i < 10; i++) { ctx.fillStyle = fl ? C.paperDim : sc[i & 3]; rrect(ctx, -44 + (i * 37 % 88), -4 + (i * 17 % 50), 7, 3, 1.5); }
+  ctx.fillStyle = ol; circ(ctx, 0, -58, 28); ctx.fillStyle = fl ? C.paper : '#ffe3ef'; circ(ctx, 0, -59, 24);
+  ctx.fillStyle = fl ? C.paper : '#e8484f'; circ(ctx, 0, -90, 8); ctx.strokeStyle = '#4c8a3a'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, -97); ctx.quadraticCurveTo(6, -108, 14, -106); ctx.stroke();
+  ctx.fillStyle = ol; circ(ctx, -9, -62, 4); circ(ctx, 9, -62, 4); ctx.fillRect(-9, -48, 18, 4);
+}
+
 function drawBoss2(e) {
+  if (e.candy) { drawCandyBoss(e); return; }
   const k = e.kind, a = e.fa || 0, fl = e.flash > 0, t = e.t;
   if (k === 'nightmare') {
     ctx.globalAlpha = 0.25; ctx.fillStyle = '#b8a8ff'; circ(ctx, 0, -6, 76); ctx.globalAlpha = 1;
@@ -4052,7 +4117,7 @@ function updateStall(dt) {
 }
 function coinTag(x, y) {
   noShadow(ctx); const t = '燈芯 ' + p.coins;
-  ctx.font = '700 14px sans-serif'; ctx.textAlign = 'center'; const w = ctx.measureText(t).width + 26;
+  ctx.font = '700 14px sans-serif'; ctx.textAlign = 'center'; const w = t.length * 8 + 26;
   ctx.fillStyle = 'rgba(42,34,54,.82)'; rrect(ctx, x - w / 2, y - 12, w, 24, 8);
   ctx.fillStyle = C.amber; circ(ctx, x - w / 2 + 12, y, 5); ctx.fillStyle = C.paper; ctx.textBaseline = 'middle'; ctx.fillText(t, x + 7, y + 1); ctx.textBaseline = 'alphabetic';
 }
@@ -4252,7 +4317,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.38　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.38　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.39　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.39　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -4728,6 +4793,13 @@ function drawItem(it) {
     ctx.fillStyle = '#2a2236'; ctx.font = '700 15px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(rec.tutOff ? '教學關' : '教學開', 0, -7);
     ctx.restore(); return;
   }
+  if (it.kind === 'dlcGo') {
+    ctx.save(); ctx.translate(it.x, it.y); setShadow(ctx, 2, 3, 0);
+    ctx.fillStyle = '#8a3d63'; rrect(ctx, -24, -36, 48, 56, 20); ctx.fillStyle = run.dlc ? '#ffe08a' : '#ff9ec7'; rrect(ctx, -18, -30, 36, 48, 15); noShadow(ctx);
+    ctx.fillStyle = '#fff'; for (let i = 0; i < 4; i++) circ(ctx, -12 + i * 8, -26 + (i & 1) * 4, 5);
+    ctx.fillStyle = '#6b2a4a'; ctx.font = '700 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(run.dlc ? '已選' : '糖果', 0, 2);
+    ctx.restore(); return;
+  }
   if (it.kind === 'pracTh' || it.kind === 'pracLv' || it.kind === 'pracGo') {
     ctx.save(); ctx.translate(it.x, it.y); setShadow(ctx, 2, 3, 0);
     ctx.fillStyle = PAL.wall1; rrect(ctx, -3, -4, 6, 30, 2);
@@ -4890,6 +4962,7 @@ function drawAllyFig(n) {
   if (n.down) { ctx.globalAlpha = 0.55; ctx.rotate(Math.PI / 2); ctx.translate(-4, 0); }
   else if (n.iframes > 0 && Math.floor(time * 20) % 2 === 0) ctx.globalAlpha = 0.5;
   ctx.translate(0, bob); setShadow(ctx, 1.5, 2, 0);
+  if (def.esc) { ctx.fillStyle = '#8a3d63'; circ(ctx, 0, 0, 12); ctx.fillStyle = def.col; circ(ctx, 0, 0, 10); ctx.fillStyle = C.paper; circ(ctx, -4, -2, 3); circ(ctx, 4, -2, 3); ctx.fillStyle = '#8a3d63'; circ(ctx, -4 + f, -2, 1.4); circ(ctx, 4 + f, -2, 1.4); ctx.fillStyle = '#e8484f'; circ(ctx, 0, -13, 3.5); noShadow(ctx); ctx.restore(); if (!n.down) { ctx.save(); ctx.translate(n.x, n.y - 30); for (let i = 0; i < n.maxHp; i++) { ctx.fillStyle = i < n.hp ? '#ff6f91' : '#3a3250'; circ(ctx, (i - (n.maxHp - 1) / 2) * 6, 0, 2.2); } ctx.restore(); } return; }
   ctx.fillStyle = def.col; poly(ctx, [[-7, -6], [7, -6], [10, 12], [-10, 12]]);
   ctx.fillStyle = C.paper; rrect(ctx, -7, -8, 14, 18, 4); ctx.fillStyle = C.paperDim; circ(ctx, 0, -15, 8);
   noShadow(ctx); ctx.fillStyle = C.dark; rrect(ctx, -4 + f * 1.5, -17, 8, 3, 1.5);
@@ -5112,7 +5185,7 @@ function drawLight() {
   g.save(); g.translate(-cam.x, -cam.y);
   g.globalCompositeOperation = 'destination-out';
   const R = lightR() * (1 + 0.02 * Math.sin(time * 9) + 0.015 * Math.sin(time * 23));
-  if (room.lampOn) { g.restore(); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H); return R; }
+  if (room.lampOn || th() === 9) { g.restore(); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H); return R; }
   hole(g, p.x, p.y, R, 1);
   for (const L of lures) hole(g, L.x, L.y, 70, 0.7);
   if (state === 'play' && p.weapons[p.w] === 'dance') for (const off of [0, Math.PI]) hole(g, p.x + Math.cos((p.danceA || 0) + off) * 74, p.y - 4 + Math.sin((p.danceA || 0) + off) * 74, 60, 0.8);
