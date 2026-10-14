@@ -448,10 +448,11 @@ function drawGuardian(e) {
   c.fillStyle = '#e8c070'; poly(c, [[-22, -78 + b], [0, -100 + b], [22, -78 + b]]);
 }
 const ZEN_TRIAL = ['第一問：你放得下身後的影子嗎？', '第二問：你放得下手裡的燈嗎？', '第三問：放下之後，你還認得自己嗎？'];
+const ZEN_RULE = ['規則：影子 9 秒內沒打倒，會變成雜念', '規則：一直開火，雜念會上升；停手才會退', '規則：視野變窄了——影子仍會出現'];
 const ZEN_YAKSHA = ['夜叉：「走得急的人，影子才多。」', '夜叉：「再快一點？你的影子追得上你。」'];
 function zenMoves(e, phase, ang) {
   const p = L.p, fin = e.xk === 'guanyin', aim = () => Math.atan2(p.y - e.y, p.x - e.x);
-  if (e.znPh !== phase) { e.znPh = phase; if (fin) L.toast('千手觀音：「' + ZEN_TRIAL[phase - 1] + '」', 3.6); else if (phase > 1) L.toast(ZEN_YAKSHA[phase - 2], 2.8); }
+  if (e.znPh !== phase) { e.znPh = phase; if (fin) { L.toast('千手觀音：「' + ZEN_TRIAL[phase - 1] + '」', 3.6); L.later(3.8, () => { if (!e.dead && L.state() === 'play') L.toast(ZEN_RULE[phase - 1], 3.2); }); } else if (phase > 1) L.toast(ZEN_YAKSHA[phase - 2], 2.8); }
   const a = pickOf(phase === 1 ? ['ring', 'fan'] : phase === 2 ? ['ring', 'fan', 'rain'] : ['ring', 'fan', 'rain', 'spiral']);
   if (a === 'ring') { const n = fin ? 18 : 14, off = rand() * TAU; for (let i = 0; i < n; i++) L.bossShot(e, e.x, e.y, off + i / n * TAU, 150, false, 7); L.sfx('hit'); L.toast('雜念彈！', 1.1); }
   else if (a === 'fan') { for (let w = 0; w < 3; w++) L.later(w * 0.4, () => { if (e.dead || L.state() !== 'play') return; const aa = aim(); for (let i = -2; i <= 2; i++) L.bossShot(e, e.x, e.y, aa + i * 0.2, 190, false, 6); L.sfx('hit'); }); }
@@ -463,9 +464,24 @@ L.registerWorld({
   pal: { ink: '#14100a', floor: '#6a5a44', floor2: '#75654e', wall1: '#2a2016', wall2: '#4a3a28', top: '#e8d8b0', door: '#c25a2a' },
   amb: ['lowpass', 260, 1.2, 0.012], ev: r => { const n = [392, 523, 587][Math.floor(r() * 3)]; L.blip(n, n, 1.2, 'sine', 0.008); },
   noDark: true, bg: zenBg, obsDraw: zenObs,
+  weapons: {
+    shakujo: { id: 'shakujo', name: '錫杖', tag: '近戰', mode: 'tap', cd: 0.6, th: 14, range: 150, half: 0.6, dmg: 5.5, kb: 760, desc: '長柄近戰：窄而長的一記重擊，擊退很強（佛寺專屬；用它打倒敵人功德 +3）' },
+    elbow: { id: 'elbow', name: '泰拳肘擊', tag: '近戰連擊', mode: 'auto', cd: 0.22, th: 14, range: 88, half: 1.25, dmg: 2.2, kb: 380, desc: '長按 F 的極近距離快打，範圍廣但很短（佛寺專屬；用它打倒敵人功德 +3）' },
+    lotus: { id: 'lotus', name: '蓮花鏢', tag: '穿透', mode: 'tap', cd: 0.55, th: 14, desc: '一次射出三枚穿透的蓮花鏢，中程（佛寺專屬；用它打倒敵人功德 +3）',
+      fire: (ox, oy, ang, dm, pd) => { for (const da of [-0.24, 0, 0.24]) L.shoot(ox, oy, ang + da, 520, 7, 2.2 * dm * pd, 'wind', 0.75, true); L.sfx('blade'); } },
+    beads: { id: 'beads', name: '念珠串', tag: '環繞連擊', mode: 'auto', cd: 0.34, th: 14, desc: '長按 F，向四周彈出一圈短程的念珠（佛寺專屬；用它打倒敵人功德 +3）',
+      fire: (ox, oy, ang, dm) => { const n = 6, off = L.time * 3; for (let i = 0; i < n; i++) L.shoot(L.p.x, L.p.y - 4, off + i / n * TAU, 330, 5, 1.5 * dm, 'pellet', 0.34); L.sfx('tick'); } }
+  },
   types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter'); if (L0 > 0 || ci >= 1) types.push('splitter'); if (L0 > 0 || ci >= 2) types.push('brute', 'bomber'); },
   boss: fin => fin ? { kind: 'golem', name: '千手觀音', hp: 205, ext: true, xk: 'guanyin' } : { kind: 'golem', name: '守門夜叉', hp: 125, ext: true, xk: 'yaksha' },
   boss2: zenMoves, drawBoss: drawGuardian,
+  onKill: e => {
+    const r = L.run; if (!r.path || L.th() !== 14) return;
+    const w = L.WDEF[L.p.weapons[L.p.w]], zen = !!(w && w.th === 14);
+    r.merit = (r.merit || 0) + (zen ? 3 : 1);
+    if (zen) { L.burst(e.x, e.y, 8, ['#ffe9a0', '#fff6d8'], 120, true); if (!r.duTip) { r.duTip = true; L.toast('度化：用佛寺的武器打倒敵人，功德 +3', 2.8); } }
+  },
+  onFinal: () => { if (L.th() === 14) { L.unlockAch('zenBoss'); if (!L.run.zenDaze) L.unlockAch('zenCalm'); } },
   pathIntro: layer => layer === 0
     ? [{ who: '旁白', text: '山門在很遠的地方亮著。燈火騎士沿著石板路往上走，身後有什麼，慢慢跟了上來。' }, { who: '旁白', text: '那是沒有被放下的念頭。' }, { who: '小沙彌', text: '施主，別回頭看。看見的越多，它跟得越緊。走累了，前面的道場可以坐一下。' }]
     : layer === 1 ? [{ who: '旁白', text: '第二道山門更高，石階比剛才更陡。念頭也跟得更近了。' }]

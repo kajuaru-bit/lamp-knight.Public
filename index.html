@@ -133,7 +133,7 @@ body.mobile .bar{display:none}
 @keyframes achpop{0%{opacity:0;transform:translate(-50%,-14px)}10%,80%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
 .ach div{display:flex;gap:.8cqw;align-items:center}.ach div>span:last-child{display:block}.ach .medal{flex:none;line-height:0}
 .fusegrid{display:flex;flex-wrap:wrap;gap:.4cqw;justify-content:flex-start}.fusecard{max-width:70cqw;width:70cqw;max-height:86%;overflow:auto;background:#1a1526;border:1px solid #6b5a3a;padding:1.2cqw 1.6cqw}.fusecard h3{font-size:clamp(14px,2.2cqw,26px);margin:0 0 .5cqw}.fusecard h4{margin:.8cqw 0 .3cqw;font-size:clamp(11px,1.4cqw,17px)}.fusecard .btn{font-size:clamp(10px,1.25cqw,15px);padding:.4cqw .9cqw}.fusecard .btn:disabled{opacity:.4}#fuseModal{z-index:30;background:rgba(6,4,12,.97)}
-.infowrap{position:relative;flex-wrap:wrap}#znBar{position:absolute;top:1.2cqw;left:50%;transform:translateX(-50%);display:flex;gap:.6cqw;align-items:center;color:var(--paper);font-size:clamp(10px,1.3cqw,15px);pointer-events:none;z-index:6;text-shadow:0 1px 2px #000}#znBar i{display:block;width:16cqw;height:.9cqw;min-height:7px;background:rgba(0,0,0,.55);border:1px solid #8a7ab0}#znBar b{display:block;height:100%;width:0;background:#b79cff}#znBar.flash b{background:#fff}#znBar[hidden],#znFog[hidden]{display:none}#znFog{position:absolute;inset:0;pointer-events:none;z-index:5;background:radial-gradient(circle at 50% 50%,rgba(20,10,40,0) 12%,rgba(20,10,40,.93) 42%)}
+.infowrap{position:relative;flex-wrap:wrap}#znBar{position:absolute;top:1.2cqw;left:50%;transform:translateX(-50%);display:flex;gap:.6cqw;align-items:center;color:var(--paper);font-size:clamp(10px,1.3cqw,15px);pointer-events:none;z-index:6;text-shadow:0 1px 2px #000}#znBar i{display:block;width:16cqw;height:.9cqw;min-height:7px;background:rgba(0,0,0,.55);border:1px solid #8a7ab0}#znBar b{display:block;height:100%;width:0;background:#b79cff}#znBar.flash b{background:#fff}#znBar em{font-style:normal;color:#ffd27a;margin-left:.6cqw}#znFog.soft{background:radial-gradient(circle at 50% 50%,rgba(20,10,40,0) 26%,rgba(20,10,40,.86) 62%)}#znBar[hidden],#znFog[hidden]{display:none}#znFog{position:absolute;inset:0;pointer-events:none;z-index:5;background:radial-gradient(circle at 50% 50%,rgba(20,10,40,0) 12%,rgba(20,10,40,.93) 42%)}
 .sidecol{display:flex;flex-direction:column;gap:.6cqw;width:100%;flex:none}.sidecol:not(:has(.longrow:not([hidden]))){display:none}.sidecol .longrow{margin:0;max-width:100%;justify-content:flex-start;text-align:left;font-size:clamp(calc(9px*var(--fz,1)),1.15cqw,14px)}@container (min-width:1000px){body:not(.port) .infowrap{flex-wrap:nowrap}body:not(.port) .sidecol{position:absolute;left:100%;top:0;margin-left:2.2cqw;width:20cqw}}
 .longrow{display:flex;gap:.8cqw;align-items:center;justify-content:center;margin:.6cqw auto 0;padding:.5cqw 1.2cqw;background:#2a2238;border:1px solid #6b5a3a;color:var(--paper);font-size:clamp(calc(10px*var(--fz,1)),1.35cqw,16px);cursor:pointer;max-width:92%}.longrow b{color:var(--amber)}.longrow input{width:1.6em;height:1.6em;flex:none}
 .pager{display:flex;gap:1.2cqw;align-items:center;justify-content:center;margin-top:.8cqw;color:var(--paper-dim);font-size:clamp(calc(10px*var(--fz,1)),1.35cqw,16px)}.pager button{font:inherit;color:var(--paper);background:#3b2f1c;border:1px solid #6b5a3a;padding:.3cqw 1.4cqw;cursor:pointer}.pager button[disabled]{opacity:.35;cursor:default}
@@ -332,7 +332,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.55　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.56　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -1029,6 +1029,9 @@ ACH.push(
   { id: 'spell', name: '拼字高手', desc: '字母書房一局中依序擊敗頭上字母為 L、A、M、P 的字母積木怪（打到其他字母不影響進度；可獲得傳說造型）' },
   { id: 'dartRet', name: '折返無傷', desc: '在彼岸連續擊敗 6 隻鏢影，期間沒被飛鏢打中（可獲得彼岸花提燈）' },
   { id: 'copyFree', name: '不被模仿', desc: '彼岸之主「模仿所有武器」那一招無傷通過（可獲得傳說造型）' },
+  { id: 'zenBoss', name: '問心', desc: '擊敗千手觀音（佛寺最後 Boss；可獲得小沙彌頭）' },
+  { id: 'zenCalm', name: '放下', desc: '佛寺一整局（含 Boss 房）都沒有進入「迷亂」就通關（可獲得蓮花燈）' },
+  { id: 'zenMuyu', name: '圓滿', desc: '佛寺一局中敲出 5 次「圓滿一敲」（可獲得傳說造型：袈裟披風）' },
   { id: 'bothShores', name: '兩岸皆渡', desc: '字母書房與彼岸各通關一次（獲得一件隨機傳說造型）' }
 );
 const ACH_BY = {}; ACH.forEach(a => ACH_BY[a.id] = a);
@@ -1049,20 +1052,23 @@ const LAMPS = {
   green: { name: '螢綠', c: '#9be36b', core: '#f0ffd8', req: 'kill500' },
   violet: { name: '紫燭', c: '#c08cff', core: '#f3e6ff', req: 'allies3' },
   ink: { name: '墨水瓶燈罩', c: '#4b5fb0', core: '#e3e9ff', req: 'inkSafe', deco: 'ink' },
-  lily: { name: '彼岸花提燈', c: '#e0364a', core: '#ffe1e1', req: 'dartRet', deco: 'lily' }
+  lily: { name: '彼岸花提燈', c: '#e0364a', core: '#ffe1e1', req: 'dartRet', deco: 'lily' },
+  lotus: { name: '蓮花燈', c: '#ff9fc0', core: '#fff0f4', req: 'zenCalm', deco: 'lotus' }
 };
 const CAPES = {
   red: { name: '赭紅', c: '#b24a32' },
   teal: { name: '青藍', c: '#3a8f9e', req: 'flawless' },
   gold: { name: '金織', c: '#d1a23a', req: 'clearAll' },
   night: { name: '夜紫', c: '#5a4a9c', req: 'last1' },
-  letters: { name: '字母積木披風（傳說）', c: '#e8d9b0', req: 'spell', own: 'letters' }
+  letters: { name: '字母積木披風（傳說）', c: '#e8d9b0', req: 'spell', own: 'letters' },
+  kasaya: { name: '袈裟披風（傳說）', c: '#c9582a', req: 'zenMuyu', own: 'kasaya' }
 };
 const HEADS = {
   none: { name: '無頭飾' },
   book: { name: '書僮帽', req: 'dictBoss' },
   hat: { name: '擺渡人斗笠', req: 'shoreBoss' },
-  lily: { name: '紅花髮飾（傳說）', req: 'copyFree', own: 'lily' }
+  lily: { name: '紅花髮飾（傳說）', req: 'copyFree', own: 'lily' },
+  monk: { name: '小沙彌頭', req: 'zenBoss' }
 };
 const GT = [
   ['花園', '#5fae52', '#cfe8a8', '花苞帽', '花面具', '藤蔓披風', '草編背心', '花瓣燈罩', 'r', '花環燈穗'],
@@ -1084,7 +1090,7 @@ GT.forEach((t, i) => {
 GCHARM.forEach((n, i) => G.push({ id: 'gc' + i, name: n, slot: 'charm', kind: 'charm', rar: 'n', c: GCHARM_C[i], c2: '#fff6d8', gc: true, theme: '通用', idx: i }));
 const GBY = {}; G.forEach(g => { GBY[g.id] = g; g.name0 = g.name; });
 const RAR_NAME = { n: '普通', r: '稀有', l: '傳說' }, RAR_COL = { n: '#b8b0a0', r: '#7fc4ff', l: '#ffd23f' }, SCRAP_GET = { n: 1, r: 3, l: 10 }, FUSE_COST = { n: 5, r: 15, l: 40 };
-const gachaOpen = () => !!optGacha.checked || (rec.longClears || 0) + (rec.extClears || 0) + (rec.dl2Clears || 0) > 0 || !!rec.ach.dictBoss || !!rec.ach.shoreBoss;
+const gachaOpen = () => !!optGacha.checked || (rec.longClears || 0) + (rec.extClears || 0) + (rec.dl2Clears || 0) > 0 || !!rec.ach.dictBoss || !!rec.ach.shoreBoss || !!rec.ach.zenBoss;
 const gOwned = g => !!(rec.cosOwn && rec.cosOwn[g.id]);
 function slotSet(slot) { const o = slot === 'head' ? Object.assign({}, HEADS) : { none: { name: '無' } }; for (const g of G) if (g.slot === slot && gOwned(g)) o[g.id] = g; return o; }
 const gcOf = key => { const g = GBY[rec.cos[key]]; return g && gOwned(g) ? g : null; };
@@ -1159,7 +1165,7 @@ const FLV = {
   'bellman.snow': '雪落在鐘上，聲音就變軟了。', 'bellman.ice': '敲一下，整座山都聽見。',
   'florist.sun': '永遠朝著燈的方向。', 'shopc.apron': '開店的人，也得先學會揉麵。', 'shopc.god': '生意興隆，通四海。',
   'lamp.ink': '字寫壞了，就把燈蓋上，裝作什麼也沒發生。', 'lamp.lily': '開在河的另一邊，卻替這一邊照著路。', 'cape.letters': '每一塊積木，都替你記著一個字。',
-  'head.book': '翻開的那一頁，永遠是你還沒讀過的。', 'head.hat': '擺渡的人不說話，只負責把你送到岸邊。', 'head.lily': '它不屬於這一岸，所以特別紅。',
+  'head.book': '翻開的那一頁，永遠是你還沒讀過的。', 'head.hat': '擺渡的人不說話，只負責把你送到岸邊。', 'head.lily': '它不屬於這一岸，所以特別紅。', 'head.monk': '頭上的三個點，是三個放下的念頭。', 'lamp.lotus': '泥裡長出來，卻一點也不髒。', 'cape.kasaya': '一針一線，都是別人放下的東西。',
   'sleepc.pillow': '抱著它，連噩夢都會睡著。', 'sleepc.dream': '醒著的人，才覺得這是夢遊。'
 };
 const ACH_CATS = {
@@ -1167,7 +1173,7 @@ const ACH_CATS = {
   '主題': ['futBoss', 'guardWin', 'escapeWin', 'arcBoss', 'endless6', 'candyBoss', 'escortWin', 'sweetSafe', 'iceAll', 'windStop', 'inkAll', 'miner', 'gardenAll', 'swampWalk', 'purifier', 'inkIn', 'dingKnock', 'dodge', 'balloon', 'tour', 'plants'],
   '事件': ['wish', 'bigSpender', 'fakeSlay', 'rushWin', 'mimicSlay', 'fullHouse', 'ally', 'allies3']
 };
-ACH_CATS['主題'].push('dictBoss', 'shoreBoss', 'inkSafe', 'spell', 'dartRet', 'copyFree', 'bothShores');
+ACH_CATS['主題'].push('dictBoss', 'shoreBoss', 'inkSafe', 'spell', 'dartRet', 'copyFree', 'bothShores', 'zenBoss', 'zenCalm', 'zenMuyu');
 const achCatOf = id => { for (const k in ACH_CATS) if (ACH_CATS[k].indexOf(id) >= 0) return k; return '基本'; };
 let achFilter = 'all', achCat = 'all';
 const ACH_CAT_LIST = ['all', '基本', '職業', '主題', '事件'];
@@ -1894,6 +1900,7 @@ function loadRoom() {
   }
   if (kind === 'combat') mechInit();
   if (run.path && kind === 'combat') pathInit();
+  if (run.path && kind === 'boss' && bossDef().xk === 'guanyin') room.path = { boss: true, zn: 0, daze: 0, flash: 0, med: 0, medOn: false, dojos: [], t: 0, nextShadow: 4, ph: 1 };
   room.bg = buildBg(room);
   jellies = [];
   if (th() === 4 && (kind === 'combat' || kind === 'boss' || chase)) {
@@ -2102,7 +2109,7 @@ function updateChase(dt) {
 function newRun() {
   if (PRAC.on && !PRAC.starting) endPractice();
   resetPlayer(); follow = true; fEdge = 0; hudSig = ''; parts = [];
-  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.hurtL = 0; run.dsK = 0; run.znTip = false; run.spN = 0; run.pulseTip = false; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.dlc = false; run.escort = false; run.escFail = false; run.dlcPrev = null; run.escHurt = 0; run.escape = false; run.guard = false; run.endless = false; run.syrupTip = false; run.wickN = 0; run.mechTip = false; run.revive = null; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
+  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.hurtL = 0; run.dsK = 0; run.znTip = false; run.merit = 0; run.zenDaze = false; run.muyuN = 0; run.spN = 0; run.pulseTip = false; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.dlc = false; run.escort = false; run.escFail = false; run.dlcPrev = null; run.escHurt = 0; run.escape = false; run.guard = false; run.endless = false; run.syrupTip = false; run.wickN = 0; run.mechTip = false; run.revive = null; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
   for (const w of p.weapons) rec.seenW[w] = 1;
   allies = [];
   { let t = cleared ? shuffle(run.long ? Object.keys(THEMES).map(Number).filter(i => THEMES[i].pool !== 'dlc' || optDlcPool.checked) : BASE_IDS.slice()).slice(0, 3) : [0, 1, 2];
@@ -2183,7 +2190,7 @@ function itemInfo(it) {
   if (it.kind === 'coins') return { name: '一袋燈芯', desc: '燈芯 +' + it.amount + '（穩定但沒有成長）' };
   if (it.kind === 'mystery') return { name: '神祕寶箱', desc: it.used ? '箱子已經空了' : '只有一個「？」。打開會得到隨機獎勵（可能是武器、強化、精良強化、燈芯或燈火）' };
   if (it.kind === 'muyu') return { name: '木魚', desc: it.taps > 0 ? '縮圈到最小時再按 F：圓滿＝雜念清空，其他＝減半（剩 ' + it.taps + ' 次）' : '木魚裂了' };
-  if (it.kind === 'shrine') return { name: '佛龕', desc: it.used ? '香已經燃盡' : '合掌一拜，得到一份隨機的供養回禮（只能一次）' };
+  if (it.kind === 'shrine') return { name: '佛龕', desc: it.used ? '香已經燃盡' : '佈施 ' + shrineCost(it) + ' 功德，得到一份回禮（可能是佛寺專屬武器）；只能一次' };
   if (it.kind === 'ding') return { name: '古鼎', desc: it.used ? '鼎已經安靜下來了' : '青銅古鼎，傳說摸一下會賜予一件寶物（只能一次）' };
   if (it.kind === 'well') return it.id === 'grand'
     ? { name: '華麗許願池', desc: '第 n 次投入 3×n 燈芯：3、6、9、12、15。次數越多機率與品質越高，第 5 次保底；得到獎勵後池就乾涸' + (it.dry ? '（已乾涸）' : '') }
@@ -2377,7 +2384,7 @@ function updateHint() {
     else if (it.kind === 'mystery') act = it.used ? '' : 'F 打開「？」';
     else if (it.kind === 'ding') act = it.used ? '' : 'F 觸摸古鼎';
     else if (it.kind === 'muyu') act = it.taps <= 0 ? '' : room.path && room.path.ring && room.path.ring.it === it ? 'F 現在敲！（縮圈最小時）' : 'F 敲木魚';
-    else if (it.kind === 'shrine') act = it.used ? '' : 'F 合掌參拜';
+    else if (it.kind === 'shrine') act = it.used ? '' : 'F 佈施 ' + shrineCost(it) + ' 功德（目前 ' + (run.merit || 0) + '）';
     else if (it.kind === 'well') act = it.dry ? '池水已經乾涸' : (it.id === 'grand' ? (it.n >= 5 ? '池水平靜了' : 'F 投入 ' + (3 * (it.n + 1)) + ' 燈芯（第 ' + (it.n + 1) + ' / 5 次）') : (it.n >= 6 ? '池水平靜了' : 'F 投入 4 燈芯（第 ' + (it.n + 1) + ' / 6 次）')) + (!it.dry && it.n < (it.id === 'grand' ? 5 : 6) && p.coins < (it.id === 'grand' ? 3 * (it.n + 1) : 4) ? '（燈芯不夠）' : '');
     else if (it.kind === 'weapon') act = p.weapons.length < 3 ? 'F 拿取' : 'F 取代手上的「' + WDEF[p.weapons[p.w]].name + '」';
     else act = it.kind === 'tzsw' ? 'F 切換按鍵大小' : it.kind === 'tutsw' ? (rec.tutOff ? 'F 開啟教學' : 'F 關閉教學') : it.kind === 'noshop' ? (run.noShop ? 'F 取下木牌' : 'F 掛上木牌') : it.kind === 'switch' ? (room.lampOn ? 'F 關燈' : 'F 開燈') : it.kind === 'npc' ? 'F 邀請同行（隊伍 ' + allies.length + ' / 2）' : it.kind === 'refresh' ? 'F 刷新全部商品' : it.kind === 'restock' ? 'F 補貨' : it.kind === 'heal' ? 'F 喝下' : 'F 拿取';
@@ -2572,8 +2579,8 @@ function runTimers(dt) {
 
 /* ---------- UI: dialog, screens, hud ---------- */
 const stageEl = $('stage');
-let znFill = null, znTxt = null;
-{ const zb = document.createElement('div'); zb.id = 'znBar'; zb.hidden = true; zb.innerHTML = '<span>雜念</span><i><b></b></i>'; stageEl.appendChild(zb); znFill = zb.querySelector('b'); znTxt = zb.querySelector('span'); const zf = document.createElement('div'); zf.id = 'znFog'; zf.hidden = true; stageEl.appendChild(zf); }
+let znFill = null, znTxt = null, znMer = null;
+{ const zb = document.createElement('div'); zb.id = 'znBar'; zb.hidden = true; zb.innerHTML = '<span>雜念</span><i><b></b></i><em></em>'; stageEl.appendChild(zb); znFill = zb.querySelector('b'); znTxt = zb.querySelector('span'); znMer = zb.querySelector('em'); const zf = document.createElement('div'); zf.id = 'znFog'; zf.hidden = true; stageEl.appendChild(zf); }
 function setState(s) { state = s; stageEl.classList.toggle('playing', s === 'play'); scrSel = 0; scrRender(); }
 let dlg = { lines: [], i: 0, shown: 0, done: null, ret: 'play' };
 function say(lines, done) {
@@ -3214,6 +3221,7 @@ function attack() {
       if (Math.abs(dx * a.y - dy * a.x) <= wd / 2 + b.r) { b.dead = true; burst(b.x, b.y, 5, [C.violet, C.paper], 120, true); }
     }
   }
+  else if (w.fire) w.fire(ox, oy, ang, dm, pd);
   else meleeSwing(w, ang, 1);
   if (wid === 'shears') later(0.15, () => { if (state === 'play' && p.sleepT <= 0) meleeSwing(w, Math.atan2(p.aim.y, p.aim.x), 1.5); });
 }
@@ -3587,7 +3595,7 @@ function updateWaves(dt) {
   if (room.fans) for (const fn of room.fans) if (!fn.done && run.t - fn.t0 > 3.2) { fn.done = true; if (!fn.hit) { run.dodged = (run.dodged || 0) + 1; if (run.dodged >= 20) unlockAch('dodge'); } }
   if (room.variant === 'fake' && !room.fakeDone) { room.fakeT -= dt; if (room.fakeT <= 0) revealFake(); return; }
   if (room.cleared) return;
-  if (room.path) return;
+  if (room.path && !room.path.boss) return;
   if (room.mimic) { if (!enemies.some(o => !o.dead) && !(room.mimicT > 0)) { room.cleared = true; sfx('clear'); toast(room.lockMsg || '寶相怪全倒了'); if (room.variant === 'mimic' && !room.hurt) unlockAch('mimicSlay'); } return; }
   if (room.kind !== 'combat' && room.kind !== 'boss') return;
   if (room.gb && (!room.gb.started || room.gb.rest)) return;
@@ -3624,7 +3632,7 @@ function pathInit() {
   D.forEach((d, i) => { room.items.push({ kind: 'muyu', id: 'muyu', x: d.x + 120, y: DOOR.y + 20, group: 'prop', price: 0, taken: false, taps: 3, di: i }); room.items.push({ kind: 'shrine', id: 'shrine', x: d.x - 120, y: DOOR.y + 20, group: 'prop', price: 0, taken: false, used: false, di: i }); });
 }
 const ZEN_TUT = [
-  { t: '修行路：一直往前', b: '這一層是一條很長的路，畫面會一直鎖在你身上。\n用游標指方向，角色會自己往前走（按住滑鼠可暫停追隨；手機用搖桿或點擊）。\n沿途會有敵人出現在前方——打倒它們，或者繞過去繼續走。' },
+  { t: '修行路：一直往前', b: '這一層是一條很長的路，畫面會一直鎖在你身上。\n沿途會有敵人出現在前方——打倒它們，或者繞過去繼續走。' },
   { t: '雜念：落在身後的敵人', b: '敵人如果落到你身後、超出畫面，就會消失，變成「雜念」。\n畫面上方的雜念條滿了，你會「迷亂」6 秒：子彈散開、視野只剩中間一圈。\n打倒敵人不會增加雜念；放著不管、一路往前跑，才會。' },
   { t: '業障牆：從後面推來', b: '有一道黑色的業障牆從起點慢慢往前推。\n被追上會持續扣血，所以不能停在原地太久。\n走進「道場」時，業障牆會暫停。' },
   { t: '道場：靜心與木魚', b: '每層有三個道場，裡面沒有敵人。\n中間蒲團：站著不動、按住 F 約 2 秒，雜念清空。\n右邊木魚：按 F 出現縮圈，圈縮到最小時再按 F＝雜念清空，否則減半（每個木魚 3 次）。\n左邊佛龕：參拜一次，得到一份隨機回禮。' }
@@ -3635,12 +3643,12 @@ function renderZenTut() {
   $('ztT').textContent = q.t; $('ztB').textContent = q.b; $('ztP').textContent = '說明 ' + (zt.i + 1) + ' / ' + ZEN_TUT.length + '　（這一段不能跳過）';
   $('ztBtn').disabled = !ok; $('ztBtn').innerHTML = (ok ? (last ? '開始修行' : '繼續') : '請先閱讀（' + Math.ceil(zt.wait) + '）') + '<kbd>F</kbd>';
 }
-function openZenTut() { zt = { i: 0, wait: 2.4, shown: 3 }; show('zentut', true); setState('zentut'); renderZenTut(); }
+function openZenTut(then) { zt = { i: 0, wait: 2.4, shown: 3, then }; show('zentut', true); setState('zentut'); renderZenTut(); }
 function updateZenTut(dt) { if (zt.wait > 0) { zt.wait -= dt; const c = Math.ceil(Math.max(0, zt.wait)); if (c !== zt.shown) { zt.shown = c; renderZenTut(); } } }
 function zenTutNext() {
   if (state !== 'zentut' || zt.wait > 0) return;
   sfx('tick'); zt.i++;
-  if (zt.i >= ZEN_TUT.length) { show('zentut', false); setState('play'); rec.zenTut = (rec.zenTut || 0) + 1; saveRec(); hintSig = ''; return; }
+  if (zt.i >= ZEN_TUT.length) { show('zentut', false); setState('play'); rec.zenTut = (rec.zenTut || 0) + 1; saveRec(); hintSig = ''; if (zt.then) { const f = zt.then; zt.then = null; f(); } return; }
   zt.wait = 2.4; zt.shown = 3; renderZenTut();
 }
 $('ztBtn').addEventListener('click', () => { if (state === 'zentut') zenTutNext(); });
@@ -3648,29 +3656,49 @@ function addZn(n) {
   const P = room.path; if (!P || P.daze > 0) return;
   P.zn = Math.min(ZN_MAX, P.zn + n); P.flash = 0.4;
   if (!run.znTip) { run.znTip = true; toast('敵人落在身後會變成雜念——雜念滿了會迷亂', 3); }
-  if (P.zn >= ZN_MAX) { P.daze = 6; P.zn = 5; toast('心神迷亂！射擊散開、視野變窄', 2.4); sfx('hit'); shake = Math.max(shake, 6); }
+  if (P.zn >= ZN_MAX) { P.daze = 6; P.zn = 5; run.zenDaze = true; toast('心神迷亂！射擊散開、視野變窄', 2.4); sfx('hit'); shake = Math.max(shake, 6); }
 }
 function muyuTap(it) {
   const P = room.path; if (!P) return;
   if (it.taps <= 0) { toast('木魚裂了，不能再敲', 1.4); return; }
   if (!P.ring || P.ring.it !== it) { P.ring = { it, t: 0, dur: 1.1 }; toast('縮圈到最小時再按 F', 1.6); sfx('tick'); return; }
   const k = P.ring.t / P.ring.dur; P.ring = null; it.taps--; hintSig = '';
-  if (Math.abs(k - 1) <= 0.16) { P.zn = 0; P.daze = 0; toast('圓滿一敲：雜念清空', 2); sfx('clear'); burst(it.x, it.y - 10, 20, ['#ffe9a0', C.paper], 170, true); }
+  if (Math.abs(k - 1) <= 0.16) { P.zn = 0; P.daze = 0; run.merit = (run.merit || 0) + 2; run.muyuN = (run.muyuN || 0) + 1; if (run.muyuN >= 5) unlockAch('zenMuyu'); toast('圓滿一敲：雜念清空，功德 +2', 2); sfx('clear'); burst(it.x, it.y - 10, 20, ['#ffe9a0', C.paper], 170, true); }
   else { P.zn = Math.floor(P.zn / 2); toast('木魚聲：雜念減半', 1.6); sfx('pick'); burst(it.x, it.y - 10, 10, ['#d9b46a', C.paper], 120, true); }
 }
+const shrineCost = it => 5 + 3 * (it.di || 0);
 function shrineUse(it) {
   if (it.used) { toast('香已經燃盡', 1.2); return; }
-  it.used = true; hintSig = ''; sfx('pick'); burst(it.x, it.y - 10, 18, ['#ffd27a', C.paper], 160, true); toast('合掌一拜……', 1.2);
+  const c = shrineCost(it); if ((run.merit || 0) < c) { toast('功德不足：佈施需要 ' + c + '（目前 ' + (run.merit || 0) + '）。打倒敵人累積功德，用佛寺武器打倒更多', 3); return; }
+  run.merit -= c; it.used = true; hintSig = ''; sfx('pick'); burst(it.x, it.y - 10, 18, ['#ffd27a', C.paper], 160, true); toast('佈施 ' + c + ' 功德……', 1.2);
+  const zw = WLIST.filter(i => WDEF[i].th === 14 && p.weapons.indexOf(i) < 0);
+  if (zw.length && rand() < 0.5) { const id = pickOf(zw); giveWeapon(id); toast('佛龕回贈：' + WDEF[id].name, 2.6); return; }
   interact({ kind: 'mystery', id: 'mystery', x: it.x, y: it.y, group: 'prop', price: 0, taken: false });
+}
+function updateZenBoss(P, dt) {
+  if (state !== 'play' || room.cleared) return;
+  const b = enemies.find(e => e.type === 'boss' && !e.dead); if (!b) return;
+  const ratio = b.hp / b.maxHp, ph = ratio > 0.6 ? 1 : ratio > 0.3 ? 2 : 3;
+  P.t += dt; P.ph = ph; P.daze = Math.max(0, P.daze - dt); P.flash = Math.max(0, P.flash - dt);
+  if (ph !== 2) {
+    P.nextShadow -= dt;
+    if (P.nextShadow <= 0) { P.nextShadow = ph === 1 ? 7 : 11; for (let i = 0; i < 2; i++) { const sp = freeSpot(13), e = spawnEnemy('crawler', sp.x, sp.y); e.zs = P.t; e.sleep = false; } }
+    for (const e of enemies) if (e.zs !== undefined && !e.dead && P.t - e.zs > 9) { e.dead = true; burst(e.x, e.y, 10, ['#9b7bd8', '#5a4a8a'], 100); addZn(2); }
+    P.zn = Math.max(0, P.zn - 0.15 * dt);
+  } else {
+    const firing = (keys.f && !p.near) || mouse.down;
+    if (firing) { if (P.daze <= 0) { P.zn = Math.min(ZN_MAX, P.zn + 0.7 * dt); if (P.zn >= ZN_MAX) { P.zn = ZN_MAX - 0.001; addZn(0.01); } } } else P.zn = Math.max(0, P.zn - 0.8 * dt);
+  }
 }
 function updatePath(dt) {
   const P = room.path; if (!P) return;
+  if (P.boss) { updateZenBoss(P, dt); return; }
   const hud = $('znBar'), fog = $('znFog');
   if (state !== 'play' || room.kind !== 'combat') { return; }
   if (!P.intro) {
-    P.intro = true; const W0 = THEMES[th()], lines = W0.pathIntro ? W0.pathIntro(run.layer) : null;
-    if (lines && lines.length) { say(lines, () => { if (run.layer === 0 && (rec.zenTut || 0) < 3) openZenTut(); }); return; }
-    if (run.layer === 0 && (rec.zenTut || 0) < 3) { openZenTut(); return; }
+    P.intro = true; const W0 = THEMES[th()], lines = W0.pathIntro ? W0.pathIntro(run.layer) : null, story = () => { if (lines && lines.length) say(lines); };
+    if (run.layer === 0 && !(rec.zenTut >= 1)) openZenTut(story); else story();
+    return;
   }
   if (!room.cleared) {
     const dj = P.dojos.find(d => Math.abs(p.x - d.x) < d.w / 2);
@@ -3713,7 +3741,8 @@ function updatePath(dt) {
 }
 function updateZnHud() {
   const P = room && room.path, bar = $('znBar'), fog = $('znFog'); if (!bar || !fog) return;
-  const on = !!P && state !== 'menu' && state !== 'over' && room.kind === 'combat'; bar.hidden = !on; fog.hidden = !(on && P.daze > 0);
+  const on = !!P && state !== 'menu' && state !== 'over' && (room.kind === 'combat' || (P.boss && !room.cleared)); bar.hidden = !on; fog.hidden = !(on && (P.daze > 0 || (P.boss && P.ph === 3))); fog.classList.toggle('soft', !!(on && P.boss && P.ph === 3 && !(P.daze > 0)));
+  if (znMer) znMer.textContent = '功德 ' + (run.merit || 0);
   if (!on) return;
   if (znFill) znFill.style.width = (P.zn / ZN_MAX * 100).toFixed(0) + '%'; bar.classList.toggle('flash', P.flash > 0); if (znTxt) znTxt.textContent = P.daze > 0 ? '迷亂 ' + Math.ceil(P.daze) : '雜念';
 }
@@ -4864,7 +4893,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.55　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.56　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -5523,13 +5552,14 @@ function drawPlayer() {
   { const hd = headCos();
     if (hd === 'book') { ctx.fillStyle = '#7a3b2c'; poly(ctx, [[-14, -25], [0, -29], [14, -25], [0, -23]]); ctx.fillStyle = '#e8d9b0'; poly(ctx, [[-13, -26], [0, -30], [0, -38], [-12, -34]]); poly(ctx, [[13, -26], [0, -30], [0, -38], [12, -34]]); ctx.strokeStyle = '#8a7a5a'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-9, -32); ctx.lineTo(-3, -34); ctx.moveTo(-9, -29.5); ctx.lineTo(-3, -31.5); ctx.moveTo(9, -32); ctx.lineTo(3, -34); ctx.moveTo(9, -29.5); ctx.lineTo(3, -31.5); ctx.stroke(); }
     else if (hd === 'hat') { ctx.fillStyle = '#c9b27a'; poly(ctx, [[-21, -23], [21, -23], [0, -43]]); ctx.strokeStyle = '#8f7a44'; ctx.lineWidth = 1; for (const k of [-10, -4, 4, 10]) { ctx.beginPath(); ctx.moveTo(0, -43); ctx.lineTo(k * 1.7, -23); ctx.stroke(); } ctx.fillStyle = '#5a4a2a'; ctx.fillRect(-21, -24, 42, 2); }
+    else if (hd === 'monk') { ctx.fillStyle = '#d9b48a'; ctx.beginPath(); ctx.arc(0, -22, 12, Math.PI, TAU); ctx.fill(); ctx.fillStyle = '#7a5a3a'; for (const kx of [-5, 0, 5]) circ(ctx, kx, -28 - (kx === 0 ? 2 : 0), 1.1); }
     else if (hd === 'lily') { const hx = -9, hy = -27; ctx.strokeStyle = '#d2324a'; ctx.lineWidth = 1.6; ctx.lineCap = 'round'; for (let k = 0; k < 7; k++) { const a = -Math.PI * 0.95 + k * 0.5; ctx.beginPath(); ctx.moveTo(hx, hy); ctx.quadraticCurveTo(hx + Math.cos(a) * 6, hy + Math.sin(a) * 6 - 3, hx + Math.cos(a) * 11, hy + Math.sin(a) * 9 - 2); ctx.stroke(); } ctx.fillStyle = '#ffd7dc'; circ(ctx, hx, hy, 1.6); } }
   const kick = p.recoil > 0 ? p.recoil * 40 : 0, lx = p.aim.x * (24 + kick), ly = p.aim.y * (24 + kick) - 4;
   ctx.strokeStyle = C.paperDim; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(p.aim.x * 8, -2); ctx.lineTo(lx, ly - 7); ctx.stroke();
   setShadow(ctx, 1.5, 2, 0); ctx.fillStyle = '#7a5a2e'; rrect(ctx, lx - 6, ly - 8, 12, 3, 1.5); noShadow(ctx);
   ctx.fillStyle = lampCol().c; circ(ctx, lx, ly, 7); ctx.fillStyle = lampCol().core; circ(ctx, lx, ly, 3.5);
   { const gl2 = gcOf('lampx'); if (gl2 && gl2.kind === 'pend') { ctx.strokeStyle = gl2.c; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(lx, ly + 7); ctx.lineTo(lx, ly + 14); ctx.stroke(); ctx.fillStyle = gl2.c; ctx.beginPath(); ctx.arc(lx, ly + 16, 2.6, 0, TAU); ctx.fill(); ctx.fillStyle = gl2.c2; circ(ctx, lx, ly + 15.4, 0.9); } }
-  { const dc = lampCol().deco; if (dc === 'ink') { ctx.fillStyle = '#1b2350'; rrect(ctx, lx - 3, ly - 12, 6, 5, 1.5); ctx.strokeStyle = '#e8dcc0'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(lx + 1, ly - 12); ctx.lineTo(lx + 5, ly - 18); ctx.stroke(); } else if (dc === 'lily') { ctx.strokeStyle = '#ff7b8c'; ctx.lineWidth = 1.3; ctx.lineCap = 'round'; for (let k = 0; k < 8; k++) { const a = k / 8 * TAU + time * 0.4; ctx.beginPath(); ctx.moveTo(lx + Math.cos(a) * 7, ly + Math.sin(a) * 7); ctx.quadraticCurveTo(lx + Math.cos(a) * 10, ly + Math.sin(a) * 10 - 1, lx + Math.cos(a + 0.3) * 13, ly + Math.sin(a + 0.3) * 13); ctx.stroke(); } } }
+  { const dc = lampCol().deco; if (dc === 'ink') { ctx.fillStyle = '#1b2350'; rrect(ctx, lx - 3, ly - 12, 6, 5, 1.5); ctx.strokeStyle = '#e8dcc0'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(lx + 1, ly - 12); ctx.lineTo(lx + 5, ly - 18); ctx.stroke(); } else if (dc === 'lotus') { ctx.fillStyle = '#ffb8cf'; for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + (k - 2) * 0.55; ctx.beginPath(); ctx.ellipse(lx + Math.cos(a) * 7, ly - 11 + Math.sin(a) * 4 + 4, 2.6, 5, a + Math.PI / 2, 0, TAU); ctx.fill(); } } else if (dc === 'lily') { ctx.strokeStyle = '#ff7b8c'; ctx.lineWidth = 1.3; ctx.lineCap = 'round'; for (let k = 0; k < 8; k++) { const a = k / 8 * TAU + time * 0.4; ctx.beginPath(); ctx.moveTo(lx + Math.cos(a) * 7, ly + Math.sin(a) * 7); ctx.quadraticCurveTo(lx + Math.cos(a) * 10, ly + Math.sin(a) * 10 - 1, lx + Math.cos(a + 0.3) * 13, ly + Math.sin(a + 0.3) * 13); ctx.stroke(); } } }
   ctx.restore();
 }
 function drawAllyFig(n) {
@@ -5812,7 +5842,7 @@ function updatePort() {
 }
 function updateCam() {
   if (!room.big) { cam.x = 0; cam.y = 0; room.camInit = false; return; }
-  if (room.path) { const px = p.x - W / 2; if (!room.camInit) { cam.x = px; room.camInit = true; } else cam.x += (px - cam.x) * 0.25; cam.y = 0; return; }
+  if (room.path && !room.path.boss) { const px = p.x - W / 2; if (!room.camInit) { cam.x = px; room.camInit = true; } else cam.x += (px - cam.x) * 0.25; cam.y = 0; return; }
   const tx = p.x - W / 2, ty = p.y - H / 2;
   if (!room.camInit) { cam.x = tx; cam.y = ty; room.camInit = true; } else { cam.x += (tx - cam.x) * 0.25; cam.y += (ty - cam.y) * 0.25; }
 }
@@ -6038,6 +6068,7 @@ function loadPack(file, cb) {
 function registerWorld(w) {
   THEMES[w.theme] = w; TNAMES[w.theme] = w.name;
   for (const t in (w.enemies || {})) { const q = w.enemies[t]; ENEMY[t] = { hp: q.hp, r: q.r }; ENAME[t] = q.name; if (q.cost) EXT_COST[t] = q.cost; if (q.cap) EXT_CAP[t] = q.cap; if (q.ai) EXT_AI[t] = q.ai; }
+  for (const id in (w.weapons || {})) { WDEF[id] = w.weapons[id]; if (WLIST.indexOf(id) < 0) WLIST.push(id); }
   for (const a of (w.ach || [])) { if (!ACH.some(x => x.id === a.id)) { ACH.push(a); ACH_BY[a.id] = a; ACH_CATS['主題'].push(a.id); } }
   optTheme.innerHTML += '<option value="' + w.theme + '">' + w.opt + '</option>'; $('lblDlcPool').hidden = false;
 }
@@ -6045,7 +6076,7 @@ window.LK = {
   registerWorld, THEMES,
   get ctx() { return ctx; }, get p() { return p; }, get room() { return room; }, get run() { return run; }, get enemies() { return enemies; }, get bullets() { return bullets; }, get time() { return time; }, get ROOM() { return ROOM; },
   C, TAU, circ, rrect, poly, setShadow, noShadow, star4, rand, rr, pickOf, clamp, shuffle, mulberry,
-  blip, sfx, toast, burst, later, say, unlockAch, hurtFrom, hitEnemy, enemyShot, bossShot, markStrike, spawnEnemy, freeSpot, dL: () => dL(), th: () => th(), shake: v => { shake = Math.max(shake, v); }, state: () => state
+  blip, sfx, toast, burst, later, say, unlockAch, shoot, WDEF, hurtFrom, hitEnemy, enemyShot, bossShot, markStrike, spawnEnemy, freeSpot, dL: () => dL(), th: () => th(), shake: v => { shake = Math.max(shake, v); }, state: () => state
 };
 })();
 </script>
