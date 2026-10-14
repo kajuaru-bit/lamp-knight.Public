@@ -329,7 +329,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.51　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.52　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -1071,6 +1071,7 @@ GT.forEach((t, i) => {
 GCHARM.forEach((n, i) => G.push({ id: 'gc' + i, name: n, slot: 'charm', kind: 'charm', rar: 'n', c: GCHARM_C[i], c2: '#fff6d8', gc: true, theme: '通用', idx: i }));
 const GBY = {}; G.forEach(g => { GBY[g.id] = g; g.name0 = g.name; });
 const RAR_NAME = { n: '普通', r: '稀有', l: '傳說' }, RAR_COL = { n: '#b8b0a0', r: '#7fc4ff', l: '#ffd23f' }, SCRAP_GET = { n: 1, r: 3, l: 10 }, FUSE_COST = { n: 5, r: 15, l: 40 };
+const gachaOpen = () => !!optGacha.checked || (rec.longClears || 0) + (rec.extClears || 0) + (rec.dl2Clears || 0) > 0 || !!rec.ach.dictBoss || !!rec.ach.shoreBoss;
 const gOwned = g => !!(rec.cosOwn && rec.cosOwn[g.id]);
 function slotSet(slot) { const o = slot === 'head' ? Object.assign({}, HEADS) : { none: { name: '無' } }; for (const g of G) if (g.slot === slot && gOwned(g)) o[g.id] = g; return o; }
 const gcOf = key => { const g = GBY[rec.cos[key]]; return g && gOwned(g) ? g : null; };
@@ -1096,11 +1097,11 @@ function gachaFuse() {
 }
 function gachaHtml() {
   const own = G.filter(gOwned).length, sc = rec.scrap || 0;
-  if (!optGacha.checked) return '<div class="datapg"><p><b>測試用功能</b>　造型機目前只供測試：到選職業頁的選項勾選「測試用：開啟造型機」後才能抽取與合成。外觀是依主題上色的通用形狀，不是正式美術。</p><p>目前紙片：<b>' + (rec.paper || 0) + '</b>　紙屑：<b>' + sc + '</b></p><p class="quiet">紙片收入（每局結算）：基本 5；通關 +10；每個新成就 +5；長線作戰每層 +3（追加層每層 +5）。</p></div>';
+  if (!gachaOpen()) return '<div class="datapg"><p><b>尚未開放</b>　造型機在<b>通關一次長線作戰或 DLC2（字母書房、彼岸）</b>後開放；也可以到選職業頁的選項勾選「測試用：開啟造型機」提前試玩。外觀目前是依主題上色的通用形狀，不是正式美術。</p><p>目前紙片：<b>' + (rec.paper || 0) + '</b>　紙屑：<b>' + sc + '</b></p><p class="quiet">紙片收入（每局結算）：基本 5；通關 +10；每個新成就 +5；長線作戰每層 +3（追加層每層 +5）。</p></div>';
   const un = G.filter(g => !gOwned(g)), cur = GBY[fuseSel] && !gOwned(GBY[fuseSel]) ? fuseSel : '';
   const res = gLast.length ? '<p>' + gLast.map(q => '<span style="color:' + RAR_COL[q.g.rar] + '">' + RAR_NAME[q.g.rar] + '・' + q.g.name + (q.fused ? '（合成）' : q.dup ? '（重複 → 紙屑 +' + SCRAP_GET[q.g.rar] + '）' : '（新）') + '</span>').join('　') + '</p>' : '<p class="quiet">還沒有抽取結果。</p>';
-  return '<div class="datapg"><p><b>造型機（測試用）</b>　紙片 <b>' + (rec.paper || 0) + '</b>　紙屑 <b>' + sc + '</b>　已擁有 <b>' + own + '／' + G.length + '</b>　累計抽取 ' + rec.gacha.n + ' 次（距離傳說保底還有 ' + (30 - rec.gacha.pity) + ' 抽）</p>'
-    + '<p><button class="btn alt" type="button" data-g="p1">抽 1 次（10 紙片）</button> <button class="btn alt" type="button" data-g="p10">十連抽（90 紙片，至少 1 個稀有）</button> <button class="btn alt" type="button" data-g="paper">測試：＋100 紙片</button></p>'
+  return '<div class="datapg"><p><b>造型機</b>　紙片 <b>' + (rec.paper || 0) + '</b>　紙屑 <b>' + sc + '</b>　已擁有 <b>' + own + '／' + G.length + '</b>　累計抽取 ' + rec.gacha.n + ' 次（距離傳說保底還有 ' + (30 - rec.gacha.pity) + ' 抽）</p>'
+    + '<p><button class="btn alt" type="button" data-g="p1">抽 1 次（10 紙片）</button> <button class="btn alt" type="button" data-g="p10">十連抽（90 紙片，至少 1 個稀有）</button> ' + (optGacha.checked ? '<button class="btn alt" type="button" data-g="paper">測試：＋100 紙片</button>' : '') + '</p>'
     + res + '<p>合成：用紙屑換一件還沒有的　<select id="fuseSel"><option value="">選擇外觀</option>' + un.map(g => '<option value="' + g.id + '"' + (g.id === cur ? ' selected' : '') + '>' + RAR_NAME[g.rar] + '・' + g.name + '（' + FUSE_COST[g.rar] + ' 紙屑）</option>').join('') + '</select> <button class="btn alt" type="button" data-g="fuse">合成</button></p>'
     + '<p class="quiet">機率：普通 70%、稀有 25%、傳說 5%；每 30 抽保底 1 個傳說；重複的外觀變成紙屑（普通 1、稀有 3、傳說 10）；合成價：普通 5、稀有 15、傳說 40 紙屑。抽到的外觀到「造型」頁裝備（頭飾、身衣、燈飾、小飾品四欄）。</p></div>';
 }
@@ -2077,7 +2078,7 @@ function updateChase(dt) {
 function newRun() {
   if (PRAC.on && !PRAC.starting) endPractice();
   resetPlayer(); follow = true; fEdge = 0; hudSig = ''; parts = [];
-  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.hurtL = 0; run.dsK = 0; run.spN = 0; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.dlc = false; run.escort = false; run.escFail = false; run.dlcPrev = null; run.escHurt = 0; run.escape = false; run.guard = false; run.endless = false; run.syrupTip = false; run.wickN = 0; run.mechTip = false; run.revive = null; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
+  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.hurtL = 0; run.dsK = 0; run.spN = 0; run.pulseTip = false; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.dlc = false; run.escort = false; run.escFail = false; run.dlcPrev = null; run.escHurt = 0; run.escape = false; run.guard = false; run.endless = false; run.syrupTip = false; run.wickN = 0; run.mechTip = false; run.revive = null; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
   for (const w of p.weapons) rec.seenW[w] = 1;
   allies = [];
   { let t = cleared ? shuffle(run.long ? Object.keys(THEMES).map(Number).filter(i => THEMES[i].pool !== 'dlc' || optDlcPool.checked) : BASE_IDS.slice()).slice(0, 3) : [0, 1, 2];
@@ -3316,7 +3317,7 @@ function bossPhase2(e) {
 }
 function killEnemy(e) {
   const boss = e.type === 'boss';
-  if (!boss && state === 'play' && room.gb && rand() < 0.07) { room.items.push({ kind: 'mystery', id: 'mystery', x: Math.max(ROOM.x + 40, Math.min(ROOM.x + ROOM.w - 40, e.x)), y: Math.max(ROOM.y + 40, Math.min(ROOM.y + ROOM.h - 40, e.y)), group: 'prop', price: 0, taken: false }); toast('敵人掉下了一個寶箱！', 1.8); }
+  if (!boss && state === 'play' && room.gb && rand() < 0.07) { interact({ kind: 'mystery', id: 'mystery', x: Math.max(ROOM.x + 40, Math.min(ROOM.x + ROOM.w - 40, e.x)), y: Math.max(ROOM.y + 40, Math.min(ROOM.y + ROOM.h - 40, e.y)), group: 'prop', price: 0, taken: false }); }
   if (!boss && state === 'play') { if (room.bonus) dropCoins(e.x, e.y, 2); if (room.special) { room.special.killed++; dropCoins(e.x, e.y, 1); } }
   if (boss && run.long && run.layer >= 3 && !e.p2 && e.kind !== 'split' && !room.rush) { bossPhase2(e); return; }
   { const bs = e.type === 'boss'; burst(e.x, e.y, bs ? 30 : 6 + Math.floor(rand() * 5), [PAL.wall2, PAL.top, C.paper], bs ? 260 : 150, false); }
@@ -3387,15 +3388,29 @@ function hurtPlayer(dmg, nx, ny, frz) {
 }
 
 /* ---------- allies (NPC teammates) ---------- */
+/* 守護能量波：燈塔與護送隊友受傷時，25% 發出；連續受擊（4 秒內 3 次）或血量降到 50%、25% 必定發出；擊退周圍敵人並清除子彈 */
+function guardPulse(t, x, y, frac, nm) {
+  const now = time; t.hitT = (t.hitT || []).filter(v => now - v < 4); t.hitT.push(now);
+  let sure = t.hitT.length >= 3; const thr = [0.5, 0.25]; t.pwLv = t.pwLv || 0;
+  while (t.pwLv < 2 && frac <= thr[t.pwLv]) { t.pwLv++; sure = true; }
+  if ((sure || rand() < 0.25) && now - (t.pwT === undefined ? -9 : t.pwT) > 1.2) {
+    t.pwT = now; t.hitT = []; const R = 230;
+    rings.push({ x, y, R, t: 0.55, dur: 0.55 }); burst(x, y, 22, ['#fff6d8', '#ffd27a', C.paper], 240, true); sfx('clear'); shake = Math.max(shake, 3);
+    for (const e of enemies) { if (e.dead || e.type === 'boss') continue; const dx = e.x - x, dy = e.y - y, d = Math.hypot(dx, dy) || 1; if (d < R + e.r) { e.kx += dx / d * 520; e.ky += dy / d * 520; e.stun = Math.max(e.stun || 0, 0.3); } }
+    for (const q of bullets) if (q.own === 'e' && !q.dead && Math.hypot(q.x - x, q.y - y) < R + 40) q.dead = true;
+    if (!run.pulseTip) { run.pulseTip = true; toast((nm || '守護者') + '受傷時會發出能量波：擊退敵人、清除子彈', 2.6); }
+  }
+}
 function addAlly(id, x, y) {
   const def = NPCS[id];
   allies.push({ id, def, x, y, vx: 0, vy: 0, r: 11, hp: def.hp, maxHp: def.hp, down: false, iframes: 0, cd: rr(0.3, 0.8), face: 1, t: 0 });
 }
-function placeAllies() { allies.forEach((n, i) => { n.x = p.x - 36 - i * 30; n.y = p.y + (i % 2 ? 24 : -24); n.vx = n.vy = 0; n.iframes = 1; }); }
+function placeAllies() { allies.forEach((n, i) => { n.pwLv = 0; n.hitT = []; n.x = p.x - 36 - i * 30; n.y = p.y + (i % 2 ? 24 : -24); n.vx = n.vy = 0; n.iframes = 1; }); }
 function hurtNpc(n, dmg) {
   if (n.down || n.iframes > 0) return;
   if (n.def.esc) run.escHurt = (run.escHurt || 0) + 1;
   n.hp -= dmg; n.iframes = 0.9; burst(n.x, n.y, 6, [C.paper, n.def.col], 120);
+  if (n.hp > 0 && n.def.esc) guardPulse(n, n.x, n.y, n.hp / n.maxHp, n.def.short || n.def.name);
   if (n.hp <= 0) { n.hp = 0; n.down = true; toast(n.def.short + '：「' + n.def.hurt + '」（倒下了）', 2.8); sfx('hurt'); }
 }
 function updateAllies(dt) {
@@ -4187,8 +4202,8 @@ function updateModes(dt) {
   const b = room.beacon;
   if (b && b.hp > 0 && !room.cleared) {
     b.t += dt; b.hurtT = Math.max(0, b.hurtT - dt);
-    for (const e of enemies) if (e.tgtB && !e.dead && e.spawn <= 0 && Math.hypot(e.x - b.x, e.y - b.y) < e.r + 24 && b.hurtT <= 0) { b.hp -= 1; b.hurtT = 1.3; burst(b.x, b.y, 8, ['#00e5ff', '#ff2e97'], 120, true); sfx('hurt'); }
-    for (const q of bullets) if (q.own === 'e' && !q.dead && Math.hypot(q.x - b.x, q.y - b.y) < q.r + 22) { q.dead = true; b.hp -= 0.5; burst(q.x, q.y, 4, ['#ff2e97'], 90, true); }
+    for (const e of enemies) if (e.tgtB && !e.dead && e.spawn <= 0 && Math.hypot(e.x - b.x, e.y - b.y) < e.r + 24 && b.hurtT <= 0) { b.hp -= 1; b.hurtT = 1.3; burst(b.x, b.y, 8, ['#00e5ff', '#ff2e97'], 120, true); sfx('hurt'); if (b.hp > 0) guardPulse(b, b.x, b.y, b.hp / b.max, '燈塔'); }
+    for (const q of bullets) if (q.own === 'e' && !q.dead && Math.hypot(q.x - b.x, q.y - b.y) < q.r + 22) { q.dead = true; b.hp -= 0.5; burst(q.x, q.y, 4, ['#ff2e97'], 90, true); if (b.hp > 0) guardPulse(b, b.x, b.y, b.hp / b.max, '燈塔'); }
     if (Math.hypot(p.x - b.x, p.y - b.y) < 110 && b.hp < b.max) b.hp = Math.min(b.max, b.hp + 0.3 * dt);
     if (b.hp <= 0) { b.hp = 0; toast('燈塔熄滅了……', 2); hitSrc = 'beacon'; die(); }
   }
@@ -4670,7 +4685,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.51　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.52　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
