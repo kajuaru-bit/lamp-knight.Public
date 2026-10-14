@@ -329,7 +329,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.46　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -1116,19 +1116,20 @@ const THEMES = [
     boss: fin => fin ? { kind: 'toad', name: '巨大蟾蜍', hp: 195 } : { kind: 'rootking', name: '腐根樹妖', hp: 120 } },
   { name: '沙漠', pool: 'base', opt: '沙漠（部分）', pal: PALS[8], amb: ['bandpass', 700, 0.5, 0.03], ev: null,
     boss: fin => fin ? { kind: 'scorpking', name: '巨大蠍王', hp: 195 } : { kind: 'mummyking', name: '木乃伊王', hp: 120 } },
-  { name: '糖果世界', pool: 'dlc', opt: '糖果世界（DLC）', pal: PALS[9], amb: ['bandpass', 2400, 3, 0.004], noDark: true, stage: 'candy',
+  { name: '糖果世界', pool: 'dlc', opt: '糖果世界（DLC）', pal: PALS[9], amb: ['bandpass', 2400, 3, 0.004], noDark: true, noPaper: true, stage: 'candy',
     skin: { map: CANDY_SKIN, draw: e => drawCandyEnemy(e), hue: true }, obsDraw: (g, o, rng) => drawCandyObs(g, o, rng),
     ev: r => { const n = [659, 784, 988, 1319][Math.floor(r() * 4)]; blip(n, n * 1.01, 0.18, 'sine', 0.015); setTimeout(() => blip(n * 1.5, n * 1.5, 0.2, 'sine', 0.01), 140); },
     boss: fin => fin ? { kind: 'golem', name: '糖霜巨像', hp: 205, candy: true } : { kind: 'golem', name: '蛋糕魔像', hp: 125, candy: true } },
-  { name: '電玩世界', pool: 'dlc', opt: '電玩世界（DLC）', pal: PALS[10], amb: ['lowpass', 900, 0.5, 0.004], noDark: true, stage: 'arc',
+  { name: '電玩世界', pool: 'dlc', opt: '電玩世界（DLC）', pal: PALS[10], amb: ['lowpass', 900, 0.5, 0.004], noDark: true, noPaper: true, stage: 'arc',
     skin: { map: ARC_SKIN, draw: e => drawArcEnemy(e), hue: false }, obsDraw: (g, o, rng) => drawArcObs(g, o, rng),
     ev: r => { const n = [262, 330, 392, 523, 659][Math.floor(r() * 5)]; blip(n, n, 0.08, 'square', 0.012); setTimeout(() => blip(n * 1.5, n * 1.5, 0.08, 'square', 0.01), 110); },
     boss: fin => fin ? { kind: 'golem', name: '像素魔王', hp: 205, arc: true } : { kind: 'golem', name: '街機巨獸', hp: 125, arc: true } },
-  { name: '未來世界', pool: 'dlc', opt: '未來世界（DLC）', pal: PALS[11], amb: ['bandpass', 500, 4, 0.006], noDark: true, stage: 'fut',
+  { name: '未來世界', pool: 'dlc', opt: '未來世界（DLC）', pal: PALS[11], amb: ['bandpass', 500, 4, 0.006], noDark: true, noPaper: true, stage: 'fut',
     skin: { map: FUT_SKIN, draw: e => drawFutEnemy(e), hue: true }, obsDraw: (g, o, rng) => drawFutObs(g, o, rng),
     ev: r => { const n = [196, 294, 392, 587][Math.floor(r() * 4)]; blip(n, n * 0.5, 0.35, 'sawtooth', 0.01); },
     boss: fin => fin ? { kind: 'golem', name: '核心主腦', hp: 205, fut: true } : { kind: 'golem', name: '巡邏機甲', hp: 125, fut: true } }
 ];
+const EXT_AI = {}, EXT_COST = {}, EXT_CAP = {}, PACKS = {};
 const TNAMES = THEMES.map(t => t.name);
 const BASE_IDS = THEMES.map((t, i) => i).filter(i => THEMES[i].pool === 'base');
 optTheme.innerHTML = '<option value="auto">自動</option>' + [0, 1, 2, 4, 5, 6, 7, 8, 3, 9, 10, 11].map(i => '<option value="' + i + '">' + THEMES[i].opt + '</option>').join('');
@@ -1197,7 +1198,6 @@ function sfx(k) {
 const AMB = {
   nb: null, src: null, filt: null, gain: null, th: -1, nextEv: 0,
   // [filterType, freq, Q, gain, lfoRate]
-  P: THEMES.map(t => t.amb),
   ev(th, a) { const f = THEMES[th] && THEMES[th].ev; if (f) f(Math.random); },
   tick(dt) {
     const want = optSound.checked && (state === 'play' || state === 'pause');
@@ -1213,8 +1213,8 @@ const AMB = {
         this.src.connect(this.filt); this.filt.connect(this.gain); this.gain.connect(a.destination); this.src.start();
       }
       const ti = th();
-      if (ti !== this.th) { this.th = ti; const P = this.P[ti] || this.P[0]; this.filt.type = P[0]; this.filt.frequency.value = P[1]; this.filt.Q.value = P[2]; }
-      const P = this.P[this.th] || this.P[0], k = state === 'pause' ? 0.5 : 1;
+      if (ti !== this.th) { this.th = ti; const P = (THEMES[ti] && THEMES[ti].amb) || THEMES[0].amb; this.filt.type = P[0]; this.filt.frequency.value = P[1]; this.filt.Q.value = P[2]; }
+      const P = (THEMES[this.th] && THEMES[this.th].amb) || THEMES[0].amb, k = state === 'pause' ? 0.5 : 1;
       const lfo = 0.65 + 0.35 * Math.sin(performance.now() / (this.th === 8 || this.th === 1 ? 1300 : 2600));
       this.gain.gain.setTargetAtTime(P[3] * k * lfo, a.currentTime, 0.2);
       this.nextEv -= dt;
@@ -1696,6 +1696,7 @@ function buildBg(rm) {
   setShadow(g, 0, 4, 0, 'rgba(0,0,0,.5)'); g.fillStyle = PAL.wall2; poly(g, jagRect(ROOM.x - 30, ROOM.y - 30, ROOM.w + 60, ROOM.h + 60, 24, 5, rng));
   setShadow(g, 0, 3, 0, 'rgba(0,0,0,.5)'); g.fillStyle = PAL.floor; poly(g, jagRect(ROOM.x - 8, ROOM.y - 8, ROOM.w + 16, ROOM.h + 16, 30, 3, rng));
   noShadow(g);
+  if (THEMES[rm.theme].bg) THEMES[rm.theme].bg(g, rm, rng, arR);
   if (rm.theme === 9) {
     const pc = ['#ffd3e6', '#d4f6e4', '#fff1b8', '#cfe9ff', '#e6d9ff', '#ffe0c2'];
     for (let i = 0; i < Math.round(34 * arR); i++) { const w = 80 + rng() * 170, h = 60 + rng() * 120, x = ROOM.x + rng() * (ROOM.w - w), y = ROOM.y + rng() * (ROOM.h - h); g.fillStyle = pc[i % pc.length]; poly(g, jagRect(x, y, w, h, 22, 4, rng)); }
@@ -1756,7 +1757,7 @@ function buildBg(rm) {
     for (let i = 0; i < Math.round(8 * arR); i++) { const x = ROOM.x + 20 + rng() * (ROOM.w - 40), y = ROOM.y + 40 + rng() * (ROOM.h - 60); g.strokeStyle = 'rgba(70,110,70,.35)'; g.lineWidth = 3; g.beginPath(); g.moveTo(x, y); g.lineTo(x + rng() * 6 - 3, y - 36); g.stroke(); g.lineWidth = 1.5; for (let k = 1; k < 3; k++) { g.beginPath(); g.moveTo(x, y - k * 12); g.lineTo(x + 12, y - k * 12 - 8); g.stroke(); } }
   }
   for (const o of rm.obs) { if (THEMES[rm.theme].obsDraw) THEMES[rm.theme].obsDraw(g, o, rng); else if (rm.theme === 0) drawBush(g, o, rng); else if (rm.theme === 1) drawIce(g, o, rng); else if (rm.theme === 3) drawScreen(g, o, rng); else if (rm.theme === 4 || rm.theme === 7) drawBush(g, o, rng); else drawStack(g, o, rng); }
-  if (rm.theme < 9) for (let tx = 0; tx < WORLD.w; tx += W) for (let ty = 0; ty < WORLD.h; ty += H) g.drawImage(paperTex, tx, ty, W, H);
+  if (!THEMES[rm.theme].noPaper) for (let tx = 0; tx < WORLD.w; tx += W) for (let ty = 0; ty < WORLD.h; ty += H) g.drawImage(paperTex, tx, ty, W, H);
   return c;
 }
 
@@ -2035,7 +2036,7 @@ function newRun() {
   run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.dlc = false; run.escort = false; run.escFail = false; run.dlcPrev = null; run.escHurt = 0; run.escape = false; run.guard = false; run.endless = false; run.syrupTip = false; run.wickN = 0; run.mechTip = false; run.revive = null; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
   for (const w of p.weapons) rec.seenW[w] = 1;
   allies = [];
-  { let t = cleared ? shuffle(run.long ? THEMES.map((q, i) => i) : BASE_IDS.slice()).slice(0, 3) : [0, 1, 2];
+  { let t = cleared ? shuffle(run.long ? Object.keys(THEMES).map(Number) : BASE_IDS.slice()).slice(0, 3) : [0, 1, 2];
     if (optTheme.value !== 'auto') { const f = +optTheme.value; t = t.filter(x => x !== f); while (t.length < 2) t.push(BASE_IDS.filter(x => x !== f && t.indexOf(x) < 0)[0]); t = t.slice(0, 2).concat([f]); }
     run.themes = t; run.themeBase = t.slice(); run.themePick = -1; }
   run.polarFinal = cleared ? pickOf(['dragon', 'giant']) : 'dragon'; run.inkKind = pickOf(['shan', 'nian', 'idragon']);
@@ -2674,7 +2675,9 @@ const DLC = [
   { id: 'arcade', name: '電玩・無盡', desc: '像素風，一層接一層越來越強', theme: 10, flag: 'endless', say: ['電玩世界・無盡模式：一路往下打，看你能到第幾層', 2.8] },
   { id: 'escape', name: '電玩・逃離', desc: '崩塌線從左邊追來', theme: 10, flag: 'escape', say: ['電玩世界・逃離模式：崩塌線從左邊追來；Boss 房暫停崩塌、120 秒內要打倒', 3.2] },
   { id: 'future', name: '未來・守燈', desc: '每層一間大房，守住燈塔', theme: 11, flag: 'guard', say: ['未來世界・守燈：每層一間大房，裡面有商人，守住燈塔打完所有敵人', 3] },
-  { id: 'futEscape', name: '未來・逃離', desc: '崩塌線從左邊追來', theme: 11, flag: 'escape', say: ['未來世界・逃離模式：崩塌線從左邊追來；Boss 房暫停崩塌、120 秒內要打倒', 3.2] }
+  { id: 'futEscape', name: '未來・逃離', desc: '崩塌線從左邊追來', theme: 11, flag: 'escape', say: ['未來世界・逃離模式：崩塌線從左邊追來；Boss 房暫停崩塌、120 秒內要打倒', 3.2] },
+  { id: 'letters', name: '字母書房（DLC2）', desc: '傳統玩法；選到才下載（約 30 KB）', theme: 12, flag: null, pack: 'dlc2.js', say: ['字母書房：這一局三層都在書房裡，小心墨水與字母積木', 3] },
+  { id: 'shore', name: '彼岸（DLC2）', desc: '傳統玩法；會模仿武器的影怪', theme: 13, flag: null, pack: 'dlc2.js', say: ['彼岸：影子學會了你的武器，小心揮扇、擲鏢與火球', 3] }
 ];
 const DLC_FLAGS = ['escort', 'endless', 'escape', 'guard'];
 const dlcOf = id => DLC.find(q => q.id === id);
@@ -2766,6 +2769,7 @@ function nextShard() {
 }
 function bossIntroLines() {
   const k = bossDef().kind;
+  { const W = THEMES[th()]; if (W.intro) return W.intro(bossDef()); }
   if (th() === 11) return [{ who: '旁白', text: bossDef().name + '的核心亮了起來，遠處的霓虹一齊閃爍。' }];
   if (th() === 10) return [{ who: '旁白', text: bossDef().name + '投下硬幣——遊戲開始。' }];
   if (th() === 9) return [{ who: '旁白', text: bossDef().name + '在糖霜裡緩緩站起來，甜甜的香氣變得有點嗆。' }];
@@ -2798,6 +2802,7 @@ function updateSaveUi() {
 }
 function applySave(d) {
   if (!d || d.v !== 1 || !d.p || !d.run || !CLS[d.cls]) { toast('存檔檔案不正確'); return false; }
+  { const need = (d.run.themes || []).map(t => DLC.find(q => q.theme === t && q.pack)).filter(q => q && !THEMES[q.theme]); if (need.length) { toast('載入擴充內容中……', 4); loadPack(need[0].pack, ok => { if (ok) applySave(d); else toast('存檔需要 ' + need[0].pack + '，載入失敗', 4); }); return true; } }
   chosen = d.cls; audio(); newRun(); show('menu', false); show('hud', true);
   Object.assign(run, d.run); run.ended = false; run.won = false;
   Object.assign(p, d.p); Object.assign(p, { near: null, target: null, decoy: null, flowers: [], lanterns: [], dashHit: [], iframes: 2, skillCd: 2, sleepT: 0, dashT: 0, lantT: 0, frozenT: 0 });
@@ -2895,7 +2900,7 @@ function setDlc(k) {
   if (!k) { rebuildPlan(); toast('取消 DLC，回到一般模式', 1.6); return; }
   const d = dlcOf(k); if (!d) return;
   run.dlc = k; run.dlcPrev = { themes: run.themes.slice(), base: (run.themeBase || run.themes).slice(), long: run.long, pick: run.themePick }; run.long = false; run.themePick = -1;
-  run.themes = [d.theme, d.theme, d.theme]; run[d.flag] = true;
+  run.themes = [d.theme, d.theme, d.theme]; if (d.flag) run[d.flag] = true;
   if (d.ally && !allies.some(a => a.id === d.ally)) addAlly(d.ally, p.x - 40, p.y);
   toast(d.say[0], d.say[1]);
   run.themeBase = run.themes.slice(); rebuildPlan();
@@ -2919,10 +2924,19 @@ function openDlcMenu() {
   $('btnDlc' + DLC_MENU.length).textContent = run.dlc ? '取消 DLC，回到一般模式' : '不選，返回';
   show('dlcmenu', true); setState('dlcmenu'); sfx('tick');
 }
+function useDlc(k, rnd) {
+  const d = k && dlcOf(k);
+  if (d && d.pack && !THEMES[d.theme]) {
+    toast('載入「' + d.name + '」中……', 6);
+    loadPack(d.pack, ok => { if (ok) { setDlc(k); if (rnd) toast('隨機抽到：' + d.name, 2.6); sfx('pick'); } else toast('載入失敗：需要連網，或 ' + d.pack + ' 要和遊戲放在同一個資料夾', 4); });
+    return;
+  }
+  setDlc(k); if (rnd) toast('隨機抽到：' + d.name, 2.6); sfx('pick');
+}
 function dlcPick(i) {
   if (state !== 'dlcmenu') return;
   show('dlcmenu', false); setState('play'); hintSig = '';
-  if (i < DLC_MENU.length) { let k = DLC_MENU[i].id; if (k === 'random') { k = pickOf(DLC.map(q => q.id)); setDlc(k); toast('隨機抽到：' + dlcOf(k).name, 2.6); sfx('pick'); return; } setDlc(run.dlc === k ? null : k); sfx('pick'); }
+  if (i < DLC_MENU.length) { let k = DLC_MENU[i].id; if (k === 'random') { k = pickOf(DLC.map(q => q.id)); useDlc(k, true); return; } useDlc(run.dlc === k ? null : k, false); }
   else if (run.dlc) { setDlc(null); sfx('pick'); }
 }
 function showPrac(win) {
@@ -3005,6 +3019,7 @@ function wickDrop() {
   if (p.maxHp < 9) { p.maxHp++; p.hp = Math.min(p.maxHp, p.hp + 1); hudSig = ''; toast('獲得厚燈芯：最大燈火 +1', 2.6); burst(p.x, p.y, 14, [C.amber, C.paper], 150, true); run.wickN = (run.wickN || 0) + 1; }
 }
 function bossDefeated() {
+  { const W = THEMES[th()]; if (W.onFinal && !run.practice) W.onFinal(); }
   if (th() === 11 && !run.practice) { unlockAch('futBoss'); if (run.guard) unlockAch('guardWin'); }
   if (th() === 10 && !run.practice) { unlockAch('arcBoss'); if (run.escape) unlockAch('escapeWin'); }
   if (th() === 9 && !run.practice) { unlockAch('candyBoss'); if (run.escort && !run.escFail) { unlockAch('escortWin'); if (!run.escHurt) unlockAch('sweetSafe'); } }
@@ -3014,7 +3029,7 @@ function bossDefeated() {
   if (run.long) { if (run.ext) rec.extClears = (rec.extClears || 0) + 1; else rec.longClears = (rec.longClears || 0) + 1; saveRec(); }
   if (!room.hurt) unlockAch('flawless'); endRun(true);
   if (!cleared) { cleared = true; try { localStorage.setItem('lampknight.cleared', '1'); } catch (e) { /* storage is optional */ } }
-  later(1.8, () => say(th() === 11 ? [{ who: '旁白', text: '核心熄滅的瞬間，整座城市的霓虹同時安靜下來，又一盞一盞亮起。' }] : th() === 10 ? [{ who: '旁白', text: '螢幕閃了三下，跳出一行字：GAME CLEAR。' }] : th() === 9 ? [{ who: '旁白', text: '糖霜融化了，空氣裡留下最初的甜味。' }, { who: '小糖', text: '找到了……謝謝你，提燈人。' }] : th() === 2 ? STORY.bossEnd : (STORY.bossDown[bossDef().kind] || []).concat([{ who: '旁白', text: '最深處的光靜靜等著，要由你決定它的去向。' }]), () => { show('choice', true); setState('choice'); }));
+  later(1.8, () => say(THEMES[th()].outro ? THEMES[th()].outro() : th() === 11 ? [{ who: '旁白', text: '核心熄滅的瞬間，整座城市的霓虹同時安靜下來，又一盞一盞亮起。' }] : th() === 10 ? [{ who: '旁白', text: '螢幕閃了三下，跳出一行字：GAME CLEAR。' }] : th() === 9 ? [{ who: '旁白', text: '糖霜融化了，空氣裡留下最初的甜味。' }, { who: '小糖', text: '找到了……謝謝你，提燈人。' }] : th() === 2 ? STORY.bossEnd : (STORY.bossDown[bossDef().kind] || []).concat([{ who: '旁白', text: '最深處的光靜靜等著，要由你決定它的去向。' }]), () => { show('choice', true); setState('choice'); }));
 }
 function midBossDefeated() {
   if (th() === 10 && !run.practice && bossDef().name === '像素魔王') unlockAch('arcBoss');
@@ -3421,7 +3436,9 @@ function composeWave() {
   if ((th() === 5 || th() === 4) && (L > 0 || ci >= 1)) { types.push('rusher'); }
   if ((th() === 3 || th() === 1) && (L > 0 || ci >= 2)) { types.push('mirrorman'); }
   if (th() === 5) { types = types.map(t => t === 'brute' ? 'flion' : t); if (L > 0 || ci >= 1) { types.push('lavaworm'); types.push('fireelem'); } if (L > 0 || ci >= 2) types.push('ifrit'); types.push('lavaslime'); if (L > 0 || ci >= 1) { types.push('sparker'); types.push('firebat'); } if (L > 0 || ci >= 2) types.push('lizard'); }
+  { const W = THEMES[th()]; if (W.types) W.types(types, L, ci); }
   const cost = { laser: 3, glitch: 3, syrup: 3, roller: 3, scorpion: 2, mummy: 4, bandit: 3, duster: 2, cactus: 3, wisp: 3, jumper: 3, spore: 2, ghost: 3, sleepwalker: 2, faceless: 2, rusher: 2, mirrorman: 4, ifrit: 5, flion: 3, lavaworm: 2, fireelem: 3, trenchghost: 3, abyss: 5, sparker: 3, lavaslime: 2, lizard: 3, firebat: 1, frostneedle: 2, snowball: 3, mist: 3, budling: 3, moth: 2, vine: 3, fleer: 1, crawler: 1, shooter: 2, brute: 3, splitter: 2, splitter2: 4, bomber: 2, shield: 3, shield2: 2, summoner: 4, blindbomb: 3, bloater: 3, blindshark: 3, deepworm: 3, icecluster: 3, crane: 3 }, cap = { laser: 2, glitch: 2, syrup: 2, roller: 2, mummy: 2, bandit: 2, duster: 2, cactus: 2, wisp: 2, jumper: 2, spore: 2, ghost: 2, sleepwalker: 3, faceless: 2, rusher: 4, mirrorman: 1, ifrit: 1, abyss: 1, trenchghost: 1, fireelem: 2, sparker: 2, lizard: 2, crane: 2, blindshark: 2, deepworm: 2, blindbomb: 2, summoner: 1, shield: 3, polar: 2 }, grp = t => t === 'shield2' ? 'shield' : (t === 'frostneedle' || t === 'snowball' || t === 'mist' || t === 'icecluster') ? 'polar' : t, list = [];
+  Object.assign(cost, EXT_COST); Object.assign(cap, EXT_CAP);
   for (let g = 0; g < 40 && budget > 0 && list.length < 14; g++) {
     const t = pickOf(types);
     if (cap[grp(t)] && list.filter(x => grp(x) === grp(t)).length >= cap[grp(t)]) continue;
@@ -3434,7 +3451,7 @@ function composeWave() {
 function makeBoss(b, x, y) {
   {
     const e = spawnEnemy('boss', x, y);
-    e.candy = !!b.candy; e.arc = !!b.arc; e.fut = !!b.fut; e.kind = b.kind; e.hp = e.maxHp = Math.round(b.hp * (run.long ? 1 + 0.12 * Math.max(0, run.layer - 2) : 1)); e.cd = 2.2;
+    e.candy = !!b.candy; e.arc = !!b.arc; e.fut = !!b.fut; e.ext = !!b.ext; e.xk = b.xk; e.kind = b.kind; e.hp = e.maxHp = Math.round(b.hp * (run.long ? 1 + 0.12 * Math.max(0, run.layer - 2) : 1)); e.cd = 2.2;
     if (b.kind === 'guard') { e.layers = [{ id: 0, hp: 26, max: 26 }, { id: 1, hp: 18, max: 18 }, { id: 2, hp: 12, max: 12 }]; e.layerMax = 56; e.gapA = 0; }
     if (b.kind === 'ore') room.timed = { t: 60, on: true }; e.gen = 0; e.sc = 1; e.weak = 0; if (b.kind === 'summon' || b.kind === 'hive') e.summon = 2.5;
     if (BOSS2[b.kind]) { e.r = (b.kind === 'giant' || b.kind === 'golem' || b.kind === 'toad' || b.kind === 'rootking' || b.kind === 'scorpking' || b.kind === 'mummyking') ? 56 : (b.kind === 'dragon' || b.kind === 'idragon' || b.kind === 'vdragon' || b.kind === 'serpent') ? 40 : (b.kind === 'shan' || b.kind === 'kraken') ? 50 : 40; e.cd = 2.4; e.summon = 12; if (b.kind === 'nightmare') e.r = 44; if (b.kind === 'mirrorgiant') e.r = 56; }
@@ -3523,7 +3540,7 @@ function updateEnemy(e, dt) {
     e.plantT = (e.plantT === undefined ? rr(3, 6) : e.plantT) - dt;
     if (e.plantT <= 0) { e.plantT = e.type === 'shooter' ? rr(7, 9) : rr(9, 11); plantFor(e, dx, dy, d); }
   }
-  switch (e.type) {
+  if (EXT_AI[e.type]) { const o = EXT_AI[e.type](e, dt, nx, ny, d, dx, dy); mx = o.mx || 0; my = o.my || 0; touch = o.touch === undefined ? 1 : o.touch; } else switch (e.type) {
     case 'crawler': case 'snowlet': {
       const wob = Math.sin(e.t * 3 + e.seed) * 0.5, c = Math.cos(wob), s = Math.sin(wob), v = 92 * e.spd;
       mx = (nx * c - ny * s) * v; my = (nx * s + ny * c) * v; break;
@@ -3971,7 +3988,8 @@ function updateBoss2(e, dt, nx, ny, d) {
   } else if (k === 'giant') {
     e.cd = [2.8, 2.3, 1.9][phase - 1] * e.fire;
     const pool = k0 === 'mummyking' ? (phase === 1 ? ['stomp', 'wrap'] : phase === 2 ? ['stomp', 'wrap', 'trap'] : ['stomp', 'wrap', 'trap', 'lava']) : k0 === 'scorpking' ? (phase === 1 ? ['stomp', 'sting'] : phase === 2 ? ['stomp', 'sting', 'dig'] : ['stomp', 'sting', 'dig', 'storm']) : k0 === 'rootking' ? (phase === 1 ? ['stomp', 'thorn'] : ['stomp', 'thorn', 'lava']) : k0 === 'toad' ? (phase === 1 ? ['stomp', 'tongue'] : ['stomp', 'tongue', 'lava']) : phase === 1 ? ['stomp', 'throw'] : ['stomp', 'throw', (k0 === 'golem' || k0 === 'scorpking' || k0 === 'mummyking') ? 'lava' : 'blizzard'], a = (e.arc || e.fut) ? pickOf(phase === 1 ? ['stomp', 'scan', 'sprinkle'] : phase === 2 ? ['stomp', 'scan', 'sprinkle', 'tower'] : ['scan', 'sprinkle', 'tower', 'tower', 'stomp']) : e.candy ? pickOf(phase === 1 ? ['stomp', 'syrup', 'sprinkle'] : phase === 2 ? ['stomp', 'syrup', 'sprinkle', 'tower'] : ['syrup', 'sprinkle', 'tower', 'tower', 'stomp']) : pickOf(pool);
-    if (a === 'wrap') { for (let i = -1; i <= 1; i++) { const b = bossShot(e, e.x, e.y, ang + i * 0.3, 95, false, 10); b.root = true; b.wrap = true; } toast('繃帶！被纏到會定身', 1.2); sfx('hit'); }
+    if (e.ext) { const W = THEMES[th()].boss2; if (W) W(e, phase, ang); }
+    else if (a === 'wrap') { for (let i = -1; i <= 1; i++) { const b = bossShot(e, e.x, e.y, ang + i * 0.3, 95, false, 10); b.root = true; b.wrap = true; } toast('繃帶！被纏到會定身', 1.2); sfx('hit'); }
     else if (a === 'trap') { room.sw = room.sw || []; room.sw.push({ x: p.x, y: p.y, r: 62, k: 'quick', ttl: 7 }); markStrike(e, p.x, p.y, 50, 1.0, { ring: 6 }); toast('腳下的沙在下陷！', 1.4); }
     else if (a === 'sting') { markStrike(e, p.x, p.y, 46, 0.8, {}); later(0.55, () => { if (!e.dead && state === 'play') markStrike(e, p.x, p.y, 46, 0.8, {}); }); later(1.1, () => { if (!e.dead && state === 'play') markStrike(e, p.x, p.y, 46, 0.8, { ring: 6 }); }); toast('尾針連刺！', 1.4); }
     else if (a === 'dig') { e.dig = 1.5; e.burrow = true; toast('鑽進沙裡了——小心從哪裡冒出來', 1.6); }
@@ -4292,6 +4310,7 @@ function drawModes() {
 }
 
 function drawBoss2(e) {
+  if (e.ext) { const W = THEMES[th()].drawBoss; if (W) { W(e); return; } }
   if (e.candy) { drawCandyBoss(e); return; }
   if (e.arc) { drawArcBoss(e); return; }
   if (e.fut) { drawFutBoss(e); return; }
@@ -4740,7 +4759,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.46　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.46　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.47　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -5882,5 +5901,25 @@ p.x = ROOM.x + 150; p.y = DOOR.y;
 updateHud();
 renderClasses(); applyMobile(); updateSaveUi();
 requestAnimationFrame(frame);
+/* ---------- 世界擴充介面（DLC2 以後的世界放在獨立檔案，選到才載入） ---------- */
+function loadPack(file, cb) {
+  if (PACKS[file] === 'ok') { cb(true); return; }
+  if (PACKS[file] && PACKS[file].wait) { PACKS[file].wait.push(cb); return; }
+  PACKS[file] = { wait: [cb] };
+  const done = ok => { const w = PACKS[file].wait; PACKS[file] = ok ? 'ok' : null; for (const f of w) f(ok); };
+  try { const sc = document.createElement('script'); sc.src = file; sc.onload = () => done(!!THEMES[DLC.find(q => q.pack === file).theme]); sc.onerror = () => done(false); document.head.appendChild(sc); } catch (e) { done(false); }
+}
+function registerWorld(w) {
+  THEMES[w.theme] = w; TNAMES[w.theme] = w.name;
+  for (const t in (w.enemies || {})) { const q = w.enemies[t]; ENEMY[t] = { hp: q.hp, r: q.r }; ENAME[t] = q.name; if (q.cost) EXT_COST[t] = q.cost; if (q.cap) EXT_CAP[t] = q.cap; if (q.ai) EXT_AI[t] = q.ai; }
+  for (const a of (w.ach || [])) { if (!ACH.some(x => x.id === a.id)) { ACH.push(a); ACH_BY[a.id] = a; ACH_CATS['主題'].push(a.id); } }
+  optTheme.innerHTML += '<option value="' + w.theme + '">' + w.opt + '</option>';
+}
+window.LK = {
+  registerWorld, THEMES,
+  get ctx() { return ctx; }, get p() { return p; }, get room() { return room; }, get run() { return run; }, get enemies() { return enemies; }, get bullets() { return bullets; }, get time() { return time; }, get ROOM() { return ROOM; },
+  C, TAU, circ, rrect, poly, setShadow, noShadow, star4, rand, rr, pickOf, clamp, shuffle, mulberry,
+  blip, sfx, toast, burst, later, say, unlockAch, hurtFrom, hitEnemy, enemyShot, bossShot, markStrike, spawnEnemy, freeSpot, dL: () => dL(), th: () => th(), shake: v => { shake = Math.max(shake, v); }, state: () => state
+};
 })();
 </script>
