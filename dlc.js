@@ -194,7 +194,11 @@ L.registerWorld(  { theme: 11, name: '未來世界', pool: 'dlc', opt: '未來�
 
 /* ================= 字母書房 ================= */
 const LET_COL = ['#c45a4a', '#4f86a6', '#7aa04a', '#d9a441', '#8d68b0'];
-const letterOf = e => String.fromCharCode(65 + Math.floor(e.seed * 4.3 + e.t * 0) % 26);
+const OTHER_L = 'BCDEFGHIJKNOQRSTUVWXYZ';
+const letterOf = e => {
+  if (!e.lt) { const r = L.run; if (L.rand() < 0.7) { const i = r.spC || 0; e.lt = 'LAMP'[i % 4]; r.spC = i + 1; } else e.lt = OTHER_L[Math.floor(L.rand() * OTHER_L.length)]; }
+  return e.lt;
+};
 function drawLetterEnemy(e) {
   const c = L.ctx, r = e.r, f = e.flash > 0, sk = e.skin, ol = '#2a1c12', col = LET_COL[Math.floor(e.seed * 7) % 5];
   const eye = (x, y) => { c.fillStyle = C.paper; circ(c, x, y, r * 0.18); c.fillStyle = ol; circ(c, x + 1, y, r * 0.09); };
@@ -346,7 +350,7 @@ function shoreMoves(e, phase, ang) {
   if (a === 'fan') { fan(); L.toast('扇影！', 1.2); }
   else if (a === 'dart') { dart(); L.toast('鏢影——它們會飛回來！', 1.4); }
   else if (a === 'flame') { flame(); L.toast('火影！', 1.2); }
-  else { fan(); L.later(0.9, dart); L.later(1.8, flame); L.toast('彼岸之主模仿了所有武器！', 1.8); }
+  else { fan(); L.later(0.9, dart); L.later(1.8, flame); L.toast('彼岸之主模仿了所有武器！', 1.8); const h0 = L.run.hurtN; L.later(4.8, () => { if (!e.dead && L.state() === 'play' && L.run.hurtN === h0) L.unlockAch('copyFree'); }); }
 }
 /* ---- 彼岸的敵人 AI ---- */
 function shadeAi(kind) {
@@ -381,8 +385,14 @@ L.registerWorld({
   boss2: letMoves, drawBoss: e => (e.xk === 'dict' ? drawDict(e) : drawPencil(e)),
   intro: def => [{ who: '旁白', text: def.name + '從書架上翻了下來，滿屋子的紙頁沙沙作響。' }],
   outro: () => [{ who: '旁白', text: '書闔上了，字母一個個退回紙裡，只剩檯燈還亮著。' }],
-  onFinal: () => { if (L.th() === 12) L.unlockAch('dictBoss'); },
-  ach: [{ id: 'dictBoss', name: '大辭典闔上了', desc: '擊敗大辭典（字母書房的最後 Boss）' }]
+  onFinal: () => { if (L.th() === 12) { L.unlockAch('dictBoss'); if (L.run.hurtN === (L.run.hurtL || 0)) L.unlockAch('inkSafe'); } },
+  onMid: () => { if (L.th() === 12 && L.run.hurtN === (L.run.hurtL || 0)) L.unlockAch('inkSafe'); },
+  onKill: e => {
+    if (L.th() !== 12 || e.skin !== 'block' || !e.lt) return;
+    const r = L.run, need = 'LAMP'[r.spN || 0];
+    if (e.lt === need) { r.spN = (r.spN || 0) + 1; L.toast('拼字：' + 'LAMP'.split('').map((ch, i) => i < r.spN ? ch : '＿').join(' '), 1.4); if (r.spN >= 4) { r.spN = 0; L.unlockAch('spell'); } }
+    else r.spN = e.lt === 'L' ? 1 : 0;
+  }
 });
 L.registerWorld({
   theme: 13, name: '彼岸', pool: 'dlc', opt: '彼岸（DLC2）',
@@ -401,7 +411,7 @@ L.registerWorld({
   intro: def => [{ who: '旁白', text: def.name + '站在河的另一邊，手裡提著一盞紅燈。' }],
   outro: () => [{ who: '旁白', text: '紅花一朵一朵垂下去。對岸，天亮了一點點。' }],
   onFinal: () => { if (L.th() === 13) L.unlockAch('shoreBoss'); },
-  ach: [{ id: 'shoreBoss', name: '渡過彼岸', desc: '擊敗彼岸之主' }]
+  onKill: e => { if (L.th() === 13 && e.type === 'dartshade') { const r = L.run; r.dsK = (r.dsK || 0) + 1; if (r.dsK >= 6) { r.dsK = 0; L.unlockAch('dartRet'); } else if (r.dsK >= 3) L.toast('鏢影連殺 ' + r.dsK + '／6', 1.2); } }
 });
 
 })();
