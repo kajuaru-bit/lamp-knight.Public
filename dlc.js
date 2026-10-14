@@ -1,9 +1,196 @@
-/* 《燈火騎士》DLC2：字母書房、彼岸。獨立檔案，玩家在 DLC 選單選到才下載載入。 */
+/* 《燈火騎士》DLC 檔：糖果世界(9)、電玩世界(10)、未來世界(11)、字母書房(12)、彼岸(13)。
+   獨立檔案，玩家在 DLC 選單選到任何一個世界才下載載入；世界編號必須依序註冊。 */
 (function () {
 'use strict';
 const L = window.LK;
-if (!L || L.THEMES[12]) return;
-const { C, TAU, circ, rrect, poly, rand, rr, pickOf, clamp } = L;
+if (!L || L.THEMES[9]) return;
+const { C, TAU, circ, rrect, poly, setShadow, noShadow, star4, blip, rand, rr, pickOf, clamp } = L;
+
+/* ================= 糖果／電玩／未來（原在主檔） ================= */
+const CANDY_SKIN = { syrup: 'syrup', roller: 'roller', crawler: 'gummy', shooter: 'lolli', brute: 'cookie', splitter: 'jelly', splitter2: 'jelly', bomber: 'gumdrop' };
+const ARC_SKIN = { crawler: 'invader', shooter: 'ghost', brute: 'block', splitter: 'slimepx', splitter2: 'slimepx', bomber: 'bombpx', roller: 'chomp', glitch: 'glitch' };
+const FUT_SKIN = { crawler: 'drone', shooter: 'turret', brute: 'mech', splitter: 'nano', splitter2: 'nano', bomber: 'mine', laser: 'laser', glitch: 'phase' };
+const PAL9 = { ink: '#7a4a86', floor: '#ffe6f0', floor2: '#ffd3e6', wall1: '#ff9ec7', wall2: '#ffc4de', top: '#fff2f8', door: '#c77dff' };
+const PAL10 = { ink: '#12123a', floor: '#2f5f9a', floor2: '#3b73b8', wall1: '#3a3a8c', wall2: '#6a6ae0', top: '#b4b8ff', door: '#ffd23f' };
+const PAL11 = { ink: '#150b36', floor: '#27346b', floor2: '#303f82', wall1: '#4b2a92', wall2: '#8146e0', top: '#6ff3ff', door: '#ff2e97' };
+function drawCandyObs(g, o, rng) {
+  const ctx = L.ctx;
+  const ol = '#8a3d63', cols = ['#ff9ec7', '#9ad9ff', '#ffe08a', '#b6f0b0', '#d8b4ff'], c1 = cols[Math.floor(rng() * 5)], c2 = cols[Math.floor(rng() * 5)];
+  const cx = o.x + o.w / 2, cy = o.y + o.h / 2, w = o.w, h = o.h;
+  setShadow(g, 0, 4, 0, 'rgba(90,40,80,.35)');
+  if (w >= h * 1.35) { // 層層蛋糕
+    g.fillStyle = ol; rrect(g, o.x - 3, o.y - 3, w + 6, h + 6, 10); noShadow(g);
+    const n = 3, lh = h / n; for (let i = 0; i < n; i++) { g.fillStyle = i % 2 ? c1 : c2; rrect(g, o.x, o.y + i * lh + 1, w, lh - 2, 6); }
+    g.fillStyle = '#fff'; for (let i = 0; i < Math.floor(w / 18); i++) circ(g, o.x + 9 + i * 18, o.y + 3 + (i & 1) * 4, 8);
+    g.fillStyle = '#e8484f'; circ(g, cx, o.y - 4, 7);
+  } else if (h >= w * 1.35) { // 拐杖糖
+    g.fillStyle = ol; rrect(g, o.x - 3, o.y - 3, w + 6, h + 6, w / 2 + 3); noShadow(g); g.fillStyle = '#fff'; rrect(g, o.x, o.y, w, h, w / 2);
+    g.save(); g.beginPath(); g.rect(o.x, o.y, w, h); g.clip(); g.fillStyle = '#ff4f6d'; for (let y = o.y - w; y < o.y + h + w; y += 22) { g.beginPath(); g.moveTo(o.x, y); g.lineTo(o.x + w, y - 12); g.lineTo(o.x + w, y); g.lineTo(o.x, y + 12); g.closePath(); g.fill(); } g.restore();
+  } else { // 棒棒糖／軟糖球
+    const r = Math.min(w, h) / 2 + 4; g.fillStyle = ol; circ(g, cx, cy, r + 3); noShadow(g); g.fillStyle = c1; circ(g, cx, cy, r);
+    g.strokeStyle = '#fff'; g.lineWidth = 5; g.lineCap = 'round'; g.beginPath(); for (let a = 0; a < 11; a += 0.35) { const rr0 = a / 11 * r * 0.88; g.lineTo(cx + Math.cos(a) * rr0, cy + Math.sin(a) * rr0); } g.stroke();
+    g.fillStyle = 'rgba(255,255,255,.5)'; circ(g, cx - r * 0.4, cy - r * 0.45, r * 0.18);
+  }
+  noShadow(g);
+}
+function drawCandyEnemy(e) {
+  const ctx = L.ctx;
+  const r = e.r, f = e.flash > 0, sk = e.skin, ol = '#8a3d63', hue = ['#ff6f91', '#7bd88f', '#ffd166', '#6ec6ff'][e.hue | 0];
+  const eye = (x, y) => { ctx.fillStyle = C.paper; circ(ctx, x, y, r * 0.2); ctx.fillStyle = ol; circ(ctx, x + 1, y, r * 0.1); };
+  if (sk === 'gummy') {
+    ctx.fillStyle = ol; circ(ctx, 0, 0, r * 1.08); circ(ctx, -r * 0.7, -r * 0.9, r * 0.42); circ(ctx, r * 0.7, -r * 0.9, r * 0.42);
+    ctx.fillStyle = f ? C.paper : hue; circ(ctx, 0, 0, r); circ(ctx, -r * 0.7, -r * 0.9, r * 0.34); circ(ctx, r * 0.7, -r * 0.9, r * 0.34);
+    eye(-r * 0.35, -r * 0.1); eye(r * 0.35, -r * 0.1); ctx.fillRect(-r * 0.25, r * 0.3, r * 0.5, 2);
+  } else if (sk === 'lolli') {
+    ctx.strokeStyle = ol; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(0, r * 0.4); ctx.lineTo(0, r * 1.5); ctx.stroke();
+    ctx.fillStyle = ol; circ(ctx, 0, 0, r * 1.1); ctx.fillStyle = f ? C.paper : hue; circ(ctx, 0, 0, r);
+    ctx.strokeStyle = f ? C.paper : '#fff'; ctx.lineWidth = 3; ctx.beginPath(); for (let a = 0; a < 9; a += 0.4) { const rr0 = a / 9 * r * 0.85; ctx.lineTo(Math.cos(a + e.t) * rr0, Math.sin(a + e.t) * rr0); } ctx.stroke();
+  } else if (sk === 'cookie') {
+    ctx.fillStyle = ol; circ(ctx, 0, 0, r * 1.06); ctx.fillStyle = f ? C.paper : '#e0a867'; circ(ctx, 0, 0, r);
+    ctx.fillStyle = f ? C.paperDim : '#6b3f2a'; for (const [x, y] of [[-0.4, -0.4], [0.35, -0.5], [0.5, 0.2], [-0.2, 0.45], [-0.6, 0.1]]) circ(ctx, x * r, y * r, r * 0.16);
+    eye(-r * 0.3, -r * 0.05); eye(r * 0.3, -r * 0.05);
+  } else if (sk === 'jelly') {
+    ctx.fillStyle = ol; ctx.beginPath(); ctx.ellipse(0, 0, r * 1.08, r * 0.82, 0, 0, TAU); ctx.fill(); ctx.fillStyle = f ? C.paper : hue; ctx.beginPath(); ctx.ellipse(0, 0, r, r * 0.74, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.ellipse(-r * 0.3, -r * 0.3, r * 0.3, r * 0.14, -0.5, 0, TAU); ctx.fill(); eye(r * 0.2, 0);
+  } else if (sk === 'syrup') {
+    if (e.tele > 0) { ctx.save(); ctx.globalAlpha = 0.6; ctx.strokeStyle = '#ff4f8f'; ctx.lineWidth = 3; ctx.setLineDash([6, 5]); ctx.beginPath(); ctx.arc(e.lx - e.x, e.ly - e.y, 58 * (1 - e.tele / 0.8) + 8, 0, TAU); ctx.stroke(); ctx.restore(); }
+    ctx.fillStyle = ol; rrect(ctx, -r * 0.9, -r * 0.7, r * 1.8, r * 1.7, 8); ctx.fillStyle = f ? C.paper : '#ff8fc0'; rrect(ctx, -r * 0.8, -r * 0.6, r * 1.6, r * 1.5, 7);
+    ctx.fillStyle = ol; rrect(ctx, -r * 0.55, -r * 1.05, r * 1.1, r * 0.45, 4); ctx.fillStyle = f ? C.paper : '#fff'; rrect(ctx, -r * 0.45, -r * 0.98, r * 0.9, r * 0.3, 3);
+    ctx.fillStyle = f ? C.paperDim : '#ff4f8f'; ctx.beginPath(); ctx.arc(0, r * 0.95, r * 0.28 + Math.sin(e.t * 5) * 1.5, 0, TAU); ctx.fill(); eye(-r * 0.3, -r * 0.1); eye(r * 0.3, -r * 0.1);
+  } else if (sk === 'roller') {
+    if (e.tele > 0) { ctx.save(); ctx.globalAlpha = 0.45; ctx.strokeStyle = '#ffb703'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(e.ra) * 220, Math.sin(e.ra) * 220); ctx.stroke(); ctx.restore(); }
+    ctx.save(); ctx.rotate(e.state === 'roll' ? e.t * 12 : e.t * 1.5); ctx.fillStyle = ol; circ(ctx, 0, 0, r * 1.08); ctx.fillStyle = f ? C.paper : '#ffd166'; circ(ctx, 0, 0, r);
+    ctx.fillStyle = f ? C.paperDim : '#ff6f91'; for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, r * 0.95, i * 1.571, i * 1.571 + 0.7); ctx.closePath(); ctx.fill(); } ctx.restore(); eye(-r * 0.25, -r * 0.1); eye(r * 0.25, -r * 0.1);
+  } else {
+    ctx.fillStyle = ol; ctx.beginPath(); ctx.arc(0, r * 0.3, r * 1.08, Math.PI, 0); ctx.lineTo(r * 1.08, r * 0.3); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = f ? C.paper : hue; ctx.beginPath(); ctx.arc(0, r * 0.3, r, Math.PI, 0); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = f ? C.paperDim : '#fff'; for (let i = 0; i < 6; i++) circ(ctx, Math.cos(i * 1.7) * r * 0.6, r * 0.3 - Math.abs(Math.sin(i * 2.3)) * r * 0.7, 1.8);
+    eye(-r * 0.3, 0); eye(r * 0.3, 0);
+  }
+}
+function drawCandyBoss(e) {
+  const ctx = L.ctx;
+  const fl = e.flash > 0, t = e.t, arm = e.tl && e.tl.act === 'stomp' ? -22 : Math.sin(t * 2) * 6, ol = '#8a3d63';
+  ctx.fillStyle = ol; circ(ctx, -66, 10 + arm, 26); circ(ctx, 66, 10 + arm, 26); ctx.fillStyle = fl ? C.paper : '#ffd6a5'; circ(ctx, -66, 8 + arm, 22); circ(ctx, 66, 8 + arm, 22);
+  ctx.fillStyle = ol; rrect(ctx, -62, -36, 124, 96, 18); ctx.fillStyle = fl ? C.paper : '#f7b6d2'; rrect(ctx, -57, -32, 114, 88, 15);
+  ctx.fillStyle = fl ? C.paper : '#ffffff'; for (let i = -4; i <= 4; i++) circ(ctx, i * 12.5, -28 + (i & 1 ? 7 : 0), 9);
+  const sc = ['#6ec6ff', '#ffd166', '#7bd88f', '#ff6f91']; for (let i = 0; i < 10; i++) { ctx.fillStyle = fl ? C.paperDim : sc[i & 3]; rrect(ctx, -44 + (i * 37 % 88), -4 + (i * 17 % 50), 7, 3, 1.5); }
+  ctx.fillStyle = ol; circ(ctx, 0, -58, 28); ctx.fillStyle = fl ? C.paper : '#ffe3ef'; circ(ctx, 0, -59, 24);
+  ctx.fillStyle = fl ? C.paper : '#e8484f'; circ(ctx, 0, -90, 8); ctx.strokeStyle = '#4c8a3a'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, -97); ctx.quadraticCurveTo(6, -108, 14, -106); ctx.stroke();
+  ctx.fillStyle = ol; circ(ctx, -9, -62, 4); circ(ctx, 9, -62, 4); ctx.fillRect(-9, -48, 18, 4);
+}
+function drawArcEnemy(e) {
+  const ctx = L.ctx;
+  const r = e.r, f = e.flash > 0, sk = e.skin, hue = ['#ff4fd8', '#7df9ff', '#b6ff3b', '#ffd23f'][e.hue | 0], px = Math.max(2, Math.round(r / 4)), ol = '#0a0a24';
+  if (sk === 'invader' || sk === 'ghost' || sk === 'slimepx' || sk === 'bombpx') {
+    ctx.save(); ctx.translate(Math.sin(e.t * 6) * 1, 0); spr(SPR[sk], px + 1, ol); ctx.restore(); spr(SPR[sk], px, f ? C.paper : hue);
+    ctx.fillStyle = f ? C.paperDim : '#fff'; ctx.fillRect(-px * 2, -px, px, px); ctx.fillRect(px, -px, px, px); ctx.fillStyle = ol; ctx.fillRect(-px * 2 + 1, -px + 1, px - 1, px - 1); ctx.fillRect(px + 1, -px + 1, px - 1, px - 1);
+  } else if (sk === 'block') {
+    ctx.fillStyle = ol; ctx.fillRect(-r - 2, -r - 2, r * 2 + 4, r * 2 + 4); ctx.fillStyle = f ? C.paper : hue; ctx.fillRect(-r, -r, r * 2, r * 2);
+    ctx.fillStyle = 'rgba(255,255,255,.45)'; ctx.fillRect(-r, -r, r * 2, 4); ctx.fillRect(-r, -r, 4, r * 2); ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(-r, r - 4, r * 2, 4); ctx.fillRect(r - 4, -r, 4, r * 2);
+    ctx.fillStyle = ol; ctx.fillRect(-r * 0.5, -r * 0.2, 5, 5); ctx.fillRect(r * 0.5 - 5, -r * 0.2, 5, 5);
+  } else if (sk === 'chomp') {
+    if (e.tele > 0) { ctx.save(); ctx.globalAlpha = 0.5; ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(e.ra) * 220, Math.sin(e.ra) * 220); ctx.stroke(); ctx.restore(); }
+    const mo = (e.state === 'roll' ? 0.5 : 0.25) + Math.abs(Math.sin(e.t * 10)) * 0.4, a0 = e.ra || 0;
+    ctx.fillStyle = ol; ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, r * 1.1, a0 + mo, a0 + TAU - mo); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = f ? C.paper : '#ffd23f'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, r, a0 + mo, a0 + TAU - mo); ctx.closePath(); ctx.fill();
+  } else { // glitch
+    if (e.tele > 0) { ctx.save(); ctx.globalAlpha = 0.5; ctx.strokeStyle = '#7df9ff'; ctx.lineWidth = 2; ctx.strokeRect(e.lx - e.x - r, e.ly - e.y - r, r * 2, r * 2); ctx.restore(); }
+    const j = Math.floor(e.t * 14) % 3 - 1;
+    ctx.fillStyle = '#ff4fd8'; ctx.fillRect(-r + j * 3, -r, r * 2, r * 2 * 0.5); ctx.fillStyle = '#7df9ff'; ctx.fillRect(-r - j * 3, 0, r * 2, r); ctx.fillStyle = f ? C.paper : '#fff'; ctx.fillRect(-r * 0.5, -r * 0.3, 5, 5); ctx.fillRect(r * 0.5 - 5, -r * 0.3, 5, 5);
+  }
+}
+function drawArcBoss(e) {
+  const ctx = L.ctx;
+  const fl = e.flash > 0, t = e.t, arm = e.tl && e.tl.act === 'stomp' ? -22 : Math.sin(t * 2) * 6, ol = '#0a0a24';
+  ctx.fillStyle = ol; ctx.fillRect(-84, -10 + arm, 36, 36); ctx.fillRect(48, -10 + arm, 36, 36); ctx.fillStyle = fl ? C.paper : '#ff4fd8'; ctx.fillRect(-80, -6 + arm, 28, 28); ctx.fillRect(52, -6 + arm, 28, 28);
+  ctx.fillStyle = ol; ctx.fillRect(-62, -70, 124, 140); ctx.fillStyle = fl ? C.paper : '#3a3a8c'; ctx.fillRect(-56, -64, 112, 128);
+  ctx.fillStyle = ol; ctx.fillRect(-44, -54, 88, 62); ctx.fillStyle = fl ? C.paperDim : '#0e2a1e'; ctx.fillRect(-40, -50, 80, 54);
+  ctx.fillStyle = '#7df9ff'; spr(SPR.invader, 6, fl ? C.paper : '#7df9ff'); ctx.save(); ctx.translate(0, -23); spr(SPR.invader, 5, fl ? C.paper : '#39ff88'); ctx.restore();
+  ctx.fillStyle = '#ffd23f'; ctx.fillRect(-30, 22, 14, 14); ctx.fillStyle = '#ff4f6d'; ctx.fillRect(2, 22, 14, 14); ctx.fillStyle = '#7df9ff'; ctx.fillRect(22, 22, 14, 14);
+  ctx.fillStyle = ol; ctx.fillRect(-12, -92, 24, 24); ctx.fillStyle = fl ? C.paper : '#b4b8ff'; ctx.fillRect(-8, -88, 16, 16); ctx.fillStyle = ol; ctx.fillRect(-5, -83, 4, 4); ctx.fillRect(2, -83, 4, 4);
+}
+function drawArcObs(g, o, rng) {
+  const ctx = L.ctx;
+  const cols = ['#ff4fd8', '#7df9ff', '#b6ff3b', '#ffd23f', '#ff7a3c'], c = cols[Math.floor(rng() * 5)], B = 22, nx = Math.max(1, Math.round(o.w / B)), ny = Math.max(1, Math.round(o.h / B)), bw = o.w / nx, bh = o.h / ny;
+  setShadow(g, 0, 4, 0, 'rgba(0,0,20,.45)'); g.fillStyle = '#0a0a24'; g.fillRect(o.x - 3, o.y - 3, o.w + 6, o.h + 6); noShadow(g);
+  for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) { const x = o.x + i * bw, y = o.y + j * bh; g.fillStyle = c; g.fillRect(x + 1, y + 1, bw - 2, bh - 2); g.fillStyle = 'rgba(255,255,255,.5)'; g.fillRect(x + 1, y + 1, bw - 2, 3); g.fillRect(x + 1, y + 1, 3, bh - 2); g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(x + 1, y + bh - 4, bw - 2, 3); g.fillRect(x + bw - 4, y + 1, 3, bh - 2); }
+}
+function drawFutEnemy(e) {
+  const ctx = L.ctx;
+  const r = e.r, f = e.flash > 0, sk = e.skin, hue = ['#00e5ff', '#ff2e97', '#b6ff3b', '#b388ff'][e.hue | 0], ol = '#0b0626';
+  const glow = (col, rad) => { ctx.save(); ctx.globalAlpha = 0.28; ctx.fillStyle = col; circ(ctx, 0, 0, rad); ctx.restore(); };
+  glow(hue, r * 1.7);
+  if (sk === 'drone') {
+    ctx.fillStyle = ol; poly(ctx, [[0, -r * 1.15], [r * 1.05, -r * 0.55], [r * 1.05, r * 0.55], [0, r * 1.15], [-r * 1.05, r * 0.55], [-r * 1.05, -r * 0.55]]);
+    ctx.fillStyle = f ? C.paper : '#2b2f6e'; poly(ctx, [[0, -r], [r * 0.9, -r * 0.5], [r * 0.9, r * 0.5], [0, r], [-r * 0.9, r * 0.5], [-r * 0.9, -r * 0.5]]);
+    ctx.fillStyle = f ? C.paperDim : hue; circ(ctx, 0, 0, r * 0.42); ctx.strokeStyle = hue; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, r * 1.25, r * 0.4, e.t * 4, 0, TAU); ctx.stroke();
+  } else if (sk === 'turret') {
+    ctx.fillStyle = ol; circ(ctx, 0, 0, r * 1.1); ctx.fillStyle = f ? C.paper : '#2b2f6e'; circ(ctx, 0, 0, r); ctx.fillStyle = hue; circ(ctx, 0, 0, r * 0.55);
+    const a = Math.atan2(L.p.y - e.y, L.p.x - e.x); ctx.strokeStyle = hue; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(a) * r * 1.5, Math.sin(a) * r * 1.5); ctx.stroke();
+  } else if (sk === 'mech') {
+    ctx.fillStyle = ol; rrect(ctx, -r * 1.05, -r * 1.05, r * 2.1, r * 2.1, 6); ctx.fillStyle = f ? C.paper : '#3b3f8c'; rrect(ctx, -r, -r, r * 2, r * 2, 5);
+    ctx.fillStyle = hue; ctx.fillRect(-r * 0.7, -r * 0.35, r * 1.4, r * 0.35); ctx.fillStyle = f ? C.paperDim : '#7a7ee8'; ctx.fillRect(-r, r * 0.35, r * 2, 4);
+  } else if (sk === 'nano') {
+    ctx.fillStyle = ol; for (const [x, y] of [[-0.5, -0.3], [0.5, -0.3], [0, 0.55]]) circ(ctx, x * r, y * r, r * 0.62);
+    ctx.fillStyle = f ? C.paper : hue; for (const [x, y] of [[-0.5, -0.3], [0.5, -0.3], [0, 0.55]]) circ(ctx, x * r, y * r, r * 0.5);
+  } else if (sk === 'mine') {
+    ctx.fillStyle = ol; circ(ctx, 0, 0, r * 1.05); for (let i = 0; i < 8; i++) { const a = i * 0.785 + e.t; poly(ctx, [[Math.cos(a - 0.15) * r, Math.sin(a - 0.15) * r], [Math.cos(a) * r * 1.5, Math.sin(a) * r * 1.5], [Math.cos(a + 0.15) * r, Math.sin(a + 0.15) * r]]); }
+    ctx.fillStyle = f ? C.paper : '#2b2f6e'; circ(ctx, 0, 0, r * 0.9); ctx.fillStyle = Math.sin(e.t * 8) > 0 ? '#ff2e97' : '#5a1040'; circ(ctx, 0, 0, r * 0.35);
+  } else if (sk === 'laser') {
+    if (e.tele > 0) { ctx.save(); ctx.globalAlpha = 0.35 + 0.4 * (1 - e.tele / 0.9); ctx.strokeStyle = '#ff2e97'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(e.la) * 700, Math.sin(e.la) * 700); ctx.stroke(); ctx.restore(); }
+    ctx.fillStyle = ol; poly(ctx, [[0, -r * 1.2], [r * 0.9, 0], [0, r * 1.2], [-r * 0.9, 0]]); ctx.fillStyle = f ? C.paper : '#ff2e97'; poly(ctx, [[0, -r], [r * 0.7, 0], [0, r], [-r * 0.7, 0]]); ctx.fillStyle = '#fff'; circ(ctx, 0, 0, r * 0.25);
+  } else { // phase
+    if (e.tele > 0) { ctx.save(); ctx.globalAlpha = 0.5; ctx.strokeStyle = '#00e5ff'; ctx.setLineDash([4, 4]); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(e.lx - e.x, e.ly - e.y, r * 1.3, 0, TAU); ctx.stroke(); ctx.restore(); }
+    ctx.globalAlpha = 0.6 + 0.4 * Math.sin(e.t * 20); ctx.fillStyle = ol; poly(ctx, [[0, -r * 1.15], [r * 1.05, 0], [0, r * 1.15], [-r * 1.05, 0]]); ctx.fillStyle = f ? C.paper : '#b388ff'; poly(ctx, [[0, -r], [r * 0.9, 0], [0, r], [-r * 0.9, 0]]); ctx.globalAlpha = 1;
+  }
+}
+function drawFutBoss(e) {
+  const ctx = L.ctx;
+  const fl = e.flash > 0, t = e.t, ol = '#0b0626', arm = e.tl && e.tl.act === 'stomp' ? -22 : Math.sin(t * 2) * 6;
+  ctx.save(); ctx.globalAlpha = 0.25; ctx.fillStyle = '#00e5ff'; circ(ctx, 0, 0, 100); ctx.restore();
+  ctx.fillStyle = ol; rrect(ctx, -86, -8 + arm, 34, 52, 8); rrect(ctx, 52, -8 + arm, 34, 52, 8); ctx.fillStyle = fl ? C.paper : '#8146e0'; rrect(ctx, -82, -4 + arm, 26, 44, 6); rrect(ctx, 56, -4 + arm, 26, 44, 6);
+  ctx.fillStyle = ol; poly(ctx, [[0, -78], [62, -40], [62, 40], [0, 78], [-62, 40], [-62, -40]]); ctx.fillStyle = fl ? C.paper : '#2b2f6e'; poly(ctx, [[0, -70], [55, -36], [55, 36], [0, 70], [-55, 36], [-55, -36]]);
+  ctx.strokeStyle = '#00e5ff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-40, -20); ctx.lineTo(-10, -20); ctx.lineTo(0, -34); ctx.moveTo(40, 22); ctx.lineTo(10, 22); ctx.lineTo(0, 36); ctx.stroke();
+  ctx.fillStyle = ol; circ(ctx, 0, 0, 24); ctx.fillStyle = fl ? C.paperDim : '#ff2e97'; circ(ctx, 0, 0, 20); ctx.fillStyle = '#fff'; circ(ctx, Math.cos(e.fa || 0) * 6, Math.sin(e.fa || 0) * 6, 7); ctx.fillStyle = ol; circ(ctx, Math.cos(e.fa || 0) * 8, Math.sin(e.fa || 0) * 8, 3.5);
+  ctx.strokeStyle = '#6ff3ff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, 34, t * 2, t * 2 + 2.2); ctx.stroke();
+}
+function drawFutObs(g, o, rng) {
+  const ctx = L.ctx;
+  setShadow(g, 0, 4, 0, 'rgba(0,229,255,.35)'); g.fillStyle = '#0b0626'; rrect(g, o.x - 3, o.y - 3, o.w + 6, o.h + 6, 8); noShadow(g);
+  g.fillStyle = '#1d2260'; rrect(g, o.x, o.y, o.w, o.h, 6); g.strokeStyle = '#00e5ff'; g.lineWidth = 3; g.strokeRect(o.x + 3, o.y + 3, o.w - 6, o.h - 6);
+  g.strokeStyle = '#ff2e97'; g.lineWidth = 2; g.beginPath(); if (o.w >= o.h) { g.moveTo(o.x + 10, o.y + o.h / 2); g.lineTo(o.x + o.w - 10, o.y + o.h / 2); } else { g.moveTo(o.x + o.w / 2, o.y + 10); g.lineTo(o.x + o.w / 2, o.y + o.h - 10); } g.stroke();
+  g.fillStyle = '#6ff3ff'; circ(g, o.x + o.w / 2, o.y + o.h / 2, 4);
+}
+const SPR = {
+  invader: ['00100100', '00011000', '00111100', '01101101', '11111111', '10111101', '10100101', '00011000'],
+  ghost: ['00111100', '01111110', '11011011', '11111111', '11111111', '11111111', '11111111', '10110110'],
+  slimepx: ['00000000', '00111100', '01111110', '11011011', '11111111', '11111111', '01111110', '00000000'],
+  bombpx: ['00001100', '00010000', '00111100', '01111110', '11111111', '11111111', '01111110', '00111100']
+};
+function spr(rows, px, col, eyeCol) {
+  const ctx = L.ctx;
+  const n = rows.length, o = -n * px / 2;
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (rows[y][x] === '1') { ctx.fillStyle = col; ctx.fillRect(o + x * px, o + y * px, px, px); }
+}
+
+L.registerWorld(  { theme: 9, name: '糖果世界', pool: 'dlc', opt: '糖果世界（DLC）', pal: PAL9, amb: ['bandpass', 2400, 3, 0.004], noDark: true, noPaper: true, stage: 'candy',
+    skin: { map: CANDY_SKIN, draw: e => drawCandyEnemy(e), hue: true }, obsDraw: (g, o, rng) => drawCandyObs(g, o, rng),
+    ev: r => { const n = [659, 784, 988, 1319][Math.floor(r() * 4)]; blip(n, n * 1.01, 0.18, 'sine', 0.015); setTimeout(() => blip(n * 1.5, n * 1.5, 0.2, 'sine', 0.01), 140); },
+    boss: fin => fin ? { kind: 'golem', name: '糖霜巨像', hp: 205, candy: true } : { kind: 'golem', name: '蛋糕魔像', hp: 125, candy: true },
+    drawBoss: e => drawCandyBoss(e) });
+
+L.registerWorld(  { theme: 10, name: '電玩世界', pool: 'dlc', opt: '電玩世界（DLC）', pal: PAL10, amb: ['lowpass', 900, 0.5, 0.004], noDark: true, noPaper: true, stage: 'arc',
+    skin: { map: ARC_SKIN, draw: e => drawArcEnemy(e), hue: false }, obsDraw: (g, o, rng) => drawArcObs(g, o, rng),
+    ev: r => { const n = [262, 330, 392, 523, 659][Math.floor(r() * 5)]; blip(n, n, 0.08, 'square', 0.012); setTimeout(() => blip(n * 1.5, n * 1.5, 0.08, 'square', 0.01), 110); },
+    boss: fin => fin ? { kind: 'golem', name: '像素魔王', hp: 205, arc: true } : { kind: 'golem', name: '街機巨獸', hp: 125, arc: true },
+    drawBoss: e => drawArcBoss(e) });
+
+L.registerWorld(  { theme: 11, name: '未來世界', pool: 'dlc', opt: '未來世界（DLC）', pal: PAL11, amb: ['bandpass', 500, 4, 0.006], noDark: true, noPaper: true, stage: 'fut',
+    skin: { map: FUT_SKIN, draw: e => drawFutEnemy(e), hue: true }, obsDraw: (g, o, rng) => drawFutObs(g, o, rng),
+    ev: r => { const n = [196, 294, 392, 587][Math.floor(r() * 4)]; blip(n, n * 0.5, 0.35, 'sawtooth', 0.01); },
+    boss: fin => fin ? { kind: 'golem', name: '核心主腦', hp: 205, fut: true } : { kind: 'golem', name: '巡邏機甲', hp: 125, fut: true },
+    drawBoss: e => drawFutBoss(e) });
 
 /* ================= 字母書房 ================= */
 const LET_COL = ['#c45a4a', '#4f86a6', '#7aa04a', '#d9a441', '#8d68b0'];
@@ -216,4 +403,5 @@ L.registerWorld({
   onFinal: () => { if (L.th() === 13) L.unlockAch('shoreBoss'); },
   ach: [{ id: 'shoreBoss', name: '渡過彼岸', desc: '擊敗彼岸之主' }]
 });
+
 })();
