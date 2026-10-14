@@ -804,6 +804,7 @@ L.registerWorld({
     : L.run.layer === 1
       ? [{ who: '旁白', text: '參道盡頭的大燈籠搖晃起來，睜開了一隻眼睛。' }, { who: '導覽小鈴', text: '又是燈籠？這次它比上次更生氣。' }]
       : [{ who: '旁白', text: '石板街的燈籠一盞一盞熄了，最大的那盞，睜開了眼睛。' }, { who: '導覽小鈴', text: '歡迎來到京都……啊，那不是景點設施，那是妖怪！' }]),
+  onKill: e => { if (L.th() !== 15) return; const T = L.room && L.room.tour; if (T && rand() < 0.22) jpTrash(T, e.x, e.y); },
   onMid: () => { if (L.th() === 15) jpFinish(false); },
   onFinal: () => { if (L.th() === 15) jpFinish(true); },
   outro: () => [{ who: '旁白', text: '最後一盞燈籠亮起來，天色從紫轉成金色。' }, { who: '導覽小鈴', text: '遊客們回來了！今天的評價……應該不錯吧？' }, { who: '旁白', text: '妖怪們收起行李，排隊離開。下次祭典，再見。' }]
