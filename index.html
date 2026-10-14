@@ -132,6 +132,8 @@ body.mobile .bar{display:none}
 .achpop.show{animation:achpop 3.2s ease-out forwards}
 @keyframes achpop{0%{opacity:0;transform:translate(-50%,-14px)}10%,80%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
 .ach div{display:flex;gap:.8cqw;align-items:center}.ach div>span:last-child{display:block}.ach .medal{flex:none;line-height:0}
+.fusegrid{display:flex;flex-wrap:wrap;gap:.4cqw;justify-content:flex-start}.fusecard{max-width:70cqw;width:70cqw;max-height:86%;overflow:auto;background:#1a1526;border:1px solid #6b5a3a;padding:1.2cqw 1.6cqw}.fusecard h3{font-size:clamp(14px,2.2cqw,26px);margin:0 0 .5cqw}.fusecard h4{margin:.8cqw 0 .3cqw;font-size:clamp(11px,1.4cqw,17px)}.fusecard .btn{font-size:clamp(10px,1.25cqw,15px);padding:.4cqw .9cqw}.fusecard .btn:disabled{opacity:.4}#fuseModal{z-index:30;background:rgba(6,4,12,.97)}
+.sidecol{display:flex;flex-direction:column;gap:.6cqw;width:34%;flex:none}.sidecol:not(:has(.longrow:not([hidden]))){display:none}.sidecol .longrow{margin:0;max-width:100%;justify-content:flex-start;text-align:left;font-size:clamp(calc(9px*var(--fz,1)),1.15cqw,14px)}body.port .infowrap{flex-wrap:wrap}body.port .sidecol{width:100%}
 .longrow{display:flex;gap:.8cqw;align-items:center;justify-content:center;margin:.6cqw auto 0;padding:.5cqw 1.2cqw;background:#2a2238;border:1px solid #6b5a3a;color:var(--paper);font-size:clamp(calc(10px*var(--fz,1)),1.35cqw,16px);cursor:pointer;max-width:92%}.longrow b{color:var(--amber)}.longrow input{width:1.6em;height:1.6em;flex:none}
 .pager{display:flex;gap:1.2cqw;align-items:center;justify-content:center;margin-top:.8cqw;color:var(--paper-dim);font-size:clamp(calc(10px*var(--fz,1)),1.35cqw,16px)}.pager button{font:inherit;color:var(--paper);background:#3b2f1c;border:1px solid #6b5a3a;padding:.3cqw 1.4cqw;cursor:pointer}.pager button[disabled]{opacity:.35;cursor:default}
 .clsfilter{display:flex;gap:.6cqw;flex-wrap:wrap;justify-content:center;margin:.3cqw 0 .6cqw}.clsfilter button{font:700 clamp(calc(10px*var(--fz,1)),1.45cqw,17px) var(--font-body);color:var(--paper-dim);background:rgba(240,228,200,.08);border:1px solid var(--line);padding:.3cqw 1.2cqw;cursor:pointer}.clsfilter button.on{color:var(--paper);background:#3b2f1c;border-color:var(--amber)}
@@ -329,7 +331,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.52　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.53　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -381,9 +383,10 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
         <p>很久以前，世界由一盞大燈照亮。燈熄之後，黑暗裡長出了怪物。</p>
         <div class="clsfilter" id="clsFilter"></div>
         <div class="classes" id="classes"></div>
-        <div class="infowrap"><canvas class="prev" id="prevMenu" width="200" height="200"></canvas><div class="clsinfo" id="clsInfo"></div></div>
-        <label class="longrow" for="optDlcPool" id="lblDlcPool" hidden><input type="checkbox" id="optDlcPool" checked><span><b>長線抽選包含 DLC 主題</b>　（已載入的 DLC 世界會混進長線的主題抽選；取消勾選則只抽基本主題）</span></label>
-        <label class="longrow" for="optLong" id="lblLong" hidden><input type="checkbox" id="optLong"><span><b>長線作戰</b>　6 層（每個主題 2 層）、第 3 層起有精英敵人、第 4 層起 Boss 有第二形態；約 25–35 分鐘，每層自動存檔</span></label>
+        <div class="infowrap"><canvas class="prev" id="prevMenu" width="200" height="200"></canvas><div class="clsinfo" id="clsInfo"></div><div class="sidecol" id="sideCol">
+        <label class="longrow" for="optDlcPool" id="lblDlcPool" hidden><input type="checkbox" id="optDlcPool" checked><span><b>長線含 DLC 主題</b>　取消則只抽基本主題</span></label>
+        <label class="longrow" for="optLong" id="lblLong" hidden><input type="checkbox" id="optLong"><span><b>長線作戰</b>　6 層、精英與 Boss 第二形態；約 25–35 分鐘</span></label>
+</div></div>
         <div class="menurow"><button class="btn" id="btnStart" type="button">開始冒險<kbd>F</kbd></button><button class="btn alt" id="btnCost" type="button">造型<kbd>C</kbd></button><button class="btn alt" id="btnAch" type="button">成就<kbd>V</kbd></button><button class="btn alt" id="btnStat" type="button">統計<kbd>B</kbd></button><button class="btn alt" id="btnData" type="button">資料<kbd>N</kbd></button><button class="btn alt" id="btnGacha" type="button">造型機<kbd>M</kbd></button></div>
         <div class="menurow savebar"><button class="btn" id="btnCont" type="button" hidden>繼續上次存檔<kbd>G</kbd></button><button class="btn alt" id="btnFolder" type="button" hidden>選存檔資料夾</button><button class="btn alt" id="btnExport" type="button" hidden>匯出遊玩紀錄</button><button class="btn alt" id="btnImport" type="button" hidden>匯入遊玩紀錄</button><input type="file" id="fileImport" accept=".json,application/json" hidden></div>
         <p class="quiet" id="saveInfo"></p>
@@ -1095,6 +1098,15 @@ function gachaFuse() {
   if ((rec.scrap || 0) < c) { toast('紙屑不夠（需要 ' + c + '）', 1.6); return; }
   rec.scrap -= c; rec.cosOwn[g.id] = 1; gLast = [{ g, dup: false, fused: true }]; fuseSel = ''; saveRec(); renderSub(); sfx('buy');
 }
+function fuseMenu() {
+  let m = $('fuseModal'); if (!m) { m = document.createElement('div'); m.id = 'fuseModal'; m.className = 'screen center'; $('stage').appendChild(m);
+    m.addEventListener('click', ev => { const t = ev.target; if (t === m || (t.dataset && t.dataset.fx === 'close')) { m.hidden = true; return; } const b = t.closest ? t.closest('[data-fid]') : null; if (b) { fuseSel = b.dataset.fid; gachaFuse(); fuseMenu(); } }); }
+  const sc = rec.scrap || 0, un = G.filter(g => !gOwned(g));
+  const rows = ['l', 'r', 'n'].map(r => { const L = un.filter(g => g.rar === r); if (!L.length) return ''; const c = FUSE_COST[r];
+    return '<h4 style="color:' + RAR_COL[r] + '">' + RAR_NAME[r] + '（' + c + ' 紙屑）</h4><div class="fusegrid">' + L.map(g => '<button class="btn alt" type="button" data-fid="' + g.id + '"' + (sc < c ? ' disabled' : '') + '>' + g.name + '</button>').join('') + '</div>'; }).join('');
+  m.innerHTML = '<div class="card fusecard"><h3>合成　紙屑 ' + sc + '</h3>' + (un.length ? '<p class="quiet">點一件還沒有的外觀，扣除紙屑立刻合成。</p>' + rows : '<p>全部外觀都已擁有。</p>') + '<div class="menurow"><button class="btn" type="button" data-fx="close">關閉</button></div></div>';
+  m.hidden = false;
+}
 function gachaHtml() {
   const own = G.filter(gOwned).length, sc = rec.scrap || 0;
   if (!gachaOpen()) return '<div class="datapg"><p><b>尚未開放</b>　造型機在<b>通關一次長線作戰或 DLC2（字母書房、彼岸）</b>後開放；也可以到選職業頁的選項勾選「測試用：開啟造型機」提前試玩。外觀目前是依主題上色的通用形狀，不是正式美術。</p><p>目前紙片：<b>' + (rec.paper || 0) + '</b>　紙屑：<b>' + sc + '</b></p><p class="quiet">紙片收入（每局結算）：基本 5；通關 +10；每個新成就 +5；長線作戰每層 +3（追加層每層 +5）。</p></div>';
@@ -1102,7 +1114,7 @@ function gachaHtml() {
   const res = gLast.length ? '<p>' + gLast.map(q => '<span style="color:' + RAR_COL[q.g.rar] + '">' + RAR_NAME[q.g.rar] + '・' + q.g.name + (q.fused ? '（合成）' : q.dup ? '（重複 → 紙屑 +' + SCRAP_GET[q.g.rar] + '）' : '（新）') + '</span>').join('　') + '</p>' : '<p class="quiet">還沒有抽取結果。</p>';
   return '<div class="datapg"><p><b>造型機</b>　紙片 <b>' + (rec.paper || 0) + '</b>　紙屑 <b>' + sc + '</b>　已擁有 <b>' + own + '／' + G.length + '</b>　累計抽取 ' + rec.gacha.n + ' 次（距離傳說保底還有 ' + (30 - rec.gacha.pity) + ' 抽）</p>'
     + '<p><button class="btn alt" type="button" data-g="p1">抽 1 次（10 紙片）</button> <button class="btn alt" type="button" data-g="p10">十連抽（90 紙片，至少 1 個稀有）</button> ' + (optGacha.checked ? '<button class="btn alt" type="button" data-g="paper">測試：＋100 紙片</button>' : '') + '</p>'
-    + res + '<p>合成：用紙屑換一件還沒有的　<select id="fuseSel"><option value="">選擇外觀</option>' + un.map(g => '<option value="' + g.id + '"' + (g.id === cur ? ' selected' : '') + '>' + RAR_NAME[g.rar] + '・' + g.name + '（' + FUSE_COST[g.rar] + ' 紙屑）</option>').join('') + '</select> <button class="btn alt" type="button" data-g="fuse">合成</button></p>'
+    + res + '<p>合成：用紙屑換一件還沒有的　<button class="btn alt" type="button" data-g="fusemenu">開啟合成選單（紙屑 ' + sc + '）</button></p>'
     + '<p class="quiet">機率：普通 70%、稀有 25%、傳說 5%；每 30 抽保底 1 個傳說；重複的外觀變成紙屑（普通 1、稀有 3、傳說 10）；合成價：普通 5、稀有 15、傳說 40 紙屑。抽到的外觀到「造型」頁裝備（頭飾、身衣、燈飾、小飾品四欄）。</p></div>';
 }
 const CLSCOS = {
@@ -4648,7 +4660,7 @@ function onKey(e, down) {
   }
   else if (k === 'Escape' && state === 'dialog') { if (!e.repeat) skipDialog(); }
   else if ((k === 'p' || k === 'Escape') && state === 'dlcmenu') { if (!e.repeat) { show('dlcmenu', false); setState('play'); hintSig = ''; } }
-  else if (k === 'p' || k === 'Escape') { if (!e.repeat) { if (state === 'play') pauseGame(); else if (state === 'pause') resumeGame(); else if (state === 'sub') closeSub(); } }
+  else if (k === 'p' || k === 'Escape') { if (!e.repeat) { if (state === 'play') pauseGame(); else if (state === 'pause') resumeGame(); else if (state === 'sub') { const fm = $('fuseModal'); if (fm && !fm.hidden) fm.hidden = true; else closeSub(); } } }
   else if (k === 'c') { if (!e.repeat) { if (state === 'menu') openSub('cost'); else if (state === 'sub') closeSub(); } }
   else if (k === 'g') { if (!e.repeat && state === 'menu') { const d = readSaveLocal(); if (d) applySave(d); } }
   else if (k === 'b') { if (!e.repeat) { if (state === 'menu') openSub('stat'); else if (state === 'sub') closeSub(); } }
@@ -4685,7 +4697,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.52　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.53　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -4735,7 +4747,7 @@ $('subBody').addEventListener('click', ev => { const pg = ev.target && ev.target
 $('subBody').addEventListener('change', ev => { if (state === 'sub' && subKind === 'gacha' && ev.target && ev.target.id === 'fuseSel') { fuseSel = ev.target.value; } });
 $('subBody').addEventListener('click', ev => {
   const t = ev.target; if (state !== 'sub' || !t || !t.dataset) return;
-  if (subKind === 'gacha' && t.dataset.g) { const a = t.dataset.g; if (a === 'p1') gachaPull(1); else if (a === 'p10') gachaPull(10); else if (a === 'paper') { rec.paper = (rec.paper || 0) + 100; saveRec(); renderSub(); sfx('pick'); } else if (a === 'fuse') gachaFuse(); return; }
+  if (subKind === 'gacha' && t.dataset.g) { const a = t.dataset.g; if (a === 'p1') gachaPull(1); else if (a === 'p10') gachaPull(10); else if (a === 'paper') { rec.paper = (rec.paper || 0) + 100; saveRec(); renderSub(); sfx('pick'); } else if (a === 'fuse') gachaFuse(); else if (a === 'fusemenu') fuseMenu(); return; }
   if (subKind === 'ach' && (t.dataset.af || t.dataset.cat)) { if (t.dataset.af) achFilter = t.dataset.af; else achCat = t.dataset.cat; achPage = 0; renderSub(); sfx('tick'); }
   else if (subKind === 'data' && t.dataset.act) { if (t.dataset.act === 'folder') pickFolder(); else if (t.dataset.act === 'export') exportSave(); else $('fileImport').click(); }
 });
