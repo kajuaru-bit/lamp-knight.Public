@@ -325,7 +325,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.42　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.43　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -395,6 +395,19 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
         <button class="btn" id="btnRetry" type="button">再試一次<kbd>F</kbd></button>
         <button class="btn alt" id="btnMenu1" type="button">換職業</button>
         <p class="quiet">W／S 選擇，F 確定</p>
+      </div>
+    </div>
+
+    <div class="screen center" id="dlcmenu" hidden>
+      <div class="card">
+        <h3>DLC 之門</h3>
+        <p>選一種這一局要走的世界</p>
+        <button class="btn" id="btnDlc0" type="button"></button>
+        <button class="btn" id="btnDlc1" type="button"></button>
+        <button class="btn" id="btnDlc2" type="button"></button>
+        <button class="btn" id="btnDlc3" type="button"></button>
+        <button class="btn alt" id="btnDlc4" type="button"></button>
+        <p class="quiet">W／S 選擇，F 確定，Esc 返回</p>
       </div>
     </div>
 
@@ -1786,6 +1799,7 @@ function loadRoom() {
   }
   if (run.escape && (kind === 'combat' || kind === 'boss')) { room.col = { x: ROOM.x - 12, v: 13 + 2 * run.layer, delay: kind === 'boss' ? 1e9 : 5 }; if (kind === 'boss') room.escT = 120; }
   if (run.guard && kind === 'combat') { let bx = ROOM.x + ROOM.w * 0.5, by = ROOM.y + ROOM.h * 0.5; for (let t = 0; t < 40; t++) { const x = rr(ROOM.x + 250, ROOM.x + ROOM.w - 250), y = rr(ROOM.y + 90, ROOM.y + ROOM.h - 90); if (!room.obs.some(o => overlap(inflate(o, 54), { x, y, w: 1, h: 1 }))) { bx = x; by = y; break; } } room.beacon = { x: bx, y: by, hp: 12, max: 12, t: 0, hurtT: 0 }; }
+  if (kind === 'combat') mechInit();
   room.bg = buildBg(room);
   jellies = [];
   if (th() === 4 && (kind === 'combat' || kind === 'boss' || chase)) {
@@ -1994,7 +2008,7 @@ function updateChase(dt) {
 function newRun() {
   if (PRAC.on && !PRAC.starting) endPractice();
   resetPlayer(); follow = true; fEdge = 0; hudSig = ''; parts = [];
-  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.dlc = false; run.escort = false; run.escFail = false; run.dlcPrev = null; run.escHurt = 0; run.escape = false; run.guard = false; run.endless = false; run.syrupTip = false; run.wickN = 0; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
+  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.dlc = false; run.escort = false; run.escFail = false; run.dlcPrev = null; run.escHurt = 0; run.escape = false; run.guard = false; run.endless = false; run.syrupTip = false; run.wickN = 0; run.mechTip = false; run.revive = null; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
   for (const w of p.weapons) rec.seenW[w] = 1;
   allies = [];
   { let t = cleared ? shuffle(run.long ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] : [0, 1, 2, 3, 4, 5, 6, 7, 8]).slice(0, 3) : [0, 1, 2];
@@ -2043,9 +2057,8 @@ function makeItem0(slot, x, y, group, avoid, forcePrem) {
 }
 function setupSpecial() {
   const cx = ROOM.x + ROOM.w / 2, cy = DOOR.y, k = room.kind;
-  if (k === 'start') { room.items.push({ kind: 'switch', id: 'switch', x: ROOM.x + 90, y: ROOM.y + 70, group: 'prop', price: 0, taken: false }); room.items.push({ kind: 'noshop', id: 'noshop', x: ROOM.x + 90, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); if (cleared) room.items.push({ kind: 'themesel', id: 'themesel', x: ROOM.x + 330, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); room.items.push({ kind: 'tutsw', id: 'tutsw', x: ROOM.x + 200, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); if (cleared) { room.items.push({ kind: 'escGo', id: 'escGo', x: ROOM.x + 650, y: ROOM.y + 170, group: 'prop', price: 0, taken: false }); room.items.push({ kind: 'futGo', id: 'futGo', x: ROOM.x + 650, y: ROOM.y + 80, group: 'prop', price: 0, taken: false }); }
-  if (cleared) room.items.push({ kind: 'arcGo', id: 'arcGo', x: ROOM.x + 740, y: ROOM.y + 170, group: 'prop', price: 0, taken: false });
-  if (cleared) room.items.push({ kind: 'dlcGo', id: 'dlcGo', x: ROOM.x + 740, y: ROOM.y + 80, group: 'prop', price: 0, taken: false });
+  if (k === 'start') { room.items.push({ kind: 'switch', id: 'switch', x: ROOM.x + 90, y: ROOM.y + 70, group: 'prop', price: 0, taken: false }); room.items.push({ kind: 'noshop', id: 'noshop', x: ROOM.x + 90, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); if (cleared) room.items.push({ kind: 'themesel', id: 'themesel', x: ROOM.x + 330, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); room.items.push({ kind: 'tutsw', id: 'tutsw', x: ROOM.x + 200, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); 
+  if (cleared) room.items.push({ kind: 'dlcMenu', id: 'dlcMenu', x: ROOM.x + 740, y: ROOM.y + 90, group: 'prop', price: 0, taken: false });
   if (cleared) for (const q of [['pracTh', 570], ['pracLv', 650], ['pracGo', 740]]) room.items.push({ kind: q[0], id: q[0], x: ROOM.x + q[1], y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); if (mobile) room.items.push({ kind: 'tzsw', id: 'tzsw', x: ROOM.x + 450, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); return; }
   const add = (slot, x, group) => room.items.push(makeItem(slot, x, cy, group));
   if (k === 'event' && room.variant === 'fake') {
@@ -2081,10 +2094,8 @@ function itemInfo(it) {
     : { name: '許願池', desc: '每次投入 4 燈芯，有機率獲得獎勵。一個池最多投 6 次，第 6 次保底（至少燈火 +1）' };
   if (it.kind === 'tzsw') return { name: '按鍵大小牌', desc: '手機專用：在「標準」與「大」兩種觸控按鈕大小之間切換（也可在暫停頁細調）' };
   if (it.kind === 'tutsw') return { name: '新手教學牌', desc: rec.tutOff ? '教學面板目前關閉。再按一次開啟（電腦版，只在起始房顯示）' : '教學面板開著，會留在畫面下方。按一下可以關閉' };
-  if (it.kind === 'escGo') return { name: '電玩逃離之門（DLC）', desc: run.dlc === 'escape' ? '已選擇：電玩世界逃離模式。再按一次取消' : '電玩世界三層：崩塌線從房間左邊追來，Boss 房暫停崩塌但有 120 秒倒數，要打倒中王與 Boss 才能通關' };
-  if (it.kind === 'futGo') return { name: '未來世界的門（DLC）', desc: run.dlc === 'future' ? '已選擇：未來世界守燈模式。再按一次取消' : '未來世界三層：每間戰鬥房有一座燈塔，有敵人會去攻擊它；燈塔熄滅就失敗，站在旁邊能慢慢修復' };
-  if (it.kind === 'arcGo') return { name: '電玩世界的門（DLC）', desc: run.dlc === 'arcade' ? '已選擇：這一局走電玩世界無盡模式。再按一次取消' : '像素風的電玩世界：無盡模式，一層接一層、敵人越來越強，看你能走到第幾層（只計最高層數）' };
-  if (it.kind === 'dlcGo') return { name: '糖果世界的門（DLC）', desc: run.dlc === 'candy' ? '已選擇：這一局走糖果世界三層，護送小糖到最後。再按一次取消' : '走一局完整的糖果世界：三層、一般難度、計成就。小糖會同行，由你護送，他倒下就失敗' };
+  if (it.kind === 'dlcMenu') return { name: 'DLC 之門', desc: run.dlc ? '目前選擇：' + DLC_LIST.find(q => q[0] === run.dlc)[1] + '。按 F 開選單可更換或取消' : '按 F 開選單：糖果護送、電玩無盡、電玩逃離、未來守燈，選一種這一局走（也可不選）' };
+  if (it.kind === 'mech') return { name: '古怪機關', desc: it.used ? '已啟動' : '不知道做什麼用的機關，好像可以動……（只能一次）' };
   if (it.kind === 'pracTh') return { name: '練習房・主題牌', desc: '選練習要去的主題（目前：' + TNAMES[PRAC.th] + '）。練習只有一層，不計成就、統計與紙片，也不存檔' };
   if (it.kind === 'pracLv') return { name: '練習房・層級牌', desc: '選對應的層級與強度（目前：' + PLV[PRAC.lv].n + '）' };
   if (it.kind === 'pracGo') return { name: '練習房的門', desc: '進入練習：' + TNAMES[PRAC.th] + '・' + PLV[PRAC.lv].n + '。打完 Boss 後可選回起始房或再來一次（不限次數）' };
@@ -2140,7 +2151,8 @@ function interact(it) {
   if (it.taken) return;
   if (it.kind === 'tzsw') { rec.ui.tz = (rec.ui.tz | 0) === 2 ? 1 : 2; saveRec(); applyUi(); sfx('pick'); toast(rec.ui.tz === 2 ? '觸控按鈕：大' : '觸控按鈕：標準'); hintSig = ''; return; }
   if (it.kind === 'tutsw') { rec.tutOff = !rec.tutOff; saveRec(); sfx('pick'); toast(rec.tutOff ? '教學已關閉' : '教學已開啟'); hintSig = ''; tutSig = ''; return; }
-  if (it.kind === 'dlcGo' || it.kind === 'arcGo' || it.kind === 'escGo' || it.kind === 'futGo') { const k = it.kind === 'dlcGo' ? 'candy' : it.kind === 'arcGo' ? 'arcade' : it.kind === 'escGo' ? 'escape' : 'future'; setDlc(run.dlc === k ? null : k); sfx('pick'); hintSig = ''; return; }
+  if (it.kind === 'dlcMenu') { openDlcMenu(); return; }
+  if (it.kind === 'mech') { mechUse(it); return; }
   if (it.kind === 'pracTh') { PRAC.th = (PRAC.th + 1) % TNAMES.length; sfx('pick'); toast('練習主題：' + TNAMES[PRAC.th], 1.6); hintSig = ''; return; }
   if (it.kind === 'pracLv') { PRAC.lv = (PRAC.lv + 1) % PLV.length; sfx('pick'); toast('練習層級：' + PLV[PRAC.lv].n, 2); hintSig = ''; return; }
   if (it.kind === 'pracGo') { sfx('pick'); fadeThen(() => { startPractice(); announceRoom(); }); return; }
@@ -2257,10 +2269,8 @@ function updateHint() {
   let sig = '', html = '';
   if (it) {
     const info = itemInfo(it); let act;
-    if (it.kind === 'escGo') act = run.dlc === 'escape' ? 'F 取消逃離模式' : 'F 進入電玩逃離';
-    else if (it.kind === 'futGo') act = run.dlc === 'future' ? 'F 取消守燈模式' : 'F 進入未來守燈';
-    else if (it.kind === 'arcGo') act = run.dlc === 'arcade' ? 'F 取消電玩世界' : 'F 進入電玩世界（無盡）';
-    else if (it.kind === 'dlcGo') act = run.dlc === 'candy' ? 'F 取消糖果世界' : 'F 進入糖果世界（護送）';
+    if (it.kind === 'dlcMenu') act = 'F 開啟 DLC 選單';
+    else if (it.kind === 'mech') act = it.used ? '' : 'F 啟動';
     else if (it.kind === 'pracTh') act = 'F 換主題'; else if (it.kind === 'pracLv') act = 'F 換層級'; else if (it.kind === 'pracGo') act = 'F 進入練習房';
     else if (it.kind === 'themesel') act = 'F 切換必遇主題（目前：' + (run.themePick >= 0 ? TNAMES[run.themePick] : '隨機') + '）';
     else if (it.kind === 'mystery') act = it.used ? '' : 'F 打開「？」';
@@ -2295,6 +2305,7 @@ function updateTut(dt) {
   el.innerHTML = '<b>按鍵練習（不強制；起始房的木牌可關閉）</b><div class="chips">' + TUT.map(r => '<i class="' + (rec.tutKeys[r[0]] ? 'ok' : '') + '">' + r[1] + '</i>').join('') + '</div>' + (rec.tutDone ? '<p>全部按過了！可以出發了。</p>' : '') + TUT.filter(r => !rec.tutKeys[r[0]]).map(r => '<p>' + r[2] + '</p>').join('') + '<small>按過的鍵會打勾，說明就會消失（C、V 不用練習）</small>';
 }
 function announceRoom() {
+  if (room.special && !room.chase) { toast('這裡的敵人好像特別多……也許有辦法提前離開', 3.4); }
   if (run.step === 0 && !(run.telSeen = run.telSeen || {})[run.layer]) { run.telSeen[run.layer] = 1; try { telLayer().enter++; } catch (e) { /* optional */ } }
   if (room.chase) { toast('驚逃影！追上它們，20 秒後會消失（打到全部有寶箱）', 3.2); return; }
   if (room.kind === 'start') { toast('出發前的小房間：電燈開關在上方，下方的木牌可以讓這一局沒有商人（F），準備好了就走向右邊的門', 3.2); return; }
@@ -2628,8 +2639,9 @@ function toMenu() {
 }
 /* 結算畫面等的選項：W／S 換選項，F 確定 */
 let scrSel = 0;
-const SCR_IDS = { prac: ['btnPracAgain', 'btnPracBack'], over: ['btnRetry', 'btnMenu1'], ending: ['btnExt', 'btnAgain', 'btnMenu2'], pause: ['btnResume', 'btnAuto', 'btnSnd', 'btnDlg', 'btnDlgSpd', 'btnToast', 'btnTz', 'btnTo', 'btnLefty', 'btnLeave', 'btnQuit'], choice: ['btnLight', 'btnDark'] };
+const SCR_IDS = { dlcmenu: ['btnDlc0', 'btnDlc1', 'btnDlc2', 'btnDlc3', 'btnDlc4'], prac: ['btnPracAgain', 'btnPracBack'], over: ['btnRetry', 'btnMenu1'], ending: ['btnExt', 'btnAgain', 'btnMenu2'], pause: ['btnResume', 'btnAuto', 'btnSnd', 'btnDlg', 'btnDlgSpd', 'btnToast', 'btnTz', 'btnTo', 'btnLefty', 'btnLeave', 'btnQuit'], choice: ['btnLight', 'btnDark'] };
 const SCR_ACT = {
+  dlcmenu: [() => dlcPick(0), () => dlcPick(1), () => dlcPick(2), () => dlcPick(3), () => dlcPick(4)],
   prac: [() => pracAgain(), () => pracBack()],
   over: [() => restart(), () => toMenu()],
   ending: [() => startExt(), () => { show('ending', false); restart(); }, () => toMenu()],
@@ -2860,6 +2872,18 @@ function startPractice() {
   p.coins = 25;
   toast('練習：' + TNAMES[PRAC.th] + '・' + v.n, 2.6);
 }
+const DLC_LIST = [['candy', '糖果世界・護送小糖', '三層，帶著小糖走到最後'], ['arcade', '電玩世界・無盡', '像素風，一層接一層越來越強'], ['escape', '電玩世界・逃離', '崩塌線從左邊追來'], ['future', '未來世界・守燈', '敵人自己衝來，要守住燈塔']];
+function openDlcMenu() {
+  DLC_LIST.forEach((q, i) => { $('btnDlc' + i).innerHTML = q[1] + (run.dlc === q[0] ? '（目前）' : '') + '<br><small>' + q[2] + '</small>'; });
+  $('btnDlc4').textContent = run.dlc ? '取消 DLC，回到一般模式' : '不選，返回';
+  show('dlcmenu', true); setState('dlcmenu'); sfx('tick');
+}
+function dlcPick(i) {
+  if (state !== 'dlcmenu') return;
+  show('dlcmenu', false); setState('play'); hintSig = '';
+  if (i < 4) { const k = DLC_LIST[i][0]; setDlc(run.dlc === k ? null : k); sfx('pick'); }
+  else if (run.dlc) { setDlc(null); sfx('pick'); }
+}
 function showPrac(win) {
   $('pracTitle').textContent = win ? '練習完成' : '燈滅了（練習）'; $('pracLine').textContent = TNAMES[PRAC.th] + '・' + PLV[PRAC.lv].n + '。練習不計成就、統計與紙片。';
   show('prac', true); setState('prac');
@@ -2868,6 +2892,7 @@ function pracAgain() { show('prac', false); fadeThen(() => { startPractice(); an
 function pracBack() { show('prac', false); fadeThen(() => { newRun(); p.x = ROOM.x + 70; announceRoom(); }); }
 function die() {
   if (state !== 'play') return;
+  if (run.revive && !run.practice) { reviveNow(); return; }
   { const k = hitSrc || 'other'; rec.deaths[k] = (rec.deaths[k] || 0) + 1; run.deathBy = k; try { telLayer().die++; const T = tel(); T.droom[room.kind] = (T.droom[room.kind] || 0) + 1; } catch (e) { /* optional */ } saveRec(); }
   if (!run.practice) { deaths++; try { localStorage.setItem('lampknight.deaths', String(deaths)); } catch (e) { /* storage is optional */ } }
   setState('dying'); deadT = 1.0; bullets = [];
@@ -3188,6 +3213,7 @@ function bossPhase2(e) {
 }
 function killEnemy(e) {
   const boss = e.type === 'boss';
+  if (!boss && state === 'play') { if (room.bonus) dropCoins(e.x, e.y, 2); if (room.special) { room.special.killed++; dropCoins(e.x, e.y, 1); } }
   if (boss && run.long && run.layer >= 3 && !e.p2 && e.kind !== 'split' && !room.rush) { bossPhase2(e); return; }
   { const bs = e.type === 'boss'; burst(e.x, e.y, bs ? 30 : 6 + Math.floor(rand() * 5), [PAL.wall2, PAL.top, C.paper], bs ? 260 : 150, false); }
   if (e.type === 'duster') { room.sw = room.sw || []; room.sw.push({ x: e.x, y: e.y, r: 50, k: 'quick', ttl: 5 }); burst(e.x, e.y, 12, ['#e3c995', '#b08a52'], 120, true); }
@@ -3378,7 +3404,8 @@ function makeBoss(b, x, y) {
 }
 function spawnWave() {
   if (room.kind === 'boss') { makeBoss(bossDef(), ROOM.x + ROOM.w - 300, DOOR.y); return; }
-  const list = composeWave(), pz = zoneOf(p.x, p.y), zc = z => Math.hypot(ROOM.x + (z % 3 + 0.5) * ROOM.w / 3 - p.x, ROOM.y + (Math.floor(z / 3) + 0.5) * ROOM.h / 2 - p.y);
+  let list = composeWave(); if (room.special) { list = list.concat(composeWave()); room.special.spawned += list.length; }
+  const pz = zoneOf(p.x, p.y), zc = z => Math.hypot(ROOM.x + (z % 3 + 0.5) * ROOM.w / 3 - p.x, ROOM.y + (Math.floor(z / 3) + 0.5) * ROOM.h / 2 - p.y);
   const others = [0, 1, 2, 3, 4, 5].filter(z => z !== pz), near = others.slice().sort((a, b) => zc(a) - zc(b))[0];
   const zs = [near].concat(shuffle(others.filter(z => z !== near)));
   let gi = 0, i = 0, sleepers = 0;
@@ -3387,7 +3414,8 @@ function spawnWave() {
     for (const t of list.slice(i, i + n)) {
       const sp = zoneSpot(z, ENEMY[t].r) || freeSpot(ENEMY[t].r), e = spawnEnemy(t, sp.x, sp.y);
       e.grp = g; e.zone = z; if (gi > 0) { e.sleep = true; sleepers++; }
-      if (run.guard && room.beacon && room.beacon.hp > 0 && (t === 'crawler' || t === 'brute' || t === 'splitter' || t === 'splitter2') && enemies.filter(q => q.tgtB && !q.dead).length < 2) { e.tgtB = true; e.sleep = false; }
+      if (run.guard && room.beacon && room.beacon.hp > 0 && (t === 'crawler' || t === 'brute' || t === 'splitter' || t === 'splitter2') && enemies.filter(q => q.tgtB && !q.dead).length < 3) { e.tgtB = true; }
+      if (run.guard && room.beacon) e.sleep = false;
       if (run.long && run.layer >= 2 && rand() < Math.min(0.4, 0.1 + 0.05 * (run.layer - 2))) { e.elite = true; e.hp = e.maxHp = e.hp * 2; e.r *= 1.4; if (!run.eliteTip) { run.eliteTip = true; toast('旁白：這個影子，披著舊提燈人的披風。', 3); } }
     }
     i += n; gi++;
@@ -3417,6 +3445,7 @@ function updateWaves(dt) {
   }
 }
 function roomCleared() {
+  if (room.special) { dropCoins(ROOM.x + ROOM.w - 170, DOOR.y, 12); toast('特殊戰鬥房全清：完整獎勵！', 2.6); for (const o of room.items) if (o.kind === 'mech') o.used = true; }
   room.cleared = true; sfx('clear'); toast('洞窟清空'); run.combats++; if (p.curse > 0) { p.curse--; hudSig = ''; }
   const lx = ROOM.x + ROOM.w - 170;
   if (!run.practice && run.combats % 2 === 0 && run.shards < 5) { pickups.push({ kind: 'shard', x: lx, y: DOOR.y - 40, t: 0, idx: run.shards }); run.shards++; }
@@ -4091,6 +4120,76 @@ function drawFutObs(g, o, rng) {
   g.strokeStyle = '#ff2e97'; g.lineWidth = 2; g.beginPath(); if (o.w >= o.h) { g.moveTo(o.x + 10, o.y + o.h / 2); g.lineTo(o.x + o.w - 10, o.y + o.h / 2); } else { g.moveTo(o.x + o.w / 2, o.y + 10); g.lineTo(o.x + o.w / 2, o.y + o.h - 10); } g.stroke();
   g.fillStyle = '#6ff3ff'; circ(g, o.x + o.w / 2, o.y + o.h / 2, 4);
 }
+/* ---------- 古怪機關（互動彩蛋）與特殊戰鬥房 ---------- */
+function mechInit() {
+  if (run.practice || !(th() === 0 || th() === 2)) return;
+  const first = room.combatIdx === 0 && run.layer === 0;
+  if (!first && rand() < 0.08) room.special = { spawned: 0, killed: 0 };
+  if (!room.special && rand() >= 0.10) return;
+  let mx = ROOM.x + ROOM.w * 0.6, my = ROOM.y + ROOM.h * 0.5;
+  for (let t = 0; t < 40; t++) { const x = rr(ROOM.x + 220, ROOM.x + ROOM.w - 90), y = rr(ROOM.y + 70, ROOM.y + ROOM.h - 70); if (!room.obs.some(o => overlap(inflate(o, 50), { x, y, w: 1, h: 1 }))) { mx = x; my = y; break; } }
+  room.items.push({ kind: 'mech', id: 'mech', x: mx, y: my, group: 'prop', price: 0, taken: false, used: false, mk: room.special ? 'exit' : null });
+}
+function mechUse(it) {
+  if (it.used) { toast('已啟動', 1.2); return; }
+  it.used = true; sfx('pick'); burst(it.x, it.y - 10, 14, ['#ffe08a', C.paper], 160, true); hintSig = '';
+  let mk = it.mk;
+  if (!mk) { const pool = room.cleared ? ['frenzy', 'revive'] : ['alarm', 'frenzy', 'revive']; mk = pool[Math.floor(rand() * pool.length)]; it.mk = mk; }
+  if (mk === 'alarm') {
+    const list = composeWave(), n = Math.max(2, Math.round(list.length * 0.5)); room.bonus = true; grpSeq++;
+    for (let i = 0; i < n; i++) { const t = list[i % list.length], sp = freeSpot(ENEMY[t].r), e = spawnEnemy(t, sp.x, sp.y); e.grp = grpSeq; e.zone = zoneOf(sp.x, sp.y); e.sleep = false; }
+    sfx('hurt'); shake = 6; toast('警鈴大作！更多影子湧進來了（這間掉落變多）', 3);
+  } else if (mk === 'frenzy') {
+    room.frenzy = { x: ROOM.x + ROOM.w / 2, y: ROOM.y + ROOM.h / 2, t: 10, a: 0, cd: 0, shots: [] }; sfx('hurt'); toast('狂亂裝置啟動！10 秒內它會朝四面亂射——敵人和你都會受傷', 3);
+  } else if (mk === 'revive') {
+    run.revive = { layer: run.layer, plan: run.plan, step: run.step, x: it.x, y: it.y }; sfx('buy'); toast('復活點已設定：這一局倒下時，會在這裡以半血復活一次（新的會取代舊的）', 3.4);
+  } else if (mk === 'exit') mechExit();
+}
+function mechExit() {
+  const s = room.special; if (!s) return;
+  const rem = Math.max(0, room.waves - 1 - room.wave), per = s.spawned / Math.max(1, room.wave + 1), total = s.spawned + rem * per;
+  const ratio = Math.max(0, Math.min(1, s.killed / Math.max(1, total)));
+  for (const e of enemies) if (!e.dead) { e.dead = true; burst(e.x, e.y, 8, [C.paper, C.dark], 140); }
+  bullets = []; room.cleared = true; sfx('clear'); const n = Math.round(12 * ratio); dropCoins(ROOM.x + ROOM.w - 170, DOOR.y, n);
+  if (ratio >= 0.5) run.combats++;
+  toast('敵人退走了。打倒約 ' + Math.round(ratio * 100) + '%，獲得部分獎勵（燈芯 ' + n + '）', 3.2);
+}
+function reviveNow() {
+  const rv = run.revive; run.revive = null; hudSig = '';
+  const hp = Math.max(1, Math.ceil(p.maxHp / 2)); p.hp = hp; p.iframes = 2.5; p.shield = p.shield || 0;
+  if (rv.layer === run.layer && rv.step === run.step) {
+    bullets = []; p.x = rv.x; p.y = rv.y + 36; p.kx = p.ky = 0; if (room.beacon && room.beacon.hp <= 0) room.beacon.hp = room.beacon.max / 2; room.frenzy = null;
+    burst(p.x, p.y, 20, ['#ffe08a', C.paper], 200, true); sfx('buy'); toast('在復活點醒來（半血，復活點已用掉）', 2.8); return;
+  }
+  fadeThen(() => {
+    run.layer = rv.layer; run.plan = rv.plan; run.step = rv.step; loadRoom(); p.hp = hp; p.iframes = 2.5; p.x = ROOM.x + 40; p.y = DOOR.y; p.vx = p.vy = p.kx = p.ky = 0; placeAllies(); hudSig = '';
+    toast('在復活點醒來（半血，復活點已用掉）', 2.8); announceRoom();
+  });
+}
+function updateMech(dt) {
+  if (state !== 'play') return;
+  if (!run.mechTip) { const m = room.items.find(o => o.kind === 'mech' && !o.used); if (m && Math.hypot(p.x - m.x, p.y - m.y) < 170) { run.mechTip = true; toast('那個東西，好像可以動', 2.8); } }
+  const f = room.frenzy; if (!f) return;
+  f.t -= dt; f.a += dt * 2.2; f.cd -= dt;
+  if (f.cd <= 0 && f.t > 0) { f.cd = 0.16; for (let k = 0; k < 4; k++) { const a = f.a + k * Math.PI / 2; f.shots.push({ x: f.x, y: f.y, vx: Math.cos(a) * 260, vy: Math.sin(a) * 260, life: 3 }); } }
+  for (const q of f.shots) {
+    q.x += q.vx * dt; q.y += q.vy * dt; q.life -= dt;
+    if (q.x < ROOM.x || q.x > ROOM.x + ROOM.w || q.y < ROOM.y || q.y > ROOM.y + ROOM.h || q.life <= 0) { q.dead = true; continue; }
+    for (const e of enemies) if (!e.dead && e.spawn <= 0 && Math.hypot(e.x - q.x, e.y - q.y) < e.r + 6) { hitEnemy(e, 1.5, q.vx / 260, q.vy / 260, 40, false); q.dead = true; break; }
+    if (!q.dead && p.iframes <= 0 && Math.hypot(p.x - q.x, p.y - q.y) < p.r + 6) { hurtFrom('mech', 1, q.vx / 260, q.vy / 260); q.dead = true; }
+  }
+  f.shots = f.shots.filter(q => !q.dead);
+  if (f.t <= 0 && !f.shots.length) room.frenzy = null;
+}
+function drawMech() {
+  const f = room.frenzy; if (!f) return;
+  ctx.save(); ctx.translate(f.x, f.y);
+  ctx.fillStyle = 'rgba(255,200,80,.18)'; circ(ctx, 0, 0, 40);
+  ctx.rotate(f.a); ctx.fillStyle = '#2a2236'; circ(ctx, 0, 0, 16); ctx.fillStyle = '#ffd23f'; for (let k = 0; k < 4; k++) { ctx.rotate(Math.PI / 2); ctx.fillRect(10, -4, 18, 8); }
+  ctx.restore();
+  for (const q of f.shots) { ctx.fillStyle = '#ffd23f'; circ(ctx, q.x, q.y, 5); ctx.fillStyle = '#fff'; circ(ctx, q.x, q.y, 2); }
+  if (f.t > 0) { ctx.save(); ctx.font = '700 18px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#ffd23f'; ctx.strokeStyle = '#2a2236'; ctx.lineWidth = 4; const tt = '狂亂裝置 ' + Math.ceil(f.t); ctx.strokeText(tt, f.x, f.y - 52); ctx.fillText(tt, f.x, f.y - 52); ctx.restore(); }
+}
 function updateModes(dt) {
   if (state !== 'play') return;
   const c = room.col;
@@ -4541,6 +4640,7 @@ function onKey(e, down) {
     else if (state === 'play' && !e.repeat) { if (i < p.weapons.length) { p.w = i; sfx('tick'); } }
   }
   else if (k === 'Escape' && state === 'dialog') { if (!e.repeat) skipDialog(); }
+  else if ((k === 'p' || k === 'Escape') && state === 'dlcmenu') { if (!e.repeat) { show('dlcmenu', false); setState('play'); hintSig = ''; } }
   else if (k === 'p' || k === 'Escape') { if (!e.repeat) { if (state === 'play') pauseGame(); else if (state === 'pause') resumeGame(); else if (state === 'sub') closeSub(); } }
   else if (k === 'c') { if (!e.repeat) { if (state === 'menu') openSub('cost'); else if (state === 'sub') closeSub(); } }
   else if (k === 'g') { if (!e.repeat && state === 'menu') { const d = readSaveLocal(); if (d) applySave(d); } }
@@ -4578,7 +4678,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.42　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.42　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.43　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.43　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -4652,6 +4752,7 @@ btn('btnQuit', () => { if (state === 'pause') { show('pause', false); toMenu(); 
 $('classes').addEventListener('click', ev => { let t = ev.target; while (t && !(t.dataset && t.dataset.i !== undefined)) t = t.parentNode; if (t && state === 'menu') selectClass(parseInt(t.dataset.i, 10)); });
 optUnlock.addEventListener('change', () => renderClasses());
 btn('btnRetry', () => { if (state === 'over') restart(); });
+for (let i = 0; i < 5; i++) btn('btnDlc' + i, () => dlcPick(i));
 btn('btnPracAgain', () => { if (state === 'prac') pracAgain(); });
 btn('btnPracBack', () => { if (state === 'prac') pracBack(); });
 btn('btnAgain', () => { if (state === 'ending') { show('ending', false); restart(); } });
@@ -4874,7 +4975,7 @@ function updatePlay(dt) {
   follow = !mouse.down;
   p.iframes = Math.max(0, p.iframes - dt); p.cd = Math.max(0, p.cd - dt); p.noiseT = Math.max(0, (p.noiseT || 0) - dt); p.skillCd = Math.max(0, p.skillCd - dt); if (p.sleepT > 0) { p.sleepT -= dt; p.skillCd = Math.max(0.01, p.sleepT); if (p.sleepT <= 0) wakeUp(false); } updateStall(dt); p.chainT = Math.max(0, p.chainT - dt); fEdge = Math.max(0, fEdge - dt); p.recoil = Math.max(0, p.recoil - dt);
   if (room.big) markExplored();
-  playerMove(dt); updateAllies(dt); aimUpdate(); p.near = room.items.length ? nearestItem() : null; attackUpdate(dt); updateWeapons(dt); updateClassTimers(dt); updateWaves(dt); updateChase(dt); updateRush(dt); updateDecor(dt); updateSwamp(dt); updateTimed(dt); updateBlooms(); updateModes(dt);
+  playerMove(dt); updateAllies(dt); aimUpdate(); p.near = room.items.length ? nearestItem() : null; attackUpdate(dt); updateWeapons(dt); updateClassTimers(dt); updateWaves(dt); updateChase(dt); updateRush(dt); updateDecor(dt); updateSwamp(dt); updateTimed(dt); updateBlooms(); updateModes(dt); updateMech(dt); updateMech(dt);
   for (const e of enemies) { updateEnemy(e, dt * slowAt(e.x, e.y, e.type === 'boss')); if (e.pin && !e.dead) { e.x = e.pin.x; e.y = e.pin.y; } }
   for (let i = 0; i < enemies.length; i++) for (let j = i + 1; j < enemies.length; j++) {
     const a = enemies[i], b = enemies[j]; if (a.type === 'boss' || b.type === 'boss') continue;
@@ -5054,23 +5155,19 @@ function drawItem(it) {
     ctx.fillStyle = '#2a2236'; ctx.font = '700 15px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(rec.tutOff ? '教學關' : '教學開', 0, -7);
     ctx.restore(); return;
   }
-  if (it.kind === 'escGo' || it.kind === 'futGo') {
-    const esc = it.kind === 'escGo', on = run.dlc === (esc ? 'escape' : 'future');
-    ctx.save(); ctx.translate(it.x, it.y); ctx.fillStyle = '#0a0a24'; ctx.fillRect(-22, -38, 44, 56); ctx.fillStyle = on ? '#ffd23f' : esc ? '#a0243c' : '#2b2f6e'; ctx.fillRect(-18, -34, 36, 34);
-    if (esc) { ctx.fillStyle = '#ffd23f'; for (let i = 0; i < 4; i++) poly(ctx, [[-18 + i * 9, -34], [-9 + i * 9, -34], [-18 + i * 9 + 9, -4], [-18 + i * 9, -4]]); }
-    else { ctx.fillStyle = '#00e5ff'; circ(ctx, 0, -18, 9); ctx.fillStyle = '#ff2e97'; ctx.fillRect(-14, -4, 28, 3); }
-    ctx.fillStyle = '#fff'; ctx.font = '700 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(on ? '已選' : esc ? '逃離' : '未來', 0, 32); ctx.restore(); return;
+  if (it.kind === 'dlcMenu') {
+    const on = !!run.dlc, tt = time;
+    ctx.save(); ctx.translate(it.x, it.y); setShadow(ctx, 2, 3, 0); ctx.fillStyle = '#2a2236'; rrect(ctx, -26, -40, 52, 60, 10); noShadow(ctx);
+    const cl = ['#ff9ec7', '#7df9ff', '#ff4fd8', '#00e5ff'];
+    for (let i = 0; i < 4; i++) { ctx.fillStyle = on && ['candy', 'arcade', 'escape', 'future'][i] === run.dlc ? '#ffd23f' : cl[i]; ctx.globalAlpha = 0.55 + 0.35 * Math.sin(tt * 3 + i * 1.6); ctx.fillRect(-18 + (i % 2) * 20, -32 + (i >> 1) * 24, 16, 20); }
+    ctx.globalAlpha = 1; ctx.fillStyle = '#fff'; ctx.font = '700 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(on ? '已選' : 'DLC', 0, 36); ctx.restore(); return;
   }
-  if (it.kind === 'arcGo') {
-    ctx.save(); ctx.translate(it.x, it.y); ctx.fillStyle = '#0a0a24'; ctx.fillRect(-22, -38, 44, 56); ctx.fillStyle = run.dlc === 'arcade' ? '#ffd23f' : '#3a3a8c'; ctx.fillRect(-18, -34, 36, 34);
-    ctx.fillStyle = '#7df9ff'; spr(SPR.invader, 3, '#7df9ff'); ctx.fillStyle = '#ff4fd8'; ctx.fillRect(-12, 6, 6, 6); ctx.fillStyle = '#ffd23f'; ctx.fillRect(2, 6, 6, 6);
-    ctx.fillStyle = '#fff'; ctx.font = '700 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(run.dlc === 'arcade' ? '已選' : '電玩', 0, 32); ctx.restore(); return;
-  }
-  if (it.kind === 'dlcGo') {
+  if (it.kind === 'mech') {
     ctx.save(); ctx.translate(it.x, it.y); setShadow(ctx, 2, 3, 0);
-    ctx.fillStyle = '#8a3d63'; rrect(ctx, -24, -36, 48, 56, 20); ctx.fillStyle = run.dlc === 'candy' ? '#ffe08a' : '#ff9ec7'; rrect(ctx, -18, -30, 36, 48, 15); noShadow(ctx);
-    ctx.fillStyle = '#fff'; for (let i = 0; i < 4; i++) circ(ctx, -12 + i * 8, -26 + (i & 1) * 4, 5);
-    ctx.fillStyle = '#6b2a4a'; ctx.font = '700 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(run.dlc === 'candy' ? '已選' : '糖果', 0, 2);
+    ctx.fillStyle = PAL.wall1; rrect(ctx, -18, -2, 36, 20, 4); ctx.fillStyle = it.used ? '#6a6070' : '#c9a24a'; rrect(ctx, -14, -24, 28, 26, 6); noShadow(ctx);
+    ctx.fillStyle = '#2a2236'; circ(ctx, 0, -11, 8); ctx.strokeStyle = it.used ? '#8a8090' : '#ffe08a'; ctx.lineWidth = 2.5; const g = it.used ? 0 : time * 1.5;
+    for (let i = 0; i < 4; i++) { const a2 = g + i * Math.PI / 2; ctx.beginPath(); ctx.moveTo(0, -11); ctx.lineTo(Math.cos(a2) * 8, -11 + Math.sin(a2) * 8); ctx.stroke(); }
+    if (it.used && it.mk === 'revive' && run.revive && run.revive.x === it.x && run.revive.y === it.y) { ctx.fillStyle = 'rgba(255,224,138,.35)'; circ(ctx, 0, -10, 26 + Math.sin(time * 3) * 3); }
     ctx.restore(); return;
   }
   if (it.kind === 'pracTh' || it.kind === 'pracLv' || it.kind === 'pracGo') {
@@ -5563,7 +5660,7 @@ function render() {
   drawDoor(); drawProp(); drawBlinds(); drawDecor(); drawSwamp(); drawVials(); drawOrb();
   for (const a of absorbs) { ctx.save(); ctx.globalAlpha = Math.min(0.5, a.t * 0.4); ctx.strokeStyle = '#b8a0ff'; ctx.lineWidth = 2; ctx.setLineDash([6, 8]); ctx.beginPath(); ctx.arc(a.x, a.y, a.r, 0, TAU); ctx.stroke(); ctx.restore(); }
   for (const it of room.items) drawItem(it);
-  drawStall(); drawModes();
+  drawStall(); drawModes(); drawMech();
   for (const o of tobs) drawTob(o);
   for (const j of jellies) drawJelly(j);
   for (const k of pickups) drawPickup(k);
