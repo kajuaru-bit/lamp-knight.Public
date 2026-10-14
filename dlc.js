@@ -447,8 +447,11 @@ function drawGuardian(e) {
   c.fillStyle = '#1a1008'; c.fillRect(-12, -64 + b, 8, 4); c.fillRect(4, -64 + b, 8, 4); c.fillStyle = fin ? '#c25a4a' : '#ffd23f'; c.fillRect(-8, -50 + b, 16, 3);
   c.fillStyle = '#e8c070'; poly(c, [[-22, -78 + b], [0, -100 + b], [22, -78 + b]]);
 }
+const ZEN_TRIAL = ['第一問：你放得下身後的影子嗎？', '第二問：你放得下手裡的燈嗎？', '第三問：放下之後，你還認得自己嗎？'];
+const ZEN_YAKSHA = ['夜叉：「走得急的人，影子才多。」', '夜叉：「再快一點？你的影子追得上你。」'];
 function zenMoves(e, phase, ang) {
   const p = L.p, fin = e.xk === 'guanyin', aim = () => Math.atan2(p.y - e.y, p.x - e.x);
+  if (e.znPh !== phase) { e.znPh = phase; if (fin) L.toast('千手觀音：「' + ZEN_TRIAL[phase - 1] + '」', 3.6); else if (phase > 1) L.toast(ZEN_YAKSHA[phase - 2], 2.8); }
   const a = pickOf(phase === 1 ? ['ring', 'fan'] : phase === 2 ? ['ring', 'fan', 'rain'] : ['ring', 'fan', 'rain', 'spiral']);
   if (a === 'ring') { const n = fin ? 18 : 14, off = rand() * TAU; for (let i = 0; i < n; i++) L.bossShot(e, e.x, e.y, off + i / n * TAU, 150, false, 7); L.sfx('hit'); L.toast('雜念彈！', 1.1); }
   else if (a === 'fan') { for (let w = 0; w < 3; w++) L.later(w * 0.4, () => { if (e.dead || L.state() !== 'play') return; const aa = aim(); for (let i = -2; i <= 2; i++) L.bossShot(e, e.x, e.y, aa + i * 0.2, 190, false, 6); L.sfx('hit'); }); }
@@ -463,8 +466,18 @@ L.registerWorld({
   types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter'); if (L0 > 0 || ci >= 1) types.push('splitter'); if (L0 > 0 || ci >= 2) types.push('brute', 'bomber'); },
   boss: fin => fin ? { kind: 'golem', name: '千手觀音', hp: 205, ext: true, xk: 'guanyin' } : { kind: 'golem', name: '守門夜叉', hp: 125, ext: true, xk: 'yaksha' },
   boss2: zenMoves, drawBoss: drawGuardian,
-  intro: def => [{ who: '旁白', text: def.name + '站在山門前，一動也不動。' }],
-  outro: () => [{ who: '旁白', text: '鐘聲一圈一圈散開。心裡的雜音，安靜了一點點。' }]
+  pathIntro: layer => layer === 0
+    ? [{ who: '旁白', text: '山門在很遠的地方亮著。燈火騎士沿著石板路往上走，身後有什麼，慢慢跟了上來。' }, { who: '旁白', text: '那是沒有被放下的念頭。' }, { who: '小沙彌', text: '施主，別回頭看。看見的越多，它跟得越緊。走累了，前面的道場可以坐一下。' }]
+    : layer === 1 ? [{ who: '旁白', text: '第二道山門更高，石階比剛才更陡。念頭也跟得更近了。' }]
+    : [{ who: '旁白', text: '最後一段路。遠處有千隻手，在光裡輕輕擺動。' }, { who: '小沙彌', text: '那是觀音。她不會傷人，只會問你問題。' }],
+  dojoLine: (layer, i) => [['小沙彌：「念頭不會因為你跑得快就不追，但它追不到安靜的人。」', '小沙彌：「木魚不是敲給別人聽的。」', '小沙彌：「香是燒給自己的。」'], ['小沙彌：「這裡的石階，我每天掃，每天又有落葉。」', '小沙彌：「放下不是丟掉，是不再握緊。」', '小沙彌：「前面就是夜叉了。他只是守門，不是壞人。」'], ['小沙彌：「過了這裡，就看你自己了。」', '小沙彌：「觀音的三個問題，沒有標準答案。」', '小沙彌：「燈是你的，路也是你的。」']][layer][i],
+  intro: def => (L.run.layer === 2
+    ? [{ who: '千手觀音', text: '提燈的孩子，你一路走來，哪一盞燈是為了自己點的？' }, { who: '千手觀音', text: '我有三問。答不出來沒關係，答出來也沒關係。' }, { who: '旁白', text: '千隻手同時抬起，每一隻手心都有一盞小燈。' }]
+    : L.run.layer === 1
+      ? [{ who: '守門夜叉', text: '又是你。這一次，你把影子帶來幾個？' }]
+      : [{ who: '守門夜叉', text: '山門只讓放得下的人過。你身後拖著多少影子？' }]),
+  onMid: () => { if (L.th() === 14) L.later(1.2, () => L.toast(L.run.layer === 0 ? '夜叉讓開了路：「……去吧。第二道門在更高的地方。」' : '夜叉合上眼：「最後一道門後面，有人在等你。」', 3.4)); },
+  outro: () => [{ who: '千手觀音', text: '千隻手慢慢垂下，只留一隻，輕輕托起你的燈。' }, { who: '千手觀音', text: '燈沒有變小。是你，不再怕它熄滅了。' }, { who: '旁白', text: '鐘聲一圈一圈散開。心裡的雜音，安靜了一點點。' }]
 });
 
 })();

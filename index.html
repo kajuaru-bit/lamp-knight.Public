@@ -332,7 +332,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.54　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.55　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -404,6 +404,15 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
         <button class="btn" id="btnRetry" type="button">再試一次<kbd>F</kbd></button>
         <button class="btn alt" id="btnMenu1" type="button">換職業</button>
         <p class="quiet">W／S 選擇，F 確定</p>
+      </div>
+    </div>
+
+    <div class="screen center" id="zentut" hidden>
+      <div class="card">
+        <h3 id="ztT"></h3>
+        <p id="ztB" style="white-space:pre-line"></p>
+        <p class="quiet" id="ztP"></p>
+        <div class="menurow"><button class="btn" id="ztBtn" type="button" disabled>繼續<kbd>F</kbd></button></div>
       </div>
     </div>
 
@@ -3135,6 +3144,7 @@ function onConfirm() {
   if (state === 'menu') startGame();
   else if (state === 'sub') closeSub();
   else if (state === 'dialog') advanceDialog();
+  else if (state === 'zentut') zenTutNext();
   else if (SCR_ACT[state]) SCR_ACT[state][scrSel]();
 }
 
@@ -3599,7 +3609,7 @@ function roomCleared() {
   if (rand() < (p.hp <= 2 ? 0.35 : 0.15)) pickups.push({ kind: 'oil', x: lx, y: DOOR.y + 40, t: 0 });
 }
 /* ===== 佛寺長路（run.path）：長條地圖，鏡頭鎖玩家，業障牆從後面推，落後的敵人變成雜念 ===== */
-const PATH_LEN = 4200, KARMA_SPD = 90, ZN_MAX = 10;
+const PATH_LEN = 5600, KARMA_SPD = 90, ZN_MAX = 10;
 function pathInit() {
   const D = [0.27, 0.52, 0.77].map(f => ({ x: Math.round(ROOM.x + ROOM.w * f), w: 400 }));
   room.path = { next: ROOM.x + 520, wx: ROOM.x - 380, zn: 0, daze: 0, med: 0, medOn: false, dojos: D, hurtT: 0, ring: null, flash: 0 };
@@ -3613,6 +3623,27 @@ function pathInit() {
   room.obs = obs;
   D.forEach((d, i) => { room.items.push({ kind: 'muyu', id: 'muyu', x: d.x + 120, y: DOOR.y + 20, group: 'prop', price: 0, taken: false, taps: 3, di: i }); room.items.push({ kind: 'shrine', id: 'shrine', x: d.x - 120, y: DOOR.y + 20, group: 'prop', price: 0, taken: false, used: false, di: i }); });
 }
+const ZEN_TUT = [
+  { t: '修行路：一直往前', b: '這一層是一條很長的路，畫面會一直鎖在你身上。\n用游標指方向，角色會自己往前走（按住滑鼠可暫停追隨；手機用搖桿或點擊）。\n沿途會有敵人出現在前方——打倒它們，或者繞過去繼續走。' },
+  { t: '雜念：落在身後的敵人', b: '敵人如果落到你身後、超出畫面，就會消失，變成「雜念」。\n畫面上方的雜念條滿了，你會「迷亂」6 秒：子彈散開、視野只剩中間一圈。\n打倒敵人不會增加雜念；放著不管、一路往前跑，才會。' },
+  { t: '業障牆：從後面推來', b: '有一道黑色的業障牆從起點慢慢往前推。\n被追上會持續扣血，所以不能停在原地太久。\n走進「道場」時，業障牆會暫停。' },
+  { t: '道場：靜心與木魚', b: '每層有三個道場，裡面沒有敵人。\n中間蒲團：站著不動、按住 F 約 2 秒，雜念清空。\n右邊木魚：按 F 出現縮圈，圈縮到最小時再按 F＝雜念清空，否則減半（每個木魚 3 次）。\n左邊佛龕：參拜一次，得到一份隨機回禮。' }
+];
+let zt = { i: 0, wait: 0, shown: -1 };
+function renderZenTut() {
+  const q = ZEN_TUT[zt.i], ok = zt.wait <= 0, last = zt.i === ZEN_TUT.length - 1;
+  $('ztT').textContent = q.t; $('ztB').textContent = q.b; $('ztP').textContent = '說明 ' + (zt.i + 1) + ' / ' + ZEN_TUT.length + '　（這一段不能跳過）';
+  $('ztBtn').disabled = !ok; $('ztBtn').innerHTML = (ok ? (last ? '開始修行' : '繼續') : '請先閱讀（' + Math.ceil(zt.wait) + '）') + '<kbd>F</kbd>';
+}
+function openZenTut() { zt = { i: 0, wait: 2.4, shown: 3 }; show('zentut', true); setState('zentut'); renderZenTut(); }
+function updateZenTut(dt) { if (zt.wait > 0) { zt.wait -= dt; const c = Math.ceil(Math.max(0, zt.wait)); if (c !== zt.shown) { zt.shown = c; renderZenTut(); } } }
+function zenTutNext() {
+  if (state !== 'zentut' || zt.wait > 0) return;
+  sfx('tick'); zt.i++;
+  if (zt.i >= ZEN_TUT.length) { show('zentut', false); setState('play'); rec.zenTut = (rec.zenTut || 0) + 1; saveRec(); hintSig = ''; return; }
+  zt.wait = 2.4; zt.shown = 3; renderZenTut();
+}
+$('ztBtn').addEventListener('click', () => { if (state === 'zentut') zenTutNext(); });
 function addZn(n) {
   const P = room.path; if (!P || P.daze > 0) return;
   P.zn = Math.min(ZN_MAX, P.zn + n); P.flash = 0.4;
@@ -3636,6 +3667,11 @@ function updatePath(dt) {
   const P = room.path; if (!P) return;
   const hud = $('znBar'), fog = $('znFog');
   if (state !== 'play' || room.kind !== 'combat') { return; }
+  if (!P.intro) {
+    P.intro = true; const W0 = THEMES[th()], lines = W0.pathIntro ? W0.pathIntro(run.layer) : null;
+    if (lines && lines.length) { say(lines, () => { if (run.layer === 0 && (rec.zenTut || 0) < 3) openZenTut(); }); return; }
+    if (run.layer === 0 && (rec.zenTut || 0) < 3) { openZenTut(); return; }
+  }
   if (!room.cleared) {
     const dj = P.dojos.find(d => Math.abs(p.x - d.x) < d.w / 2);
     // 生成：玩家往前走，視野前方出現新的敵人群
@@ -3668,7 +3704,7 @@ function updatePath(dt) {
     const onMat = dj && Math.hypot(p.x - dj.x, p.y - (DOOR.y + 20)) < 60 && p.speed < 70;
     P.medOn = !!(onMat && keys.f && !p.near);
     if (P.medOn) { P.med += dt; if (P.med >= 2) { P.med = 0; P.zn = 0; P.daze = 0; toast('靜心：雜念清空', 1.8); sfx('clear'); burst(dj.x, DOOR.y + 20, 18, ['#ffe9a0', C.paper], 160, true); } } else P.med = Math.max(0, P.med - dt * 2);
-    if (dj && !run.dojoTip) { run.dojoTip = true; toast('道場：業障牆暫停。蒲團上按住 F 靜心、木魚與佛龕在兩側', 3.2); }
+    if (dj && !dj.said) { dj.said = true; const W1 = THEMES[th()], di = P.dojos.indexOf(dj); if (!run.dojoTip) { run.dojoTip = true; toast('道場：業障牆暫停。蒲團上按住 F 靜心、木魚與佛龕在兩側', 3.2); later(3.4, () => { if (W1.dojoLine) toast(W1.dojoLine(run.layer, di), 3.4); }); } else if (W1.dojoLine) toast(W1.dojoLine(run.layer, di), 3.4); }
     // 終點
     if (p.x > ROOM.x + ROOM.w - 220) { for (const e of enemies) if (e.type !== 'boss') e.dead = true; bullets = bullets.filter(b => b.own === 'p'); roomCleared(); }
   }
@@ -4828,7 +4864,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.54　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.55　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -5228,6 +5264,7 @@ function update(dt) {
   time += dt;
   updateFade(dt);
   if (state === 'dialog') updateDialog(dt);
+  if (state === 'zentut') updateZenTut(dt);
   if (state === 'play') updatePlay(dt);
   else if (state === 'dying') { deadT -= dt; shake = Math.max(0, shake - dt * 30); if (deadT <= 0) showOver(); }
   if (state !== 'play') updateHint();
