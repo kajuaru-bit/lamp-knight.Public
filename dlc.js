@@ -386,12 +386,11 @@ L.registerWorld({
   intro: def => [{ who: '旁白', text: def.name + '從書架上翻了下來，滿屋子的紙頁沙沙作響。' }],
   outro: () => [{ who: '旁白', text: '書闔上了，字母一個個退回紙裡，只剩檯燈還亮著。' }],
   onFinal: () => { if (L.th() === 12) { L.unlockAch('dictBoss'); if (L.run.hurtN === (L.run.hurtL || 0)) L.unlockAch('inkSafe'); } },
-  onMid: () => { if (L.th() === 12 && L.run.hurtN === (L.run.hurtL || 0)) L.unlockAch('inkSafe'); },
+  onMid: () => { if (L.th() !== 12) return; if (L.run.hurtN === (L.run.hurtL || 0)) L.unlockAch('inkSafe'); if (L.enemies.some(b => b.type === 'boss' && b.xk === 'dict')) L.unlockAch('dictBoss'); },
   onKill: e => {
     if (L.th() !== 12 || e.skin !== 'block' || !e.lt) return;
     const r = L.run, need = 'LAMP'[r.spN || 0];
     if (e.lt === need) { r.spN = (r.spN || 0) + 1; L.toast('拼字：' + 'LAMP'.split('').map((ch, i) => i < r.spN ? ch : '＿').join(' '), 1.4); if (r.spN >= 4) { r.spN = 0; L.unlockAch('spell'); } }
-    else r.spN = e.lt === 'L' ? 1 : 0;
   }
 });
 L.registerWorld({

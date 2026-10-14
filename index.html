@@ -329,7 +329,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.49　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.50　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -1012,7 +1012,7 @@ ACH.push(
   { id: 'dictBoss', name: '大辭典闔上了', desc: '擊敗大辭典（字母書房的最後 Boss；可獲得書僮帽）' },
   { id: 'shoreBoss', name: '渡過彼岸', desc: '擊敗彼岸之主（可獲得擺渡人斗笠）' },
   { id: 'inkSafe', name: '筆下留情', desc: '在字母書房，一層從進房到擊敗該層 Boss 完全沒受傷（可獲得墨水瓶燈罩）' },
-  { id: 'spell', name: '拼字高手', desc: '字母書房一局中依序擊敗頭上字母為 L、A、M、P 的字母積木怪，打到別的字母會重來（可獲得傳說造型）' },
+  { id: 'spell', name: '拼字高手', desc: '字母書房一局中依序擊敗頭上字母為 L、A、M、P 的字母積木怪（打到其他字母不影響進度；可獲得傳說造型）' },
   { id: 'dartRet', name: '折返無傷', desc: '在彼岸連續擊敗 6 隻鏢影，期間沒被飛鏢打中（可獲得彼岸花提燈）' },
   { id: 'copyFree', name: '不被模仿', desc: '彼岸之主「模仿所有武器」那一招無傷通過（可獲得傳說造型）' },
   { id: 'bothShores', name: '兩岸皆渡', desc: '字母書房與彼岸各通關一次（獲得一件隨機傳說造型）' }
@@ -1108,7 +1108,7 @@ const mateOpen = id => !!(rec.mates[id] && rec.mates[id].got);
 const mateChance = id => Math.min(1, 0.5 + 0.25 * ((rec.mates[id] || {}).fails || 0));
 const clsUnlocked = i => !!optUnlock.checked || (CLS[i].ach2 && achCount() >= CLS[i].ach2) || (CLS[i].achId ? !!rec.ach[CLS[i].achId] : CLS[i].mate ? mateOpen(CLS[i].mate) : CLS[i].ach ? achCount() >= CLS[i].ach : (i === 0 || cleared));
 const lastL = () => run.endless ? 9999 : run.long ? (run.ext ? 8 : 5) : 2;
-const thIdx = () => run.long ? (run.layer >= 6 ? run.layer - 3 : Math.min(2, run.layer >> 1)) : Math.min(run.layer, 2);
+const thIdx = () => run.dl2 ? (run.layer >= 3 ? 1 : 0) : run.long ? (run.layer >= 6 ? run.layer - 3 : Math.min(2, run.layer >> 1)) : Math.min(run.layer, 2);
 const dL = () => run.long ? (run.layer >= 6 ? 3 : Math.min(2, (run.layer + 1) >> 1)) : Math.min(3, run.layer);
 const th = () => run.themes[thIdx()];
 /* 主題註冊表：新增一個世界＝在這裡加一筆（名稱、配色、環境音、Boss、敵人外觀、是否無暗處、舞台樣式、障礙繪製）；各處都從這張表查 */
@@ -1152,7 +1152,7 @@ const LANTERN_MID = { kind: 'lmid', name: '燈影看守', hp: 120 };
 const POLAR_FINAL = { dragon: { kind: 'dragon', name: '冰龍', hp: 190 }, giant: { kind: 'giant', name: '風雪巨人', hp: 210 } };
 const INKB = { shan: { kind: 'shan', name: '山靈', hp: 120 }, idragon: { kind: 'idragon', name: '水墨龍', hp: 130 }, nian: { kind: 'nian', name: '年獸', hp: 110 } };
 function bossDef(finO) {
-  const t = th(), fin = finO !== undefined ? finO : run.endless ? run.layer % 3 === 2 : run.long ? ((run.layer & 1) === 1 || run.layer >= 6) : run.layer === 2;
+  const t = th(), fin = finO !== undefined ? finO : run.endless ? run.layer % 3 === 2 : run.dl2 ? (run.layer === 2 || run.layer === 5) : run.long ? ((run.layer & 1) === 1 || run.layer >= 6) : run.layer === 2;
   return THEMES[t].boss(fin);
 }
 
@@ -2668,9 +2668,10 @@ const DLC = [
   { id: 'future', name: '未來・守燈', desc: '每層一間大房，守住燈塔', theme: 11, flag: 'guard', pack: 'dlc.js', say: ['未來世界・守燈：每層一間大房，裡面有商人，守住燈塔打完所有敵人', 3] },
   { id: 'futEscape', name: '未來・逃離', desc: '崩塌線從左邊追來', theme: 11, flag: 'escape', pack: 'dlc.js', say: ['未來世界・逃離模式：崩塌線從左邊追來；Boss 房暫停崩塌、120 秒內要打倒', 3.2] },
   { id: 'letters', name: '字母書房（DLC2）', desc: '傳統玩法；選到才下載（約 30 KB）', theme: 12, flag: null, pack: 'dlc.js', say: ['字母書房：這一局三層都在書房裡，小心墨水與字母積木', 3] },
+  { id: 'dl2long', name: 'DLC2 長線（字母書房＋彼岸）', desc: '6 層：字母書房 3 層、彼岸 3 層；約 25 分鐘（擺渡人解鎖用）', theme: 12, flag: 'dl2', long: true, pack: 'dlc.js', say: ['DLC2 長線：先在字母書房走 3 層，再渡到彼岸走 3 層', 3.2] },
   { id: 'shore', name: '彼岸（DLC2）', desc: '傳統玩法；會模仿武器的影怪', theme: 13, flag: null, pack: 'dlc.js', say: ['彼岸：影子學會了你的武器，小心揮扇、擲鏢與火球', 3] }
 ];
-const DLC_FLAGS = ['escort', 'endless', 'escape', 'guard'];
+const DLC_FLAGS = ['escort', 'endless', 'escape', 'guard', 'dl2'];
 const dlcOf = id => DLC.find(q => q.id === id);
 const DLC_MENU = DLC.map(q => ({ id: q.id, name: q.name, desc: q.desc })).concat([{ id: 'random', name: 'DLC 隨機', desc: '從以上全部隨機抽一種' }]);
 $('dlcList').innerHTML = DLC_MENU.map((q, i) => '<button class="btn" id="btnDlc' + i + '" type="button"></button>').join('') + '<button class="btn alt" id="btnDlc' + DLC_MENU.length + '" type="button"></button>';
@@ -2869,10 +2870,10 @@ function goNext() {
     loadRoom(); p.x = ROOM.x + 40; p.y = DOOR.y; p.vx = p.vy = p.kx = p.ky = 0; placeAllies();
     if (p.roomCd > 0) { p.roomCd--; hudSig = ''; }
     if (layerChanged && run.endless) { rec.endlessMax = Math.max(rec.endlessMax || 0, run.layer + 1); toast('無盡：第 ' + (run.layer + 1) + ' 層', 2); if (run.layer >= 5) unlockAch('endless6'); healP(1); }
-    if (layerChanged) { if (run.long) { rec.longMax = Math.max(rec.longMax || 0, run.layer + 1); saveRec(); } writeSave(); }
+    if (layerChanged) { if (run.long && !run.dl2) { rec.longMax = Math.max(rec.longMax || 0, run.layer + 1); saveRec(); } writeSave(); }
     const lines = [];
     if (layerChanged && (!run.long || !(run.layer & 1)) && STORY.layerIntro[run.long ? run.layer >> 1 : run.layer]) lines.push(STORY.layerIntro[run.long ? run.layer >> 1 : run.layer]);
-    if (layerChanged && run.long && STORY.chapter[run.layer]) for (const l of STORY.chapter[run.layer]) lines.push(l);
+    if (layerChanged && run.long && !run.dl2 && STORY.chapter[run.layer]) for (const l of STORY.chapter[run.layer]) lines.push(l);
     if (room.kind === 'boss' && !run.practice) for (const l of bossIntroLines()) lines.push(l);
     if (lines.length) say(lines, announceRoom); else announceRoom();
   });
@@ -2890,8 +2891,8 @@ function setDlc(k) {
   if (run.dlc) { const v = run.dlcPrev; if (v) { run.themes = v.themes; run.themeBase = v.base; run.long = v.long; run.themePick = v.pick; } allies = allies.filter(a => !(dlcOf(run.dlc) && a.id === dlcOf(run.dlc).ally)); for (const fl of DLC_FLAGS) run[fl] = false; run.dlc = false; run.dlcPrev = null; }
   if (!k) { rebuildPlan(); toast('取消 DLC，回到一般模式', 1.6); return; }
   const d = dlcOf(k); if (!d) return;
-  run.dlc = k; run.dlcPrev = { themes: run.themes.slice(), base: (run.themeBase || run.themes).slice(), long: run.long, pick: run.themePick }; run.long = false; run.themePick = -1;
-  run.themes = [d.theme, d.theme, d.theme]; if (d.flag) run[d.flag] = true;
+  run.dlc = k; run.dlcPrev = { themes: run.themes.slice(), base: (run.themeBase || run.themes).slice(), long: run.long, pick: run.themePick }; run.long = !!d.long; run.themePick = -1;
+  run.themes = d.flag === 'dl2' ? [12, 13, 13] : [d.theme, d.theme, d.theme]; if (d.flag) run[d.flag] = true;
   if (d.ally && !allies.some(a => a.id === d.ally)) addAlly(d.ally, p.x - 40, p.y);
   toast(d.say[0], d.say[1]);
   run.themeBase = run.themes.slice(); rebuildPlan();
@@ -2947,7 +2948,7 @@ function die() {
 function fmtT(t) { t = Math.round(t); return Math.floor(t / 60) + ':' + ('0' + (t % 60)).slice(-2); }
 function sumCards(win) {
   const c = CLS[p.cls], up = Object.keys(p.upg).reduce((a, k) => a + (p.upg[k] || 0), 0);
-  const items = [['職業', c.name], ['模式', run.guard ? '未來守燈' : run.escape ? '電玩逃離' : run.endless ? '電玩無盡' : run.escort ? '糖果護送' : run.long ? (run.ext ? '長線＋追加' : '長線作戰') : '一般'], [win ? '結果' : '倒在', win ? '通關' : '第 ' + (run.layer + 1) + ' 層・' + (KIND_NAME[room.kind] || '')], ['用時', fmtT(run.t)], ['擊敗', run.kills + ' 隻'], ['總傷害', Math.round(run.dmgOut || 0)], ['紙片', '＋' + (run.paperGiven || 0) + '（共 ' + (rec.paper || 0) + '）'], ['受傷', (run.hurtN || 0) + ' 次（−' + Math.round((run.dmgIn || 0) * 10) / 10 + '）'], ['燈芯', '＋' + (run.cIn || 0) + '／－' + (run.cOut || 0)], ['強化', up + ' 個'], ['武器', p.weapons.map(id => WDEF[id].name).join('、')]];
+  const items = [['職業', c.name], ['模式', run.dl2 ? 'DLC2 長線' : run.guard ? '未來守燈' : run.escape ? '電玩逃離' : run.endless ? '電玩無盡' : run.escort ? '糖果護送' : run.long ? (run.ext ? '長線＋追加' : '長線作戰') : '一般'], [win ? '結果' : '倒在', win ? '通關' : '第 ' + (run.layer + 1) + ' 層・' + (KIND_NAME[room.kind] || '')], ['用時', fmtT(run.t)], ['擊敗', run.kills + ' 隻'], ['總傷害', Math.round(run.dmgOut || 0)], ['紙片', '＋' + (run.paperGiven || 0) + '（共 ' + (rec.paper || 0) + '）'], ['受傷', (run.hurtN || 0) + ' 次（−' + Math.round((run.dmgIn || 0) * 10) / 10 + '）'], ['燈芯', '＋' + (run.cIn || 0) + '／－' + (run.cOut || 0)], ['強化', up + ' 個'], ['武器', p.weapons.map(id => WDEF[id].name).join('、')]];
   if (!win && run.deathBy) items.push(['死因', enameOf(run.deathBy)]);
   return items.map(a => '<span><small>' + a[0] + '</small><b>' + a[1] + '</b></span>').join('');
 }
@@ -3017,7 +3018,8 @@ function bossDefeated() {
   if (run.practice) { bullets = []; room.cleared = true; toast(bossDef().name + '倒下了（練習）'); clearAdds(); sfx('clear'); later(1.8, () => showPrac(true)); return; }
   recBoss(); wickDrop(); run.fin = true; if ((run.frz || 0) >= 5) unlockAch('calm');
   bullets = []; room.cleared = true; toast(bossDef().name + '倒下了'); clearAdds(); if (th() === 7) { if (run.poolHitL !== run.layer) unlockAch('swampWalk'); if (p.curse >= 3) unlockAch('purifier'); }
-  if (run.long) { if (run.ext) rec.extClears = (rec.extClears || 0) + 1; else rec.longClears = (rec.longClears || 0) + 1; saveRec(); }
+  if (run.dl2) { rec.dl2Clears = (rec.dl2Clears || 0) + 1; saveRec(); }
+  else if (run.long) { if (run.ext) rec.extClears = (rec.extClears || 0) + 1; else rec.longClears = (rec.longClears || 0) + 1; saveRec(); }
   if (!room.hurt) unlockAch('flawless'); endRun(true);
   if (!cleared) { cleared = true; try { localStorage.setItem('lampknight.cleared', '1'); } catch (e) { /* storage is optional */ } }
   later(1.8, () => say(THEMES[th()].outro ? THEMES[th()].outro() : th() === 11 ? [{ who: '旁白', text: '核心熄滅的瞬間，整座城市的霓虹同時安靜下來，又一盞一盞亮起。' }] : th() === 10 ? [{ who: '旁白', text: '螢幕閃了三下，跳出一行字：GAME CLEAR。' }] : th() === 9 ? [{ who: '旁白', text: '糖霜融化了，空氣裡留下最初的甜味。' }, { who: '小糖', text: '找到了……謝謝你，提燈人。' }] : th() === 2 ? STORY.bossEnd : (STORY.bossDown[bossDef().kind] || []).concat([{ who: '旁白', text: '最深處的光靜靜等著，要由你決定它的去向。' }]), () => { show('choice', true); setState('choice'); }));
@@ -3039,7 +3041,7 @@ function pickEnding(k) {
   const en0 = STORY.endings[k], ex = STORY.endExtra.filter(o => o.k === 'mates' ? Object.keys(rec.allies || {}).length >= 3 : o.k === 'noHurt' ? !run.hurtAny : o.k === 'long' ? run.long : achCount() >= ACH.length).slice(0, 2).map(o => ({ who: '旁白', text: o.text }));
   const extL = run.ext ? [{ who: '旁白', text: '你多走了三層。那些路不是為了誰，只是燈想知道，自己還能照多遠。' }, { who: '旁白', text: '身後的影子們終於安靜了。他們不是被打倒，是被看見。' }, { who: '提燈騎士', text: '……回去吧。這一次，我知道路了。' }] : [];
   const en = { title: en0.title, lines: en0.lines.concat(ex, extL) }; rec.endings[k] = 1; if (rec.endings[0] && rec.endings[1]) unlockAch('endings'); saveRec();
-  say(en.lines, () => { settlePaper(); $('endCards').innerHTML = sumCards(true); $('endTitle').textContent = en.title; $('endLine').textContent = en.lines[en.lines.length - 1].text; $('endRecap').textContent = recapText(true); $('btnExt').hidden = !(run.long && !run.ext); show('ending', true); setState('ending'); if ($('btnExt').hidden) { scrSel = 1; scrRender(); } });
+  say(en.lines, () => { settlePaper(); $('endCards').innerHTML = sumCards(true); $('endTitle').textContent = en.title; $('endLine').textContent = en.lines[en.lines.length - 1].text; $('endRecap').textContent = recapText(true); $('btnExt').hidden = !(run.long && !run.ext && !run.dl2); show('ending', true); setState('ending'); if ($('btnExt').hidden) { scrSel = 1; scrRender(); } });
 }
 function startExt() {
   if (state !== 'ending' || !run.long || run.ext || run.layer !== 5) return;
@@ -4615,7 +4617,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.49　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.50　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
