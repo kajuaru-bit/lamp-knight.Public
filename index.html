@@ -329,7 +329,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.45　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.46　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -1086,7 +1086,52 @@ const lastL = () => run.endless ? 9999 : run.long ? (run.ext ? 8 : 5) : 2;
 const thIdx = () => run.long ? (run.layer >= 6 ? run.layer - 3 : Math.min(2, run.layer >> 1)) : Math.min(run.layer, 2);
 const dL = () => run.long ? (run.layer >= 6 ? 3 : Math.min(2, (run.layer + 1) >> 1)) : Math.min(3, run.layer);
 const th = () => run.themes[thIdx()];
-const TNAMES = ['花園', '極地', '提燈洞窟', '中華古代', '深海', '火山', '夢境', '詛咒沼澤', '沙漠', '糖果世界', '電玩世界', '未來世界'];
+const CANDY_SKIN = { syrup: 'syrup', roller: 'roller', crawler: 'gummy', shooter: 'lolli', brute: 'cookie', splitter: 'jelly', splitter2: 'jelly', bomber: 'gumdrop' };
+const ARC_SKIN = { crawler: 'invader', shooter: 'ghost', brute: 'block', splitter: 'slimepx', splitter2: 'slimepx', bomber: 'bombpx', roller: 'chomp', glitch: 'glitch' };
+const FUT_SKIN = { crawler: 'drone', shooter: 'turret', brute: 'mech', splitter: 'nano', splitter2: 'nano', bomber: 'mine', laser: 'laser', glitch: 'phase' };
+/* 主題註冊表：新增一個世界＝在這裡加一筆（名稱、配色、環境音、Boss、敵人外觀、是否無暗處、舞台樣式、障礙繪製）；各處都從這張表查 */
+const THEMES = [
+  { name: '花園', pool: 'base', opt: '花園', pal: PALS[0], amb: ['bandpass', 900, 0.6, 0.012],
+    ev: r => blip(2600 + r() * 600, 3000 + r() * 500, 0.05, 'sine', 0.008),
+    boss: fin => { const b = GARDEN[optGarden.value] || GARDEN[run.gardenKind] || GARDEN.gardener; return fin ? Object.assign({}, b, { hp: Math.round(b.hp * 1.6) }) : b; } },
+  { name: '極地', pool: 'base', opt: '極地', pal: PALS[1], amb: ['lowpass', 500, 0.4, 0.03], ev: null,
+    boss: fin => fin ? (POLAR_FINAL[run.polarFinal] || POLAR_FINAL.dragon) : (POLAR[run.polarKind] || BOSS[1]) },
+  { name: '提燈洞窟', pool: 'base', opt: '提燈洞窟', pal: PALS[2], amb: ['lowpass', 260, 0.5, 0.01],
+    ev: r => blip(900 + r() * 200, 400, 0.12, 'sine', 0.02),
+    boss: fin => fin ? (FINALS[optBoss.value] || FINALS[run.finalKind] || FINALS.keeper) : LANTERN_MID },
+  { name: '中華古代', pool: 'base', opt: '中華古代', pal: PALS[3], amb: ['lowpass', 380, 0.7, 0.012],
+    ev: r => { if (r() < 0.5) { blip(330, 320, 1.4, 'sine', 0.025); blip(660, 650, 0.9, 'sine', 0.01); } else blip(1100 + r() * 300, 700, 0.18, 'sine', 0.012); },
+    boss: fin => { const b = INKB[run.inkKind] || INKB.shan; return fin ? Object.assign({}, b, { hp: Math.round(b.hp * 1.5) }) : b; } },
+  { name: '深海', pool: 'base', opt: '深海（部分）', pal: PALS[4], amb: ['lowpass', 180, 0.5, 0.025],
+    ev: r => blip(200 + r() * 150, 520 + r() * 200, 0.18, 'sine', 0.02),
+    boss: fin => fin ? { kind: 'kraken', name: '古代海怪', hp: 187 } : { kind: 'serpent', name: '深海巨蛇', hp: 115 } },
+  { name: '火山', pool: 'base', opt: '火山（部分）', pal: PALS[5], amb: ['lowpass', 220, 1.2, 0.03],
+    ev: r => blip(90 + r() * 40, 50, 0.25, 'sine', 0.04),
+    boss: fin => fin ? { kind: 'vdragon', name: '炎龍', hp: 205 } : { kind: 'golem', name: '熔岩魔像', hp: 125 } },
+  { name: '夢境', pool: 'base', opt: '夢境（部分）', pal: PALS[6], amb: ['bandpass', 1500, 2, 0.006],
+    ev: r => { const n = [523, 659, 784, 988, 1175][Math.floor(r() * 5)]; blip(n, n, 0.5, 'triangle', 0.018); },
+    boss: fin => fin ? { kind: 'mirrorgiant', name: '巨大鏡面人', hp: 200 } : { kind: 'nightmare', name: '夢魘看守', hp: 118 } },
+  { name: '詛咒沼澤', pool: 'base', opt: '詛咒沼澤', pal: PALS[7], amb: ['lowpass', 320, 0.8, 0.012],
+    ev: r => { blip(180 + r() * 50, 260 + r() * 40, 0.09, 'square', 0.012); setTimeout(() => blip(200, 280, 0.09, 'square', 0.01), 130); },
+    boss: fin => fin ? { kind: 'toad', name: '巨大蟾蜍', hp: 195 } : { kind: 'rootking', name: '腐根樹妖', hp: 120 } },
+  { name: '沙漠', pool: 'base', opt: '沙漠（部分）', pal: PALS[8], amb: ['bandpass', 700, 0.5, 0.03], ev: null,
+    boss: fin => fin ? { kind: 'scorpking', name: '巨大蠍王', hp: 195 } : { kind: 'mummyking', name: '木乃伊王', hp: 120 } },
+  { name: '糖果世界', pool: 'dlc', opt: '糖果世界（DLC）', pal: PALS[9], amb: ['bandpass', 2400, 3, 0.004], noDark: true, stage: 'candy',
+    skin: { map: CANDY_SKIN, draw: e => drawCandyEnemy(e), hue: true }, obsDraw: (g, o, rng) => drawCandyObs(g, o, rng),
+    ev: r => { const n = [659, 784, 988, 1319][Math.floor(r() * 4)]; blip(n, n * 1.01, 0.18, 'sine', 0.015); setTimeout(() => blip(n * 1.5, n * 1.5, 0.2, 'sine', 0.01), 140); },
+    boss: fin => fin ? { kind: 'golem', name: '糖霜巨像', hp: 205, candy: true } : { kind: 'golem', name: '蛋糕魔像', hp: 125, candy: true } },
+  { name: '電玩世界', pool: 'dlc', opt: '電玩世界（DLC）', pal: PALS[10], amb: ['lowpass', 900, 0.5, 0.004], noDark: true, stage: 'arc',
+    skin: { map: ARC_SKIN, draw: e => drawArcEnemy(e), hue: false }, obsDraw: (g, o, rng) => drawArcObs(g, o, rng),
+    ev: r => { const n = [262, 330, 392, 523, 659][Math.floor(r() * 5)]; blip(n, n, 0.08, 'square', 0.012); setTimeout(() => blip(n * 1.5, n * 1.5, 0.08, 'square', 0.01), 110); },
+    boss: fin => fin ? { kind: 'golem', name: '像素魔王', hp: 205, arc: true } : { kind: 'golem', name: '街機巨獸', hp: 125, arc: true } },
+  { name: '未來世界', pool: 'dlc', opt: '未來世界（DLC）', pal: PALS[11], amb: ['bandpass', 500, 4, 0.006], noDark: true, stage: 'fut',
+    skin: { map: FUT_SKIN, draw: e => drawFutEnemy(e), hue: true }, obsDraw: (g, o, rng) => drawFutObs(g, o, rng),
+    ev: r => { const n = [196, 294, 392, 587][Math.floor(r() * 4)]; blip(n, n * 0.5, 0.35, 'sawtooth', 0.01); },
+    boss: fin => fin ? { kind: 'golem', name: '核心主腦', hp: 205, fut: true } : { kind: 'golem', name: '巡邏機甲', hp: 125, fut: true } }
+];
+const TNAMES = THEMES.map(t => t.name);
+const BASE_IDS = THEMES.map((t, i) => i).filter(i => THEMES[i].pool === 'base');
+optTheme.innerHTML = '<option value="auto">自動</option>' + [0, 1, 2, 4, 5, 6, 7, 8, 3, 9, 10, 11].map(i => '<option value="' + i + '">' + THEMES[i].opt + '</option>').join('');
 function applyThemePick() {
   const base = (run.themeBase || run.themes).slice(), k = run.themePick;
   if (k >= 0 && optTheme.value === 'auto' && base.indexOf(k) < 0) base[1] = k;
@@ -1097,18 +1142,7 @@ const POLAR_FINAL = { dragon: { kind: 'dragon', name: '冰龍', hp: 190 }, giant
 const INKB = { shan: { kind: 'shan', name: '山靈', hp: 120 }, idragon: { kind: 'idragon', name: '水墨龍', hp: 130 }, nian: { kind: 'nian', name: '年獸', hp: 110 } };
 function bossDef(finO) {
   const t = th(), fin = finO !== undefined ? finO : run.endless ? run.layer % 3 === 2 : run.long ? ((run.layer & 1) === 1 || run.layer >= 6) : run.layer === 2;
-  if (t === 0) { const b = GARDEN[optGarden.value] || GARDEN[run.gardenKind] || GARDEN.gardener; return fin ? Object.assign({}, b, { hp: Math.round(b.hp * 1.6) }) : b; }
-  if (t === 1) return fin ? (POLAR_FINAL[run.polarFinal] || POLAR_FINAL.dragon) : (POLAR[run.polarKind] || BOSS[1]);
-  if (t === 11) return fin ? { kind: 'golem', name: '核心主腦', hp: 205, fut: true } : { kind: 'golem', name: '巡邏機甲', hp: 125, fut: true };
-  if (t === 10) return fin ? { kind: 'golem', name: '像素魔王', hp: 205, arc: true } : { kind: 'golem', name: '街機巨獸', hp: 125, arc: true };
-  if (t === 9) return fin ? { kind: 'golem', name: '糖霜巨像', hp: 205, candy: true } : { kind: 'golem', name: '蛋糕魔像', hp: 125, candy: true };
-  if (t === 8) return fin ? { kind: 'scorpking', name: '巨大蠍王', hp: 195 } : { kind: 'mummyking', name: '木乃伊王', hp: 120 };
-  if (t === 7) return fin ? { kind: 'toad', name: '巨大蟾蜍', hp: 195 } : { kind: 'rootking', name: '腐根樹妖', hp: 120 };
-  if (t === 6) return fin ? { kind: 'mirrorgiant', name: '巨大鏡面人', hp: 200 } : { kind: 'nightmare', name: '夢魘看守', hp: 118 };
-  if (t === 5) return fin ? { kind: 'vdragon', name: '炎龍', hp: 205 } : { kind: 'golem', name: '熔岩魔像', hp: 125 };
-  if (t === 4) return fin ? { kind: 'kraken', name: '古代海怪', hp: 187 } : { kind: 'serpent', name: '深海巨蛇', hp: 115 };
-  if (t === 3) { const b = INKB[run.inkKind] || INKB.shan; return fin ? Object.assign({}, b, { hp: Math.round(b.hp * 1.5) }) : b; }
-  return fin ? (FINALS[optBoss.value] || FINALS[run.finalKind] || FINALS.keeper) : LANTERN_MID;
+  return THEMES[t].boss(fin);
 }
 
 function healP(n) {
@@ -1163,24 +1197,8 @@ function sfx(k) {
 const AMB = {
   nb: null, src: null, filt: null, gain: null, th: -1, nextEv: 0,
   // [filterType, freq, Q, gain, lfoRate]
-  P: [['bandpass', 900, 0.6, 0.012], ['lowpass', 500, 0.4, 0.03], ['lowpass', 260, 0.5, 0.01], ['lowpass', 380, 0.7, 0.012], ['lowpass', 180, 0.5, 0.025], ['lowpass', 220, 1.2, 0.03], ['bandpass', 1500, 2, 0.006], ['lowpass', 320, 0.8, 0.012], ['bandpass', 700, 0.5, 0.03], ['bandpass', 2400, 3, 0.004], ['lowpass', 900, 0.5, 0.004], ['bandpass', 500, 4, 0.006]],
-  ev(th, a) {
-    const r = Math.random;
-    switch (th) {
-      case 0: blip(2600 + r() * 600, 3000 + r() * 500, 0.05, 'sine', 0.008); break;                       // insects
-      case 1: break;
-      case 2: blip(900 + r() * 200, 400, 0.12, 'sine', 0.02); break;                                        // drip
-      case 3: if (r() < 0.5) { blip(330, 320, 1.4, 'sine', 0.025); blip(660, 650, 0.9, 'sine', 0.01); } else blip(1100 + r() * 300, 700, 0.18, 'sine', 0.012); break; // bell / water
-      case 4: blip(200 + r() * 150, 520 + r() * 200, 0.18, 'sine', 0.02); break;                            // bubble
-      case 5: blip(90 + r() * 40, 50, 0.25, 'sine', 0.04); break;                                           // lava burble
-      case 6: { const n = [523, 659, 784, 988, 1175][Math.floor(r() * 5)]; blip(n, n, 0.5, 'triangle', 0.018); } break; // music box
-      case 7: blip(180 + r() * 50, 260 + r() * 40, 0.09, 'square', 0.012); setTimeout(() => blip(200, 280, 0.09, 'square', 0.01), 130); break; // frog
-      case 8: break;
-      case 11: { const n = [196, 294, 392, 587][Math.floor(r() * 4)]; blip(n, n * 0.5, 0.35, 'sawtooth', 0.01); } break;
-      case 10: { const n = [262, 330, 392, 523, 659][Math.floor(r() * 5)]; blip(n, n, 0.08, 'square', 0.012); setTimeout(() => blip(n * 1.5, n * 1.5, 0.08, 'square', 0.01), 110); } break;
-      case 9: { const n = [659, 784, 988, 1319][Math.floor(r() * 4)]; blip(n, n * 1.01, 0.18, 'sine', 0.015); setTimeout(() => blip(n * 1.5, n * 1.5, 0.2, 'sine', 0.01), 140); } break;
-    }
-  },
+  P: THEMES.map(t => t.amb),
+  ev(th, a) { const f = THEMES[th] && THEMES[th].ev; if (f) f(Math.random); },
   tick(dt) {
     const want = optSound.checked && (state === 'play' || state === 'pause');
     const a = audio();
@@ -1574,9 +1592,7 @@ function drawInkEnemy(e, body) {
   if (th() === 6 && DREAM_SKIN[e.type]) { drawDreamSkin(e); return; }
   if (th() === 7 && SW_SKIN[e.type]) { drawSwampEnemy(e); return; }
   if (th() === 8 && e.skin === 'beetle') { drawDesertEnemy(e); return; }
-  if (th() === 9 && CANDY_SKIN[e.type]) { drawCandyEnemy(e); return; }
-  if (th() === 10 && ARC_SKIN[e.type]) { drawArcEnemy(e); return; }
-  if (th() === 11 && FUT_SKIN[e.type]) { drawFutEnemy(e); return; }
+  { const sk = THEMES[th()].skin; if (sk && sk.map[e.type]) { sk.draw(e); return; } }
   if (e.skin === 'ink') {
     ctx.fillStyle = '#1d1b22'; spiky(ctx, r * 1.1, 9, e.t, 0.82); ctx.fillStyle = f ? C.paper : '#2d2a35'; spiky(ctx, r * 0.95, 9, e.t, 0.82);
     ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.arc(-r * 0.2, -r * 0.25, r * 0.5, 3.4, 4.7); ctx.lineTo(-r * 0.2, -r * 0.25); ctx.fill();
@@ -1739,7 +1755,7 @@ function buildBg(rm) {
     for (let i = 0; i < Math.round(14 * arR); i++) { const x = ROOM.x + rng() * ROOM.w, y = ROOM.y + rng() * ROOM.h; for (let k = 0; k < 3; k++) { g.beginPath(); g.arc(x, y + k * 5, 18 + k * 10, Math.PI * 0.15, Math.PI * 0.85); g.stroke(); } }
     for (let i = 0; i < Math.round(8 * arR); i++) { const x = ROOM.x + 20 + rng() * (ROOM.w - 40), y = ROOM.y + 40 + rng() * (ROOM.h - 60); g.strokeStyle = 'rgba(70,110,70,.35)'; g.lineWidth = 3; g.beginPath(); g.moveTo(x, y); g.lineTo(x + rng() * 6 - 3, y - 36); g.stroke(); g.lineWidth = 1.5; for (let k = 1; k < 3; k++) { g.beginPath(); g.moveTo(x, y - k * 12); g.lineTo(x + 12, y - k * 12 - 8); g.stroke(); } }
   }
-  for (const o of rm.obs) { if (rm.theme === 11) drawFutObs(g, o, rng); else if (rm.theme === 10) drawArcObs(g, o, rng); else if (rm.theme === 9) drawCandyObs(g, o, rng); else if (rm.theme === 0) drawBush(g, o, rng); else if (rm.theme === 1) drawIce(g, o, rng); else if (rm.theme === 3) drawScreen(g, o, rng); else if (rm.theme === 4 || rm.theme === 7) drawBush(g, o, rng); else drawStack(g, o, rng); }
+  for (const o of rm.obs) { if (THEMES[rm.theme].obsDraw) THEMES[rm.theme].obsDraw(g, o, rng); else if (rm.theme === 0) drawBush(g, o, rng); else if (rm.theme === 1) drawIce(g, o, rng); else if (rm.theme === 3) drawScreen(g, o, rng); else if (rm.theme === 4 || rm.theme === 7) drawBush(g, o, rng); else drawStack(g, o, rng); }
   if (rm.theme < 9) for (let tx = 0; tx < WORLD.w; tx += W) for (let ty = 0; ty < WORLD.h; ty += H) g.drawImage(paperTex, tx, ty, W, H);
   return c;
 }
@@ -1790,7 +1806,7 @@ function loadRoom() {
   ROOM.w = big ? SZ.w : 820; ROOM.h = big ? SZ.h : 450; DOOR.y = ROOM.y + ROOM.h / 2;
   WORLD.w = big ? ROOM.w + 140 : W; WORLD.h = big ? ROOM.h + 150 : H;
   let combatIdx = 0; for (let i = 0; i < run.step; i++) if (run.plan[i] === 'combat') combatIdx++;
-  PAL = PALS[th()]; stageEl.classList.toggle('candy', th() === 9); stageEl.classList.toggle('arc', th() === 10); stageEl.classList.toggle('fut', th() === 11); rec.themesSeen[th()] = 1; if (Object.keys(rec.themesSeen).length >= 4) unlockAch('tour');
+  PAL = THEMES[th()].pal; for (const sc of ['candy', 'arc', 'fut']) stageEl.classList.toggle(sc, THEMES[th()].stage === sc); rec.themesSeen[th()] = 1; if (Object.keys(rec.themesSeen).length >= 4) unlockAch('tour');
   const special = kind === 'treasure' || kind === 'event' || kind === 'merchant' || kind === 'start';
   const kindObs = chase ? 'combat' : kind;
   room = { variant, big, expl: {}, camInit: false, kind, layer: run.layer, theme: th(), step: run.step, combatIdx, seed: Math.floor(rand() * 1e9), obs: makeObstacles(kindObs), chase: chase ? { t: 20, active: true, killed: 0, n: 0, last: null } : null, wave: -1, delay: 0.9, waves: 1, cleared: special, final: kind === 'boss' && run.layer === lastL(), bg: null, items: [] };
@@ -2019,8 +2035,8 @@ function newRun() {
   run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.dlc = false; run.escort = false; run.escFail = false; run.dlcPrev = null; run.escHurt = 0; run.escape = false; run.guard = false; run.endless = false; run.syrupTip = false; run.wickN = 0; run.mechTip = false; run.revive = null; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
   for (const w of p.weapons) rec.seenW[w] = 1;
   allies = [];
-  { let t = cleared ? shuffle(run.long ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] : [0, 1, 2, 3, 4, 5, 6, 7, 8]).slice(0, 3) : [0, 1, 2];
-    if (optTheme.value !== 'auto') { const f = +optTheme.value; t = t.filter(x => x !== f); while (t.length < 2) t.push([0, 1, 2, 3, 4, 5, 6, 7, 8].filter(x => x !== f && t.indexOf(x) < 0)[0]); t = t.slice(0, 2).concat([f]); }
+  { let t = cleared ? shuffle(run.long ? THEMES.map((q, i) => i) : BASE_IDS.slice()).slice(0, 3) : [0, 1, 2];
+    if (optTheme.value !== 'auto') { const f = +optTheme.value; t = t.filter(x => x !== f); while (t.length < 2) t.push(BASE_IDS.filter(x => x !== f && t.indexOf(x) < 0)[0]); t = t.slice(0, 2).concat([f]); }
     run.themes = t; run.themeBase = t.slice(); run.themePick = -1; }
   run.polarFinal = cleared ? pickOf(['dragon', 'giant']) : 'dragon'; run.inkKind = pickOf(['shan', 'nian', 'idragon']);
   run.gardenKind = cleared ? pickOf(GARDEN_KINDS) : 'gardener';
@@ -3358,9 +3374,7 @@ function spawnEnemy(type, x, y) {
   if (th() === 6 && DREAM_SKIN[type]) e.skin = DREAM_SKIN[type];
   if (th() === 7 && SW_SKIN[type]) e.skin = SW_SKIN[type];
   if (th() === 8 && type === 'crawler') e.skin = 'beetle';
-  if (th() === 10 && ARC_SKIN[type]) e.skin = ARC_SKIN[type];
-  if (th() === 11 && FUT_SKIN[type]) { e.skin = FUT_SKIN[type]; e.hue = Math.floor(rand() * 4); }
-  if (th() === 9 && CANDY_SKIN[type]) { e.skin = CANDY_SKIN[type]; e.hue = Math.floor(rand() * 4); }
+  { const sk = THEMES[th()].skin; if (sk && sk.map[type]) { e.skin = sk.map[type]; if (sk.hue) e.hue = Math.floor(rand() * 4); } }
   if (th() === 7 && type === 'brute') { e.hp = e.maxHp = Math.round(e.hp * 1.3); }
   if (type === 'sparker' || type === 'faceless' || type === 'sleepwalker') e.noTouch = true;
   e.shieldMax = e.shield; if (type === 'budling' || type === 'moth' || type === 'vine') e.garden = true;
@@ -4003,7 +4017,6 @@ function drawBossMarks(e) {
   }
 }
 /* ---------- candy world (DLC 1) ---------- */
-const CANDY_SKIN = { syrup: 'syrup', roller: 'roller', crawler: 'gummy', shooter: 'lolli', brute: 'cookie', splitter: 'jelly', splitter2: 'jelly', bomber: 'gumdrop' };
 function drawCandyEnemy(e) {
   const r = e.r, f = e.flash > 0, sk = e.skin, ol = '#8a3d63', hue = ['#ff6f91', '#7bd88f', '#ffd166', '#6ec6ff'][e.hue | 0];
   const eye = (x, y) => { ctx.fillStyle = C.paper; circ(ctx, x, y, r * 0.2); ctx.fillStyle = ol; circ(ctx, x + 1, y, r * 0.1); };
@@ -4050,7 +4063,6 @@ function drawCandyBoss(e) {
 }
 
 /* ---------- arcade world (DLC 2) ---------- */
-const ARC_SKIN = { crawler: 'invader', shooter: 'ghost', brute: 'block', splitter: 'slimepx', splitter2: 'slimepx', bomber: 'bombpx', roller: 'chomp', glitch: 'glitch' };
 const SPR = {
   invader: ['00100100', '00011000', '00111100', '01101101', '11111111', '10111101', '10100101', '00011000'],
   ghost: ['00111100', '01111110', '11011011', '11111111', '11111111', '11111111', '11111111', '10110110'],
@@ -4104,7 +4116,6 @@ function pixelize() {
 }
 
 /* ---------- future world (DLC 3) + escape / guard modes ---------- */
-const FUT_SKIN = { crawler: 'drone', shooter: 'turret', brute: 'mech', splitter: 'nano', splitter2: 'nano', bomber: 'mine', laser: 'laser', glitch: 'phase' };
 function drawFutEnemy(e) {
   const r = e.r, f = e.flash > 0, sk = e.skin, hue = ['#00e5ff', '#ff2e97', '#b6ff3b', '#b388ff'][e.hue | 0], ol = '#0b0626';
   const glow = (col, rad) => { ctx.save(); ctx.globalAlpha = 0.28; ctx.fillStyle = col; circ(ctx, 0, 0, rad); ctx.restore(); };
@@ -4729,7 +4740,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.45　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.45　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.46　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.46　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -5607,7 +5618,7 @@ function drawLight() {
   g.save(); g.translate(-cam.x, -cam.y);
   g.globalCompositeOperation = 'destination-out';
   const R = lightR() * (1 + 0.02 * Math.sin(time * 9) + 0.015 * Math.sin(time * 23));
-  if (room.lampOn || th() === 9 || th() === 10 || th() === 11) { g.restore(); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H); return R; }
+  if (room.lampOn || THEMES[th()].noDark) { g.restore(); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H); return R; }
   hole(g, p.x, p.y, R, 1);
   for (const L of lures) hole(g, L.x, L.y, 70, 0.7);
   if (state === 'play' && p.weapons[p.w] === 'dance') for (const off of [0, Math.PI]) hole(g, p.x + Math.cos((p.danceA || 0) + off) * 74, p.y - 4 + Math.sin((p.danceA || 0) + off) * 74, 60, 0.8);
