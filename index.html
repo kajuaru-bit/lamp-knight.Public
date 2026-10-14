@@ -332,7 +332,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.57　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.58　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -694,7 +694,7 @@ const UPG = {
   c_echo:  { name: '迴響光波', cls: 'knight', desc: '【提燈騎士專屬】光爆結束 0.5 秒後再放出一道半徑 60% 的光波，傷害 1', max: 2, price: 10 },
   c_swarm: { name: '螢火增殖', cls: 'hunter', desc: '【螢火獵人專屬】螢火蟲群從 10 隻增加到 14 隻', max: 2, price: 13 },
   c_chain: { name: '連裁', cls: 'cutter', desc: '【剪紙匠專屬】衝刺結束後 1.5 秒內，可以再衝刺一次（不重新計冷卻）', max: 2, price: 13 },
-  c_wall:  { name: '雙層屏障', cls: 'mage', desc: '【折紙術士專屬】同時立起兩道前後相隔的紙牆', max: 2, price: 10 },
+  c_wall:  { name: '雙層屏障', cls: 'mage', desc: '【折紙術士專屬】同時立起兩道前後相隔的紙牆；紙牆也能擋住敵人（敵人無法穿過）', max: 2, price: 10 },
   c_warm:  { name: '濃縮暖光', cls: 'oiler', desc: '【燈油師專屬】第 1 層：暖光恢復量 +1；第 2 層：暖光冷卻 −20%', max: 2, price: 13 },
   c_shield: { name: '厚紙盾', cls: 'shield', desc: '【紙盾衛專屬】第 1 層：護盾上限 +1；第 2 層：護盾恢復速度 +30%', max: 2, price: 13 },
   c_lantern: { name: '燈籠增產', cls: 'lampist', desc: '【提燈使專屬】第 1 層：小燈籠 +1 盞；第 2 層：再 +1 盞，且火球傷害 +30%', max: 2, price: 13 },
@@ -722,7 +722,7 @@ const PREM = {
   c_echo:  { name: '雙重迴響', cls: 'knight', desc: '【提燈騎士專屬】第二道光波半徑 100%、傷害 2', price: 18, w: 2 },
   c_swarm: { name: '螢火洪流', cls: 'hunter', desc: '【螢火獵人專屬】螢火蟲群增加到 20 隻', price: 22, w: 2 },
   c_chain: { name: '連裁・極', cls: 'cutter', desc: '【剪紙匠專屬】衝刺傷害 +30%；衝刺撞到敵人時，結束後恢復 1 燈火', price: 22, w: 2 },
-  c_wall:  { name: '分立屏障', cls: 'mage', desc: '【折紙術士專屬】兩道紙牆改成可以分開立起：施放後 6 秒內可以再立一道', price: 18, w: 2 },
+  c_wall:  { name: '分立屏障', cls: 'mage', desc: '【折紙術士專屬】兩道紙牆改成可以分開立起：施放後 6 秒內可以再立一道；紙牆也能擋住敵人', price: 18, w: 2 },
   c_warm:  { name: '暖光・極', cls: 'oiler', desc: '【燈油師專屬】暖光恢復量 +1 且冷卻 −20%（占 2 層）', price: 22, w: 2 },
   c_shield: { name: '鋼紙盾', cls: 'shield', desc: '【紙盾衛專屬】護盾上限 +1 且恢復速度 +30%（占 2 層）', price: 22, w: 2 },
   c_lantern: { name: '燈籠群', cls: 'lampist', desc: '【提燈使專屬】小燈籠增加到 4 盞，火球傷害 +30%（占 2 層）', price: 22, w: 2 },
@@ -1370,6 +1370,14 @@ function makeObstacles(kind) {
   }
   return obs;
 }
+function wallBlock(e) {
+  if (!walls.length || upN('c_wall') < 1 || e.type === 'boss') return;
+  for (const w of walls) {
+    const x1 = w.x - w.nx * w.half, y1 = w.y - w.ny * w.half, dx = 2 * w.nx * w.half, dy = 2 * w.ny * w.half, l2 = dx * dx + dy * dy || 1;
+    const t = clamp(((e.x - x1) * dx + (e.y - y1) * dy) / l2, 0, 1), cx = x1 + dx * t, cy = y1 + dy * t; let ex = e.x - cx, ey = e.y - cy, d = Math.hypot(ex, ey); const m = e.r + 6;
+    if (d < m) { if (d < 0.01) { ex = w.ny; ey = -w.nx; if ((e.x - p.x) * ex + (e.y - p.y) * ey < 0) { ex = -ex; ey = -ey; } d = 1; } e.x = cx + ex / d * m; e.y = cy + ey / d * m; }
+  }
+}
 function chipObs(b) {
   if (b.own !== 'p' || b.dmg < 4) return;
   const o = room.obs.find(q => q.stal && (b.x - clamp(b.x, q.x, q.x + q.w)) ** 2 + (b.y - clamp(b.y, q.y, q.y + q.h)) ** 2 < b.r * b.r); if (!o) return;
@@ -1879,7 +1887,7 @@ function loadRoom() {
   const chase = variant === 'chase', rush = variant === 'rush';
   const big = kind === 'combat' || kind === 'boss' || chase || rush, SZ = kind === 'boss' ? BOSSR : BIG;
   ROOM.w = big ? SZ.w : 820; ROOM.h = big ? SZ.h : 450; DOOR.y = ROOM.y + ROOM.h / 2;
-  if (run.path && kind === 'combat') { ROOM.w = PATH_LEN; ROOM.h = 450; DOOR.y = ROOM.y + ROOM.h / 2; }
+  if (run.path && kind === 'combat') { if (port) { ROOM.w = 450; ROOM.h = PATH_LEN; DOOR.y = ROOM.y + 110; } else { ROOM.w = PATH_LEN; ROOM.h = 450; DOOR.y = ROOM.y + ROOM.h / 2; } }
   WORLD.w = big ? ROOM.w + 140 : W; WORLD.h = big ? ROOM.h + 150 : H;
   let combatIdx = 0; for (let i = 0; i < run.step; i++) if (run.plan[i] === 'combat') combatIdx++;
   PAL = THEMES[th()].pal; for (const sc of ['candy', 'arc', 'fut']) stageEl.classList.toggle(sc, THEMES[th()].stage === sc); rec.themesSeen[th()] = 1; if (Object.keys(rec.themesSeen).length >= 4) unlockAch('tour');
@@ -1896,6 +1904,7 @@ function loadRoom() {
     let bx = ROOM.x + ROOM.w * 0.5, by = ROOM.y + ROOM.h * 0.62; for (let t = 0; t < 40; t++) { const x = rr(ROOM.x + 250, ROOM.x + ROOM.w - 250), y = rr(ROOM.y + 210, ROOM.y + ROOM.h - 90); if (!room.obs.some(o => overlap(inflate(o, 54), { x, y, w: 1, h: 1 }))) { bx = x; by = y; break; } }
     room.beacon = { x: bx, y: by, hp: 12, max: 12, t: 0, hurtT: 0 }; room.items.push({ kind: 'beacon', id: 'beacon', x: bx, y: by, group: 'prop', price: 0, taken: false });
     const gcx = ROOM.x + ROOM.w / 2, gy = ROOM.y + 150, gadd = (slot, x, group) => room.items.push(makeItem(slot, x, gy, group));
+    room.obs = room.obs.filter(o => !overlap(inflate(o, 24), { x: gcx - 200, y: gy - 60, w: 520, h: 120 }));
     if (!run.noShop) { gadd('heal', gcx - 130, 'shop'); gadd('upgrade', gcx, 'shop'); gadd(rand() < 0.65 ? 'weapon' : 'upgrade', gcx + 130, 'shop'); room.refreshN = 0;
     room.items.push({ kind: 'refresh', id: 'refresh', slot: 'refresh', x: gcx + 250, y: gy, price: 3, group: 'stall', taken: false }); }
   }
@@ -2900,7 +2909,7 @@ function applySave(d) {
   Object.assign(run, d.run); run.ended = false; run.won = false;
   Object.assign(p, d.p); Object.assign(p, { near: null, target: null, decoy: null, flowers: [], lanterns: [], dashHit: [], iframes: 2, skillCd: 2, sleepT: 0, dashT: 0, lantT: 0, frozenT: 0 });
   allies = []; for (const a of d.allies || []) { try { addAlly(a.id, p.x, p.y); const n = allies[allies.length - 1]; if (n) { n.hp = a.hp; n.down = a.down; } } catch (e) { /* ally missing */ } }
-  loadRoom(); p.x = ROOM.x + 40; p.y = DOOR.y; p.vx = p.vy = p.kx = p.ky = 0; placeAllies();
+  loadRoom(); placeEntry(); p.vx = p.vy = p.kx = p.ky = 0; placeAllies();
   menuAgain = true; hudSig = ''; fade.a = 0; fade.dir = 0; setState('play'); announceRoom(); toast('已讀取存檔：第 ' + (run.layer + 1) + ' 層', 2.4);
   return true;
 }
@@ -2962,13 +2971,14 @@ function importSave(file) {
   rd.readAsText(file);
 }
 try { idb((st, res) => { const q = st.get('dir'); q.onsuccess = () => { if (q.result) saveDirPending = q.result; res(); }; }).catch(() => {}); } catch (e) { /* no idb */ }
+function placeEntry() { if (room.path && room.path.v) { p.x = ROOM.x + ROOM.w / 2; p.y = ROOM.y + ROOM.h - 110; } else { p.x = ROOM.x + 40; p.y = DOOR.y; } }
 function goNext() {
   fadeThen(() => {
     run.roomN = (run.roomN || 0) + 1;
     let layerChanged = false;
     if (run.step + 1 >= run.plan.length) { run.layer++; run.fin = false; run.step = 0; run.plan = makeLayerPlan(run.layer); layerChanged = true; p.curse = 0; run.hurtL = run.hurtN || 0; }
     else run.step++;
-    loadRoom(); p.x = ROOM.x + 40; p.y = DOOR.y; p.vx = p.vy = p.kx = p.ky = 0; placeAllies();
+    loadRoom(); placeEntry(); p.vx = p.vy = p.kx = p.ky = 0; placeAllies();
     if (p.roomCd > 0) { p.roomCd--; hudSig = ''; }
     if (layerChanged && run.endless) { rec.endlessMax = Math.max(rec.endlessMax || 0, run.layer + 1); toast('無盡：第 ' + (run.layer + 1) + ' 層', 2); if (run.layer >= 5) unlockAch('endless6'); healP(1); }
     if (layerChanged) { if (run.long && !run.dl2) { rec.longMax = Math.max(rec.longMax || 0, run.layer + 1); saveRec(); } writeSave(); }
@@ -3008,7 +3018,7 @@ function startPractice() {
   run.practice = true; run.long = !!v.long; run.ext = !!v.ext; run.layer = v.L; run.step = 0;
   run.themes = [0, 1, 2, 3, 4, 5, 6, 7, 8].map(() => PRAC.th); run.themeBase = run.themes.slice(); run.themePick = -1; run.noShop = true;
   run.plan = ['combat', 'combat', pickOf(['treasure', 'merchant', 'event']), 'boss'];
-  loadRoom(); p.x = ROOM.x + 40; p.y = DOOR.y; hudSig = '';
+  loadRoom(); placeEntry(); hudSig = '';
   p.coins = 25;
   toast('練習：' + TNAMES[PRAC.th] + '・' + v.n, 2.6);
 }
@@ -3625,18 +3635,23 @@ function roomCleared() {
 }
 /* ===== 佛寺長路（run.path）：長條地圖，鏡頭鎖玩家，業障牆從後面推，落後的敵人變成雜念 ===== */
 const PATH_LEN = 5600, KARMA_SPD = 90, ZN_MAX = 10;
+const pathLen = () => (room.path && room.path.v ? ROOM.h : ROOM.w);
+const pathProg = o => (room.path.v ? ROOM.y + ROOM.h - o.y : o.x - ROOM.x);
+function pathPos(sv, c) { return room.path.v ? { x: ROOM.x + c, y: ROOM.y + ROOM.h - sv } : { x: ROOM.x + sv, y: ROOM.y + c }; }
 function pathInit() {
-  const D = [0.27, 0.52, 0.77].map(f => ({ x: Math.round(ROOM.x + ROOM.w * f), w: 400 }));
-  room.path = { next: ROOM.x + 520, wx: ROOM.x - 380, zn: 0, daze: 0, med: 0, medOn: false, dojos: D, hurtT: 0, ring: null, flash: 0 };
+  const V = port, len = V ? ROOM.h : ROOM.w, cross = V ? ROOM.w : ROOM.h;
+  const D = [0.27, 0.52, 0.77].map(f => { const sv = Math.round(len * f); return V ? { s: sv, w: 400, cx: ROOM.x + ROOM.w / 2, cy: ROOM.y + ROOM.h - sv } : { s: sv, w: 400, cx: ROOM.x + sv, cy: DOOR.y + 20 }; });
+  D.forEach(d => { d.x = d.cx; d.y = d.cy; });
+  room.path = { v: V, next: 520, ws: -380, zn: 0, daze: 0, med: 0, medOn: false, dojos: D, hurtT: 0, ring: null, flash: 0 };
   const obs = [];
   for (let t = 0; t < 500 && obs.length < 20; t++) {
-    const w = rr(34, 62), h = rr(34, 62), x = rr(ROOM.x + 260, ROOM.x + ROOM.w - 300), y = rr(ROOM.y + 30, ROOM.y + ROOM.h - 30 - h);
-    if (D.some(d => Math.abs(x + w / 2 - d.x) < d.w / 2 + 40)) continue;
-    if (obs.some(o => Math.abs(o.x - x) < 130 && Math.abs(o.y - y) < 140)) continue;
-    obs.push({ x, y, w, h });
+    const w = rr(34, 62), h = rr(34, 62), sv = rr(260, len - 300), c = rr(30, cross - 30 - (V ? w : h));
+    if (D.some(d => Math.abs(sv - d.s) < d.w / 2 + 40)) continue;
+    if (obs.some(o => Math.abs(o.s - sv) < 130 && Math.abs(o.c - c) < 140)) continue;
+    const q = V ? { x: ROOM.x + c, y: ROOM.y + ROOM.h - sv - h, w, h } : { x: ROOM.x + sv, y: ROOM.y + c, w, h }; q.s = sv; q.c = c; obs.push(q);
   }
   room.obs = obs;
-  D.forEach((d, i) => { room.items.push({ kind: 'muyu', id: 'muyu', x: d.x + 120, y: DOOR.y + 20, group: 'prop', price: 0, taken: false, taps: 3, di: i }); room.items.push({ kind: 'shrine', id: 'shrine', x: d.x - 120, y: DOOR.y + 20, group: 'prop', price: 0, taken: false, used: false, di: i }); });
+  D.forEach((d, i) => { room.items.push({ kind: 'muyu', id: 'muyu', x: d.cx + 120, y: d.cy, group: 'prop', price: 0, taken: false, taps: 3, di: i }); room.items.push({ kind: 'shrine', id: 'shrine', x: d.cx - 120, y: d.cy, group: 'prop', price: 0, taken: false, used: false, di: i }); });
 }
 const ZEN_TUT = [
   { t: '修行路：一直往前', b: '這一層是一條很長的路，畫面會一直鎖在你身上。\n沿途會有敵人出現在前方——打倒它們，或者繞過去繼續走。' },
@@ -3708,40 +3723,40 @@ function updatePath(dt) {
     return;
   }
   if (!room.cleared) {
-    const dj = P.dojos.find(d => Math.abs(p.x - d.x) < d.w / 2);
+    const ps = pathProg(p), dj = P.dojos.find(d => Math.abs(ps - d.s) < d.w / 2);
     // 生成：玩家往前走，視野前方出現新的敵人群
     const alive = enemies.filter(e => !e.dead && e.type !== 'boss').length;
-    if (P.next < ROOM.x + ROOM.w - 380 && p.x + 400 >= P.next) {
-      const dd = P.dojos.find(d => Math.abs(P.next - d.x) < d.w / 2 + 60);
-      if (dd) P.next = dd.x + dd.w / 2 + 120;
+    if (P.next < pathLen() - 380 && ps + (P.v ? 270 : 400) >= P.next) {
+      const dd = P.dojos.find(d => Math.abs(P.next - d.s) < d.w / 2 + 60);
+      if (dd) P.next = dd.s + dd.w / 2 + 120;
       else if (alive <= 13) {
-        const prog = clamp((p.x - ROOM.x) / ROOM.w, 0, 1); room.combatIdx = Math.min(3, Math.floor(prog * 4)); room.wave = Math.floor(prog * 3);
+        const prog = clamp(ps / pathLen(), 0, 1); room.combatIdx = Math.min(3, Math.floor(prog * 4)); room.wave = Math.floor(prog * 3);
         const n = 2 + (rand() < 0.5 ? 1 : 0) + (dL() >= 1 ? 1 : 0), list = shuffle(composeWave()).slice(0, n);
         for (const t of list) {
-          let x = P.next + rr(-70, 70), y = rr(ROOM.y + 40, ROOM.y + ROOM.h - 40);
-          for (let k = 0; k < 8 && room.obs.some(o => overlap(inflate(o, ENEMY[t].r + 8), { x, y, w: 1, h: 1 })); k++) y = rr(ROOM.y + 40, ROOM.y + ROOM.h - 40);
-          const e = spawnEnemy(t, x, y); e.sleep = false;
+          const along = P.next + rr(-70, 70), cr = () => rr(40, (P.v ? ROOM.w : ROOM.h) - 40); let q = pathPos(along, cr());
+          for (let k = 0; k < 8 && room.obs.some(o => overlap(inflate(o, ENEMY[t].r + 8), { x: q.x, y: q.y, w: 1, h: 1 })); k++) q = pathPos(along, cr());
+          const e = spawnEnemy(t, q.x, q.y); e.sleep = false;
         }
         P.next += rr(340, 480);
       }
     }
     // 落在身後超出視野的敵人：消失，變成雜念
-    for (const e of enemies) if (!e.dead && e.type !== 'boss' && e.spawn <= 0 && e.x < p.x - 520) {
+    for (const e of enemies) if (!e.dead && e.type !== 'boss' && e.spawn <= 0 && ps - pathProg(e) > (P.v ? 430 : 520)) {
       e.dead = true; burst(e.x, e.y, 8, ['#9b7bd8', '#5a4a8a'], 90); addZn(e.elite ? 3 : e.r >= 18 ? 2 : 1);
     }
     // 業障牆
-    P.wx += (dj ? 0 : KARMA_SPD * (1 + 0.08 * dL())) * dt;
-    if (p.x - 8 < P.wx) {
-      P.hurtT -= dt; p.kx = Math.max(p.kx, 140);
+    P.ws += (dj ? 0 : KARMA_SPD * (1 + 0.08 * dL())) * dt;
+    if (ps - 8 < P.ws) {
+      P.hurtT -= dt; if (P.v) p.ky = Math.min(p.ky, -140); else p.kx = Math.max(p.kx, 140);
       if (P.hurtT <= 0) { P.hurtT = 1.6; if (!run.wallTip) { run.wallTip = true; toast('業障牆追上來了——往前走，到道場才會停', 2.6); } hurtFrom('karma', 1, 1, 0); }
     } else P.hurtT = Math.min(P.hurtT, 0.6);
     // 靜心：站在道場中央蒲團上，按住 F 約 2 秒
-    const onMat = dj && Math.hypot(p.x - dj.x, p.y - (DOOR.y + 20)) < 60 && p.speed < 70;
+    const onMat = dj && Math.hypot(p.x - dj.cx, p.y - dj.cy) < 60 && p.speed < 70;
     P.medOn = !!(onMat && keys.f && !p.near);
-    if (P.medOn) { P.med += dt; if (P.med >= 2) { P.med = 0; P.zn = 0; P.daze = 0; toast('靜心：雜念清空', 1.8); sfx('clear'); burst(dj.x, DOOR.y + 20, 18, ['#ffe9a0', C.paper], 160, true); } } else P.med = Math.max(0, P.med - dt * 2);
+    if (P.medOn) { P.med += dt; if (P.med >= 2) { P.med = 0; P.zn = 0; P.daze = 0; toast('靜心：雜念清空', 1.8); sfx('clear'); burst(dj.cx, dj.cy, 18, ['#ffe9a0', C.paper], 160, true); } } else P.med = Math.max(0, P.med - dt * 2);
     if (dj && !dj.said) { dj.said = true; const W1 = THEMES[th()], di = P.dojos.indexOf(dj); if (!run.dojoTip) { run.dojoTip = true; toast('道場：業障牆暫停。蒲團上按住 F 靜心、木魚與佛龕在兩側', 3.2); later(3.4, () => { if (W1.dojoLine) toast(W1.dojoLine(run.layer, di), 3.4); }); } else if (W1.dojoLine) toast(W1.dojoLine(run.layer, di), 3.4); }
     // 終點
-    if (p.x > ROOM.x + ROOM.w - 220) { for (const e of enemies) if (e.type !== 'boss') e.dead = true; bullets = bullets.filter(b => b.own === 'p'); roomCleared(); }
+    if (ps > pathLen() - 220) { for (const e of enemies) if (e.type !== 'boss') e.dead = true; bullets = bullets.filter(b => b.own === 'p'); roomCleared(); }
   }
   P.daze = Math.max(0, P.daze - dt); P.flash = Math.max(0, P.flash - dt);
   if (P.ring) { P.ring.t += dt; if (P.ring.t > P.ring.dur + 0.35) { P.ring = null; hintSig = ''; } }
@@ -3755,18 +3770,27 @@ function updateZnHud() {
 }
 function drawPathBack() {
   const P = room.path; if (!P || room.kind !== 'combat') return;
-  const x0 = ROOM.x - 460, x1 = P.wx; if (x1 > x0) {
-    const g = ctx.createLinearGradient(x1 - 220, 0, x1, 0); g.addColorStop(0, 'rgba(20,10,40,.0)'); g.addColorStop(0.55, 'rgba(30,14,56,.55)'); g.addColorStop(1, 'rgba(10,4,24,.94)');
-    ctx.fillStyle = g; ctx.fillRect(x1 - 220, 0, 220, WORLD.h); ctx.fillStyle = 'rgba(10,4,24,.94)'; ctx.fillRect(x0, 0, x1 - x0 - 0.5, WORLD.h);
-    ctx.save(); ctx.globalAlpha = 0.5; for (let i = 0; i < 9; i++) { const yy = ROOM.y + 20 + i * 52 + Math.sin(time * 1.4 + i) * 10, r = 26 + Math.sin(time * 2 + i * 1.7) * 6; ctx.fillStyle = '#4b3a7a'; circ(ctx, x1 - 24 - (i & 1) * 22 + Math.sin(time * 1.1 + i) * 6, yy, r); } ctx.restore();
+  const V = P.v;
+  if (V) {
+    const y1 = ROOM.y + ROOM.h - P.ws, y2 = ROOM.y + ROOM.h + 460;
+    if (y2 > y1) {
+      ctx.fillStyle = 'rgba(10,4,24,.94)'; ctx.fillRect(ROOM.x - 120, y1, ROOM.w + 240, y2 - y1);
+      ctx.save(); ctx.globalAlpha = 0.5; for (let i = 0; i < 9; i++) { const xx = ROOM.x + 24 + i * 52 + Math.sin(time * 1.4 + i) * 10, r = 26 + Math.sin(time * 2 + i * 1.7) * 6; ctx.fillStyle = '#4b3a7a'; circ(ctx, xx, y1 + 24 + (i & 1) * 22 + Math.sin(time * 1.1 + i) * 6, r); } ctx.restore();
+    }
+  } else {
+    const x0 = ROOM.x - 460, x1 = ROOM.x + P.ws; if (x1 > x0) {
+      ctx.fillStyle = 'rgba(10,4,24,.94)'; ctx.fillRect(x0, 0, x1 - x0 - 0.5, WORLD.h);
+      ctx.save(); ctx.globalAlpha = 0.5; for (let i = 0; i < 9; i++) { const yy = ROOM.y + 20 + i * 52 + Math.sin(time * 1.4 + i) * 10, r = 26 + Math.sin(time * 2 + i * 1.7) * 6; ctx.fillStyle = '#4b3a7a'; circ(ctx, x1 - 24 - (i & 1) * 22 + Math.sin(time * 1.1 + i) * 6, yy, r); } ctx.restore();
+    }
   }
   for (const d of P.dojos) {
-    ctx.save(); ctx.translate(d.x, DOOR.y + 20); ctx.globalAlpha = 0.9;
-    ctx.fillStyle = 'rgba(255,214,140,.12)'; ctx.beginPath(); ctx.ellipse(0, 0, d.w / 2, 150, 0, 0, TAU); ctx.fill();
-    ctx.strokeStyle = 'rgba(255,214,140,.35)'; ctx.lineWidth = 2; ctx.setLineDash([8, 10]); ctx.beginPath(); ctx.ellipse(0, 0, d.w / 2 - 6, 144, 0, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+    const rx = V ? 150 : d.w / 2, ry = V ? d.w / 2 : 150;
+    ctx.save(); ctx.translate(d.cx, d.cy); ctx.globalAlpha = 0.9;
+    ctx.fillStyle = 'rgba(255,214,140,.12)'; ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, TAU); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,214,140,.35)'; ctx.lineWidth = 2; ctx.setLineDash([8, 10]); ctx.beginPath(); ctx.ellipse(0, 0, rx - 6, ry - 6, 0, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
     ctx.globalAlpha = 1; setShadow(ctx, 0, 3, 0); ctx.fillStyle = '#7a3a3a'; ctx.beginPath(); ctx.ellipse(0, 0, 44, 22, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#c25a4a'; ctx.beginPath(); ctx.ellipse(0, -2, 36, 17, 0, 0, TAU); ctx.fill(); noShadow(ctx);
-    if (P.medOn && Math.abs(p.x - d.x) < d.w / 2) { ctx.strokeStyle = '#ffe9a0'; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(0, -2, 56, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, P.med / 2)); ctx.stroke(); }
-    ctx.fillStyle = 'rgba(240,228,200,.7)'; ctx.font = '700 15px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('道場', 0, -166); ctx.restore();
+    if (P.medOn && Math.abs(pathProg(p) - d.s) < d.w / 2) { ctx.strokeStyle = '#ffe9a0'; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(0, -2, 56, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, P.med / 2)); ctx.stroke(); }
+    ctx.fillStyle = 'rgba(240,228,200,.7)'; ctx.font = '700 15px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('道場', 0, V ? -ry - 6 : -166); ctx.restore();
   }
 }
 function drawPathItem(it) {
@@ -3800,7 +3824,7 @@ function updateEnemy(e, dt) {
   if (e.type === 'blindbomb' && !e.zoned) { e.zoned = true; blinds.push({ x: e.x, y: e.y, r: 90, t: 8 }); if (blinds.length > 7) blinds.shift(); }
   if (e.sleep) { if (Math.hypot(p.x - e.x, p.y - e.y) < 350 || zoneOf(p.x, p.y) === e.zone) wakeGroup(e.grp); else return; }
   if (e.frz > 0) e.frz -= dt;
-  if (e.stun > 0) { e.stun -= dt; e.x += e.kx * dt; e.y += e.ky * dt; const kd2 = Math.exp(-9 * dt); e.kx *= kd2; e.ky *= kd2; collideWorld(e, false); return; }
+  if (e.stun > 0) { e.stun -= dt; e.x += e.kx * dt; e.y += e.ky * dt; const kd2 = Math.exp(-9 * dt); e.kx *= kd2; e.ky *= kd2; collideWorld(e, false); wallBlock(e); return; }
   if (e.healT > 0) {
     e.healT -= dt; if (rand() < dt * 14) burst(e.x + rr(-e.r, e.r), e.y - e.r * 0.3, 1, ['#ffb3c6', C.paper], 60, true);
     if (e.healT <= 0) { e.hp = Math.max(e.hp, e.maxHp * 0.8); e.healed = true; burst(e.x, e.y, 14, ['#ffb3c6', '#9ac27a', C.paper], 170, true); }
@@ -4174,7 +4198,7 @@ function updateEnemy(e, dt) {
   if (lured && d < 24) { mx = 0; my = 0; }
   const ox0 = e.x, oy0 = e.y;
   e.x += mx * dt; e.y += my * dt;
-  if (e.type === 'trenchghost' || e.type === 'ghost') { e.x = clamp(e.x, ROOM.x + 20, ROOM.x + ROOM.w - 20); e.y = clamp(e.y, ROOM.y + 20, ROOM.y + ROOM.h - 20); } else collideWorld(e, false);
+  if (e.type === 'trenchghost' || e.type === 'ghost') { e.x = clamp(e.x, ROOM.x + 20, ROOM.x + ROOM.w - 20); e.y = clamp(e.y, ROOM.y + 20, ROOM.y + ROOM.h - 20); } else { collideWorld(e, false); wallBlock(e); }
   if (e.type === 'sleepwalker' && Math.hypot(e.x - ox0, e.y - oy0) < Math.hypot(mx, my) * dt * 0.4) { const a2 = rand() * TAU; e.dirx = Math.cos(a2); e.diry = Math.sin(a2); e.turnT = rr(4, 7); }
   if (e.type === 'rusher' && e.state === 'dash' && Math.hypot(e.x - ox0, e.y - oy0) < Math.hypot(mx, my) * dt * 0.45) { e.dead = true; burst(e.x, e.y, 10, ['#cfc4ff', C.paper], 140, true); return; }
   if (e.type === 'snowball' && e.state === 'dash' && Math.hypot(e.x - ox0, e.y - oy0) < Math.hypot(mx, my) * dt * 0.45) {
@@ -4364,7 +4388,7 @@ function reviveNow() {
     burst(p.x, p.y, 20, ['#ffe08a', C.paper], 200, true); sfx('buy'); toast('在復活點醒來（半血，復活點已用掉）', 2.8); return;
   }
   fadeThen(() => {
-    run.layer = rv.layer; run.plan = rv.plan; run.step = rv.step; loadRoom(); p.hp = hp; p.iframes = 2.5; p.x = ROOM.x + 40; p.y = DOOR.y; p.vx = p.vy = p.kx = p.ky = 0; placeAllies(); hudSig = '';
+    run.layer = rv.layer; run.plan = rv.plan; run.step = rv.step; loadRoom(); p.hp = hp; p.iframes = 2.5; placeEntry(); p.vx = p.vy = p.kx = p.ky = 0; placeAllies(); hudSig = '';
     toast('在復活點醒來（半血，復活點已用掉）', 2.8); announceRoom();
   });
 }
@@ -4413,7 +4437,7 @@ function updateModes(dt) {
     if (room.escT > 0) { room.escT -= dt; if (room.escT <= 0) { c.v = 45; c.delay = 0; toast('時間到！崩塌線加速了！', 2.2); } }
     if (c.delay > 0) c.delay -= dt; else c.x += c.v * dt;
     if (p.x - p.r < c.x) { if (p.iframes <= 0) hurtFrom('collapse', 1, 1, 0); p.x = c.x + p.r + 2; }
-    for (const e of enemies) if (e.type !== 'boss' && e.x < c.x - 6) { e.x = c.x + 6; }
+    for (const e of enemies) if (e.type !== 'boss' && !e.dead && e.x < c.x - 6) { if (e.sleep) { e.dead = true; burst(e.x, e.y, 8, ['#ff2e97', '#0a0014'], 110, true); } else e.x = c.x + 6; }
   }
   const b = room.beacon;
   if (b && b.hp > 0 && !room.cleared) {
@@ -4901,7 +4925,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.57　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.58　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -5851,6 +5875,7 @@ function updatePort() {
 }
 function updateCam() {
   if (!room.big) { cam.x = 0; cam.y = 0; room.camInit = false; return; }
+  if (room.path && room.path.v && !room.path.boss) { const py = p.y - H / 2; cam.x = ROOM.x + ROOM.w / 2 - W / 2; if (!room.camInit) { cam.y = py; room.camInit = true; } else cam.y += (py - cam.y) * 0.25; return; }
   if (room.path && !room.path.boss) { const px = p.x - W / 2; if (!room.camInit) { cam.x = px; room.camInit = true; } else cam.x += (px - cam.x) * 0.25; cam.y = 0; return; }
   const tx = p.x - W / 2, ty = p.y - H / 2;
   if (!room.camInit) { cam.x = tx; cam.y = ty; room.camInit = true; } else { cam.x += (tx - cam.x) * 0.25; cam.y += (ty - cam.y) * 0.25; }
@@ -5883,7 +5908,7 @@ function drawBigUI() {
   for (const e of enemies) if (!e.dead && e.spawn <= 0 && !e.sleep) edgeArrow(e.x, e.y, C.ember, false);
   if (canExit()) edgeArrow(ROOM.x + ROOM.w, DOOR.y, C.amber, true);
   // 小地圖：只顯示走過的區域
-  if (!room.big || (mobile && !mapOpen)) return;
+  if (!room.big || (mobile && !mapOpen) || (room.path && room.path.v)) return;
   const mw = port ? 100 : mobile ? 150 : 160, mh = Math.round(mw * ROOM.h / ROOM.w), mx = port ? view.x + view.w - mw - 12 : mobile ? W - mw - 18 : 22, my = port ? view.y + view.h - mh - 16 : mobile ? 215 : 132, sc = mw / ROOM.w;
   ctx.save(); ctx.globalAlpha = 0.9; ctx.fillStyle = 'rgba(10,8,20,.78)'; ctx.fillRect(mx - 4, my - 4, mw + 8, mh + 8);
   ctx.strokeStyle = 'rgba(240,228,200,.4)'; ctx.lineWidth = 1; ctx.strokeRect(mx - 4, my - 4, mw + 8, mh + 8);

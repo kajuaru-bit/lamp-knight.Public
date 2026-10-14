@@ -415,18 +415,20 @@ L.registerWorld({
 
 /* ===== DLC3：佛寺（長條修行路）。玩法在主檔 run.path，這裡放外觀、敵人組成與 Boss ===== */
 function zenBg(g, rm, rng, arR) {
-  const R = L.ROOM, P = rm.path;
-  g.fillStyle = 'rgba(30,22,14,.22)'; g.fillRect(R.x, R.y + R.h * 0.3, R.w, R.h * 0.4);
+  const R = L.ROOM, P = rm.path, V = !!(P && P.v);
+  g.fillStyle = 'rgba(30,22,14,.22)'; if (V) g.fillRect(R.x + R.w * 0.3, R.y, R.w * 0.4, R.h); else g.fillRect(R.x, R.y + R.h * 0.3, R.w, R.h * 0.4);
   g.strokeStyle = 'rgba(20,14,8,.35)'; g.lineWidth = 2;
-  for (let x = R.x; x < R.x + R.w; x += 96) { g.beginPath(); g.moveTo(x, R.y); g.lineTo(x, R.y + R.h); g.stroke(); }
-  for (let y = R.y + 75; y < R.y + R.h; y += 75) { g.beginPath(); g.moveTo(R.x, y); g.lineTo(R.x + R.w, y); g.stroke(); }
+  if (V) { for (let y = R.y; y < R.y + R.h; y += 96) { g.beginPath(); g.moveTo(R.x, y); g.lineTo(R.x + R.w, y); g.stroke(); } for (let x = R.x + 75; x < R.x + R.w; x += 75) { g.beginPath(); g.moveTo(x, R.y); g.lineTo(x, R.y + R.h); g.stroke(); } }
+  else { for (let x = R.x; x < R.x + R.w; x += 96) { g.beginPath(); g.moveTo(x, R.y); g.lineTo(x, R.y + R.h); g.stroke(); } for (let y = R.y + 75; y < R.y + R.h; y += 75) { g.beginPath(); g.moveTo(R.x, y); g.lineTo(R.x + R.w, y); g.stroke(); } }
   for (let i = 0; i < Math.round(160 * arR); i++) { const x = R.x + rng() * R.w, y = R.y + rng() * R.h; g.fillStyle = 'rgba(' + (rng() < 0.5 ? '60,80,40' : '90,70,50') + ',' + (0.18 + rng() * 0.2) + ')'; circ(g, x, y, 2 + rng() * 4); }
-  for (let x = R.x + 160; x < R.x + R.w; x += 260) { for (const yy of [R.y + 10, R.y + R.h - 10]) { g.fillStyle = '#b8482c'; circ(g, x, yy, 7); g.fillStyle = 'rgba(255,200,120,.5)'; circ(g, x, yy, 13); } }
+  const lamp = (x, y) => { g.fillStyle = '#b8482c'; circ(g, x, y, 7); g.fillStyle = 'rgba(255,200,120,.5)'; circ(g, x, y, 13); };
+  if (V) { for (let y = R.y + 160; y < R.y + R.h; y += 260) for (const xx of [R.x + 10, R.x + R.w - 10]) lamp(xx, y); }
+  else for (let x = R.x + 160; x < R.x + R.w; x += 260) for (const yy of [R.y + 10, R.y + R.h - 10]) lamp(x, yy);
   if (P) for (const d of P.dojos) {
-    const y = L.room ? 0 : 0; const cy = R.y + R.h / 2 + 20;
-    g.fillStyle = '#4a3a2a'; g.beginPath(); g.ellipse(d.x, cy, d.w / 2 - 16, 134, 0, 0, TAU); g.fill();
-    g.fillStyle = '#6a5640'; g.beginPath(); g.ellipse(d.x, cy, d.w / 2 - 34, 118, 0, 0, TAU); g.fill();
-    g.strokeStyle = 'rgba(255,214,140,.25)'; g.lineWidth = 2; g.beginPath(); g.ellipse(d.x, cy, d.w / 2 - 60, 96, 0, 0, TAU); g.stroke();
+    const el = (a, b) => { g.beginPath(); if (V) g.ellipse(d.cx, d.cy, b, a, 0, 0, TAU); else g.ellipse(d.cx, d.cy, a, b, 0, 0, TAU); };
+    g.fillStyle = '#4a3a2a'; el(d.w / 2 - 16, 134); g.fill();
+    g.fillStyle = '#6a5640'; el(d.w / 2 - 34, 118); g.fill();
+    g.strokeStyle = 'rgba(255,214,140,.25)'; g.lineWidth = 2; el(d.w / 2 - 60, 96); g.stroke();
   }
 }
 function zenObs(g, o, rng) {
@@ -610,7 +612,7 @@ function jpTick(dt) {
   const hammer = p.weapons[p.w] === 'hammer';
   for (const it of T.fac) {
     it.t += dt; it.hurtT = Math.max(0, it.hurtT - dt);
-    if (it.st === 'broken') { if (p.near === it && keys.f) { it.rp += dt / (hammer ? 1.8 : 3); if (it.rp >= 1) jpRepair(T, it); } else it.rp = Math.max(0, it.rp - dt * 0.8); }
+    if (it.st === 'broken') { if (p.near === it && keys.f) { it.rp += dt / (hammer ? 1 : 2); if (it.rp >= 1) jpRepair(T, it); } else it.rp = Math.max(0, it.rp - dt * 0.8); }
   }
   for (const e of L.enemies) {
     if (e.dead) continue;
@@ -695,7 +697,7 @@ function jpInfo(it) {
   const fx = { lantern: '修好：燈火 +1，之後每 11 秒震開附近的敵方子彈', bench: '修好：燈火 +1', vend: '修好：掉出燈芯，有機會有燈油', torii: '修好：護盾 +1', onsen: '修好：燈火 +1，8 秒後再 +1' }[it.fk];
   if (it.st === 'ruin') return { name: nm + '（毀壞）', desc: '已經被妖怪破壞，只剩一堆碎片。觀光滿意度已經下降' };
   if (it.st === 'ok') return { name: nm, desc: '運作中。妖怪會來破壞它——修好的設施要保護好（血量 ' + Math.max(0, Math.ceil(it.hpF)) + ' / ' + JP_HP + '）' };
-  return { name: nm + '（故障）', desc: '按住 F 約 3 秒修復（修繕槌 1.8 秒；修復時不能攻擊）。' + fx };
+  return { name: nm + '（故障）', desc: '按住 F 約 2 秒修復（修繕槌 1 秒；修復時不能攻擊）。' + fx };
 }
 function jpHint(it) { return it.st === 'broken' ? '按住 F 修復' : ''; }
 function jpUse(it) { if (it.st === 'broken' && !L.run.jpHoldTip) { L.run.jpHoldTip = true; L.toast('按「住」F 不放，修復進度條會慢慢滿起來', 2.8); } }
@@ -787,7 +789,7 @@ L.registerWorld({
       fire: (ox, oy, ang) => { L.meleeSwing(L.WDEF.broom, ang, 1); const T = L.room.tour; if (T) for (let i = T.trash.length - 1; i >= 0; i--) { const q = T.trash[i]; if (Math.hypot(L.p.x - q.x, L.p.y - q.y) < 150) jpClean(T, i); } } },
     bow: { id: 'bow', name: '和弓', tag: '遠程', mode: 'tap', cd: 0.7, th: 15, desc: '慢速單發的長箭，射程遠、傷害高（日本專屬）',
       fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang, 780, 6, 6.2 * dm, 'lance', 1.0); L.sfx('blade'); } },
-    hammer: { id: 'hammer', name: '修繕槌', tag: '重擊', mode: 'tap', cd: 0.75, th: 15, range: 108, half: 0.95, dmg: 6.6, kb: 620, desc: '短柄重錘，一下很痛；拿著它修設施只要 1.8 秒（日本專屬）' },
+    hammer: { id: 'hammer', name: '修繕槌', tag: '重擊', mode: 'tap', cd: 0.75, th: 15, range: 108, half: 0.95, dmg: 6.6, kb: 620, desc: '短柄重錘，一下很痛；拿著它修設施只要 1 秒（日本專屬）' },
     shuriken: { id: 'shuriken', name: '手裡劍', tag: '速射', mode: 'auto', cd: 0.24, th: 15, desc: '長按 F 的連續小飛鏢，射程中等（日本專屬）',
       fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang + (rand() - 0.5) * 0.1, 620, 5, 1.55 * dm, 'pellet', 0.65); L.sfx('tick'); } }
   },
