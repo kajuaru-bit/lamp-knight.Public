@@ -332,7 +332,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.56　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.57　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -740,7 +740,7 @@ const upN = id => p.upg[id] || 0;
 const cost = it => { const b = it.price; if (!b || (it.group !== 'shop' && it.group !== 'stall')) return b; return CLS[p.cls].id === 'shopc' ? Math.max(it.kind === 'heal' ? 2 : 1, b - 4 - (upN('c_shop') >= 1 ? 1 : 0)) : b; };
 function paid(n) { if (room.kind !== 'merchant') return; rec.spent = (rec.spent || 0) + n; saveRec(); if (rec.spent >= 50) unlockAch('bizBoom'); }
 const slpOn = () => p.sleepT > 0;
-const slpSpd = () => (slpOn() ? (upN('c_slp') >= 1 ? 0.52 : 0.4) : 1) * (inMud() ? 0.7 : 1) * (inQuick() ? 0.5 : 1);
+const slpSpd = () => (slpOn() ? (upN('c_slp') >= 1 ? 0.52 : 0.4) : 1) * (inMud() ? 0.7 : 1) * (inQuick() ? 0.5 : 1) * (typeof room !== 'undefined' && room && room.tour && room.tour.slow ? 0.82 : 1);
 const inQuick = () => !!(typeof room !== 'undefined' && room && room.sw && room.sw.some(z => z.k === 'quick' && Math.hypot(p.x - z.x, p.y - z.y) < z.r));
 const inMud = () => !!(typeof room !== 'undefined' && room && room.sw && room.sw.some(z => z.k === 'mud' && Math.hypot(p.x - z.x, p.y - z.y) < z.r));
 const shieldMax = () => (CLS[p.cls].sh || 0) + (upN('c_shield') >= 1 ? 1 : 0);
@@ -1331,6 +1331,7 @@ function overlap(a, b) { return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y 
 const inflate = (o, m) => ({ x: o.x - m, y: o.y - m, w: o.w + m * 2, h: o.h + m * 2 });
 
 function makeObstacles(kind) {
+  { const W0 = THEMES[th()]; if (W0.obs && (kind === 'combat' || kind === 'boss')) return W0.obs(kind, ROOM, DOOR); }
   if (kind === 'boss') {
     const cx = ROOM.x + ROOM.w / 2, cy = ROOM.y + ROOM.h / 2;
     return [
@@ -1776,7 +1777,7 @@ function buildBg(rm) {
   } else
   for (let i = 0; i < Math.round(16 * arR); i++) {
     const w = 70 + rng() * 150, h = 50 + rng() * 110, x = ROOM.x + rng() * (ROOM.w - w), y = ROOM.y + rng() * (ROOM.h - h);
-    g.fillStyle = i % 2 ? PAL.floor2 : rm.theme === 11 ? 'rgba(111,243,255,.08)' : rm.theme === 10 ? 'rgba(255,255,255,.12)' : rm.theme === 9 ? 'rgba(255,255,255,.4)' : 'rgba(20,14,36,.35)'; poly(g, jagRect(x, y, w, h, 22, 4, rng));
+    g.fillStyle = i % 2 ? PAL.floor2 : rm.theme === 11 ? 'rgba(111,243,255,.08)' : rm.theme === 10 ? 'rgba(255,255,255,.12)' : rm.theme === 9 ? 'rgba(255,255,255,.4)' : rm.theme === 15 ? 'rgba(255,236,200,.07)' : 'rgba(20,14,36,.35)'; poly(g, jagRect(x, y, w, h, 22, 4, rng));
   }
   for (let i = 0; i < Math.round(18 * arR); i++) { g.fillStyle = 'rgba(240,228,200,.09)'; star4(g, ROOM.x + rng() * ROOM.w, ROOM.y + rng() * ROOM.h, 3 + rng() * 4, rng() * 3); }
   if (rm.theme === 0) {
@@ -1901,6 +1902,7 @@ function loadRoom() {
   if (kind === 'combat') mechInit();
   if (run.path && kind === 'combat') pathInit();
   if (run.path && kind === 'boss' && bossDef().xk === 'guanyin') room.path = { boss: true, zn: 0, daze: 0, flash: 0, med: 0, medOn: false, dojos: [], t: 0, nextShadow: 4, ph: 1 };
+  { const W0 = THEMES[th()]; if (W0.roomInit && !run.practice) W0.roomInit(room, kind); }
   room.bg = buildBg(room);
   jellies = [];
   if (th() === 4 && (kind === 'combat' || kind === 'boss' || chase)) {
@@ -2191,6 +2193,7 @@ function itemInfo(it) {
   if (it.kind === 'mystery') return { name: '神祕寶箱', desc: it.used ? '箱子已經空了' : '只有一個「？」。打開會得到隨機獎勵（可能是武器、強化、精良強化、燈芯或燈火）' };
   if (it.kind === 'muyu') return { name: '木魚', desc: it.taps > 0 ? '縮圈到最小時再按 F：圓滿＝雜念清空，其他＝減半（剩 ' + it.taps + ' 次）' : '木魚裂了' };
   if (it.kind === 'shrine') return { name: '佛龕', desc: it.used ? '香已經燃盡' : '佈施 ' + shrineCost(it) + ' 功德，得到一份回禮（可能是佛寺專屬武器）；只能一次' };
+  if (it.kind === 'tfac') { const W0 = THEMES[th()]; return W0.info ? W0.info(it) : { name: '設施', desc: '' }; }
   if (it.kind === 'ding') return { name: '古鼎', desc: it.used ? '鼎已經安靜下來了' : '青銅古鼎，傳說摸一下會賜予一件寶物（只能一次）' };
   if (it.kind === 'well') return it.id === 'grand'
     ? { name: '華麗許願池', desc: '第 n 次投入 3×n 燈芯：3、6、9、12、15。次數越多機率與品質越高，第 5 次保底；得到獎勵後池就乾涸' + (it.dry ? '（已乾涸）' : '') }
@@ -2242,6 +2245,7 @@ function applyUpgrade(id, prem) {
   else if (id.indexOf('c_') === 0) { unlockAch('classUp'); if (id === 'c_shield') { p.shield = Math.min(shieldMax(), p.shield + 1); } }
   toast('強化：' + (prem ? PREM[id].name : UPG[id].name));
 }
+function rewardUpgrade() { const uid = upgradeOffer(shelfIds('upgrade')) || 'oil'; applyUpgrade(uid, false); return uid; }
 function refreshShop(stall) {
   const slots = room.items.filter(i => i.group === 'shop');
   for (const o of slots) o.taken = true;
@@ -2259,6 +2263,7 @@ function interact(it) {
   if (it.kind === 'mech') { mechUse(it); return; }
   if (it.kind === 'muyu') { muyuTap(it); return; }
   if (it.kind === 'shrine') { shrineUse(it); return; }
+  if (it.kind === 'tfac') { const W0 = THEMES[th()]; if (W0.useItem) W0.useItem(it); return; }
   if (it.kind === 'beacon') { const g = room.gb; if (!g) return; if (!g.started) { g.started = true; room.delay = 0.6; toast('敵人來了！守住燈塔', 2.2); } else if (g.rest) { g.rest = false; room.delay = 0.6; g.extraT = 14; toast('下一輪開始！', 2); } sfx('pick'); hintSig = ''; return; }
   if (it.kind === 'pracTh') { PRAC.th = (PRAC.th + 1) % TNAMES.length; sfx('pick'); toast('練習主題：' + TNAMES[PRAC.th], 1.6); hintSig = ''; return; }
   if (it.kind === 'pracLv') { PRAC.lv = (PRAC.lv + 1) % PLV.length; sfx('pick'); toast('練習層級：' + PLV[PRAC.lv].n, 2); hintSig = ''; return; }
@@ -2385,6 +2390,7 @@ function updateHint() {
     else if (it.kind === 'ding') act = it.used ? '' : 'F 觸摸古鼎';
     else if (it.kind === 'muyu') act = it.taps <= 0 ? '' : room.path && room.path.ring && room.path.ring.it === it ? 'F 現在敲！（縮圈最小時）' : 'F 敲木魚';
     else if (it.kind === 'shrine') act = it.used ? '' : 'F 佈施 ' + shrineCost(it) + ' 功德（目前 ' + (run.merit || 0) + '）';
+    else if (it.kind === 'tfac') { const W0 = THEMES[th()]; act = W0.hint ? W0.hint(it) : ''; }
     else if (it.kind === 'well') act = it.dry ? '池水已經乾涸' : (it.id === 'grand' ? (it.n >= 5 ? '池水平靜了' : 'F 投入 ' + (3 * (it.n + 1)) + ' 燈芯（第 ' + (it.n + 1) + ' / 5 次）') : (it.n >= 6 ? '池水平靜了' : 'F 投入 4 燈芯（第 ' + (it.n + 1) + ' / 6 次）')) + (!it.dry && it.n < (it.id === 'grand' ? 5 : 6) && p.coins < (it.id === 'grand' ? 3 * (it.n + 1) : 4) ? '（燈芯不夠）' : '');
     else if (it.kind === 'weapon') act = p.weapons.length < 3 ? 'F 拿取' : 'F 取代手上的「' + WDEF[p.weapons[p.w]].name + '」';
     else act = it.kind === 'tzsw' ? 'F 切換按鍵大小' : it.kind === 'tutsw' ? (rec.tutOff ? 'F 開啟教學' : 'F 關閉教學') : it.kind === 'noshop' ? (run.noShop ? 'F 取下木牌' : 'F 掛上木牌') : it.kind === 'switch' ? (room.lampOn ? 'F 關燈' : 'F 開燈') : it.kind === 'npc' ? 'F 邀請同行（隊伍 ' + allies.length + ' / 2）' : it.kind === 'refresh' ? 'F 刷新全部商品' : it.kind === 'restock' ? 'F 補貨' : it.kind === 'heal' ? 'F 喝下' : 'F 拿取';
@@ -2763,7 +2769,8 @@ const DLC = [
   { id: 'letters', name: '字母書房（DLC2）', desc: '傳統玩法；選到才下載（約 30 KB）', theme: 12, flag: null, pack: 'dlc.js', say: ['字母書房：這一局三層都在書房裡，小心墨水與字母積木', 3] },
   { id: 'dl2long', name: 'DLC2 長線（字母書房＋彼岸）', desc: '6 層：字母書房 3 層、彼岸 3 層；約 25 分鐘（擺渡人解鎖用）', theme: 12, flag: 'dl2', long: true, pack: 'dlc.js', say: ['DLC2 長線：先在字母書房走 3 層，再渡到彼岸走 3 層', 3.2] },
   { id: 'shore', name: '彼岸（DLC2）', desc: '傳統玩法；會模仿武器的影怪', theme: 13, flag: null, pack: 'dlc.js', say: ['彼岸：影子學會了你的武器，小心揮扇、擲鏢與火球', 3] },
-  { id: 'zen', name: '佛寺・修行路（DLC3）', desc: '長條地圖，一路向前；漏掉的敵人會變成雜念；選到才下載', theme: 14, flag: 'path', pack: 'dlc.js', say: ['佛寺・修行路：一直往前走；落在身後的敵人會變成雜念，業障牆從後面推來；道場裡可以靜心、敲木魚', 3.6] }
+  { id: 'zen', name: '佛寺・修行路（DLC3）', desc: '長條地圖，一路向前；漏掉的敵人會變成雜念；選到才下載', theme: 14, flag: 'path', pack: 'dlc.js', say: ['佛寺・修行路：一直往前走；落在身後的敵人會變成雜念，業障牆從後面推來；道場裡可以靜心、敲木魚', 3.6] },
+  { id: 'japan', name: '日本・觀光維護（DLC3）', desc: '房間制景點；清垃圾、修設施，觀光滿意度影響獎勵；選到才下載', theme: 15, flag: null, pack: 'dlc.js', say: ['日本・觀光維護：妖怪在景點搗亂。走過垃圾就能清掉，靠近壞掉的設施按住 F 修復；觀光滿意度越高，通關獎勵越好', 3.8] }
 ];
 const DLC_FLAGS = ['escort', 'endless', 'escape', 'guard', 'dl2', 'path'];
 const dlcOf = id => DLC.find(q => q.id === id);
@@ -3672,7 +3679,7 @@ function shrineUse(it) {
   const c = shrineCost(it); if ((run.merit || 0) < c) { toast('功德不足：佈施需要 ' + c + '（目前 ' + (run.merit || 0) + '）。打倒敵人累積功德，用佛寺武器打倒更多', 3); return; }
   run.merit -= c; it.used = true; hintSig = ''; sfx('pick'); burst(it.x, it.y - 10, 18, ['#ffd27a', C.paper], 160, true); toast('佈施 ' + c + ' 功德……', 1.2);
   const zw = WLIST.filter(i => WDEF[i].th === 14 && p.weapons.indexOf(i) < 0);
-  if (zw.length && rand() < 0.5) { const id = pickOf(zw); giveWeapon(id); toast('佛龕回贈：' + WDEF[id].name, 2.6); return; }
+  if (zw.length && rand() < 0.3) { const id = pickOf(zw); giveWeapon(id); toast('佛龕回贈：' + WDEF[id].name, 2.6); return; }
   interact({ kind: 'mystery', id: 'mystery', x: it.x, y: it.y, group: 'prop', price: 0, taken: false });
 }
 function updateZenBoss(P, dt) {
@@ -3803,6 +3810,7 @@ function updateEnemy(e, dt) {
   if (p.decoy && Math.hypot(p.decoy.x - e.x, p.decoy.y - e.y) < 720) { tx = p.decoy.x; ty = p.decoy.y; }
   if (BUG[e.type] && lures.length) { let bl = null, bd2 = 520; for (const L of lures) { const dd = Math.hypot(L.x - e.x, L.y - e.y); if (dd < bd2) { bd2 = dd; bl = L; } } if (bl) { tx = bl.x; ty = bl.y; lured = true; } }
   if (e.tgtB && room.beacon && room.beacon.hp > 0) { tx = room.beacon.x; ty = room.beacon.y; }
+  if (e.tgtF && e.tgtF.st !== 'ruin' && Math.hypot(p.x - e.x, p.y - e.y) > 170) { tx = e.tgtF.x; ty = e.tgtF.y; }
   const dx = tx - e.x, dy = ty - e.y, d = Math.hypot(dx, dy) || 1, nx = dx / d, ny = dy / d;
   e.x += e.kx * dt; e.y += e.ky * dt; const kd = Math.exp(-9 * dt); e.kx *= kd; e.ky *= kd;
   let mx = 0, my = 0, touch = 1;
@@ -4893,7 +4901,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.56　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.57　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -5193,7 +5201,7 @@ function updatePlay(dt) {
   follow = !mouse.down;
   p.iframes = Math.max(0, p.iframes - dt); p.cd = Math.max(0, p.cd - dt); p.noiseT = Math.max(0, (p.noiseT || 0) - dt); p.skillCd = Math.max(0, p.skillCd - dt); if (p.sleepT > 0) { p.sleepT -= dt; p.skillCd = Math.max(0.01, p.sleepT); if (p.sleepT <= 0) wakeUp(false); } updateStall(dt); p.chainT = Math.max(0, p.chainT - dt); fEdge = Math.max(0, fEdge - dt); p.recoil = Math.max(0, p.recoil - dt);
   if (room.big) markExplored();
-  playerMove(dt); updateAllies(dt); aimUpdate(); p.near = room.items.length ? nearestItem() : null; attackUpdate(dt); updateWeapons(dt); updateClassTimers(dt); updateWaves(dt); updatePath(dt); updateChase(dt); updateRush(dt); updateDecor(dt); updateSwamp(dt); updateTimed(dt); updateBlooms(); updateModes(dt); updateMech(dt); updateMech(dt);
+  playerMove(dt); updateAllies(dt); aimUpdate(); p.near = room.items.length ? nearestItem() : null; attackUpdate(dt); updateWeapons(dt); updateClassTimers(dt); updateWaves(dt); updatePath(dt); { const W0 = THEMES[th()]; if (W0.tick) W0.tick(dt); } updateChase(dt); updateRush(dt); updateDecor(dt); updateSwamp(dt); updateTimed(dt); updateBlooms(); updateModes(dt); updateMech(dt); updateMech(dt);
   for (const e of enemies) { updateEnemy(e, dt * slowAt(e.x, e.y, e.type === 'boss')); if (e.pin && !e.dead) { e.x = e.pin.x; e.y = e.pin.y; } }
   for (let i = 0; i < enemies.length; i++) for (let j = i + 1; j < enemies.length; j++) {
     const a = enemies[i], b = enemies[j]; if (a.type === 'boss' || b.type === 'boss') continue;
@@ -5356,6 +5364,7 @@ function drawItem(it) {
   if (it.kind === 'beacon') return;
   if (it.taken) return;
   if (it.kind === 'muyu' || it.kind === 'shrine') { drawPathItem(it); return; }
+  if (it.kind === 'tfac') { const W0 = THEMES[th()]; if (W0.drawItem) W0.drawItem(it); return; }
   if (it.kind === 'switch') {
     ctx.save(); ctx.translate(it.x, it.y); setShadow(ctx, 2, 3, 0);
     ctx.fillStyle = PAL.wall1; rrect(ctx, -16, -24, 32, 48, 5); noShadow(ctx);
@@ -5895,7 +5904,7 @@ function render() {
   ctx.translate(-cam.x, -cam.y);
   if (room.big) { ctx.fillStyle = '#2f2f38'; ctx.fillRect(cam.x - 30, cam.y - 30, W + 60, H + 60); }
   ctx.drawImage(room.bg, 0, 0, WORLD.w, WORLD.h);
-  drawPathBack(); drawDoor(); drawProp(); drawBlinds(); drawDecor(); drawSwamp(); drawVials(); drawOrb();
+  drawPathBack(); { const W0 = THEMES[th()]; if (W0.back) W0.back(); } drawDoor(); drawProp(); drawBlinds(); drawDecor(); drawSwamp(); drawVials(); drawOrb();
   for (const a of absorbs) { ctx.save(); ctx.globalAlpha = Math.min(0.5, a.t * 0.4); ctx.strokeStyle = '#b8a0ff'; ctx.lineWidth = 2; ctx.setLineDash([6, 8]); ctx.beginPath(); ctx.arc(a.x, a.y, a.r, 0, TAU); ctx.stroke(); ctx.restore(); }
   for (const it of room.items) drawItem(it);
   drawStall(); drawModes(); drawMech();
@@ -6075,6 +6084,7 @@ function registerWorld(w) {
 window.LK = {
   registerWorld, THEMES,
   get ctx() { return ctx; }, get p() { return p; }, get room() { return room; }, get run() { return run; }, get enemies() { return enemies; }, get bullets() { return bullets; }, get time() { return time; }, get ROOM() { return ROOM; },
+  get keys() { return keys; }, get pickups() { return pickups; }, get stageEl() { return stageEl; }, DOOR, healP, dropCoins, overlap, inflate, meleeSwing, rewardUpgrade, shieldMax: () => shieldMax(), hintReset: () => { hintSig = ''; hudSig = ''; },
   C, TAU, circ, rrect, poly, setShadow, noShadow, star4, rand, rr, pickOf, clamp, shuffle, mulberry,
   blip, sfx, toast, burst, later, say, unlockAch, shoot, WDEF, hurtFrom, hitEnemy, enemyShot, bossShot, markStrike, spawnEnemy, freeSpot, dL: () => dL(), th: () => th(), shake: v => { shake = Math.max(shake, v); }, state: () => state
 };

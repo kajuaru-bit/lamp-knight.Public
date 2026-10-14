@@ -1,4 +1,4 @@
-/* 《燈火騎士》DLC 檔：糖果世界(9)、電玩世界(10)、未來世界(11)、字母書房(12)、彼岸(13)。
+/* 《燈火騎士》DLC 檔：糖果世界(9)、電玩世界(10)、未來世界(11)、字母書房(12)、彼岸(13)、佛寺(14)、日本(15)。
    獨立檔案，玩家在 DLC 選單選到任何一個世界才下載載入；世界編號必須依序註冊。 */
 (function () {
 'use strict';
@@ -469,8 +469,8 @@ L.registerWorld({
     elbow: { id: 'elbow', name: '泰拳肘擊', tag: '近戰連擊', mode: 'auto', cd: 0.22, th: 14, range: 88, half: 1.25, dmg: 2.2, kb: 380, desc: '長按 F 的極近距離快打，範圍廣但很短（佛寺專屬；用它打倒敵人功德 +3）' },
     lotus: { id: 'lotus', name: '蓮花鏢', tag: '穿透', mode: 'tap', cd: 0.55, th: 14, desc: '一次射出三枚穿透的蓮花鏢，中程（佛寺專屬；用它打倒敵人功德 +3）',
       fire: (ox, oy, ang, dm, pd) => { for (const da of [-0.24, 0, 0.24]) L.shoot(ox, oy, ang + da, 520, 7, 2.2 * dm * pd, 'wind', 0.75, true); L.sfx('blade'); } },
-    beads: { id: 'beads', name: '念珠串', tag: '環繞連擊', mode: 'auto', cd: 0.34, th: 14, desc: '長按 F，向四周彈出一圈短程的念珠（佛寺專屬；用它打倒敵人功德 +3）',
-      fire: (ox, oy, ang, dm) => { const n = 6, off = L.time * 3; for (let i = 0; i < n; i++) L.shoot(L.p.x, L.p.y - 4, off + i / n * TAU, 330, 5, 1.5 * dm, 'pellet', 0.34); L.sfx('tick'); } }
+    beads: { id: 'beads', name: '念珠串', tag: '扇形連擊', mode: 'auto', cd: 0.34, th: 14, desc: '長按 F，朝瞄準方向彈出一把扇形念珠，射程比一般短彈長（佛寺專屬；用它打倒敵人功德 +3）',
+      fire: (ox, oy, ang, dm) => { const n = 6, sp = 0.7; for (let i = 0; i < n; i++) L.shoot(L.p.x + Math.cos(ang) * 14, L.p.y - 4 + Math.sin(ang) * 14, ang + (i / (n - 1) - 0.5) * 2 * sp, 400, 5, 1.5 * dm, 'pellet', 0.62); L.sfx('tick'); } }
   },
   types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter'); if (L0 > 0 || ci >= 1) types.push('splitter'); if (L0 > 0 || ci >= 2) types.push('brute', 'bomber'); },
   boss: fin => fin ? { kind: 'golem', name: '千手觀音', hp: 205, ext: true, xk: 'guanyin' } : { kind: 'golem', name: '守門夜叉', hp: 125, ext: true, xk: 'yaksha' },
@@ -495,5 +495,319 @@ L.registerWorld({
   onMid: () => { if (L.th() === 14) L.later(1.2, () => L.toast(L.run.layer === 0 ? '夜叉讓開了路：「……去吧。第二道門在更高的地方。」' : '夜叉合上眼：「最後一道門後面，有人在等你。」', 3.4)); },
   outro: () => [{ who: '千手觀音', text: '千隻手慢慢垂下，只留一隻，輕輕托起你的燈。' }, { who: '千手觀音', text: '燈沒有變小。是你，不再怕它熄滅了。' }, { who: '旁白', text: '鐘聲一圈一圈散開。心裡的雜音，安靜了一點點。' }]
 });
+
+/* ===== DLC3：日本・觀光維護（房間制景點）。玩法掛鉤：obs / roomInit / tick / back / drawItem / useItem / info / hint ===== */
+const JP_FAC = { lantern: '石燈籠', bench: '長椅', vend: '自動販賣機', torii: '小鳥居', onsen: '溫泉' };
+const JP_HP = 4, JP_PLACE = ['京都石板街', '神社參道', '溫泉街與竹林'];
+// 每層景點房的設施位置（房間比例），固定在場景的特色位置
+const JP_SLOTS = [
+  [['lantern', 0.26, 0.24], ['bench', 0.5, 0.8], ['vend', 0.74, 0.24], ['lantern', 0.82, 0.78]],
+  [['lantern', 0.2, 0.78], ['torii', 0.54, 0.5], ['bench', 0.72, 0.2], ['vend', 0.84, 0.76]],
+  [['lantern', 0.3, 0.22], ['vend', 0.18, 0.72], ['bench', 0.46, 0.82], ['onsen', 0.72, 0.6]]
+];
+const JP_BOSS = [['lantern', 0.28, 0.26], ['lantern', 0.72, 0.26], ['lantern', 0.5, 0.82]];
+function jpSat(d) { const r = L.run; r.jpSat = clamp((r.jpSat === undefined ? 50 : r.jpSat) + d, 0, 100); }
+function jpObs(kind, R, D) {
+  const ly = L.run.layer % 3, slots = kind === 'boss' ? JP_BOSS : JP_SLOTS[ly];
+  const keep = slots.map(s => ({ x: R.x + R.w * s[1] - 70, y: R.y + R.h * s[2] - 70, w: 140, h: 140 }));
+  keep.push({ x: R.x, y: D.y - 90, w: 150, h: 180 }, { x: R.x + R.w - 150, y: D.y - 90, w: 150, h: 180 });
+  const kinds = ly === 0 ? ['lantern', 'lantern', 'bamboo', 'jar', 'pot', 'bench'] : ly === 1 ? ['lantern', 'lantern', 'lantern', 'pot', 'jar', 'bamboo'] : ['bamboo', 'bamboo', 'bamboo', 'jar', 'pot', 'lantern'];
+  const n = kind === 'boss' ? 9 : 16, obs = [];
+  for (let t = 0; t < 500 && obs.length < n; t++) {
+    const jk = pickOf(kinds), w = jk === 'bench' ? rr(56, 70) : jk === 'bamboo' ? rr(40, 56) : rr(30, 44), h = jk === 'bench' ? rr(26, 32) : jk === 'bamboo' ? rr(40, 56) : rr(30, 44);
+    const o = { x: rr(R.x + 90, R.x + R.w - 90 - w), y: rr(R.y + 40, R.y + R.h - 40 - h), w, h, jk };
+    if (keep.some(k => L.overlap(k, o)) || obs.some(q => L.overlap(L.inflate(q, 70), o))) continue;
+    obs.push(o);
+  }
+  return obs;
+}
+function jpObsDraw(g, o, rng) {
+  const cx = o.x + o.w / 2, cy = o.y + o.h / 2, jk = o.jk || 'jar';
+  g.save(); g.globalAlpha = 0.92; setShadow(g, 0, 3, 0, 'rgba(30,20,10,.28)');
+  if (jk === 'lantern') {
+    g.fillStyle = '#8f8a7c'; rrect(g, o.x + o.w * 0.1, o.y + o.h * 0.62, o.w * 0.8, o.h * 0.3, 4); noShadow(g);
+    g.fillStyle = '#a7a290'; rrect(g, o.x + o.w * 0.22, o.y + o.h * 0.3, o.w * 0.56, o.h * 0.36, 3); g.fillStyle = '#ffcf7a'; g.fillRect(o.x + o.w * 0.4, o.y + o.h * 0.4, o.w * 0.2, o.h * 0.16);
+    g.fillStyle = '#7d786a'; poly(g, [[o.x, o.y + o.h * 0.34], [o.x + o.w, o.y + o.h * 0.34], [cx, o.y + o.h * 0.04]]);
+  } else if (jk === 'bamboo') {
+    noShadow(g); for (let i = 0; i < 4; i++) { const bx = o.x + o.w * (0.15 + i * 0.23), by = o.y + o.h * (0.3 + (i & 1) * 0.2); g.fillStyle = 'rgba(70,110,60,.9)'; circ(g, bx, by, o.w * 0.2); g.fillStyle = 'rgba(120,170,90,.9)'; circ(g, bx - 2, by - 2, o.w * 0.13); }
+  } else if (jk === 'bench') {
+    g.fillStyle = '#7a5a3a'; rrect(g, o.x, o.y + o.h * 0.15, o.w, o.h * 0.7, 4); noShadow(g); g.fillStyle = '#9a7650'; rrect(g, o.x + 2, o.y + o.h * 0.2, o.w - 4, o.h * 0.35, 3); g.fillStyle = '#6a4c30'; g.fillRect(o.x + 4, o.y + o.h * 0.6, 5, o.h * 0.3); g.fillRect(o.x + o.w - 9, o.y + o.h * 0.6, 5, o.h * 0.3);
+  } else if (jk === 'pot') {
+    g.fillStyle = '#9a5a3a'; circ(g, cx, cy + 2, Math.min(o.w, o.h) * 0.44); noShadow(g); g.fillStyle = '#5f8f4a'; for (let k = 0; k < 6; k++) circ(g, cx + Math.cos(k * 1.05) * 6, cy - 2 + Math.sin(k * 1.05) * 6, 7); g.fillStyle = '#e88aa8'; circ(g, cx, cy - 2, 4);
+  } else {
+    g.fillStyle = '#6f7f86'; circ(g, cx, cy, Math.min(o.w, o.h) * 0.48); noShadow(g); g.fillStyle = '#4a5a62'; circ(g, cx, cy, Math.min(o.w, o.h) * 0.34); g.fillStyle = 'rgba(120,180,210,.7)'; circ(g, cx, cy, Math.min(o.w, o.h) * 0.24);
+  }
+  g.restore();
+}
+function jpBg(g, rm, rng, arR) {
+  const R = L.ROOM, ly = rm.layer % 3, cy = R.y + R.h / 2;
+  if (ly === 0) { // 京都石板街
+    for (let y = R.y; y < R.y + R.h; y += 60) for (let x = R.x + (Math.round(y / 60) % 2) * 40; x < R.x + R.w; x += 80) { g.fillStyle = rng() < 0.5 ? 'rgba(60,48,36,.10)' : 'rgba(255,240,210,.07)'; rrect(g, x + 3, y + 3, 74, 54, 6); }
+    g.fillStyle = 'rgba(40,24,16,.2)'; g.fillRect(R.x, R.y, R.w, 34); g.fillRect(R.x, R.y + R.h - 34, R.w, 34);
+    for (let x = R.x + 120; x < R.x + R.w; x += 230) for (const yy of [R.y + 17, R.y + R.h - 17]) { g.fillStyle = 'rgba(255,190,100,.28)'; circ(g, x, yy, 17); g.fillStyle = '#c0392b'; circ(g, x, yy, 7); }
+  } else if (ly === 1) { // 神社參道
+    for (let i = 0; i < Math.round(240 * arR); i++) { g.fillStyle = 'rgba(' + (rng() < 0.5 ? '60,50,40' : '240,230,210') + ',' + (0.07 + rng() * 0.08) + ')'; circ(g, R.x + rng() * R.w, R.y + rng() * R.h, 1.5 + rng() * 2.5); }
+    g.fillStyle = 'rgba(120,115,104,.38)'; g.fillRect(R.x, cy - 70, R.w, 140);
+    for (let x = R.x + 10; x < R.x + R.w - 40; x += 74) { g.strokeStyle = 'rgba(40,36,30,.3)'; g.lineWidth = 2; g.strokeRect(x, cy - 66, 68, 62); g.strokeRect(x + 34, cy + 4, 68, 62); }
+    const gx = R.x + R.w * 0.34; g.fillStyle = 'rgba(178,40,32,.5)'; g.fillRect(gx - 8, cy - 152, 16, 304); g.fillStyle = 'rgba(150,30,26,.7)'; g.fillRect(gx - 14, cy - 164, 28, 24); g.fillRect(gx - 14, cy + 140, 28, 24);
+    const hx = R.x + R.w * 0.12, hy = R.y + 78; g.fillStyle = 'rgba(80,70,56,.5)'; rrect(g, hx - 56, hy - 34, 112, 68, 8); g.fillStyle = 'rgba(100,160,190,.55)'; rrect(g, hx - 44, hy - 22, 88, 44, 6);
+  } else { // 溫泉街與竹林
+    for (let y = R.y; y < R.y + R.h; y += 34) { g.fillStyle = (Math.round(y / 34) % 2) ? 'rgba(70,40,20,.10)' : 'rgba(255,230,190,.05)'; g.fillRect(R.x, y, R.w, 34); g.strokeStyle = 'rgba(40,24,12,.22)'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(R.x, y); g.lineTo(R.x + R.w, y); g.stroke(); }
+    const px = R.x + R.w * 0.72, py = R.y + R.h * 0.6; g.fillStyle = 'rgba(90,84,76,.8)'; g.beginPath(); g.ellipse(px, py, 126, 84, 0, 0, TAU); g.fill(); g.fillStyle = 'rgba(110,190,220,.6)'; g.beginPath(); g.ellipse(px, py, 108, 68, 0, 0, TAU); g.fill();
+    for (let i = 0; i < Math.round(26 * arR); i++) { const bx = R.x + rng() * R.w, by = rng() < 0.5 ? R.y + 6 + rng() * 20 : R.y + R.h - 26 + rng() * 20; g.strokeStyle = 'rgba(80,130,70,.7)'; g.lineWidth = 5; g.lineCap = 'round'; g.beginPath(); g.moveTo(bx, by); g.lineTo(bx + rng() * 6 - 3, by + 18); g.stroke(); }
+  }
+  for (let i = 0; i < Math.round(22 * arR); i++) { g.fillStyle = rng() < 0.5 ? 'rgba(230,140,160,.35)' : 'rgba(200,120,60,.3)'; circ(g, R.x + rng() * R.w, R.y + rng() * R.h, 2 + rng() * 2.5); }
+}
+
+/* ---- 初始化、垃圾、設施 ---- */
+function jpTrash(T, x, y) {
+  const R = L.ROOM, room = L.room; if (T.trash.length >= 16) return;
+  for (let t = 0; t < 30; t++) {
+    const tx = x === null ? rr(R.x + 160, R.x + R.w - 160) : x + rr(-34, 34), ty = y === null ? rr(R.y + 50, R.y + R.h - 50) : y + rr(-34, 34);
+    if (tx < R.x + 30 || tx > R.x + R.w - 30 || ty < R.y + 30 || ty > R.y + R.h - 30) continue;
+    if (room.obs.some(o => L.overlap(L.inflate(o, 12), { x: tx, y: ty, w: 1, h: 1 }))) continue;
+    T.trash.push({ x: tx, y: ty, k: Math.floor(rand() * 4), a: rand() * 6 }); return;
+  }
+}
+function jpInit(room, kind) {
+  if (kind !== 'combat' && kind !== 'boss') return;
+  const r = L.run, R = L.ROOM, layer = r.layer;
+  if (r.jpL !== layer) { r.jpL = layer; r.jpSat = 50; }
+  const T = room.tour = { fac: [], trash: [], waves: [], slow: false, pulseT: 4, extra: false };
+  for (const s of (kind === 'boss' ? JP_BOSS : JP_SLOTS[layer % 3])) {
+    const it = { kind: 'tfac', id: 'tfac', fk: s[0], x: R.x + R.w * s[1], y: R.y + R.h * s[2], group: 'prop', price: 0, taken: false, st: kind === 'boss' ? 'ok' : 'broken', hpF: JP_HP, rp: 0, fxDone: kind === 'boss', t: rand() * 6, hurtT: 0 };
+    room.items.push(it); T.fac.push(it);
+  }
+  const n = kind === 'boss' ? 3 : 6 + layer; for (let i = 0; i < n; i++) jpTrash(T, null, null);
+  if (kind === 'combat' && room.combatIdx === 0) L.later(1.0, () => { if (L.room !== room) return; L.toast(JP_PLACE[layer % 3] + '：妖怪在搗亂。走過垃圾就能清掉，壞掉的設施靠近後按住 F 修復', 4); });
+}
+function jpClean(T, i) {
+  const q = T.trash.splice(i, 1)[0], r = L.run; jpSat(1.5); L.p.coins += 1; L.sfx('coin'); L.burst(q.x, q.y, 5, ['#fff6d8', '#9ac27a'], 90, true);
+  r.jpCleaned = (r.jpCleaned || 0) + 1; if (r.jpCleaned >= 80) L.unlockAch('tourClean');
+}
+function jpHurtFac(T, f, d) {
+  f.hpF -= d; f.hurtT = 0.25;
+  if (f.hpF > 0) return;
+  f.st = 'ruin'; f.rp = 0; L.burst(f.x, f.y, 22, ['#6b5a4a', '#c9b99a'], 200, true); L.sfx('hurt'); L.shake(5);
+  jpSat(-12); L.run.jpRuin = (L.run.jpRuin || 0) + 1; L.toast(JP_FAC[f.fk] + '被破壞了！觀光滿意度下降', 2.6);
+  for (let i = 0; i < 3; i++) jpTrash(T, f.x, f.y); L.hintReset();
+}
+function jpRepair(T, it) {
+  const p = L.p; it.st = 'ok'; it.hpF = JP_HP; it.rp = 0; jpSat(it.fxDone ? 4 : 8); L.sfx('clear'); L.burst(it.x, it.y - 10, 18, ['#ffe9a0', C.paper], 170, true); L.hintReset();
+  if (it.fxDone) { L.toast(JP_FAC[it.fk] + '修好了', 1.6); return; }
+  it.fxDone = true;
+  if (it.fk === 'lantern') { L.healP(1); L.toast('石燈籠亮了：燈火 +1，之後會定期震開附近的子彈', 3); }
+  else if (it.fk === 'bench') { L.healP(1); L.toast('長椅：休息一下，燈火 +1', 2.4); }
+  else if (it.fk === 'vend') { L.dropCoins(it.x, it.y + 34, 8); if (rand() < 0.4) L.pickups.push({ kind: 'oil', x: it.x + 24, y: it.y + 34, t: 0 }); L.toast('販賣機掉出了東西', 2.4); }
+  else if (it.fk === 'torii') { p.shield = Math.min(2, (p.shield || 0) + 1); L.toast('鳥居護佑：護盾 +1（擋下一次傷害）', 3); }
+  else if (it.fk === 'onsen') { L.healP(1); L.toast('溫泉：燈火 +1，8 秒後再 +1', 3); L.later(8, () => { if (L.state() === 'play' && L.room.tour) { L.healP(1); L.toast('溫泉的暖意：燈火 +1', 1.8); } }); }
+}
+function jpTick(dt) {
+  const room = L.room, T = room && room.tour; if (!T || L.state() !== 'play') return;
+  const p = L.p, keys = L.keys, r = L.run;
+  for (let i = T.trash.length - 1; i >= 0; i--) { const q = T.trash[i]; if (Math.hypot(p.x - q.x, p.y - q.y) < 30) jpClean(T, i); }
+  const slowNow = T.trash.length >= 9; if (slowNow && !T.slow && !r.jpSlowTip) { r.jpSlowTip = true; L.toast('垃圾太多，走路變慢了——碰到垃圾就能清掉', 3); } T.slow = slowNow;
+  const hammer = p.weapons[p.w] === 'hammer';
+  for (const it of T.fac) {
+    it.t += dt; it.hurtT = Math.max(0, it.hurtT - dt);
+    if (it.st === 'broken') { if (p.near === it && keys.f) { it.rp += dt / (hammer ? 1.8 : 3); if (it.rp >= 1) jpRepair(T, it); } else it.rp = Math.max(0, it.rp - dt * 0.8); }
+  }
+  for (const e of L.enemies) {
+    if (e.dead) continue;
+    if (!e.tj) { e.tj = 1; if (['crawler', 'splitter', 'splitter2', 'brute'].indexOf(e.type) >= 0 && rand() < 0.6) { const cand = T.fac.filter(f => f.st !== 'ruin').sort((a, b) => Math.hypot(a.x - e.x, a.y - e.y) - Math.hypot(b.x - e.x, b.y - e.y)); if (cand.length) e.tgtF = cand[0]; } }
+    const f = e.tgtF; if (!f) continue;
+    if (f.st === 'ruin') { e.tgtF = null; continue; }
+    if (e.spawn <= 0 && Math.hypot(e.x - f.x, e.y - f.y) < e.r + 34) jpHurtFac(T, f, 0.35 * dt);
+  }
+  T.pulseT -= dt;
+  if (T.pulseT <= 0) {
+    T.pulseT = 11;
+    for (const f of T.fac) if (f.fk === 'lantern' && f.st === 'ok') { let n = 0; for (const b of L.bullets) if (b.own === 'e' && !b.dead && Math.hypot(b.x - f.x, b.y - f.y) < 150) { b.dead = true; n++; } T.waves.push({ x: f.x, y: f.y, t: 0 }); }
+  }
+  for (const w of T.waves) w.t += dt; T.waves = T.waves.filter(w => w.t < 0.7);
+  if (room.kind === 'boss' && !T.extra && L.enemies.some(e => e.type === 'boss' && !e.dead && e.spawn <= 0)) {
+    T.extra = true;
+    if ((r.jpSat === undefined ? 50 : r.jpSat) <= 25) { for (let i = 0; i < 3; i++) { const sp = L.freeSpot(13), e = L.spawnEnemy('crawler', sp.x, sp.y); e.sleep = false; } L.toast('觀光滿意度太低：增援的妖怪來了！', 3); }
+  }
+}
+function jpFinish(fin) {
+  const r = L.run, room = L.room, T = room && room.tour; if (!T) return;
+  const broken = T.fac.filter(f => f.st !== 'ok').length, sat = Math.round(clamp((r.jpSat === undefined ? 50 : r.jpSat) - 4 * broken, 0, 100)), R = L.ROOM;
+  if (sat >= 90) L.unlockAch('tourFull');
+  if (fin) { if (!r.jpRuin) L.unlockAch('tourKeep'); L.toast('觀光滿意度 ' + sat + (sat >= 70 ? '：大受好評！' : '') , 3); return; }
+  L.later(1.0, () => {
+    if (sat >= 70) { L.dropCoins(R.x + R.w - 170, L.DOOR.y, 15); L.rewardUpgrade(); L.toast('觀光滿意度 ' + sat + '：大受好評！額外獎勵', 3.2); }
+    else L.toast('觀光滿意度 ' + sat + (sat >= 40 ? '：普普通通' : '：評價不太好……'), 2.8);
+  });
+}
+
+/* ---- 畫面：垃圾、設施、滿意度條 ---- */
+function jpBack() {
+  const room = L.room, T = room && room.tour; if (!T) return; const c = L.ctx, time = L.time;
+  for (const q of T.trash) {
+    c.save(); c.translate(q.x, q.y + Math.sin(time * 2 + q.a) * 0.8); c.fillStyle = 'rgba(0,0,0,.2)'; c.beginPath(); c.ellipse(0, 7, 11, 4, 0, 0, TAU); c.fill();
+    if (q.k === 0) { c.fillStyle = '#9aa4aa'; rrect(c, -5, -8, 10, 15, 3); c.fillStyle = '#d24a3a'; c.fillRect(-5, -3, 10, 5); }
+    else if (q.k === 1) { c.fillStyle = '#b5702e'; circ(c, -4, 0, 7); c.fillStyle = '#d39a3c'; circ(c, 4, -2, 6); c.fillStyle = '#8f5424'; circ(c, 1, 4, 5); }
+    else if (q.k === 2) { c.strokeStyle = '#e04a8a'; c.lineWidth = 3; c.lineCap = 'round'; c.beginPath(); c.moveTo(-9, 2); c.quadraticCurveTo(-3, -9, 2, 2); c.quadraticCurveTo(6, 9, 10, -3); c.stroke(); c.strokeStyle = '#4ab0e0'; c.beginPath(); c.moveTo(-8, 6); c.lineTo(8, 5); c.stroke(); }
+    else { c.fillStyle = '#f3efe4'; poly(c, [[-8, -3], [-1, -8], [2, -1], [-4, 3]]); poly(c, [[2, 2], [9, -1], [8, 6], [1, 7]]); }
+    c.restore();
+  }
+  for (const w of T.waves) { c.save(); c.globalAlpha = 0.6 * (1 - w.t / 0.7); c.strokeStyle = '#ffe0a0'; c.lineWidth = 4; c.beginPath(); c.arc(w.x, w.y, 20 + w.t / 0.7 * 130, 0, TAU); c.stroke(); c.restore(); }
+}
+function jpDrawFac(it) {
+  const c = L.ctx, time = L.time, st = it.st, ok = st === 'ok', ruin = st === 'ruin', fk = it.fk;
+  c.save(); c.translate(it.x, it.y);
+  c.fillStyle = 'rgba(0,0,0,.28)'; c.beginPath(); c.ellipse(0, 22, 30, 8, 0, 0, TAU); c.fill();
+  if (st === 'broken') c.rotate(Math.sin(it.t * 7) * 0.012 + 0.04);
+  if (ruin) {
+    c.fillStyle = '#6b6258'; for (let k = 0; k < 6; k++) { c.beginPath(); c.ellipse(Math.cos(k * 1.7) * 14, Math.sin(k * 2.3) * 8 + 8, 9, 6, k, 0, TAU); c.fill(); }
+    c.fillStyle = '#4a433b'; for (let k = 0; k < 4; k++) circ(c, Math.cos(k * 2.1 + 1) * 18, Math.sin(k * 1.3) * 6 + 10, 5);
+  } else if (fk === 'lantern') {
+    c.fillStyle = ok ? '#a8a290' : '#7b766a'; rrect(c, -16, 8, 32, 16, 4); rrect(c, -9, -4, 18, 14, 3);
+    c.fillStyle = ok ? '#c9c3ae' : '#8a8578'; rrect(c, -14, -22, 28, 20, 4); c.fillStyle = ok ? '#ffd27a' : '#2a2620'; c.fillRect(-7, -17, 14, 10);
+    c.fillStyle = ok ? '#8d8774' : '#6a665a'; poly(c, [[-22, -20], [22, -20], [0, -38]]);
+    if (ok) { c.globalAlpha = 0.28 + 0.06 * Math.sin(time * 4 + it.t); c.fillStyle = '#ffd27a'; circ(c, 0, -12, 34); } else { c.strokeStyle = '#2a2620'; c.lineWidth = 2; c.beginPath(); c.moveTo(-4, -20); c.lineTo(2, -10); c.lineTo(-3, -4); c.stroke(); }
+  } else if (fk === 'bench') {
+    c.fillStyle = ok ? '#8a6540' : '#5f4630'; rrect(c, -30, -6, 60, 14, 4); c.fillStyle = ok ? '#a67c50' : '#6f5238'; rrect(c, -28, -12, 56, 8, 3);
+    c.fillStyle = '#5a4028'; c.fillRect(-26, 8, 6, 12); if (ok) c.fillRect(20, 8, 6, 12); else { c.save(); c.translate(20, 14); c.rotate(0.7); c.fillRect(-3, -6, 6, 12); c.restore(); }
+  } else if (fk === 'vend') {
+    c.fillStyle = ok ? '#2f86c8' : '#4a5b68'; rrect(c, -18, -30, 36, 54, 5); c.fillStyle = ok ? '#bff0ff' : '#1d262d'; rrect(c, -13, -25, 26, 26, 3);
+    if (ok) { c.fillStyle = '#ff6a6a'; c.fillRect(-9, -20, 6, 14); c.fillStyle = '#ffd24a'; c.fillRect(-1, -20, 6, 14); c.fillStyle = '#7ad07a'; c.fillRect(7, -20, 4, 14); }
+    c.fillStyle = '#1b1b1b'; c.fillRect(-12, 8, 24, 10); c.fillStyle = ok ? '#ffe9a0' : '#555'; c.fillRect(-12, 3, 8, 3);
+    if (!ok && Math.sin(it.t * 9) > 0.7) { c.fillStyle = '#9fe0ff'; c.fillRect(-12, -24, 24, 4); }
+  } else if (fk === 'torii') {
+    c.fillStyle = ok ? '#c8352a' : '#7a2a24'; c.fillRect(-28, -26, 8, 48); c.fillRect(20, -26, 8, 48); c.fillRect(-34, -28, 68, 8);
+    c.fillStyle = ok ? '#1b1210' : '#2a1a18'; c.fillRect(-36, -32, 72, 6); c.fillStyle = ok ? '#c8352a' : '#7a2a24'; c.fillRect(-26, -16, 52, 6);
+    if (!ok) { c.strokeStyle = '#2a1a18'; c.lineWidth = 3; c.beginPath(); c.moveTo(-6, -26); c.lineTo(2, -14); c.stroke(); }
+  } else if (fk === 'onsen') {
+    c.fillStyle = ok ? 'rgba(130,210,235,.5)' : 'rgba(110,84,52,.65)'; c.beginPath(); c.ellipse(0, 0, 96, 58, 0, 0, TAU); c.fill();
+    if (ok) for (let k = 0; k < 4; k++) { const ph = (time * 0.5 + k * 0.25) % 1; c.globalAlpha = 0.5 * (1 - ph); c.fillStyle = '#ffffff'; circ(c, Math.sin(k * 3 + time) * 30, -ph * 50, 12 + ph * 12); c.globalAlpha = 1; }
+    else { c.fillStyle = '#2a2620'; rrect(c, -10, -34, 20, 18, 3); }
+  }
+  c.globalAlpha = 1;
+  if (!ruin && it.hpF < JP_HP) { c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(-20, 30, 40, 6); c.fillStyle = it.hurtT > 0 ? '#fff' : '#e0604a'; c.fillRect(-19, 31, 38 * Math.max(0, it.hpF) / JP_HP, 4); }
+  if (it.rp > 0 && st === 'broken') { c.strokeStyle = 'rgba(0,0,0,.5)'; c.lineWidth = 8; c.beginPath(); c.arc(0, -4, 38, 0, TAU); c.stroke(); c.strokeStyle = '#ffe9a0'; c.lineWidth = 5; c.beginPath(); c.arc(0, -4, 38, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, it.rp)); c.stroke(); }
+  if (st === 'broken' && it.rp <= 0) { c.fillStyle = '#ffd24a'; c.font = '700 16px sans-serif'; c.textAlign = 'center'; c.fillText('！', 0, -46 + Math.sin(L.time * 5) * 2); }
+  c.restore();
+}
+function jpInfo(it) {
+  const nm = JP_FAC[it.fk];
+  const fx = { lantern: '修好：燈火 +1，之後每 11 秒震開附近的敵方子彈', bench: '修好：燈火 +1', vend: '修好：掉出燈芯，有機會有燈油', torii: '修好：護盾 +1', onsen: '修好：燈火 +1，8 秒後再 +1' }[it.fk];
+  if (it.st === 'ruin') return { name: nm + '（毀壞）', desc: '已經被妖怪破壞，只剩一堆碎片。觀光滿意度已經下降' };
+  if (it.st === 'ok') return { name: nm, desc: '運作中。妖怪會來破壞它——修好的設施要保護好（血量 ' + Math.max(0, Math.ceil(it.hpF)) + ' / ' + JP_HP + '）' };
+  return { name: nm + '（故障）', desc: '按住 F 約 3 秒修復（修繕槌 1.8 秒；修復時不能攻擊）。' + fx };
+}
+function jpHint(it) { return it.st === 'broken' ? '按住 F 修復' : ''; }
+function jpUse(it) { if (it.st === 'broken' && !L.run.jpHoldTip) { L.run.jpHoldTip = true; L.toast('按「住」F 不放，修復進度條會慢慢滿起來', 2.8); } }
+function jpHud() {
+  const st = document.createElement('style');
+  st.textContent = '#tourBar{position:absolute;top:1.2cqw;left:50%;transform:translateX(-50%);display:flex;gap:.6cqw;align-items:center;color:var(--paper);font-size:clamp(10px,1.3cqw,15px);pointer-events:none;z-index:6;text-shadow:0 1px 2px #000}#tourBar i{display:block;width:16cqw;height:.9cqw;min-height:7px;background:rgba(0,0,0,.55);border:1px solid #c9b99a}#tourBar b{display:block;height:100%;width:0;background:#8fd08a}#tourBar em{font-style:normal;color:#ffd27a;margin-left:.6cqw}#tourBar[hidden]{display:none}';
+  document.head.appendChild(st);
+  const bar = document.createElement('div'); bar.id = 'tourBar'; bar.hidden = true; bar.innerHTML = '<span>觀光滿意度</span><i><b></b></i><em></em>'; L.stageEl.appendChild(bar);
+  const fill = bar.querySelector('b'), txt = bar.querySelector('em');
+  setInterval(() => {
+    const room = L.room, T = room && room.tour, s = L.state(), on = L.th() === 15 && !!T && s !== 'menu' && s !== 'over'; bar.hidden = !on; if (!on) return;
+    const v = L.run.jpSat === undefined ? 50 : L.run.jpSat; fill.style.width = v.toFixed(0) + '%'; fill.style.background = v >= 70 ? '#8fd08a' : v > 25 ? '#ffd27a' : '#e0604a';
+    txt.textContent = '垃圾 ' + T.trash.length + '　設施 ' + T.fac.filter(f => f.st === 'ok').length + '/' + T.fac.length;
+  }, 150);
+}
+
+/* ---- 妖怪與 Boss ---- */
+function drawYokai(e) {
+  const c = L.ctx, r = e.r, f = e.flash > 0, sk = e.skin, t = e.t, bob = Math.sin(t * 3 + e.seed) * 2, ol = '#241812', p = L.p, fa = Math.atan2(p.y - e.y, p.x - e.x);
+  const eye = (x, y, s) => { c.fillStyle = '#fff6d8'; circ(c, x, y, s); c.fillStyle = f ? '#c00' : '#2a1010'; circ(c, x + Math.cos(fa) * s * 0.35, y + Math.sin(fa) * s * 0.35, s * 0.5); };
+  if (sk === 'kasa') {
+    c.fillStyle = ol; circ(c, 0, bob, r * 1.12); c.fillStyle = f ? C.paper : '#c8473a'; circ(c, 0, bob, r);
+    c.strokeStyle = '#7a2a20'; c.lineWidth = 2; for (let i = 0; i < 8; i++) { const a = i / 8 * TAU; c.beginPath(); c.moveTo(0, bob); c.lineTo(Math.cos(a) * r, bob + Math.sin(a) * r); c.stroke(); }
+    c.fillStyle = f ? C.paperDim : '#e8a090'; circ(c, 0, bob, r * 0.5); eye(Math.cos(fa) * r * 0.1, bob + Math.sin(fa) * r * 0.1, r * 0.28);
+    c.fillStyle = '#ff7a9a'; c.beginPath(); c.ellipse(Math.cos(fa) * r * 1.0, bob + Math.sin(fa) * r * 1.0, r * 0.22, r * 0.34, fa + Math.PI / 2, 0, TAU); c.fill();
+  } else if (sk === 'chochin') {
+    c.fillStyle = 'rgba(255,200,110,.25)'; circ(c, 0, bob, r * 1.7); c.fillStyle = ol; circ(c, 0, bob, r * 1.1); c.fillStyle = f ? C.paper : '#f2d49a'; circ(c, 0, bob, r);
+    c.strokeStyle = '#a2742c'; c.lineWidth = 1.8; for (const k of [0.78, 0.55]) { c.beginPath(); c.arc(0, bob, r * k, 0, TAU); c.stroke(); }
+    c.fillStyle = '#2a1a14'; rrect(c, -r * 0.3, bob - r * 1.15, r * 0.6, r * 0.28, 3);
+    eye(-r * 0.3, bob - r * 0.1, r * 0.2); eye(r * 0.3, bob - r * 0.1, r * 0.2); c.fillStyle = '#ff6a8a'; c.beginPath(); c.ellipse(0, bob + r * 0.4, r * 0.18, r * 0.34, 0, 0, TAU); c.fill();
+  } else if (sk === 'oni') {
+    c.fillStyle = ol; circ(c, 0, bob, r * 1.1); c.fillStyle = f ? C.paper : '#c7413a'; circ(c, 0, bob, r);
+    c.fillStyle = '#f2e6c8'; poly(c, [[-r * 0.6, bob - r * 0.7], [-r * 0.35, bob - r * 1.45], [-r * 0.1, bob - r * 0.8]]); poly(c, [[r * 0.6, bob - r * 0.7], [r * 0.35, bob - r * 1.45], [r * 0.1, bob - r * 0.8]]);
+    c.strokeStyle = '#2a1010'; c.lineWidth = 3; c.beginPath(); c.moveTo(-r * 0.6, bob - r * 0.3); c.lineTo(-r * 0.1, bob - r * 0.1); c.moveTo(r * 0.6, bob - r * 0.3); c.lineTo(r * 0.1, bob - r * 0.1); c.stroke();
+    eye(-r * 0.32, bob - r * 0.02, r * 0.17); eye(r * 0.32, bob - r * 0.02, r * 0.17); c.fillStyle = '#2a1010'; rrect(c, -r * 0.4, bob + r * 0.3, r * 0.8, r * 0.3, 3); c.fillStyle = '#fff6d8'; poly(c, [[-r * 0.3, bob + r * 0.3], [-r * 0.2, bob + r * 0.5], [-r * 0.1, bob + r * 0.3]]); poly(c, [[r * 0.3, bob + r * 0.3], [r * 0.2, bob + r * 0.5], [r * 0.1, bob + r * 0.3]]);
+  } else if (sk === 'tanuki') {
+    c.fillStyle = ol; circ(c, 0, bob, r * 1.1); c.fillStyle = f ? C.paper : '#9a7048'; circ(c, 0, bob, r); circ(c, -r * 0.7, bob - r * 0.75, r * 0.3); circ(c, r * 0.7, bob - r * 0.75, r * 0.3);
+    c.fillStyle = f ? C.paperDim : '#e8d4aa'; circ(c, 0, bob + r * 0.25, r * 0.55); c.fillStyle = '#3a2a1c'; c.beginPath(); c.ellipse(-r * 0.35, bob - r * 0.1, r * 0.26, r * 0.18, -0.3, 0, TAU); c.ellipse(r * 0.35, bob - r * 0.1, r * 0.26, r * 0.18, 0.3, 0, TAU); c.fill();
+    c.fillStyle = '#fff6d8'; circ(c, -r * 0.35, bob - r * 0.1, r * 0.08); circ(c, r * 0.35, bob - r * 0.1, r * 0.08); c.fillStyle = '#6fa356'; poly(c, [[-r * 0.2, bob - r * 1.0], [0, bob - r * 1.55], [r * 0.2, bob - r * 1.0]]);
+  } else if (sk === 'hitodama') {
+    const fl = 1 + Math.sin(t * 9) * 0.12; for (let i = 3; i >= 1; i--) { c.fillStyle = 'rgba(120,170,255,' + (0.18 + 0.08 * (4 - i)) + ')'; circ(c, -Math.cos(fa) * i * r * 0.5, bob - Math.sin(fa) * i * r * 0.5, r * (1 - i * 0.18)); }
+    c.fillStyle = f ? C.paper : '#7aa6ff'; circ(c, 0, bob, r * fl); c.fillStyle = '#e8f2ff'; circ(c, 0, bob, r * 0.55); c.fillStyle = '#2a3a6a'; circ(c, -r * 0.25, bob - r * 0.05, r * 0.1); circ(c, r * 0.25, bob - r * 0.05, r * 0.1);
+  }
+}
+function drawLanternBoss(e) {
+  const c = L.ctx, fl = e.flash > 0, t = e.t, b = Math.sin(t * 1.8) * 4;
+  c.fillStyle = 'rgba(255,170,80,.2)'; circ(c, 0, b, 96); c.fillStyle = '#1b100a';
+  c.strokeStyle = '#1b100a'; c.lineWidth = 6; for (const sx of [-1, 1]) { c.beginPath(); c.moveTo(sx * 30, 52 + b); c.lineTo(sx * 40, 78 + b); c.stroke(); c.beginPath(); c.moveTo(sx * 62, 0 + b); c.quadraticCurveTo(sx * 90, 12 + b, sx * 84, 38 + b + Math.sin(t * 3) * 6); c.stroke(); }
+  c.beginPath(); c.ellipse(0, b, 66, 74, 0, 0, TAU); c.fill(); c.fillStyle = fl ? C.paper : '#d9482e'; c.beginPath(); c.ellipse(0, b, 60, 68, 0, 0, TAU); c.fill();
+  c.strokeStyle = '#7a1e12'; c.lineWidth = 3; for (const k of [-40, -20, 0, 20, 40]) { c.beginPath(); c.moveTo(-58 * Math.sqrt(1 - (k / 68) ** 2), b + k); c.lineTo(58 * Math.sqrt(1 - (k / 68) ** 2), b + k); c.stroke(); }
+  c.fillStyle = '#1b100a'; c.fillRect(-34, b - 80, 68, 14); c.fillRect(-34, b + 66, 68, 14);
+  c.fillStyle = '#fff6d8'; c.beginPath(); c.ellipse(-22, b - 14, 14, 11, -0.3, 0, TAU); c.ellipse(22, b - 14, 14, 11, 0.3, 0, TAU); c.fill(); c.fillStyle = '#2a0e0a'; circ(c, -20, b - 12, 6); circ(c, 20, b - 12, 6);
+  c.fillStyle = '#2a0e0a'; c.beginPath(); c.ellipse(0, b + 26, 26, 14, 0, 0, TAU); c.fill(); c.fillStyle = '#ff6a8a'; c.beginPath(); c.ellipse(0, b + 40 + Math.sin(t * 4) * 3, 9, 20, 0, 0, TAU); c.fill();
+}
+function drawHyakki(e) {
+  const c = L.ctx, fl = e.flash > 0, t = e.t, b = Math.sin(t * 1.6) * 4, cols = ['#f2e6c8', '#4a7ac8', '#c8a03a', '#7aa84a', '#a05ac8', '#e08a3a'];
+  c.fillStyle = 'rgba(160,110,255,.18)'; circ(c, 0, b, 110);
+  for (let i = 0; i < 6; i++) { const a = t * 0.6 + i / 6 * TAU, x = Math.cos(a) * 82, y = b + Math.sin(a) * 58; c.fillStyle = '#1b100a'; circ(c, x, y, 21); c.fillStyle = fl ? C.paper : cols[i]; circ(c, x, y, 18); c.fillStyle = '#2a1010'; circ(c, x - 6, y - 3, 3); circ(c, x + 6, y - 3, 3); c.fillRect(x - 5, y + 6, 10, 2); if (i % 2 === 0) { c.fillStyle = '#e8d8a8'; poly(c, [[x - 10, y - 12], [x - 6, y - 24], [x - 2, y - 12]]); poly(c, [[x + 2, y - 12], [x + 6, y - 24], [x + 10, y - 12]]); } }
+  c.fillStyle = '#1b100a'; circ(c, 0, b, 50); c.fillStyle = fl ? C.paper : '#b8342e'; circ(c, 0, b, 45);
+  c.fillStyle = '#f2e6c8'; poly(c, [[-30, b - 30], [-18, b - 74], [-6, b - 36]]); poly(c, [[30, b - 30], [18, b - 74], [6, b - 36]]);
+  c.strokeStyle = '#2a0e0a'; c.lineWidth = 4; c.beginPath(); c.moveTo(-30, b - 14); c.lineTo(-8, b - 4); c.moveTo(30, b - 14); c.lineTo(8, b - 4); c.stroke();
+  c.fillStyle = '#fff6d8'; circ(c, -16, b - 2, 8); circ(c, 16, b - 2, 8); c.fillStyle = '#2a0e0a'; circ(c, -15, b, 4); circ(c, 15, b, 4); c.fillRect(-22, b + 18, 44, 12); c.fillStyle = '#fff6d8'; poly(c, [[-18, b + 18], [-12, b + 30], [-6, b + 18]]); poly(c, [[18, b + 18], [12, b + 30], [6, b + 18]]);
+}
+function jpMoves(e, phase, ang) {
+  const p = L.p, fin = e.xk === 'hyakki', room = L.room, T = room.tour, aim = () => Math.atan2(p.y - e.y, p.x - e.x);
+  const pool = phase === 1 ? ['fan', 'ring', 'smash'] : phase === 2 ? ['fan', 'ring', 'smash', 'call'] : ['fan', 'ring', 'smash', 'call', 'rain'];
+  const a = pickOf(pool);
+  if (a === 'fan') { for (let w = 0; w < 3; w++) L.later(w * 0.4, () => { if (e.dead || L.state() !== 'play') return; const aa = aim(); for (let i = -2; i <= 2; i++) L.bossShot(e, e.x, e.y, aa + i * 0.2, 190, false, 6); L.sfx('hit'); }); L.toast(fin ? '鬼火連發' : '燈籠噴火', 1.2); }
+  else if (a === 'ring') { const n = fin ? 18 : 14, off = rand() * TAU; for (let i = 0; i < n; i++) L.bossShot(e, e.x, e.y, off + i / n * TAU, 150, false, 7); L.sfx('hit'); L.toast('火光一圈', 1.1); }
+  else if (a === 'smash') {
+    const cand = T ? T.fac.filter(f => f.st === 'ok') : []; if (!cand.length) return;
+    for (let k = 0; k < (fin && phase >= 2 ? 2 : 1) && cand.length; k++) {
+      const f = cand.splice(Math.floor(rand() * cand.length), 1)[0];
+      L.markStrike(e, f.x, f.y, 70, 1.3, {}); L.toast('設施被盯上了！趕快離開、或事後修好它', 2);
+      L.later(1.35, () => { if (e.dead || L.room !== room || f.st !== 'ok') return; f.st = 'broken'; f.hpF = JP_HP; f.rp = 0; jpSat(-3); L.burst(f.x, f.y, 16, ['#6b5a4a', '#ffd27a'], 180, true); L.sfx('hurt'); L.hintReset(); });
+    }
+  }
+  else if (a === 'call') { const alive = L.enemies.filter(q => !q.dead && q.type !== 'boss').length; if (alive < 6) for (let i = 0; i < 2; i++) { const sp = L.freeSpot(13), m = L.spawnEnemy('crawler', sp.x, sp.y); m.sleep = false; } L.toast('小妖怪被叫來了', 1.4); }
+  else { for (let i = 0; i < (phase === 3 ? 7 : 5); i++) L.markStrike(e, i === 0 ? p.x : p.x + rr(-220, 220), i === 0 ? p.y : p.y + rr(-160, 160), 50, 1.1, {}); L.toast('燈火亂落', 1.3); }
+}
+L.registerWorld({
+  theme: 15, name: '日本', pool: 'dlc', opt: '日本・觀光維護（DLC3）',
+  pal: { ink: '#1a1210', floor: '#8a7a62', floor2: '#93836a', wall1: '#3a2418', wall2: '#6a4430', top: '#f0e0c0', door: '#c0392b' },
+  amb: ['bandpass', 1800, 2, 0.004], ev: r => { const n = [523, 587, 784, 880][Math.floor(r() * 4)]; L.blip(n, n * 0.995, 0.7, 'sine', 0.008); },
+  noDark: true, bg: jpBg, obsDraw: jpObsDraw, obs: jpObs, roomInit: jpInit, tick: jpTick, back: jpBack, drawItem: jpDrawFac, info: jpInfo, hint: jpHint, useItem: jpUse,
+  skin: { map: { crawler: 'kasa', shooter: 'chochin', brute: 'oni', splitter: 'tanuki', splitter2: 'tanuki', bomber: 'hitodama' }, draw: drawYokai, hue: false },
+  weapons: {
+    broom: { id: 'broom', name: '竹掃帚', tag: '掃圈', mode: 'tap', cd: 0.45, th: 15, range: 122, half: 1.7, dmg: 3.4, kb: 420, desc: '近戰橫掃，範圍很寬；揮動時順便把周圍 150 像素內的垃圾掃乾淨（日本專屬）',
+      fire: (ox, oy, ang) => { L.meleeSwing(L.WDEF.broom, ang, 1); const T = L.room.tour; if (T) for (let i = T.trash.length - 1; i >= 0; i--) { const q = T.trash[i]; if (Math.hypot(L.p.x - q.x, L.p.y - q.y) < 150) jpClean(T, i); } } },
+    bow: { id: 'bow', name: '和弓', tag: '遠程', mode: 'tap', cd: 0.7, th: 15, desc: '慢速單發的長箭，射程遠、傷害高（日本專屬）',
+      fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang, 780, 6, 6.2 * dm, 'lance', 1.0); L.sfx('blade'); } },
+    hammer: { id: 'hammer', name: '修繕槌', tag: '重擊', mode: 'tap', cd: 0.75, th: 15, range: 108, half: 0.95, dmg: 6.6, kb: 620, desc: '短柄重錘，一下很痛；拿著它修設施只要 1.8 秒（日本專屬）' },
+    shuriken: { id: 'shuriken', name: '手裡劍', tag: '速射', mode: 'auto', cd: 0.24, th: 15, desc: '長按 F 的連續小飛鏢，射程中等（日本專屬）',
+      fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang + (rand() - 0.5) * 0.1, 620, 5, 1.55 * dm, 'pellet', 0.65); L.sfx('tick'); } }
+  },
+  ach: [
+    { id: 'tourFull', name: '滿堂喝采', desc: '日本・觀光維護：擊敗景點 Boss 時，觀光滿意度達 90 以上' },
+    { id: 'tourClean', name: '環保志工', desc: '日本・觀光維護：一局清掉 80 個垃圾' },
+    { id: 'tourKeep', name: '設施守護者', desc: '日本・觀光維護：整局沒有任何設施被破壞，擊敗百鬼夜行' }
+  ],
+  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter'); if (L0 > 0 || ci >= 1) types.push('splitter'); if (L0 > 0 || ci >= 2) types.push('brute', 'bomber'); },
+  boss: fin => fin ? { kind: 'golem', name: '百鬼夜行', hp: 205, ext: true, xk: 'hyakki' } : { kind: 'golem', name: '破壞神燈籠', hp: 125, ext: true, xk: 'lanternb' },
+  boss2: jpMoves, drawBoss: e => (e.xk === 'hyakki' ? drawHyakki(e) : drawLanternBoss(e)),
+  intro: def => (L.run.layer === 2
+    ? [{ who: '旁白', text: '祭典廣場的燈籠一盞接一盞亮起，每一盞下面，都藏著一張臉。' }, { who: '導覽小鈴', text: '那是百鬼夜行！今晚的遊客……是妖怪們自己啊！' }, { who: '導覽小鈴', text: '設施被弄壞了也沒關係，修好它，客人就會回來。' }]
+    : L.run.layer === 1
+      ? [{ who: '旁白', text: '參道盡頭的大燈籠搖晃起來，睜開了一隻眼睛。' }, { who: '導覽小鈴', text: '又是燈籠？這次它比上次更生氣。' }]
+      : [{ who: '旁白', text: '石板街的燈籠一盞一盞熄了，最大的那盞，睜開了眼睛。' }, { who: '導覽小鈴', text: '歡迎來到京都……啊，那不是景點設施，那是妖怪！' }]),
+  onMid: () => { if (L.th() === 15) jpFinish(false); },
+  onFinal: () => { if (L.th() === 15) jpFinish(true); },
+  outro: () => [{ who: '旁白', text: '最後一盞燈籠亮起來，天色從紫轉成金色。' }, { who: '導覽小鈴', text: '遊客們回來了！今天的評價……應該不錯吧？' }, { who: '旁白', text: '妖怪們收起行李，排隊離開。下次祭典，再見。' }]
+});
+try { jpHud(); } catch (e) { /* 滿意度條只是輔助顯示 */ }
 
 })();
