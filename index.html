@@ -133,7 +133,8 @@ body.mobile .bar{display:none}
 @keyframes achpop{0%{opacity:0;transform:translate(-50%,-14px)}10%,80%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
 .ach div{display:flex;gap:.8cqw;align-items:center}.ach div>span:last-child{display:block}.ach .medal{flex:none;line-height:0}
 .fusegrid{display:flex;flex-wrap:wrap;gap:.4cqw;justify-content:flex-start}.fusecard{max-width:70cqw;width:70cqw;max-height:86%;overflow:auto;background:#1a1526;border:1px solid #6b5a3a;padding:1.2cqw 1.6cqw}.fusecard h3{font-size:clamp(14px,2.2cqw,26px);margin:0 0 .5cqw}.fusecard h4{margin:.8cqw 0 .3cqw;font-size:clamp(11px,1.4cqw,17px)}.fusecard .btn{font-size:clamp(10px,1.25cqw,15px);padding:.4cqw .9cqw}.fusecard .btn:disabled{opacity:.4}#fuseModal{z-index:30;background:rgba(6,4,12,.97)}
-.infowrap{position:relative;flex-wrap:wrap}.sidecol{display:flex;flex-direction:column;gap:.6cqw;width:100%;flex:none}.sidecol:not(:has(.longrow:not([hidden]))){display:none}.sidecol .longrow{margin:0;max-width:100%;justify-content:flex-start;text-align:left;font-size:clamp(calc(9px*var(--fz,1)),1.15cqw,14px)}@container (min-width:1000px){body:not(.port) .infowrap{flex-wrap:nowrap}body:not(.port) .sidecol{position:absolute;left:100%;top:0;margin-left:2.2cqw;width:20cqw}}
+.infowrap{position:relative;flex-wrap:wrap}#znBar{position:absolute;top:1.2cqw;left:50%;transform:translateX(-50%);display:flex;gap:.6cqw;align-items:center;color:var(--paper);font-size:clamp(10px,1.3cqw,15px);pointer-events:none;z-index:6;text-shadow:0 1px 2px #000}#znBar i{display:block;width:16cqw;height:.9cqw;min-height:7px;background:rgba(0,0,0,.55);border:1px solid #8a7ab0}#znBar b{display:block;height:100%;width:0;background:#b79cff}#znBar.flash b{background:#fff}#znBar[hidden],#znFog[hidden]{display:none}#znFog{position:absolute;inset:0;pointer-events:none;z-index:5;background:radial-gradient(circle at 50% 50%,rgba(20,10,40,0) 12%,rgba(20,10,40,.93) 42%)}
+.sidecol{display:flex;flex-direction:column;gap:.6cqw;width:100%;flex:none}.sidecol:not(:has(.longrow:not([hidden]))){display:none}.sidecol .longrow{margin:0;max-width:100%;justify-content:flex-start;text-align:left;font-size:clamp(calc(9px*var(--fz,1)),1.15cqw,14px)}@container (min-width:1000px){body:not(.port) .infowrap{flex-wrap:nowrap}body:not(.port) .sidecol{position:absolute;left:100%;top:0;margin-left:2.2cqw;width:20cqw}}
 .longrow{display:flex;gap:.8cqw;align-items:center;justify-content:center;margin:.6cqw auto 0;padding:.5cqw 1.2cqw;background:#2a2238;border:1px solid #6b5a3a;color:var(--paper);font-size:clamp(calc(10px*var(--fz,1)),1.35cqw,16px);cursor:pointer;max-width:92%}.longrow b{color:var(--amber)}.longrow input{width:1.6em;height:1.6em;flex:none}
 .pager{display:flex;gap:1.2cqw;align-items:center;justify-content:center;margin-top:.8cqw;color:var(--paper-dim);font-size:clamp(calc(10px*var(--fz,1)),1.35cqw,16px)}.pager button{font:inherit;color:var(--paper);background:#3b2f1c;border:1px solid #6b5a3a;padding:.3cqw 1.4cqw;cursor:pointer}.pager button[disabled]{opacity:.35;cursor:default}
 .clsfilter{display:flex;gap:.6cqw;flex-wrap:wrap;justify-content:center;margin:.3cqw 0 .6cqw}.clsfilter button{font:700 clamp(calc(10px*var(--fz,1)),1.45cqw,17px) var(--font-body);color:var(--paper-dim);background:rgba(240,228,200,.08);border:1px solid var(--line);padding:.3cqw 1.2cqw;cursor:pointer}.clsfilter button.on{color:var(--paper);background:#3b2f1c;border-color:var(--amber)}
@@ -331,7 +332,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.53　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.54　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -384,7 +385,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
         <div class="clsfilter" id="clsFilter"></div>
         <div class="classes" id="classes"></div>
         <div class="infowrap"><canvas class="prev" id="prevMenu" width="200" height="200"></canvas><div class="clsinfo" id="clsInfo"></div><div class="sidecol" id="sideCol">
-        <label class="longrow" for="optDlcPool" id="lblDlcPool" hidden><input type="checkbox" id="optDlcPool" checked><span><b>長線含 DLC 主題</b>　取消則只抽基本主題</span></label>
+        <label class="longrow" for="optDlcPool" id="lblDlcPool" hidden><input type="checkbox" id="optDlcPool" checked><span><b>長線含 DLC 主題</b>　載入 DLC 後生效；取消則只抽基本主題</span></label>
         <label class="longrow" for="optLong" id="lblLong" hidden><input type="checkbox" id="optLong"><span><b>長線作戰</b>　6 層、精英與 Boss 第二形態；約 25–35 分鐘</span></label>
 </div></div>
         <div class="menurow"><button class="btn" id="btnStart" type="button">開始冒險<kbd>F</kbd></button><button class="btn alt" id="btnCost" type="button">造型<kbd>C</kbd></button><button class="btn alt" id="btnAch" type="button">成就<kbd>V</kbd></button><button class="btn alt" id="btnStat" type="button">統計<kbd>B</kbd></button><button class="btn alt" id="btnData" type="button">資料<kbd>N</kbd></button><button class="btn alt" id="btnGacha" type="button">造型機<kbd>M</kbd></button></div>
@@ -1829,7 +1830,7 @@ function shopless(arr, from) {
   return arr;
 }
 function makeLayerPlan(layer) {
-  if (run.guard) return (layer === 0 ? ['start'] : []).concat(['combat', 'boss']);
+  if (run.guard || run.path) return (layer === 0 ? ['start'] : []).concat(['combat', 'boss']);
   // 第 1 層：商人＋寶箱；第 2 層：商人＋事件；第 3 層：商人。第 2、3 層有 1/3 機率多 1 間特殊房，
   // 焦點房（事件→商人→寶箱輪流）權重 3、其他各 1；本層出現過焦點房後，焦點換下一種
   const specials = layer === 0 ? ['merchant', 'treasure'] : layer === 1 ? ['merchant', 'event'] : run.long && layer >= 6 ? ['merchant', 'treasure'] : run.long && layer >= 2 ? ['merchant', layer % 2 === 0 ? 'treasure' : 'event'] : ['merchant'];
@@ -1862,6 +1863,7 @@ function loadRoom() {
   const chase = variant === 'chase', rush = variant === 'rush';
   const big = kind === 'combat' || kind === 'boss' || chase || rush, SZ = kind === 'boss' ? BOSSR : BIG;
   ROOM.w = big ? SZ.w : 820; ROOM.h = big ? SZ.h : 450; DOOR.y = ROOM.y + ROOM.h / 2;
+  if (run.path && kind === 'combat') { ROOM.w = PATH_LEN; ROOM.h = 450; DOOR.y = ROOM.y + ROOM.h / 2; }
   WORLD.w = big ? ROOM.w + 140 : W; WORLD.h = big ? ROOM.h + 150 : H;
   let combatIdx = 0; for (let i = 0; i < run.step; i++) if (run.plan[i] === 'combat') combatIdx++;
   PAL = THEMES[th()].pal; for (const sc of ['candy', 'arc', 'fut']) stageEl.classList.toggle(sc, THEMES[th()].stage === sc); rec.themesSeen[th()] = 1; if (Object.keys(rec.themesSeen).length >= 4) unlockAch('tour');
@@ -1882,6 +1884,7 @@ function loadRoom() {
     room.items.push({ kind: 'refresh', id: 'refresh', slot: 'refresh', x: gcx + 250, y: gy, price: 3, group: 'stall', taken: false }); }
   }
   if (kind === 'combat') mechInit();
+  if (run.path && kind === 'combat') pathInit();
   room.bg = buildBg(room);
   jellies = [];
   if (th() === 4 && (kind === 'combat' || kind === 'boss' || chase)) {
@@ -2090,7 +2093,7 @@ function updateChase(dt) {
 function newRun() {
   if (PRAC.on && !PRAC.starting) endPractice();
   resetPlayer(); follow = true; fEdge = 0; hudSig = ''; parts = [];
-  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.hurtL = 0; run.dsK = 0; run.spN = 0; run.pulseTip = false; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.dlc = false; run.escort = false; run.escFail = false; run.dlcPrev = null; run.escHurt = 0; run.escape = false; run.guard = false; run.endless = false; run.syrupTip = false; run.wickN = 0; run.mechTip = false; run.revive = null; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
+  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.hurtL = 0; run.dsK = 0; run.znTip = false; run.spN = 0; run.pulseTip = false; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.dlc = false; run.escort = false; run.escFail = false; run.dlcPrev = null; run.escHurt = 0; run.escape = false; run.guard = false; run.endless = false; run.syrupTip = false; run.wickN = 0; run.mechTip = false; run.revive = null; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
   for (const w of p.weapons) rec.seenW[w] = 1;
   allies = [];
   { let t = cleared ? shuffle(run.long ? Object.keys(THEMES).map(Number).filter(i => THEMES[i].pool !== 'dlc' || optDlcPool.checked) : BASE_IDS.slice()).slice(0, 3) : [0, 1, 2];
@@ -2170,6 +2173,8 @@ const DING_LINES = ['嗡——有緣之人，取走吧。', '三百年沒人敲�
 function itemInfo(it) {
   if (it.kind === 'coins') return { name: '一袋燈芯', desc: '燈芯 +' + it.amount + '（穩定但沒有成長）' };
   if (it.kind === 'mystery') return { name: '神祕寶箱', desc: it.used ? '箱子已經空了' : '只有一個「？」。打開會得到隨機獎勵（可能是武器、強化、精良強化、燈芯或燈火）' };
+  if (it.kind === 'muyu') return { name: '木魚', desc: it.taps > 0 ? '縮圈到最小時再按 F：圓滿＝雜念清空，其他＝減半（剩 ' + it.taps + ' 次）' : '木魚裂了' };
+  if (it.kind === 'shrine') return { name: '佛龕', desc: it.used ? '香已經燃盡' : '合掌一拜，得到一份隨機的供養回禮（只能一次）' };
   if (it.kind === 'ding') return { name: '古鼎', desc: it.used ? '鼎已經安靜下來了' : '青銅古鼎，傳說摸一下會賜予一件寶物（只能一次）' };
   if (it.kind === 'well') return it.id === 'grand'
     ? { name: '華麗許願池', desc: '第 n 次投入 3×n 燈芯：3、6、9、12、15。次數越多機率與品質越高，第 5 次保底；得到獎勵後池就乾涸' + (it.dry ? '（已乾涸）' : '') }
@@ -2236,6 +2241,8 @@ function interact(it) {
   if (it.kind === 'tutsw') { rec.tutOff = !rec.tutOff; saveRec(); sfx('pick'); toast(rec.tutOff ? '教學已關閉' : '教學已開啟'); hintSig = ''; tutSig = ''; return; }
   if (it.kind === 'dlcMenu') { openDlcMenu(); return; }
   if (it.kind === 'mech') { mechUse(it); return; }
+  if (it.kind === 'muyu') { muyuTap(it); return; }
+  if (it.kind === 'shrine') { shrineUse(it); return; }
   if (it.kind === 'beacon') { const g = room.gb; if (!g) return; if (!g.started) { g.started = true; room.delay = 0.6; toast('敵人來了！守住燈塔', 2.2); } else if (g.rest) { g.rest = false; room.delay = 0.6; g.extraT = 14; toast('下一輪開始！', 2); } sfx('pick'); hintSig = ''; return; }
   if (it.kind === 'pracTh') { PRAC.th = (PRAC.th + 1) % TNAMES.length; sfx('pick'); toast('練習主題：' + TNAMES[PRAC.th], 1.6); hintSig = ''; return; }
   if (it.kind === 'pracLv') { PRAC.lv = (PRAC.lv + 1) % PLV.length; sfx('pick'); toast('練習層級：' + PLV[PRAC.lv].n, 2); hintSig = ''; return; }
@@ -2360,6 +2367,8 @@ function updateHint() {
     else if (it.kind === 'themesel') act = 'F 切換必遇主題（目前：' + (run.themePick >= 0 ? TNAMES[run.themePick] : '隨機') + '）';
     else if (it.kind === 'mystery') act = it.used ? '' : 'F 打開「？」';
     else if (it.kind === 'ding') act = it.used ? '' : 'F 觸摸古鼎';
+    else if (it.kind === 'muyu') act = it.taps <= 0 ? '' : room.path && room.path.ring && room.path.ring.it === it ? 'F 現在敲！（縮圈最小時）' : 'F 敲木魚';
+    else if (it.kind === 'shrine') act = it.used ? '' : 'F 合掌參拜';
     else if (it.kind === 'well') act = it.dry ? '池水已經乾涸' : (it.id === 'grand' ? (it.n >= 5 ? '池水平靜了' : 'F 投入 ' + (3 * (it.n + 1)) + ' 燈芯（第 ' + (it.n + 1) + ' / 5 次）') : (it.n >= 6 ? '池水平靜了' : 'F 投入 4 燈芯（第 ' + (it.n + 1) + ' / 6 次）')) + (!it.dry && it.n < (it.id === 'grand' ? 5 : 6) && p.coins < (it.id === 'grand' ? 3 * (it.n + 1) : 4) ? '（燈芯不夠）' : '');
     else if (it.kind === 'weapon') act = p.weapons.length < 3 ? 'F 拿取' : 'F 取代手上的「' + WDEF[p.weapons[p.w]].name + '」';
     else act = it.kind === 'tzsw' ? 'F 切換按鍵大小' : it.kind === 'tutsw' ? (rec.tutOff ? 'F 開啟教學' : 'F 關閉教學') : it.kind === 'noshop' ? (run.noShop ? 'F 取下木牌' : 'F 掛上木牌') : it.kind === 'switch' ? (room.lampOn ? 'F 關燈' : 'F 開燈') : it.kind === 'npc' ? 'F 邀請同行（隊伍 ' + allies.length + ' / 2）' : it.kind === 'refresh' ? 'F 刷新全部商品' : it.kind === 'restock' ? 'F 補貨' : it.kind === 'heal' ? 'F 喝下' : 'F 拿取';
@@ -2554,6 +2563,8 @@ function runTimers(dt) {
 
 /* ---------- UI: dialog, screens, hud ---------- */
 const stageEl = $('stage');
+let znFill = null, znTxt = null;
+{ const zb = document.createElement('div'); zb.id = 'znBar'; zb.hidden = true; zb.innerHTML = '<span>雜念</span><i><b></b></i>'; stageEl.appendChild(zb); znFill = zb.querySelector('b'); znTxt = zb.querySelector('span'); const zf = document.createElement('div'); zf.id = 'znFog'; zf.hidden = true; stageEl.appendChild(zf); }
 function setState(s) { state = s; stageEl.classList.toggle('playing', s === 'play'); scrSel = 0; scrRender(); }
 let dlg = { lines: [], i: 0, shown: 0, done: null, ret: 'play' };
 function say(lines, done) {
@@ -2630,7 +2641,7 @@ function show(id, on) { $(id).hidden = !on; }
 
 /* ---------- run flow ---------- */
 function renderClasses() {
-  const el = $('classes'); if (!el) return; refreshGuide(); $('lblLong').hidden = !(cleared || optUnlock.checked); $('lblDlcPool').hidden = !(THEMES.length > 9 && (cleared || optUnlock.checked));
+  const el = $('classes'); if (!el) return; refreshGuide(); $('lblLong').hidden = !(cleared || optUnlock.checked); $('lblDlcPool').hidden = !(cleared || optUnlock.checked);
   el.innerHTML = CLS.map((c, i) => {
     const ok = clsUnlocked(i), sel = i === chosen;
     const ty = TYPE_INFO[CLS_TYPE[c.id]], hid = clsFilter !== 'all' && CLS_TYPE[c.id] !== clsFilter;
@@ -2735,9 +2746,10 @@ const DLC = [
   { id: 'futEscape', name: '未來・逃離', desc: '崩塌線從左邊追來', theme: 11, flag: 'escape', pack: 'dlc.js', say: ['未來世界・逃離模式：崩塌線從左邊追來；Boss 房暫停崩塌、120 秒內要打倒', 3.2] },
   { id: 'letters', name: '字母書房（DLC2）', desc: '傳統玩法；選到才下載（約 30 KB）', theme: 12, flag: null, pack: 'dlc.js', say: ['字母書房：這一局三層都在書房裡，小心墨水與字母積木', 3] },
   { id: 'dl2long', name: 'DLC2 長線（字母書房＋彼岸）', desc: '6 層：字母書房 3 層、彼岸 3 層；約 25 分鐘（擺渡人解鎖用）', theme: 12, flag: 'dl2', long: true, pack: 'dlc.js', say: ['DLC2 長線：先在字母書房走 3 層，再渡到彼岸走 3 層', 3.2] },
-  { id: 'shore', name: '彼岸（DLC2）', desc: '傳統玩法；會模仿武器的影怪', theme: 13, flag: null, pack: 'dlc.js', say: ['彼岸：影子學會了你的武器，小心揮扇、擲鏢與火球', 3] }
+  { id: 'shore', name: '彼岸（DLC2）', desc: '傳統玩法；會模仿武器的影怪', theme: 13, flag: null, pack: 'dlc.js', say: ['彼岸：影子學會了你的武器，小心揮扇、擲鏢與火球', 3] },
+  { id: 'zen', name: '佛寺・修行路（DLC3）', desc: '長條地圖，一路向前；漏掉的敵人會變成雜念；選到才下載', theme: 14, flag: 'path', pack: 'dlc.js', say: ['佛寺・修行路：一直往前走；落在身後的敵人會變成雜念，業障牆從後面推來；道場裡可以靜心、敲木魚', 3.6] }
 ];
-const DLC_FLAGS = ['escort', 'endless', 'escape', 'guard', 'dl2'];
+const DLC_FLAGS = ['escort', 'endless', 'escape', 'guard', 'dl2', 'path'];
 const dlcOf = id => DLC.find(q => q.id === id);
 const DLC_MENU = DLC.map(q => ({ id: q.id, name: q.name, desc: q.desc })).concat([{ id: 'random', name: 'DLC 隨機', desc: '從以上全部隨機抽一種' }]);
 $('dlcList').innerHTML = DLC_MENU.map((q, i) => '<button class="btn" id="btnDlc' + i + '" type="button"></button>').join('') + '<button class="btn alt" id="btnDlc' + DLC_MENU.length + '" type="button"></button>';
@@ -3128,6 +3140,7 @@ function onConfirm() {
 
 /* ---------- weapons ---------- */
 function shoot(x, y, ang, spd, r, dmg, kind, life, pierce) {
+  if (room.path && room.path.daze > 0) ang += (rand() - 0.5) * 0.7;
   const b = { x, y, vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd, r: r * bigMul(), dmg, life: (life || 1.3) * reachMul(), own: 'p', kind, pl: pierce ? Infinity : upN('pierce'), hit: [] };
   bullets.push(b); return b;
 }
@@ -3564,6 +3577,7 @@ function updateWaves(dt) {
   if (room.fans) for (const fn of room.fans) if (!fn.done && run.t - fn.t0 > 3.2) { fn.done = true; if (!fn.hit) { run.dodged = (run.dodged || 0) + 1; if (run.dodged >= 20) unlockAch('dodge'); } }
   if (room.variant === 'fake' && !room.fakeDone) { room.fakeT -= dt; if (room.fakeT <= 0) revealFake(); return; }
   if (room.cleared) return;
+  if (room.path) return;
   if (room.mimic) { if (!enemies.some(o => !o.dead) && !(room.mimicT > 0)) { room.cleared = true; sfx('clear'); toast(room.lockMsg || '寶相怪全倒了'); if (room.variant === 'mimic' && !room.hurt) unlockAch('mimicSlay'); } return; }
   if (room.kind !== 'combat' && room.kind !== 'boss') return;
   if (room.gb && (!room.gb.started || room.gb.rest)) return;
@@ -3579,10 +3593,127 @@ function updateWaves(dt) {
 }
 function roomCleared() {
   if (room.special) { dropCoins(ROOM.x + ROOM.w - 170, DOOR.y, 12); toast('特殊戰鬥房全清：完整獎勵！', 2.6); for (const o of room.items) if (o.kind === 'mech') o.used = true; }
-  room.cleared = true; sfx('clear'); toast('洞窟清空'); run.combats++; if (p.curse > 0) { p.curse--; hudSig = ''; }
+  room.cleared = true; sfx('clear'); toast(room.path ? '走完修行路了' : '洞窟清空'); run.combats++; if (p.curse > 0) { p.curse--; hudSig = ''; }
   const lx = ROOM.x + ROOM.w - 170;
   if (!run.practice && run.combats % 2 === 0 && run.shards < 5) { pickups.push({ kind: 'shard', x: lx, y: DOOR.y - 40, t: 0, idx: run.shards }); run.shards++; }
   if (rand() < (p.hp <= 2 ? 0.35 : 0.15)) pickups.push({ kind: 'oil', x: lx, y: DOOR.y + 40, t: 0 });
+}
+/* ===== 佛寺長路（run.path）：長條地圖，鏡頭鎖玩家，業障牆從後面推，落後的敵人變成雜念 ===== */
+const PATH_LEN = 4200, KARMA_SPD = 90, ZN_MAX = 10;
+function pathInit() {
+  const D = [0.27, 0.52, 0.77].map(f => ({ x: Math.round(ROOM.x + ROOM.w * f), w: 400 }));
+  room.path = { next: ROOM.x + 520, wx: ROOM.x - 380, zn: 0, daze: 0, med: 0, medOn: false, dojos: D, hurtT: 0, ring: null, flash: 0 };
+  const obs = [];
+  for (let t = 0; t < 500 && obs.length < 20; t++) {
+    const w = rr(34, 62), h = rr(34, 62), x = rr(ROOM.x + 260, ROOM.x + ROOM.w - 300), y = rr(ROOM.y + 30, ROOM.y + ROOM.h - 30 - h);
+    if (D.some(d => Math.abs(x + w / 2 - d.x) < d.w / 2 + 40)) continue;
+    if (obs.some(o => Math.abs(o.x - x) < 130 && Math.abs(o.y - y) < 140)) continue;
+    obs.push({ x, y, w, h });
+  }
+  room.obs = obs;
+  D.forEach((d, i) => { room.items.push({ kind: 'muyu', id: 'muyu', x: d.x + 120, y: DOOR.y + 20, group: 'prop', price: 0, taken: false, taps: 3, di: i }); room.items.push({ kind: 'shrine', id: 'shrine', x: d.x - 120, y: DOOR.y + 20, group: 'prop', price: 0, taken: false, used: false, di: i }); });
+}
+function addZn(n) {
+  const P = room.path; if (!P || P.daze > 0) return;
+  P.zn = Math.min(ZN_MAX, P.zn + n); P.flash = 0.4;
+  if (!run.znTip) { run.znTip = true; toast('敵人落在身後會變成雜念——雜念滿了會迷亂', 3); }
+  if (P.zn >= ZN_MAX) { P.daze = 6; P.zn = 5; toast('心神迷亂！射擊散開、視野變窄', 2.4); sfx('hit'); shake = Math.max(shake, 6); }
+}
+function muyuTap(it) {
+  const P = room.path; if (!P) return;
+  if (it.taps <= 0) { toast('木魚裂了，不能再敲', 1.4); return; }
+  if (!P.ring || P.ring.it !== it) { P.ring = { it, t: 0, dur: 1.1 }; toast('縮圈到最小時再按 F', 1.6); sfx('tick'); return; }
+  const k = P.ring.t / P.ring.dur; P.ring = null; it.taps--; hintSig = '';
+  if (Math.abs(k - 1) <= 0.16) { P.zn = 0; P.daze = 0; toast('圓滿一敲：雜念清空', 2); sfx('clear'); burst(it.x, it.y - 10, 20, ['#ffe9a0', C.paper], 170, true); }
+  else { P.zn = Math.floor(P.zn / 2); toast('木魚聲：雜念減半', 1.6); sfx('pick'); burst(it.x, it.y - 10, 10, ['#d9b46a', C.paper], 120, true); }
+}
+function shrineUse(it) {
+  if (it.used) { toast('香已經燃盡', 1.2); return; }
+  it.used = true; hintSig = ''; sfx('pick'); burst(it.x, it.y - 10, 18, ['#ffd27a', C.paper], 160, true); toast('合掌一拜……', 1.2);
+  interact({ kind: 'mystery', id: 'mystery', x: it.x, y: it.y, group: 'prop', price: 0, taken: false });
+}
+function updatePath(dt) {
+  const P = room.path; if (!P) return;
+  const hud = $('znBar'), fog = $('znFog');
+  if (state !== 'play' || room.kind !== 'combat') { return; }
+  if (!room.cleared) {
+    const dj = P.dojos.find(d => Math.abs(p.x - d.x) < d.w / 2);
+    // 生成：玩家往前走，視野前方出現新的敵人群
+    const alive = enemies.filter(e => !e.dead && e.type !== 'boss').length;
+    if (P.next < ROOM.x + ROOM.w - 380 && p.x + 400 >= P.next) {
+      const dd = P.dojos.find(d => Math.abs(P.next - d.x) < d.w / 2 + 60);
+      if (dd) P.next = dd.x + dd.w / 2 + 120;
+      else if (alive <= 13) {
+        const prog = clamp((p.x - ROOM.x) / ROOM.w, 0, 1); room.combatIdx = Math.min(3, Math.floor(prog * 4)); room.wave = Math.floor(prog * 3);
+        const n = 2 + (rand() < 0.5 ? 1 : 0) + (dL() >= 1 ? 1 : 0), list = shuffle(composeWave()).slice(0, n);
+        for (const t of list) {
+          let x = P.next + rr(-70, 70), y = rr(ROOM.y + 40, ROOM.y + ROOM.h - 40);
+          for (let k = 0; k < 8 && room.obs.some(o => overlap(inflate(o, ENEMY[t].r + 8), { x, y, w: 1, h: 1 })); k++) y = rr(ROOM.y + 40, ROOM.y + ROOM.h - 40);
+          const e = spawnEnemy(t, x, y); e.sleep = false;
+        }
+        P.next += rr(340, 480);
+      }
+    }
+    // 落在身後超出視野的敵人：消失，變成雜念
+    for (const e of enemies) if (!e.dead && e.type !== 'boss' && e.spawn <= 0 && e.x < p.x - 520) {
+      e.dead = true; burst(e.x, e.y, 8, ['#9b7bd8', '#5a4a8a'], 90); addZn(e.elite ? 3 : e.r >= 18 ? 2 : 1);
+    }
+    // 業障牆
+    P.wx += (dj ? 0 : KARMA_SPD * (1 + 0.08 * dL())) * dt;
+    if (p.x - 8 < P.wx) {
+      P.hurtT -= dt; p.kx = Math.max(p.kx, 140);
+      if (P.hurtT <= 0) { P.hurtT = 1.6; if (!run.wallTip) { run.wallTip = true; toast('業障牆追上來了——往前走，到道場才會停', 2.6); } hurtFrom('karma', 1, 1, 0); }
+    } else P.hurtT = Math.min(P.hurtT, 0.6);
+    // 靜心：站在道場中央蒲團上，按住 F 約 2 秒
+    const onMat = dj && Math.hypot(p.x - dj.x, p.y - (DOOR.y + 20)) < 60 && p.speed < 70;
+    P.medOn = !!(onMat && keys.f && !p.near);
+    if (P.medOn) { P.med += dt; if (P.med >= 2) { P.med = 0; P.zn = 0; P.daze = 0; toast('靜心：雜念清空', 1.8); sfx('clear'); burst(dj.x, DOOR.y + 20, 18, ['#ffe9a0', C.paper], 160, true); } } else P.med = Math.max(0, P.med - dt * 2);
+    if (dj && !run.dojoTip) { run.dojoTip = true; toast('道場：業障牆暫停。蒲團上按住 F 靜心、木魚與佛龕在兩側', 3.2); }
+    // 終點
+    if (p.x > ROOM.x + ROOM.w - 220) { for (const e of enemies) if (e.type !== 'boss') e.dead = true; bullets = bullets.filter(b => b.own === 'p'); roomCleared(); }
+  }
+  P.daze = Math.max(0, P.daze - dt); P.flash = Math.max(0, P.flash - dt);
+  if (P.ring) { P.ring.t += dt; if (P.ring.t > P.ring.dur + 0.35) { P.ring = null; hintSig = ''; } }
+}
+function updateZnHud() {
+  const P = room && room.path, bar = $('znBar'), fog = $('znFog'); if (!bar || !fog) return;
+  const on = !!P && state !== 'menu' && state !== 'over' && room.kind === 'combat'; bar.hidden = !on; fog.hidden = !(on && P.daze > 0);
+  if (!on) return;
+  if (znFill) znFill.style.width = (P.zn / ZN_MAX * 100).toFixed(0) + '%'; bar.classList.toggle('flash', P.flash > 0); if (znTxt) znTxt.textContent = P.daze > 0 ? '迷亂 ' + Math.ceil(P.daze) : '雜念';
+}
+function drawPathBack() {
+  const P = room.path; if (!P || room.kind !== 'combat') return;
+  const x0 = ROOM.x - 460, x1 = P.wx; if (x1 > x0) {
+    const g = ctx.createLinearGradient(x1 - 220, 0, x1, 0); g.addColorStop(0, 'rgba(20,10,40,.0)'); g.addColorStop(0.55, 'rgba(30,14,56,.55)'); g.addColorStop(1, 'rgba(10,4,24,.94)');
+    ctx.fillStyle = g; ctx.fillRect(x1 - 220, 0, 220, WORLD.h); ctx.fillStyle = 'rgba(10,4,24,.94)'; ctx.fillRect(x0, 0, x1 - x0 - 0.5, WORLD.h);
+    ctx.save(); ctx.globalAlpha = 0.5; for (let i = 0; i < 9; i++) { const yy = ROOM.y + 20 + i * 52 + Math.sin(time * 1.4 + i) * 10, r = 26 + Math.sin(time * 2 + i * 1.7) * 6; ctx.fillStyle = '#4b3a7a'; circ(ctx, x1 - 24 - (i & 1) * 22 + Math.sin(time * 1.1 + i) * 6, yy, r); } ctx.restore();
+  }
+  for (const d of P.dojos) {
+    ctx.save(); ctx.translate(d.x, DOOR.y + 20); ctx.globalAlpha = 0.9;
+    ctx.fillStyle = 'rgba(255,214,140,.12)'; ctx.beginPath(); ctx.ellipse(0, 0, d.w / 2, 150, 0, 0, TAU); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,214,140,.35)'; ctx.lineWidth = 2; ctx.setLineDash([8, 10]); ctx.beginPath(); ctx.ellipse(0, 0, d.w / 2 - 6, 144, 0, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+    ctx.globalAlpha = 1; setShadow(ctx, 0, 3, 0); ctx.fillStyle = '#7a3a3a'; ctx.beginPath(); ctx.ellipse(0, 0, 44, 22, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#c25a4a'; ctx.beginPath(); ctx.ellipse(0, -2, 36, 17, 0, 0, TAU); ctx.fill(); noShadow(ctx);
+    if (P.medOn && Math.abs(p.x - d.x) < d.w / 2) { ctx.strokeStyle = '#ffe9a0'; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(0, -2, 56, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, P.med / 2)); ctx.stroke(); }
+    ctx.fillStyle = 'rgba(240,228,200,.7)'; ctx.font = '700 15px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('道場', 0, -166); ctx.restore();
+  }
+}
+function drawPathItem(it) {
+  ctx.save(); ctx.translate(it.x, it.y); setShadow(ctx, 2, 3, 0);
+  if (it.kind === 'muyu') {
+    const bob = Math.sin(time * 3) * 1.5; ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(0, 22, 30, 8, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = it.taps > 0 ? '#b0622c' : '#6a5a4a'; ctx.beginPath(); ctx.ellipse(0, 4 + bob, 28, 22, 0, 0, TAU); ctx.fill(); ctx.fillStyle = it.taps > 0 ? '#d18a48' : '#857260'; ctx.beginPath(); ctx.ellipse(-4, 0 + bob, 20, 14, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#4a2a14'; ctx.fillRect(-14, 6 + bob, 28, 4); noShadow(ctx);
+    const P = room.path; if (P && P.ring && P.ring.it === it) {
+      const k = Math.min(1, P.ring.t / P.ring.dur), rad = 20 + (1 - k) * 70; ctx.strokeStyle = '#ffe9a0'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 4, rad, 0, TAU); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,214,140,.55)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 4, 24, 0, TAU); ctx.stroke();
+    }
+  } else {
+    ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(0, 24, 32, 8, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = it.used ? '#4a3a30' : '#6a3a24'; rrect(ctx, -26, -6, 52, 30, 4); ctx.fillStyle = it.used ? '#5a4a3c' : '#8a4a2a'; poly(ctx, [[-32, -6], [32, -6], [0, -26]]);
+    ctx.fillStyle = it.used ? '#33281f' : '#1e120c'; rrect(ctx, -12, 2, 24, 22, 3); noShadow(ctx);
+    if (!it.used) { ctx.fillStyle = '#ffb347'; circ(ctx, 0, 12 + Math.sin(time * 6) * 1.2, 4); ctx.globalAlpha = 0.25; circ(ctx, 0, 12, 14); }
+  }
+  ctx.restore();
 }
 function explode(e) {
   e.dead = true; burst(e.x, e.y, 26, [C.ember, C.amber, C.paper], 240, true); sfx('kill'); shake = Math.max(shake, 7);
@@ -4697,7 +4828,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.53　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.54　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -4830,6 +4961,7 @@ function attackUpdate(dt) {
     return;
   }
   const w = WDEF[p.weapons[p.w]];
+  if (room.path && room.path.medOn) { fEdge = 0; p.charge = 0; return; }
   p.blind = state === 'play' && inBlind();
   if (p.blind) { if (!run.blindToast) { run.blindToast = true; toast('被墨汁蒙住了——在黑色區域裡無法開火', 2.6); } fEdge = 0; p.charge = 0; return; }
   if (w.mode === 'charge') {
@@ -4996,7 +5128,7 @@ function updatePlay(dt) {
   follow = !mouse.down;
   p.iframes = Math.max(0, p.iframes - dt); p.cd = Math.max(0, p.cd - dt); p.noiseT = Math.max(0, (p.noiseT || 0) - dt); p.skillCd = Math.max(0, p.skillCd - dt); if (p.sleepT > 0) { p.sleepT -= dt; p.skillCd = Math.max(0.01, p.sleepT); if (p.sleepT <= 0) wakeUp(false); } updateStall(dt); p.chainT = Math.max(0, p.chainT - dt); fEdge = Math.max(0, fEdge - dt); p.recoil = Math.max(0, p.recoil - dt);
   if (room.big) markExplored();
-  playerMove(dt); updateAllies(dt); aimUpdate(); p.near = room.items.length ? nearestItem() : null; attackUpdate(dt); updateWeapons(dt); updateClassTimers(dt); updateWaves(dt); updateChase(dt); updateRush(dt); updateDecor(dt); updateSwamp(dt); updateTimed(dt); updateBlooms(); updateModes(dt); updateMech(dt); updateMech(dt);
+  playerMove(dt); updateAllies(dt); aimUpdate(); p.near = room.items.length ? nearestItem() : null; attackUpdate(dt); updateWeapons(dt); updateClassTimers(dt); updateWaves(dt); updatePath(dt); updateChase(dt); updateRush(dt); updateDecor(dt); updateSwamp(dt); updateTimed(dt); updateBlooms(); updateModes(dt); updateMech(dt); updateMech(dt);
   for (const e of enemies) { updateEnemy(e, dt * slowAt(e.x, e.y, e.type === 'boss')); if (e.pin && !e.dead) { e.x = e.pin.x; e.y = e.pin.y; } }
   for (let i = 0; i < enemies.length; i++) for (let j = i + 1; j < enemies.length; j++) {
     const a = enemies[i], b = enemies[j]; if (a.type === 'boss' || b.type === 'boss') continue;
@@ -5157,6 +5289,7 @@ function drawProp() {
 function drawItem(it) {
   if (it.kind === 'beacon') return;
   if (it.taken) return;
+  if (it.kind === 'muyu' || it.kind === 'shrine') { drawPathItem(it); return; }
   if (it.kind === 'switch') {
     ctx.save(); ctx.translate(it.x, it.y); setShadow(ctx, 2, 3, 0);
     ctx.fillStyle = PAL.wall1; rrect(ctx, -16, -24, 32, 48, 5); noShadow(ctx);
@@ -5642,6 +5775,7 @@ function updatePort() {
 }
 function updateCam() {
   if (!room.big) { cam.x = 0; cam.y = 0; room.camInit = false; return; }
+  if (room.path) { const px = p.x - W / 2; if (!room.camInit) { cam.x = px; room.camInit = true; } else cam.x += (px - cam.x) * 0.25; cam.y = 0; return; }
   const tx = p.x - W / 2, ty = p.y - H / 2;
   if (!room.camInit) { cam.x = tx; cam.y = ty; room.camInit = true; } else { cam.x += (tx - cam.x) * 0.25; cam.y += (ty - cam.y) * 0.25; }
 }
@@ -5688,13 +5822,13 @@ function drawBigUI() {
 }
 function render() {
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.clearRect(0, 0, W, H);
-  updateCam(); stepView();
+  updateCam(); stepView(); updateZnHud();
   ctx.save();
   if (shake > 0) ctx.translate((rand() - .5) * shake, (rand() - .5) * shake);
   ctx.translate(-cam.x, -cam.y);
   if (room.big) { ctx.fillStyle = '#2f2f38'; ctx.fillRect(cam.x - 30, cam.y - 30, W + 60, H + 60); }
   ctx.drawImage(room.bg, 0, 0, WORLD.w, WORLD.h);
-  drawDoor(); drawProp(); drawBlinds(); drawDecor(); drawSwamp(); drawVials(); drawOrb();
+  drawPathBack(); drawDoor(); drawProp(); drawBlinds(); drawDecor(); drawSwamp(); drawVials(); drawOrb();
   for (const a of absorbs) { ctx.save(); ctx.globalAlpha = Math.min(0.5, a.t * 0.4); ctx.strokeStyle = '#b8a0ff'; ctx.lineWidth = 2; ctx.setLineDash([6, 8]); ctx.beginPath(); ctx.arc(a.x, a.y, a.r, 0, TAU); ctx.stroke(); ctx.restore(); }
   for (const it of room.items) drawItem(it);
   drawStall(); drawModes(); drawMech();

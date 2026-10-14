@@ -413,4 +413,58 @@ L.registerWorld({
   onKill: e => { if (L.th() === 13 && e.type === 'dartshade') { const r = L.run; r.dsK = (r.dsK || 0) + 1; if (r.dsK >= 6) { r.dsK = 0; L.unlockAch('dartRet'); } else if (r.dsK >= 3) L.toast('鏢影連殺 ' + r.dsK + '／6', 1.2); } }
 });
 
+/* ===== DLC3：佛寺（長條修行路）。玩法在主檔 run.path，這裡放外觀、敵人組成與 Boss ===== */
+function zenBg(g, rm, rng, arR) {
+  const R = L.ROOM, P = rm.path;
+  g.fillStyle = 'rgba(30,22,14,.22)'; g.fillRect(R.x, R.y + R.h * 0.3, R.w, R.h * 0.4);
+  g.strokeStyle = 'rgba(20,14,8,.35)'; g.lineWidth = 2;
+  for (let x = R.x; x < R.x + R.w; x += 96) { g.beginPath(); g.moveTo(x, R.y); g.lineTo(x, R.y + R.h); g.stroke(); }
+  for (let y = R.y + 75; y < R.y + R.h; y += 75) { g.beginPath(); g.moveTo(R.x, y); g.lineTo(R.x + R.w, y); g.stroke(); }
+  for (let i = 0; i < Math.round(160 * arR); i++) { const x = R.x + rng() * R.w, y = R.y + rng() * R.h; g.fillStyle = 'rgba(' + (rng() < 0.5 ? '60,80,40' : '90,70,50') + ',' + (0.18 + rng() * 0.2) + ')'; circ(g, x, y, 2 + rng() * 4); }
+  for (let x = R.x + 160; x < R.x + R.w; x += 260) { for (const yy of [R.y + 10, R.y + R.h - 10]) { g.fillStyle = '#b8482c'; circ(g, x, yy, 7); g.fillStyle = 'rgba(255,200,120,.5)'; circ(g, x, yy, 13); } }
+  if (P) for (const d of P.dojos) {
+    const y = L.room ? 0 : 0; const cy = R.y + R.h / 2 + 20;
+    g.fillStyle = '#4a3a2a'; g.beginPath(); g.ellipse(d.x, cy, d.w / 2 - 16, 134, 0, 0, TAU); g.fill();
+    g.fillStyle = '#6a5640'; g.beginPath(); g.ellipse(d.x, cy, d.w / 2 - 34, 118, 0, 0, TAU); g.fill();
+    g.strokeStyle = 'rgba(255,214,140,.25)'; g.lineWidth = 2; g.beginPath(); g.ellipse(d.x, cy, d.w / 2 - 60, 96, 0, 0, TAU); g.stroke();
+  }
+}
+function zenObs(g, o, rng) {
+  g.fillStyle = '#15110c'; rrect(g, o.x - 2, o.y - 2, o.w + 4, o.h + 4, 8);
+  g.fillStyle = '#8b8678'; rrect(g, o.x, o.y + o.h * 0.4, o.w, o.h * 0.6, 6);
+  g.fillStyle = '#a49e8d'; rrect(g, o.x + o.w * 0.12, o.y + o.h * 0.16, o.w * 0.76, o.h * 0.32, 5);
+  g.fillStyle = '#6f6a5c'; poly(g, [[o.x - 3, o.y + o.h * 0.2], [o.x + o.w + 3, o.y + o.h * 0.2], [o.x + o.w / 2, o.y - 3]]);
+  if (rng() < 0.55) { g.fillStyle = '#ffb35c'; g.fillRect(o.x + o.w * 0.4, o.y + o.h * 0.26, o.w * 0.2, o.h * 0.14); }
+  g.fillStyle = 'rgba(80,110,60,.5)'; circ(g, o.x + o.w * 0.2, o.y + o.h * 0.9, o.w * 0.14);
+}
+function drawGuardian(e) {
+  const c = L.ctx, fl = e.flash > 0, t = e.t, b = Math.sin(t * 1.6) * 3, fin = e.xk === 'guanyin';
+  c.fillStyle = 'rgba(255,200,120,.18)'; circ(c, 0, -52 + b, fin ? 92 : 70);
+  if (fin) for (let i = 0; i < 8; i++) { const a = t * 0.5 + i / 8 * TAU; c.fillStyle = fl ? C.paper : '#e8c070'; circ(c, Math.cos(a) * 78, -44 + b + Math.sin(a) * 52, 11); c.strokeStyle = '#b88a3a'; c.lineWidth = 3; c.beginPath(); c.moveTo(Math.cos(a) * 28, -40 + b + Math.sin(a) * 22); c.lineTo(Math.cos(a) * 70, -44 + b + Math.sin(a) * 47); c.stroke(); }
+  c.fillStyle = fl ? C.paper : '#6f6a5c'; c.beginPath(); c.moveTo(-54, 70 + b); c.quadraticCurveTo(-62, -20 + b, 0, -40 + b); c.quadraticCurveTo(62, -20 + b, 54, 70 + b); c.closePath(); c.fill();
+  c.fillStyle = fl ? C.paper : '#8b8678'; c.beginPath(); c.moveTo(-40, 66 + b); c.quadraticCurveTo(-46, -10 + b, 0, -28 + b); c.quadraticCurveTo(46, -10 + b, 40, 66 + b); c.closePath(); c.fill();
+  c.fillStyle = fl ? C.paper : (fin ? '#f0d8a0' : '#b8482c'); circ(c, 0, -58 + b, 24);
+  c.fillStyle = '#1a1008'; c.fillRect(-12, -64 + b, 8, 4); c.fillRect(4, -64 + b, 8, 4); c.fillStyle = fin ? '#c25a4a' : '#ffd23f'; c.fillRect(-8, -50 + b, 16, 3);
+  c.fillStyle = '#e8c070'; poly(c, [[-22, -78 + b], [0, -100 + b], [22, -78 + b]]);
+}
+function zenMoves(e, phase, ang) {
+  const p = L.p, fin = e.xk === 'guanyin', aim = () => Math.atan2(p.y - e.y, p.x - e.x);
+  const a = pickOf(phase === 1 ? ['ring', 'fan'] : phase === 2 ? ['ring', 'fan', 'rain'] : ['ring', 'fan', 'rain', 'spiral']);
+  if (a === 'ring') { const n = fin ? 18 : 14, off = rand() * TAU; for (let i = 0; i < n; i++) L.bossShot(e, e.x, e.y, off + i / n * TAU, 150, false, 7); L.sfx('hit'); L.toast('雜念彈！', 1.1); }
+  else if (a === 'fan') { for (let w = 0; w < 3; w++) L.later(w * 0.4, () => { if (e.dead || L.state() !== 'play') return; const aa = aim(); for (let i = -2; i <= 2; i++) L.bossShot(e, e.x, e.y, aa + i * 0.2, 190, false, 6); L.sfx('hit'); }); }
+  else if (a === 'rain') { for (let i = 0; i < (phase === 3 ? 7 : 5); i++) L.markStrike(e, i === 0 ? p.x : p.x + rr(-220, 220), i === 0 ? p.y : p.y + rr(-160, 160), 50, 1.1, {}); L.toast('落下的念頭', 1.3); }
+  else { for (let k = 0; k < 14; k++) L.later(k * 0.12, () => { if (e.dead || L.state() !== 'play') return; L.bossShot(e, e.x, e.y, k * 0.6 + e.t, 140, false, 6); }); L.toast('念頭纏成一圈', 1.3); }
+}
+L.registerWorld({
+  theme: 14, name: '佛寺', pool: 'dlc', opt: '佛寺（DLC3）',
+  pal: { ink: '#14100a', floor: '#6a5a44', floor2: '#75654e', wall1: '#2a2016', wall2: '#4a3a28', top: '#e8d8b0', door: '#c25a2a' },
+  amb: ['lowpass', 260, 1.2, 0.012], ev: r => { const n = [392, 523, 587][Math.floor(r() * 3)]; L.blip(n, n, 1.2, 'sine', 0.008); },
+  noDark: true, bg: zenBg, obsDraw: zenObs,
+  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter'); if (L0 > 0 || ci >= 1) types.push('splitter'); if (L0 > 0 || ci >= 2) types.push('brute', 'bomber'); },
+  boss: fin => fin ? { kind: 'golem', name: '千手觀音', hp: 205, ext: true, xk: 'guanyin' } : { kind: 'golem', name: '守門夜叉', hp: 125, ext: true, xk: 'yaksha' },
+  boss2: zenMoves, drawBoss: drawGuardian,
+  intro: def => [{ who: '旁白', text: def.name + '站在山門前，一動也不動。' }],
+  outro: () => [{ who: '旁白', text: '鐘聲一圈一圈散開。心裡的雜音，安靜了一點點。' }]
+});
+
 })();
