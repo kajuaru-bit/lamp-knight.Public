@@ -493,6 +493,12 @@ L.registerWorld({
   pal: { ink: '#14100a', floor: '#6a5a44', floor2: '#75654e', wall1: '#2a2016', wall2: '#4a3a28', top: '#e8d8b0', door: '#c25a2a' },
   amb: ['lowpass', 260, 1.2, 0.012], ev: r => { const n = [392, 523, 587][Math.floor(r() * 3)]; L.blip(n, n, 1.2, 'sine', 0.008); },
   noDark: true, bg: zenBg, obsDraw: zenObs,
+  roomInit: zkInit, tick: zkTick, back: zkBack, drawItem: zkDraw, useItem: zkUse, info: zkInfo, hint: zkHint,
+  ach: [
+    { id: 'zkDu', name: '渡人無數', desc: '佛寺・渡化道場：一局度化 20 個敵人' },
+    { id: 'zkClear', name: '功德圓滿', desc: '佛寺・渡化道場：通關' },
+    { id: 'zkBell', name: '晨鐘暮鼓', desc: '佛寺・修行路：一局撞鐘 3 次' }
+  ],
   weapons: {
     shakujo: { id: 'shakujo', name: '錫杖', tag: '近戰', mode: 'tap', cd: 0.6, th: 14, range: 150, half: 0.6, dmg: 5.5, kb: 760, desc: '長柄近戰：窄而長的一記重擊，擊退很強（佛寺專屬；用它打倒敵人功德 +3）' },
     elbow: { id: 'elbow', name: '泰拳肘擊', tag: '近戰連擊', mode: 'auto', cd: 0.22, th: 14, range: 88, half: 1.25, dmg: 2.2, kb: 380, desc: '長按 F 的極近距離快打，範圍廣但很短（佛寺專屬；用它打倒敵人功德 +3）' },
@@ -505,12 +511,12 @@ L.registerWorld({
   boss: fin => fin ? { kind: 'golem', name: '千手觀音', hp: 205, ext: true, xk: 'guanyin' } : { kind: 'golem', name: '守門夜叉', hp: 125, ext: true, xk: 'yaksha' },
   boss2: zenMoves, drawBoss: drawGuardian,
   onKill: e => {
-    const r = L.run; if (!r.path || L.th() !== 14) return;
+    const r = L.run; if (L.th() !== 14) return; if (r.karma) { zkKill(e); return; } if (!r.path) return;
     const w = L.WDEF[L.p.weapons[L.p.w]], zen = !!(w && w.th === 14);
     r.merit = (r.merit || 0) + (zen ? 3 : 1);
     if (zen) { L.burst(e.x, e.y, 8, ['#ffe9a0', '#fff6d8'], 120, true); if (!r.duTip) { r.duTip = true; L.toast('度化：用佛寺的武器打倒敵人，功德 +3', 2.8); } }
   },
-  onFinal: () => { if (L.th() === 14) { L.unlockAch('zenBoss'); if (!L.run.zenDaze) L.unlockAch('zenCalm'); } },
+  onFinal: () => { if (L.th() === 14) { L.unlockAch('zenBoss'); if (L.run.karma) L.unlockAch('zkClear'); else if (!L.run.zenDaze) L.unlockAch('zenCalm'); } },
   pathIntro: layer => layer === 0
     ? [{ who: '旁白', text: '山門在很遠的地方亮著。燈火騎士沿著石板路往上走，身後有什麼，慢慢跟了上來。' }, { who: '旁白', text: '那是沒有被放下的念頭。' }, { who: '小沙彌', text: '施主，別回頭看。看見的越多，它跟得越緊。走累了，前面的道場可以坐一下。' }]
     : layer === 1 ? [{ who: '旁白', text: '第二道山門更高，石階比剛才更陡。念頭也跟得更近了。' }]
@@ -1024,7 +1030,7 @@ function gkBossTick(dt, room, p) {
       const nx = L.clamp(mi.x, o.x, o.x + o.w), ny = L.clamp(mi.y, o.y, o.y + o.h), dx = nx - mi.x, dy = ny - mi.y, dd = Math.hypot(dx, dy);
       if (dd < mi.r + 8 && (dd === 0 || dx * v.vx + dy * v.vy > 0)) {
         const sp = Math.hypot(v.vx, v.vy) || 1;
-        mi.dash = null; mi.tl = null; mi.kx = 0; mi.ky = 0; mi.stun = 2.4;
+        mi.dash = null; mi.tl = null; mi.kx = 0; mi.ky = 0; mi.stun = 1.5;
         L.hitEnemy(mi, 7, v.vx / sp, v.vy / sp, 0, false);
         L.sfx('kill'); L.shake(11); L.burst(mi.x, mi.y, 24, ['#c8c2b4', '#8a4e2e', C.paper], 220, true);
         L.toast('米諾陶撞上了牆，暈了！趁現在打', 2.2);
@@ -1216,6 +1222,188 @@ L.registerWorld({
   outro: () => [{ who: '旁白', text: '米諾陶倒下，迷宮的牆一面一面變淡，露出外面的海。' }, { who: '旁白', text: '陶罐上的故事說完了。你的燈，還亮著。' }]
 });
 
+
+/* ===== DLC3：佛寺・渡化道場（run.karma）＋修行路鐘聲 ===== */
+const ZK_R = 170, ZK_NEED = [12, 16, 20], ZK_DU = 20;
+L.NPCS.saved = { short: '度化者', name: '被度化的影', hp: 3, spd: 215, range: 280, cd: 1.2, dmg: 1.4, col: '#ffe9a0', karma: true, desc: '被你度化的影子，變成了同伴',
+  chat: ['謝謝你，終於不用再追了。', '我只是想走到亮的地方。', '這一次，換我替你擋一下。'], hurt: '（輕輕散成光點）', lines: [] };
+const ZK_STORY = [
+  [{ who: '旁白', text: '這座道場沒有出口。門只為累積了足夠功德的人打開。' }, { who: '小沙彌', text: '打倒影子、讓影子放下、布施給路過的人，都是功德。站在蒲團的圈裡，影子放下得更快；長按 F 可以誦經。' }, { who: '小沙彌', text: '被你打倒的，下一間會轉世回來；被你度化的，會成為你的同伴。' }],
+  [{ who: '小沙彌', text: '第二座道場。轉世回來的影子，帶著上一世的樣子，只是比較虛弱。' }],
+  [{ who: '小沙彌', text: '最後一座道場。功德需要得更多，但路也快走完了。' }]
+];
+function zkInit(room, kind) {
+  const r = L.run, R = L.ROOM; r.karmaReborn = r.karmaReborn || []; r.karmaSaved = r.karmaSaved || [];
+  if (r.karma && kind === 'combat' && L.th() === 14) {
+    room.obs.length = 0;
+    const cx = R.x + R.w / 2, cy = R.y + R.h / 2, ci = room.combatIdx || 0;
+    room.karma = { need: ZK_NEED[Math.min(2, r.layer)] + ci * 2, m: 0, t: 0, spawnT: 1.2, walkT: rr(10, 18), walks: 0, chant: 0, chantCd: 0, done: false, du: 0, cx, cy, init: false };
+    room.items.push({ kind: 'tfac', id: 'tfac', fk: 'dojo', x: cx, y: cy, group: 'prop', price: 0, taken: false, st: 'ready', t: 0 });
+    return;
+  }
+  if (r.path && !r.escape && kind === 'combat' && room.path && !room.path.boss && L.th() === 14) { // 修行路：沿路機率出現大鐘
+    const P = room.path, len = P.v ? R.h : R.w, cross = P.v ? R.w : R.h;
+    for (const f of [0.15, 0.40, 0.65, 0.90]) {
+      if (rand() >= 0.55) continue;
+      const sv = Math.round(len * f), c = cross * (rand() < 0.5 ? 0.3 : 0.7), pos = P.v ? { x: R.x + c, y: R.y + R.h - sv } : { x: R.x + sv, y: R.y + c };
+      room.obs = room.obs.filter(o => !L.overlap(L.inflate(o, 70), { x: pos.x - 20, y: pos.y - 20, w: 40, h: 40 }));
+      room.items.push({ kind: 'tfac', id: 'tfac', fk: 'bell', x: pos.x, y: pos.y, group: 'prop', price: 0, taken: false, st: 'ready', t: 0, rp: 0, rt: -1 });
+    }
+  }
+}
+function zkSave(e, K, why) { // 度化：敵人化成光點，功德 +2，下一間變成友軍
+  const r = L.run; e.dead = true; L.burst(e.x, e.y - 6, 12, ['#ffe9a0', '#fff6d8'], 130, true); K.m += 2; K.du++;
+  r.zkDuN = (r.zkDuN || 0) + 1; if (r.zkDuN >= 20) L.unlockAch('zkDu');
+  if (e.type !== 'boss' && r.karmaSaved.length < 12) r.karmaSaved.push(e.type);
+  if (!r.zkDuTip) { r.zkDuTip = true; L.toast('度化：敵人放下了執念，功德 +2；下一間會成為你的同伴', 3); }
+}
+function zkKill(e) {
+  const r = L.run, K = L.room && L.room.karma; if (!K || K.done || e.type === 'boss') return;
+  const w = L.WDEF[L.p.weapons[L.p.w]], zen = !!(w && w.th === 14); K.m += zen ? 3 : 1;
+  if (zen) L.burst(e.x, e.y, 6, ['#ffe9a0', '#fff6d8'], 110, true);
+  if (r.karmaReborn.length < 30) r.karmaReborn.push(e.type);
+  if (!r.zkRbTip) { r.zkRbTip = true; L.toast('被打倒的敵人，下一間會轉世回來（比較虛弱）', 3); }
+}
+function zkStart(room, K) {
+  const r = L.run, p = L.p, R = L.ROOM; K.init = true;
+  { const sd = r.zkSaid = r.zkSaid || {}; if (!sd[r.layer]) { sd[r.layer] = 1; const T0 = ZK_STORY[Math.min(2, r.layer)]; L.later(1.6, () => { if (L.room === room && L.state() === 'play') L.say(T0); }); } }
+  // 轉世的敵人（每間最多 10 隻，其餘留到下一間）
+  let n = 0; const q = r.karmaReborn;
+  while (q.length && n < 10) {
+    const ty = q.shift(); let e = null; try { const a = rand() * TAU, d = rr(300, 420); e = L.spawnEnemy(ty, clamp(K.cx + Math.cos(a) * d, R.x + 50, R.x + R.w - 50), clamp(K.cy + Math.sin(a) * d, R.y + 50, R.y + R.h - 50)); } catch (er) { e = null; }
+    if (!e) continue; e.sleep = false; e.rb = true; e.hp = e.maxHp = Math.max(2, Math.round(e.maxHp * 0.6)); n++;
+  }
+  if (n) L.toast('轉世：' + n + ' 個影子回來了，比上一世虛弱', 2.6);
+  // 被度化的敵人成為友軍（最多 4 位）
+  let j = 0; while (r.karmaSaved.length) {
+    r.karmaSaved.shift(); const cur = L.allies.filter(a => a.id === 'saved'); if (cur.length >= 4) L.allies.splice(L.allies.indexOf(cur[0]), 1);
+    L.addAlly('saved', p.x - 30 - j * 10, p.y + (j % 2 ? 22 : -22)); j++;
+  }
+  if (j) L.toast('被度化的 ' + j + ' 個影子成為你的同伴', 2.8);
+}
+function zkTick(dt) {
+  const room = L.room, r = L.run, p = L.p; if (!room || L.state() !== 'play' || L.th() !== 14) return;
+  const R = L.ROOM;
+  // ---- 修行路：撞鐘 ----
+  if (r.path && room.path && !room.path.boss) {
+    for (const it of room.items) {
+      if (it.fk !== 'bell') continue;
+      if (it.rt >= 0) it.rt += dt;
+      if (it.st === 'done') continue;
+      if (p.near === it && L.keys.f) { it.rp = (it.rp || 0) + dt / 1.2; if (it.rp >= 1) zkRing(room, it); } else it.rp = Math.max(0, (it.rp || 0) - dt * 0.8);
+    }
+    for (const e of L.enemies) if (e.kSlowT > 0) { e.kSlowT -= dt; if (e.kSlowT <= 0 && e.spd0) { e.spd = e.spd0; e.spd0 = 0; } }
+    return;
+  }
+  // ---- 渡化道場 ----
+  const K = room.karma; if (!K || !r.karma || K.done || room.cleared) return;
+  if (!K.init) zkStart(room, K);
+  K.t += dt; K.chantCd = Math.max(0, K.chantCd - dt);
+  const alive = L.enemies.filter(e => !e.dead && e.type !== 'boss'), cap = 4 + r.layer * 2 + Math.min(3, room.combatIdx || 0);
+  K.spawnT -= dt;
+  if (alive.length < cap && K.spawnT <= 0) {
+    K.spawnT = Math.max(1.6, 3.4 - r.layer * 0.4); const list = L.composeWave().slice(0, Math.min(3, cap - alive.length));
+    for (const ty of list) { const sp = L.freeSpot(13), e = L.spawnEnemy(ty, sp.x, sp.y); e.sleep = false; }
+  }
+  for (const e of L.enemies) {
+    if (e.dead || e.type === 'boss' || e.spawn > 0) continue;
+    const inD = Math.hypot(e.x - K.cx, e.y - K.cy) < ZK_R; e.kt = (e.kt || 0) + dt * (inD ? 3 : 1);
+    if (e.kt >= ZK_DU) zkSave(e, K);
+  }
+  const dj = room.items.find(i => i.fk === 'dojo');
+  if (dj && p.near === dj && L.keys.f && K.chantCd <= 0) {
+    K.chant += dt;
+    if (K.chant >= 1.6) { K.chant = 0; K.chantCd = 30; let n = 0; for (const e of L.enemies) if (!e.dead && e.type !== 'boss' && Math.hypot(e.x - K.cx, e.y - K.cy) < 300) { zkSave(e, K); n++; } L.sfx('clear'); L.shake(3); L.toast(n ? '誦經：' + n + ' 個影子放下了執念' : '誦經：周圍沒有影子', 2.2); }
+  } else K.chant = Math.max(0, K.chant - dt * 2);
+  K.walkT -= dt;
+  if (K.walkT <= 0 && K.walks < 2) {
+    K.walks++; K.walkT = rr(18, 28); const dir = rand() < 0.5 ? 1 : -1;
+    room.items.push({ kind: 'tfac', id: 'tfac', fk: 'walker', x: dir > 0 ? R.x + 40 : R.x + R.w - 40, y: rr(R.y + 120, R.y + R.h - 120), dir, group: 'prop', price: 0, taken: false, st: 'ready', t: 0, n: 0 });
+    L.toast('路人經過：靠近按 F，布施 1 燈芯換 2 功德', 2.6);
+  }
+  for (const it of room.items) if (it.fk === 'walker' && !it.taken) { it.t += dt; it.x += it.dir * 34 * dt; it.y += Math.sin(it.t * 0.8) * 8 * dt; if (it.x < R.x + 10 || it.x > R.x + R.w - 10) { it.taken = true; L.hintReset(); } }
+  if (K.m >= K.need) {
+    K.done = true; for (const e of L.enemies) if (!e.dead && e.type !== 'boss') { e.dead = true; L.burst(e.x, e.y - 6, 8, ['#ffe9a0', '#fff6d8'], 110, true); }
+    for (const it of room.items) if (it.fk === 'walker') it.taken = true;
+    L.toast('功德圓滿：可以前往下一間', 3); L.roomCleared(); L.hintReset();
+  }
+}
+function zkRing(room, it) {
+  const r = L.run, P = room.path; it.st = 'done'; it.rp = 1; it.rt = 0; if (P) P.zn = Math.max(0, P.zn - 5);
+  let n = 0; for (const e of L.enemies) if (!e.dead && e.type !== 'boss' && Math.hypot(e.x - it.x, e.y - it.y) < 420 && !(e.kSlowT > 0)) { e.spd0 = e.spd; e.spd *= 0.5; e.kSlowT = 8; n++; }
+  r.zkBells = (r.zkBells || 0) + 1; if (r.zkBells >= 3) L.unlockAch('zkBell');
+  L.sfx('clear'); L.shake(3); L.burst(it.x, it.y - 20, 16, ['#ffe9a0', '#d9b46a'], 160, true); L.toast('鐘聲響起：雜念散了一些' + (n ? '，周圍的敵人慢了下來' : ''), 2.8); L.hintReset();
+}
+function zkUse(it) {
+  const p = L.p, K = L.room && L.room.karma;
+  if (it.fk === 'dojo') { L.toast('道場：圈內的影子放下得更快；長按 F 誦經，立刻度化周圍的影子（冷卻 30 秒）', 3); return; }
+  if (it.fk === 'bell') { L.toast(it.st === 'done' ? '鐘已經敲過了' : '按住 F 約 1.2 秒撞鐘（要停下來）', 1.8); return; }
+  if (it.fk === 'walker') {
+    if (!K || it.st === 'done') return;
+    if (p.coins < 1) { L.toast('燈芯不夠（布施需要 1）', 1.4); L.sfx('tick'); return; }
+    p.coins -= 1; K.m += 2; it.n++; if (it.n >= 2) it.st = 'done'; L.sfx('buy'); L.burst(it.x, it.y - 14, 10, ['#ffe9a0', C.paper], 120, true); L.toast('路人合掌：功德 +2（' + K.m + ' / ' + K.need + '）', 2); L.hintReset();
+  }
+}
+function zkHint(it) {
+  if (it.fk === 'dojo') return 'F 了解道場　按住 F 誦經';
+  if (it.fk === 'bell') return it.st === 'done' ? '' : '按住 F 撞鐘（清雜念、減速敵人）';
+  if (it.fk === 'walker') return it.st === 'done' ? '' : 'F 布施 1 燈芯（功德 +2）';
+  return '';
+}
+function zkInfo(it) {
+  if (it.fk === 'dojo') return { name: '道場', desc: '圈內的敵人度化得更快（3 倍）。按住 F 誦經 1.6 秒，立刻度化周圍的影子，冷卻 30 秒' };
+  if (it.fk === 'bell') return { name: '大鐘' + (it.st === 'done' ? '（已敲）' : ''), desc: '按住 F 約 1.2 秒撞鐘：雜念 −5，周圍敵人減速 8 秒。要停下來，業障牆不會等你' };
+  return { name: '路人', desc: '布施 1 燈芯得 2 功德，每位路人最多兩次' };
+}
+function zkDraw(it) {
+  const c = L.ctx, time = L.time, fk = it.fk, done = it.st === 'done'; c.save(); c.translate(it.x, it.y);
+  c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(0, 24, 30, 8, 0, 0, TAU); c.fill(); if (done) c.globalAlpha = 0.5;
+  if (fk === 'bell') {
+    c.fillStyle = '#4a3320'; c.fillRect(-34, -44, 6, 66); c.fillRect(28, -44, 6, 66); c.fillRect(-36, -48, 72, 8);
+    const sw = Math.sin(time * 1.5 + it.t) * (it.rt >= 0 && it.rt < 1.2 ? 0.25 : 0.04); c.save(); c.translate(0, -40); c.rotate(sw);
+    c.fillStyle = '#b8883c'; c.beginPath(); c.moveTo(-8, 0); c.quadraticCurveTo(-24, 8, -26, 38); c.lineTo(26, 38); c.quadraticCurveTo(24, 8, 8, 0); c.fill(); c.fillStyle = '#d9b46a'; c.fillRect(-26, 34, 52, 5); c.fillStyle = '#6a4a22'; circ(c, 0, 42, 5); c.restore();
+    c.globalAlpha = 1; if (it.rp > 0 && !done) { c.strokeStyle = 'rgba(0,0,0,.5)'; c.lineWidth = 8; c.beginPath(); c.arc(0, -10, 44, 0, TAU); c.stroke(); c.strokeStyle = '#ffe9a0'; c.lineWidth = 5; c.beginPath(); c.arc(0, -10, 44, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, it.rp)); c.stroke(); }
+    if (!done && it.rp <= 0) { c.fillStyle = '#ffd24a'; c.font = '700 16px sans-serif'; c.textAlign = 'center'; c.fillText('！', 0, -58 + Math.sin(time * 5) * 2); }
+  } else if (fk === 'dojo') {
+    c.fillStyle = '#7a2a22'; c.beginPath(); c.ellipse(0, 6, 40, 20, 0, 0, TAU); c.fill(); c.fillStyle = '#a83a2a'; c.beginPath(); c.ellipse(0, 2, 34, 15, 0, 0, TAU); c.fill(); c.strokeStyle = '#e8c870'; c.lineWidth = 2; c.beginPath(); c.ellipse(0, 2, 34, 15, 0, 0, TAU); c.stroke();
+    c.globalAlpha = 0.6 + 0.2 * Math.sin(time * 3); c.fillStyle = '#ffe9a0'; circ(c, 0, -16, 7); c.globalAlpha = 1;
+    const K = L.room && L.room.karma; if (K && K.chant > 0) { c.strokeStyle = 'rgba(0,0,0,.5)'; c.lineWidth = 7; c.beginPath(); c.arc(0, -4, 46, 0, TAU); c.stroke(); c.strokeStyle = '#ffe9a0'; c.lineWidth = 4; c.beginPath(); c.arc(0, -4, 46, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, K.chant / 1.6)); c.stroke(); }
+  } else if (fk === 'walker') {
+    const st = Math.sin(it.t * 5) * 2; c.save(); c.scale(it.dir >= 0 ? 1 : -1, 1);
+    c.fillStyle = '#d9822b'; c.beginPath(); c.moveTo(-12, 20); c.lineTo(-8, -8); c.lineTo(8, -8); c.lineTo(12, 20); c.closePath(); c.fill(); c.fillStyle = '#8a4a1c'; c.fillRect(-9, 6 + st * 0.3, 18, 3);
+    c.fillStyle = '#e8c8a0'; circ(c, 0, -16, 9); c.fillStyle = '#3a2418'; c.fillRect(-3, -16, 2, 2); c.fillRect(2, -16, 2, 2);
+    c.fillStyle = '#3a2418'; c.beginPath(); c.ellipse(13, 6, 7, 4, 0, 0, Math.PI); c.fill();
+    c.restore();
+  }
+  c.globalAlpha = 1;
+  if (fk === 'walker' && it.st === 'ready') { c.fillStyle = '#ffd24a'; c.font = '700 16px sans-serif'; c.textAlign = 'center'; c.fillText('！', 0, -34 + Math.sin(time * 5) * 2); }
+  c.restore();
+}
+function zkBack() {
+  const room = L.room, c = L.ctx, time = L.time; if (!room) return;
+  for (const it of room.items) if (it.fk === 'bell' && it.rt >= 0 && it.rt < 0.9) { const k = it.rt / 0.9; c.save(); c.globalAlpha = 0.6 * (1 - k); c.strokeStyle = '#ffe9a0'; c.lineWidth = 8; c.beginPath(); c.arc(it.x, it.y - 10, 420 * k, 0, TAU); c.stroke(); c.restore(); }
+  const K = room.karma; if (!K || !L.run.karma) return;
+  c.save(); c.globalAlpha = 0.16 + 0.04 * Math.sin(time * 2); c.fillStyle = '#ffe9a0'; c.beginPath(); c.arc(K.cx, K.cy, ZK_R, 0, TAU); c.fill(); c.globalAlpha = 0.5; c.strokeStyle = '#e8c870'; c.lineWidth = 3; c.setLineDash([12, 10]); c.beginPath(); c.arc(K.cx, K.cy, ZK_R, 0, TAU); c.stroke(); c.setLineDash([]); c.restore();
+  for (const e of L.enemies) {
+    if (e.dead || e.type === 'boss') continue;
+    if (e.rb) { c.save(); c.globalAlpha = 0.35; c.fillStyle = '#ffe9a0'; circ(c, e.x, e.y, e.r + 8 + Math.sin(time * 4 + e.seed) * 2); c.restore(); }
+    if (e.kt > 1) { c.save(); c.strokeStyle = 'rgba(255,233,160,.9)'; c.lineWidth = 3; c.beginPath(); c.arc(e.x, e.y, e.r + 6, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, e.kt / ZK_DU)); c.stroke(); c.restore(); }
+  }
+}
+function zkHud() {
+  const st = document.createElement('style');
+  st.textContent = '#karmaBar{position:absolute;top:1.2cqw;left:50%;transform:translateX(-50%);display:flex;gap:.6cqw;align-items:center;color:var(--paper);font-size:clamp(10px,1.3cqw,15px);pointer-events:none;z-index:6;text-shadow:0 1px 2px #000}#karmaBar i{display:block;width:16cqw;height:.9cqw;min-height:7px;background:rgba(0,0,0,.55);border:1px solid var(--paper)}#karmaBar b{display:block;height:100%;background:#ffe9a0;width:0}';
+  document.head.appendChild(st);
+  const bar = document.createElement('div'); bar.id = 'karmaBar'; bar.hidden = true; bar.innerHTML = '<span>功德</span><i><b></b></i><em></em>'; L.stageEl.appendChild(bar);
+  const fill = bar.querySelector('b'), txt = bar.querySelector('em');
+  setInterval(() => {
+    const room = L.room, K = room && room.karma, s = L.state(), on = L.th() === 14 && !!K && !!L.run.karma && s !== 'menu' && s !== 'over'; bar.hidden = !on; if (!on) return;
+    fill.style.width = Math.min(100, K.m / K.need * 100).toFixed(0) + '%';
+    txt.textContent = Math.min(K.m, K.need) + ' / ' + K.need + '　轉世 ' + ((L.run.karmaReborn || []).length) + '　友軍 ' + L.allies.filter(a => a.id === 'saved').length;
+  }, 150);
+}
+
 try { jpHud(); } catch (e) { /* 滿意度條只是輔助顯示 */ }
+try { zkHud(); } catch (e) { /* 功德條只是輔助顯示 */ }
 
 })();

@@ -1894,6 +1894,7 @@ function shopless(arr, from) {
   return arr;
 }
 function makeLayerPlan(layer) {
+  if (run.karma) return (layer === 0 ? ['start'] : []).concat(['combat', 'combat', 'combat', 'boss']);
   if (run.guard || run.path || run.greek) return (layer === 0 ? ['start'] : []).concat(['combat', 'boss']);
   // 第 1 層：商人＋寶箱；第 2 層：商人＋事件；第 3 層：商人。第 2、3 層有 1/3 機率多 1 間特殊房，
   // 焦點房（事件→商人→寶箱輪流）權重 3、其他各 1；本層出現過焦點房後，焦點換下一種
@@ -2162,7 +2163,7 @@ function updateChase(dt) {
 function newRun() {
   if (PRAC.on && !PRAC.starting) endPractice();
   resetPlayer(); follow = true; fEdge = 0; hudSig = ''; parts = [];
-  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.hurtL = 0; run.dsK = 0; run.znTip = false; run.merit = 0; run.zenDaze = false; run.muyuN = 0; run.spN = 0; run.pulseTip = false; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.dlc = false; run.escort = false; run.escFail = false; run.dlcPrev = null; run.escHurt = 0; run.escape = false; run.guard = false; run.endless = false; run.path = false; run.dl2 = false; run.greek = false; run.modeSeen = {}; run.stickStun = 0; run.sugBreak = 0; run.catchN = 0; run.mateBlock = 0; run.syrupTip = false; run.wickN = 0; run.mechTip = false; run.revive = null; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
+  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.hurtL = 0; run.dsK = 0; run.znTip = false; run.merit = 0; run.zenDaze = false; run.muyuN = 0; run.spN = 0; run.pulseTip = false; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.dlc = false; run.escort = false; run.escFail = false; run.dlcPrev = null; run.escHurt = 0; run.escape = false; run.guard = false; run.endless = false; run.path = false; run.dl2 = false; run.greek = false; run.karma = false; run.karmaReborn = []; run.karmaSaved = []; run.modeSeen = {}; run.stickStun = 0; run.sugBreak = 0; run.catchN = 0; run.mateBlock = 0; run.syrupTip = false; run.wickN = 0; run.mechTip = false; run.revive = null; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
   for (const w of p.weapons) rec.seenW[w] = 1;
   allies = [];
   { let t = cleared ? shuffle(run.long ? Object.keys(THEMES).map(Number).filter(i => THEMES[i].pool !== 'dlc' || optDlcPool.checked) : BASE_IDS.slice()).slice(0, 3) : [0, 1, 2];
@@ -2228,7 +2229,7 @@ function setupSpecial() {
   else if (k === 'event') {
     const kinds = shuffle(['heal', 'weapon', 'upgrade']).slice(0, 2), xs = [cx - 70, cx + 70];
     kinds.forEach((t, i) => add(t, xs[i], 'choose'));
-    const free = Object.keys(NPCS).filter(id => !NPCS[id].esc && !allies.some(a => a.id === id)), pool = [];
+    const free = Object.keys(NPCS).filter(id => !NPCS[id].esc && !NPCS[id].karma && !allies.some(a => a.id === id)), pool = [];
     for (const id of free) { const w = cleared && MATE_CLS[id] && !mateOpen(id) ? 3 : 1; for (let k = 0; k < w; k++) pool.push(id); }
     if (allies.length < 2 && free.length) room.items.push({ kind: 'npc', id: pickOf(pool), x: cx, y: cy + 100, group: 'npc', price: 0, taken: false });
   } else {
@@ -2884,9 +2885,10 @@ const DLC = [
   { id: 'shore', name: '彼岸（DLC2）', desc: '傳統玩法；會模仿武器的影怪', theme: 13, flag: null, pack: 'dlc.js', say: ['彼岸：影子學會了你的武器，小心揮扇、擲鏢與火球', 3] },
   { id: 'zen', name: '佛寺・修行路（DLC3）', desc: '長條地圖，一路向前；漏掉的敵人會變成雜念；選到才下載', theme: 14, flag: 'path', pack: 'dlc.js', say: ['佛寺・修行路：一直往前走；落在身後的敵人會變成雜念，業障牆從後面推來；道場裡可以靜心、敲木魚', 3.6] },
   { id: 'japan', name: '日本・觀光維護（DLC3）', desc: '房間制景點；清垃圾、修設施，觀光滿意度影響獎勵；選到才下載', theme: 15, flag: null, pack: 'dlc.js', say: ['日本・觀光維護：妖怪在景點搗亂。走過垃圾就能清掉，靠近壞掉的設施按住 F 修復；觀光滿意度越高，通關獎勵越好', 3.8] },
+  { id: 'zenKarma', name: '佛寺・渡化道場（DLC3）', desc: '累積功德才能前進；敵人會被度化，擊倒的會轉世，度化的變友軍；選到才下載', theme: 14, flag: 'karma', pack: 'dlc.js', say: ['佛寺・渡化道場：每間道場要累積功德才能前往下一間。打倒敵人、度化敵人、布施路人都能得到功德；擊倒的敵人下一間會轉世，度化的會變成友軍', 4] },
   { id: 'greek', name: '希臘神話（DLC3）', desc: '超大地圖，戰鬥房與事件結合；神祇恩賜；選到才下載', theme: 16, flag: 'greek', pack: 'dlc.js', say: ['希臘神話：一整張超大地圖，市集、祭壇與各種神話事件散在各區；最後的迷宮裡有米諾陶', 3.4] },
 ];
-const DLC_FLAGS = ['escort', 'endless', 'escape', 'guard', 'dl2', 'path', 'greek'];
+const DLC_FLAGS = ['escort', 'endless', 'escape', 'guard', 'dl2', 'path', 'greek', 'karma'];
 const dlcOf = id => DLC.find(q => q.id === id);
 const DLC_MENU = DLC.map(q => ({ id: q.id, name: q.name, desc: q.desc })).concat([{ id: 'random', name: 'DLC 隨機', desc: '從以上全部隨機抽一種' }]);
 $('dlcList').innerHTML = DLC_MENU.map((q, i) => '<button class="btn" id="btnDlc' + i + '" type="button"></button>').join('') + '<button class="btn alt" id="btnDlc' + DLC_MENU.length + '" type="button"></button>';
@@ -3836,6 +3838,7 @@ function updateWaves(dt) {
   if (room.variant === 'fake' && !room.fakeDone) { room.fakeT -= dt; if (room.fakeT <= 0) revealFake(); return; }
   if (room.cleared) return;
   if (room.path && !room.path.boss) return;
+  if (room.karma) return;
   if (room.mimic) { if (!enemies.some(o => !o.dead) && !(room.mimicT > 0)) { room.cleared = true; sfx('clear'); toast(room.lockMsg || '寶相怪全倒了'); if (room.variant === 'mimic' && !room.hurt) unlockAch('mimicSlay'); } return; }
   if (room.kind !== 'combat' && room.kind !== 'boss') return;
   if (room.gb && (!room.gb.started || room.gb.rest)) return;
@@ -6412,7 +6415,7 @@ function registerWorld(w) {
   optTheme.innerHTML += '<option value="' + w.theme + '">' + w.opt + '</option>'; $('lblDlcPool').hidden = false;
 }
 window.LK = {
-  registerWorld, THEMES, bossDef: () => bossDef(), applyUpgrade, UPG, giveWeapon, WLIST, makeItem, composeWave, interact,
+  addAlly, NPCS, get allies() { return allies; }, roomCleared, registerWorld, THEMES, bossDef: () => bossDef(), applyUpgrade, UPG, giveWeapon, WLIST, makeItem, composeWave, interact,
   get ctx() { return ctx; }, get p() { return p; }, get room() { return room; }, get run() { return run; }, get enemies() { return enemies; }, get bullets() { return bullets; }, get time() { return time; }, get ROOM() { return ROOM; },
   get keys() { return keys; }, get pickups() { return pickups; }, get stageEl() { return stageEl; }, DOOR, healP, dropCoins, overlap, inflate, meleeSwing, rewardUpgrade, shieldMax: () => shieldMax(), hintReset: () => { hintSig = ''; hudSig = ''; },
   C, TAU, circ, rrect, poly, setShadow, noShadow, star4, rand, rr, pickOf, clamp, shuffle, mulberry,
