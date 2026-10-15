@@ -3842,6 +3842,7 @@ function composeWave() {
     list.push(t); budget -= cost[t];
   }
   if (!list.length) list.push('crawler');
+  { const W = THEMES[th()]; if (W.extra) for (const x of W.extra(L, ci)) list.push(x); } // 主題額外追加（不佔預算）
   return list;
 }
 function makeBoss(b, x, y) {

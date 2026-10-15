@@ -1211,7 +1211,8 @@ L.registerWorld({
     { id: 'gkWall', name: '撞牆教學', desc: '希臘神話：讓米諾陶衝撞迷宮牆 3 次' },
     { id: 'gkMino', name: '走出迷宮', desc: '希臘神話：擊敗米諾陶（可獲得月桂冠）' }
   ],
-  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter'); if (L0 > 0 || ci >= 1) types.push('splitter', 'centaur', 'brute'); if (L0 > 0 || ci >= 2) types.push('brute', 'bomber', 'cyclops'); if (L0 > 0) types.push('splitter2'); }, // 希臘：衝撞怪稍多
+  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter'); if (L0 > 0 || ci >= 1) types.push('splitter', 'centaur'); if (L0 > 0 || ci >= 2) types.push('brute', 'bomber', 'cyclops'); },
+  extra: (L0, ci) => (L0 > 0 || rand() < 0.6 ? ['brute'] : []), // 希臘：原有敵人數不變，額外追加衝撞怪
   boss: fin => fin ? { kind: 'golem', name: '米諾陶', hp: 205, ext: true, xk: 'minotaur' } : { kind: 'golem', name: '美杜莎', hp: 125, ext: true, xk: 'medusa' },
   boss2: gkMoves, drawBoss: e => (e.xk === 'minotaur' ? drawMinotaur(e) : drawMedusa(e)),
   intro: def => (def.xk === 'minotaur'
