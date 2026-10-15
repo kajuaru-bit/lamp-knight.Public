@@ -12,9 +12,10 @@ window.__bot = function (cfg) {
   // 找第 ci 間戰鬥房
   let seen = -1, step = -1;
   for (let i = 0; i < run.plan.length; i++) { run.step = i; t.loadRoom(); t.placeEntry(); t.setState('play'); if (t.room.kind === 'combat') { seen++; if (seen === cfg.ci) { step = i; break; } } }
+  if (step < 0) { for (let i = run.plan.length - 1; i >= 0; i--) { run.step = i; t.loadRoom(); t.placeEntry(); t.setState('play'); if (t.room.kind === 'combat') { step = i; break; } } }
   if (step < 0) return { err: 'noroom' };
   t.setState('play'); t.spawnWave();
-  const P = t.p; P.hp = P.maxHp; const hp0 = P.hp, keys = t.keys;
+  const P = t.p; P.hp = P.maxHp; const n0 = t.enemies.filter(e => !e.dead).length; const hp0 = P.hp, keys = t.keys;
   let time = 0, dead = false, cleared = false, dmg = 0, lastHp = P.hp, skillN = 0;
   const dt = 0.016, R = t.ROOM; const st = { t: 0, x: P.x, y: P.y, j: 0, a: 0 };
   for (let f = 0; f < (cfg.maxT || 120) / dt; f++) {
@@ -27,6 +28,7 @@ window.__bot = function (cfg) {
     if (best) { const W = t.WDEF[P.weapons[P.w]] || {}; const mel = !!W.range || ['shears','pillow','blade','pblade','shadeblade','frostcane','dance','pole','whip'].includes(W.id); const lo = mel ? 55 : 190, hi = mel ? 105 : 330; const dx = P.x - best.x, dy = P.y - best.y, d = bd || 1; if (d < lo) { mx = dx / d; my = dy / d; } else if (d > hi) { mx = -dx / d; my = -dy / d; } else { mx = -dy / d * 0.8 - dx / d * 0.2; my = dx / d * 0.8 - dy / d * 0.2; } }
     const cx = R.x + R.w / 2, cy = R.y + R.h / 2;
     if (P.x < R.x + 90) mx += 1.5; if (P.x > R.x + R.w - 90) mx -= 1.5; if (P.y < R.y + 90) my += 1.5; if (P.y > R.y + R.h - 90) my -= 1.5;
+    { let bx = 0, by = 0; for (const q of t.bullets) { if (q.own !== 'e' || q.dead) continue; const dx = P.x - q.x, dy = P.y - q.y, d = Math.hypot(dx, dy); if (d < 130 && d > 1) { const sp = Math.hypot(q.vx, q.vy) || 1, toward = (q.vx * dx + q.vy * dy) / (sp * d); if (toward > 0.3) { const k = (130 - d) / 130; bx += (-q.vy / sp) * Math.sign(-q.vy * dx + q.vx * dy || 1) * k * 2.2; by += (q.vx / sp) * Math.sign(-q.vy * dx + q.vx * dy || 1) * k * 2.2; } } } mx += bx; my += by; }
     st.t += dt; if (st.t > 1.2) { st.t = 0; const mv = Math.hypot(P.x - st.x, P.y - st.y); st.x = P.x; st.y = P.y; if (mv < 25) { st.j = 0.9; st.a = Math.random() * 6.28; } }
     if (st.j > 0) { st.j -= dt; mx = Math.cos(st.a); my = Math.sin(st.a); }
     if (mx > 0.3) keys.d = true; if (mx < -0.3) keys.a = true; if (my > 0.3) keys.s = true; if (my < -0.3) keys.w = true;
@@ -39,6 +41,6 @@ window.__bot = function (cfg) {
     if (t.room.cleared) { cleared = true; break; }
   }
   keys.w = keys.a = keys.s = keys.d = keys.f = false;
-  return { dead, cleared, time: +time.toFixed(1), dmg, hp0, skillN, n: t.enemies.filter(e => !e.dead).length };
+  const nEnd = t.enemies.filter(e => !e.dead).length; return { dead, cleared, time: +time.toFixed(1), dmg, hp0, skillN, n: nEnd, n0, kill: n0 ? +(1 - nEnd / n0).toFixed(2) : 1 };
 };
 })();

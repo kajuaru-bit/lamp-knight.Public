@@ -12,7 +12,7 @@ with sync_playwright() as pw:
     # 載入 DLC 套件（setDlc 會載入主題）
     for th,k in DLC.items():
         pg.evaluate("(k)=>__t.useDlc(k)",k); pg.wait_for_timeout(1500)
-    jobs=[(c,th,L,ci) for th in themes for c in range(ncls) for (L,ci) in [(1,1),(1,1),(1,1)]]
+    jobs=[(c,th,L,ci) for th in themes for c in range(ncls) for (L,ci) in [(0,1),(0,1),(0,1)]]
     for n,(c,th,L,ci) in enumerate(jobs):
         if n%nparts!=part: continue
         k=DLC.get(th)
