@@ -373,6 +373,33 @@ function shadeAi(kind) {
   };
 }
 
+/* ---- 希臘專屬敵人 AI ---- */
+function centaurAi(e, dt, nx, ny, d) { // 半人馬弓手：遠距離繞圈，蓄力後射出三連箭（瞄準蓄力開始的位置）
+  const p = L.p; e.cd -= dt;
+  const keep = d < 260 ? -1 : d > 400 ? 1 : 0, sw = Math.sin(e.t * 0.9 + e.seed);
+  let mx = nx * keep * 70 * e.spd + (-ny) * sw * 46 * e.spd, my = ny * keep * 70 * e.spd + nx * sw * 46 * e.spd;
+  if (e.state === 'walk' && e.cd <= 0 && d < 620) { e.state = 'wind'; e.st = 0.8; e.la = Math.atan2(p.y - e.y, p.x - e.x); }
+  if (e.state === 'wind') {
+    e.tele = e.st; e.st -= dt; mx *= 0.2; my *= 0.2;
+    if (e.st <= 0) { e.tele = 0; const a = e.la; for (let k = 0; k < 3; k++) L.later(k * 0.14, () => { if (e.dead || L.state() !== 'play') return; L.enemyShot(e, a, 340); L.sfx('tick'); }); e.state = 'walk'; e.cd = rr(2.4, 3.4) * e.fire; }
+  }
+  return { mx, my, touch: 1 };
+}
+function cyclopsAi(e, dt, nx, ny, d) { // 獨眼巨人：慢慢逼近，朝你腳下丟巨石，落地會炸出一圈碎石
+  const p = L.p; e.cd -= dt; let mx = nx * 46 * e.spd, my = ny * 46 * e.spd;
+  if (e.bo) {
+    const b = e.bo; b.t -= dt;
+    if (b.t <= 0) {
+      L.burst(b.x, b.y, 16, ['#c8c2b4', '#8a6a3a', C.paper], 190, true); L.shake(6); L.sfx('kill');
+      const dd = Math.hypot(p.x - b.x, p.y - b.y); if (dd < 64 + p.r * 0.5 && L.state() === 'play') L.hurtFrom('cyclops', 1, (p.x - b.x) / (dd || 1), (p.y - b.y) / (dd || 1));
+      const src = { x: b.x, y: b.y, r: 0, bul: e.bul, type: 'cyclops' }, off = rand() * TAU; for (let i = 0; i < 6; i++) L.enemyShot(src, off + i / 6 * TAU, 150);
+      e.bo = null; e.state = 'walk'; e.cd = rr(3.2, 4.4) * e.fire;
+    }
+    mx = 0; my = 0; e.tele = e.bo ? e.bo.t : 0;
+  } else if (e.state === 'walk' && e.cd <= 0 && d > 140 && d < 560) { e.state = 'wind'; e.bo = { x: p.x, y: p.y, t: 1.1, dur: 1.1 }; L.sfx('tick'); }
+  return { mx, my, touch: 1 };
+}
+
 /* ================= 註冊 ================= */
 L.registerWorld({
   theme: 12, name: '字母書房', pool: 'dlc', opt: '字母書房（DLC2）',
@@ -894,7 +921,16 @@ function gkBg(g, rm, rng, arR) {
   g.fillStyle = 'rgba(70,130,180,.30)'; g.beginPath(); g.ellipse(R.x + 0.5 * zw, R.y + 0.5 * zh + 40, zw * 0.34, zh * 0.28, 0, 0, TAU); g.fill(); g.strokeStyle = 'rgba(240,250,255,.45)'; g.lineWidth = 3; for (let k = 0; k < 4; k++) { g.beginPath(); g.arc(R.x + 0.5 * zw - 110 + k * 70, R.y + 0.5 * zh + 40, 22, 0.2, 2.9); g.stroke(); }
 }
 function gkBack() {
-  const room = L.room, c = L.ctx, time = L.time; if (room && room.kind === 'boss') { const m = L.enemies.find(q => q.type === 'boss' && !q.dead && q.xk === 'medusa'); if (m && m.gaze) { const g = m.gaze, p = L.p, act = g.t <= 3.4 - g.tele; c.save(); c.strokeStyle = act ? 'rgba(200,255,120,.85)' : 'rgba(200,255,120,.35)'; c.lineWidth = act ? 6 : 2; if (!act) c.setLineDash([10, 10]); c.beginPath(); c.moveTo(m.x, m.y); c.lineTo(p.x, p.y); c.stroke(); c.restore(); } return; }
+  const room = L.room, c = L.ctx, time = L.time;
+  if (room && room.kind === 'boss') {
+    const m = L.enemies.find(q => q.type === 'boss' && !q.dead && q.xk === 'medusa');
+    if (m && m.gaze) { const g = m.gaze, p = L.p, act = g.t <= 3.4 - g.tele; c.save(); c.strokeStyle = act ? 'rgba(200,255,120,.85)' : 'rgba(200,255,120,.35)'; c.lineWidth = act ? 6 : 2; if (!act) c.setLineDash([10, 10]); c.beginPath(); c.moveTo(m.x, m.y); c.lineTo(p.x, p.y); c.stroke(); c.restore(); }
+    if (m && m.halo) { const h = m.halo; c.save(); if (h.t <= h.tele) { c.strokeStyle = 'rgba(200,255,120,' + (0.3 + 0.3 * Math.sin(time * 18)) + ')'; c.lineWidth = 4; c.setLineDash([8, 8]); c.beginPath(); c.arc(m.x, m.y, 70 + (h.t / h.tele) * 40, 0, TAU); c.stroke(); } else { c.strokeStyle = 'rgba(200,255,120,.85)'; c.lineWidth = 12; c.beginPath(); c.arc(m.x, m.y, h.R, 0, TAU); c.stroke(); c.strokeStyle = 'rgba(240,255,200,.5)'; c.lineWidth = 4; c.beginPath(); c.arc(m.x, m.y, Math.max(0, h.R - 14), 0, TAU); c.stroke(); } c.restore(); }
+    const mi = L.enemies.find(q => q.type === 'boss' && !q.dead && q.xk === 'minotaur');
+    if (mi && mi.tl && mi.tl.act === 'charge') { const p = L.p; c.save(); c.strokeStyle = 'rgba(255,106,58,' + (0.35 + 0.3 * Math.sin(time * 16)) + ')'; c.lineWidth = 8; c.setLineDash([14, 10]); c.beginPath(); c.moveTo(mi.x, mi.y); c.lineTo(p.x, p.y); c.stroke(); c.restore(); }
+    return;
+  }
+  if (room && room.kind === 'combat') for (const e of L.enemies) if (!e.dead && e.bo) { const k = Math.max(0, e.bo.t) / e.bo.dur; c.save(); c.strokeStyle = 'rgba(255,106,58,.7)'; c.lineWidth = 3; c.beginPath(); c.arc(e.bo.x, e.bo.y, 64, 0, TAU); c.stroke(); c.fillStyle = 'rgba(255,106,58,.3)'; c.beginPath(); c.arc(e.bo.x, e.bo.y, 64 * (1 - k), 0, TAU); c.fill(); c.restore(); }
   if (!GK || !room || room.kind !== 'combat' || !GK.live) return;
   for (const s of GK.slots) {
     if (s.fk === 'market') { c.save(); c.translate(s.x, s.y - 52); c.fillStyle = GK_BLK; c.fillRect(-250, -6, 500, 8); for (let i = 0; i < 10; i++) { c.fillStyle = i % 2 ? GK_ORG : GK_CRM; c.beginPath(); c.moveTo(-250 + i * 50, 2); c.lineTo(-200 + i * 50, 2); c.lineTo(-225 + i * 50, 24); c.fill(); } c.fillStyle = 'rgba(40,16,6,.55)'; c.font = '700 15px sans-serif'; c.textAlign = 'center'; c.fillText('市集', 0, -14); c.restore(); }
@@ -965,11 +1001,40 @@ function gkLos(a, b) {
   return true;
 }
 function gkBossTick(dt, room, p) {
-  const e = L.enemies.find(q => q.type === 'boss' && !q.dead && q.xk === 'medusa'); if (!e || !e.gaze) return;
-  const g = e.gaze; g.t -= dt; if (g.t <= 0) { e.gaze = null; return; }
-  if (g.t > 3.4 - g.tele || g.hit) return;
-  if (gkLos(e, p) && Math.hypot(e.x - p.x, e.y - p.y) < 900) { g.ex += dt; if (g.ex >= 0.5) { g.hit = true; p.stone = 2.4; L.sfx('hit'); L.shake(6); L.burst(p.x, p.y, 16, ['#9a9a9a', '#c8c8c8'], 160, true); L.toast('石化了！動作變慢、不能攻擊', 2.2); } } else g.ex = Math.max(0, g.ex - dt);
+  const m = L.enemies.find(q => q.type === 'boss' && !q.dead && q.xk === 'medusa');
+  if (m && m.gaze) {
+    const g = m.gaze; g.t -= dt; if (g.t <= 0) m.gaze = null;
+    else if (g.t <= 3.4 - g.tele && !g.hit) {
+      if (gkLos(m, p) && Math.hypot(m.x - p.x, m.y - p.y) < 900) { g.ex += dt; if (g.ex >= 0.5) { g.hit = true; gkStone(p, 2.4); } } else g.ex = Math.max(0, g.ex - dt);
+    }
+  }
+  if (m && m.halo) { // 光圈式石化：光圈從美杜莎向外擴散，掃過你時沒有遮蔽物就會石化
+    const h = m.halo; h.t += dt;
+    if (h.t > h.tele) {
+      h.R += 330 * dt; const d = Math.hypot(m.x - p.x, m.y - p.y);
+      if (!h.hit && Math.abs(d - h.R) < 26 + p.r && gkLos(m, p)) { h.hit = true; gkStone(p, 2.0); }
+      if (h.R > 820) m.halo = null;
+    }
+  }
+  const mi = L.enemies.find(q => q.type === 'boss' && !q.dead && q.xk === 'minotaur');
+  if (mi && mi.dash) { // 米諾陶衝撞：撞上迷宮牆會暈眩並受傷
+    const v = mi.dash;
+    for (const o of room.obs) {
+      if (o.jk !== 'wall') continue;
+      const nx = L.clamp(mi.x, o.x, o.x + o.w), ny = L.clamp(mi.y, o.y, o.y + o.h), dx = nx - mi.x, dy = ny - mi.y, dd = Math.hypot(dx, dy);
+      if (dd < mi.r + 8 && (dd === 0 || dx * v.vx + dy * v.vy > 0)) {
+        const sp = Math.hypot(v.vx, v.vy) || 1;
+        mi.dash = null; mi.tl = null; mi.kx = 0; mi.ky = 0; mi.stun = 2.4;
+        L.hitEnemy(mi, 7, v.vx / sp, v.vy / sp, 0, false);
+        L.sfx('kill'); L.shake(11); L.burst(mi.x, mi.y, 24, ['#c8c2b4', '#8a4e2e', C.paper], 220, true);
+        L.toast('米諾陶撞上了牆，暈了！趁現在打', 2.2);
+        const r = L.run; r.gkWall = (r.gkWall || 0) + 1; if (r.gkWall >= 3) L.unlockAch('gkWall');
+        break;
+      }
+    }
+  }
 }
+function gkStone(p, t) { p.stone = t; L.sfx('hit'); L.shake(6); L.burst(p.x, p.y, 16, ['#9a9a9a', '#c8c8c8'], 160, true); L.toast('石化了！動作變慢、不能攻擊', 2.2); }
 function gkTick(dt) {
   const room = L.room, p = L.p; if (room && room.kind === 'boss' && L.state() === 'play') { gkBossTick(dt, room, p); return; } if (!GK || !room || !GK.live || room.kind !== 'combat' || L.state() !== 'play') { if (p && p.drunk > 0 && (!room || room.kind !== 'combat')) p.drunk = 0; return; }
   if (p.drunk > 0) p.drunk = Math.max(0, p.drunk - dt);
@@ -1055,6 +1120,19 @@ function drawGkEnemy(e) {
     eye(-r * 0.32, bob - r * 0.15, r * 0.18); eye(r * 0.32, bob - r * 0.15, r * 0.18); c.fillStyle = GK_ORG; c.fillRect(-r * 0.4, bob + r * 0.35, r * 0.8, 3); poly(c, [[-r * 0.2, bob + r * 0.5], [r * 0.2, bob + r * 0.5], [0, bob + r * 1.0]]);
   } else if (sk === 'hydra') {
     c.fillStyle = body(GK_BLK); circ(c, 0, bob + r * 0.3, r * 0.8); for (const s of [-1, 0, 1]) { c.strokeStyle = body(GK_BLK); c.lineWidth = 5; c.beginPath(); c.moveTo(s * r * 0.3, bob + r * 0.1); c.quadraticCurveTo(s * r * 0.9, bob - r * 0.6, s * r * 0.7 + Math.sin(t * 3 + s) * 3, bob - r * 1.1); c.stroke(); circ(c, s * r * 0.7 + Math.sin(t * 3 + s) * 3, bob - r * 1.15, r * 0.3); eye(s * r * 0.7 + 2, bob - r * 1.2, 2.2); }
+  } else if (sk === 'centaur') {
+    c.fillStyle = body(GK_BLK); c.beginPath(); c.ellipse(-r * 0.25, bob + r * 0.35, r * 1.05, r * 0.6, 0, 0, TAU); c.fill();
+    for (const s2 of [-0.9, -0.35, 0.35, 0.9]) c.fillRect(-r * 0.25 + s2 * r * 0.75 - 2, bob + r * 0.6, 4, r * 0.7);
+    c.beginPath(); c.ellipse(r * 0.45, bob - r * 0.2, r * 0.42, r * 0.62, 0, 0, TAU); c.fill(); circ(c, r * 0.5, bob - r * 0.95, r * 0.36);
+    eye(r * 0.62, bob - r * 1.0, r * 0.12);
+    const ba = Math.atan2(p.y - e.y, p.x - e.x); c.save(); c.translate(r * 0.5, bob - r * 0.3); c.rotate(ba); c.strokeStyle = body(GK_ORG); c.lineWidth = 3; c.beginPath(); c.arc(0, 0, r * 0.9, -1.1, 1.1); c.stroke(); c.lineWidth = 1.5; c.beginPath(); c.moveTo(r * 0.9 * Math.cos(-1.1), r * 0.9 * Math.sin(-1.1)); c.lineTo(r * 0.9 * Math.cos(1.1), r * 0.9 * Math.sin(1.1)); c.stroke(); c.restore();
+    if (e.tele > 0) { c.fillStyle = '#ffe08a'; star4(c, 0, -r * 2.2, 8, t * 5); }
+  } else if (sk === 'cyclops') {
+    c.fillStyle = body(GK_BLK); c.beginPath(); c.ellipse(0, bob + r * 0.35, r * 0.95, r * 1.0, 0, 0, TAU); c.fill(); circ(c, 0, bob - r * 0.7, r * 0.62);
+    c.fillStyle = f ? C.paper : '#e9e2d0'; c.beginPath(); c.ellipse(0, bob - r * 0.72, r * 0.34, r * 0.24, 0, 0, TAU); c.fill(); c.fillStyle = f ? '#c00' : GK_ORG; circ(c, Math.cos(fa) * r * 0.1, bob - r * 0.72 + Math.sin(fa) * r * 0.06, r * 0.14);
+    c.fillStyle = body('#8a6a3a'); c.fillRect(-r * 0.7, bob + r * 0.05, r * 1.4, 4); c.fillStyle = GK_ORG; c.fillRect(-r * 0.7, bob + r * 0.55, r * 1.4, 3);
+    c.fillStyle = body('#8a8272'); circ(c, r * 1.15, bob - r * 0.1 - (e.bo ? 10 : 0), r * 0.42);
+    if (e.tele > 0) { c.fillStyle = '#ffe08a'; star4(c, 0, -r * 2.2, 9, t * 5); }
   } else {
     c.fillStyle = body(GK_BLK); c.beginPath(); c.ellipse(0, bob + 3, r * 0.95, r * 0.85, 0, 0, TAU); c.fill(); c.fillStyle = body('#e0642c'); poly(c, [[-r * 0.5, bob - r * 0.4], [0, bob - r * (1.5 + 0.2 * Math.sin(t * 8))], [r * 0.5, bob - r * 0.4]]); c.fillStyle = GK_ORG; c.fillRect(-r * 0.8, bob + 2, r * 1.6, 3); eye(0, bob - 2, r * 0.2);
   }
@@ -1076,17 +1154,19 @@ function drawMinotaur(e) {
   c.fillStyle = fl ? C.paper : GK_BLK; circ(c, 0, -30 + b, 34); poly(c, [[-26, -50 + b], [-66, -86 + b], [-62, -60 + b], [-34, -32 + b]]); poly(c, [[26, -50 + b], [66, -86 + b], [62, -60 + b], [34, -32 + b]]);
   c.fillStyle = fl ? C.paper : '#4a3220'; c.beginPath(); c.ellipse(0, -16 + b, 18, 13, 0, 0, TAU); c.fill(); c.fillStyle = GK_ORG; circ(c, -7, -17 + b, 3); circ(c, 7, -17 + b, 3);
   c.fillStyle = '#ff6a3a'; circ(c, -14, -40 + b, 5); circ(c, 14, -40 + b, 5);
+  if (e.stun > 0) { c.fillStyle = '#ffe08a'; for (let k = 0; k < 3; k++) star4(c, Math.cos(t * 4 + k * 2.1) * 44, -84 + b + Math.sin(t * 4 + k * 2.1) * 8, 9, t * 3); }
   c.strokeStyle = '#8a6a3a'; c.lineWidth = 7; c.beginPath(); c.moveTo(70, 80 + b); c.lineTo(70, -20 + b); c.stroke(); c.fillStyle = fl ? C.paper : '#c8c2b4'; poly(c, [[70, -20 + b], [38, -4 + b], [70, 8 + b]]); poly(c, [[70, -20 + b], [102, -4 + b], [70, 8 + b]]);
 }
 function gkMoves(e, phase, ang) {
   const p = L.p, med = e.xk === 'medusa', room = L.room, aim = () => Math.atan2(p.y - e.y, p.x - e.x);
-  const pool = med ? (phase === 1 ? ['fan', 'ring', 'gaze'] : phase === 2 ? ['fan', 'ring', 'gaze', 'call'] : ['fan', 'ring', 'gaze', 'call', 'rain'])
+  const pool = med ? (phase === 1 ? ['fan', 'ring', 'gaze'] : phase === 2 ? ['fan', 'ring', 'gaze', 'halo', 'call'] : ['fan', 'ring', 'gaze', 'halo', 'call', 'rain'])
     : (phase === 1 ? ['charge', 'fan', 'ring'] : phase === 2 ? ['charge', 'fan', 'stomp', 'call'] : ['charge', 'stomp', 'ring', 'call', 'rain']);
   const a = L.pickOf(pool);
   if (a === 'fan') { for (let w = 0; w < 3; w++) L.later(w * 0.4, () => { if (e.dead || L.state() !== 'play') return; const aa = aim(); for (let i = -2; i <= 2; i++) L.bossShot(e, e.x, e.y, aa + i * 0.2, 190, false, 6); L.sfx('hit'); }); L.toast(med ? '蛇髮亂舞！' : '牛角衝撞！', 1.1); }
   else if (a === 'ring') { const n = 14, off = rand() * TAU; for (let i = 0; i < n; i++) L.bossShot(e, e.x, e.y, off + i / n * TAU, 150, false, 7); L.sfx('hit'); L.toast('一圈衝擊', 1.1); }
+  else if (a === 'halo') { if (e.halo || e.gaze) return; e.halo = { t: 0, tele: 0.8, R: 60, hit: false }; L.toast('光圈擴散——躲到柱子或陶罐後面！', 2.2); }
   else if (a === 'gaze') { e.gaze = { t: 3.4, tele: 0.9, ex: 0, hit: false }; L.toast('石化視線！躲到柱子後面，別被她看到', 2.6); }
-  else if (a === 'charge') { L.toast('米諾陶衝過來了！', 1.4); for (let k = 0; k < 3; k++) L.markStrike(e, p.x + (k - 1) * 70, p.y + (k - 1) * 20, 62, 1.0 + k * 0.25, {}); }
+  else if (a === 'charge') { e.tl = { t: 0.9, act: 'charge', ang: aim() }; L.toast('米諾陶低下頭——站到牆的另一邊，讓牠撞上去！', 2); }
   else if (a === 'stomp') { L.toast('大地震動！', 1.4); for (let k = 0; k < 7; k++) { const aa = k / 7 * TAU, d = 150 + (k % 2) * 80; L.markStrike(e, e.x + Math.cos(aa) * d, e.y + Math.sin(aa) * d, 58, 1.2, {}); } }
   else if (a === 'call') { const alive = L.enemies.filter(q => !q.dead && q.type !== 'boss').length; if (alive < 6) for (let i = 0; i < 2; i++) { const sp = L.freeSpot(13), m = L.spawnEnemy(med ? 'shooter' : 'crawler', sp.x, sp.y); m.sleep = false; } L.toast(med ? '蛇群爬出來了' : '迷宮的守衛趕來了', 1.4); }
   else { for (let i = 0; i < (phase === 3 ? 7 : 5); i++) L.markStrike(e, i === 0 ? p.x : p.x + rr(-220, 220), i === 0 ? p.y : p.y + rr(-160, 160), 50, 1.1, {}); L.toast('神罰落下', 1.3); }
@@ -1098,7 +1178,11 @@ L.registerWorld({
   bg: gkBg, obsDraw: gkObsDraw, obs: gkObs, roomInit: gkInit, tick: gkTick, back: gkBack, drawItem: gkDraw, info: gkInfo, hint: gkHint, useItem: gkUse,
   arrows: edge => { const room = L.room; if (!room || room.kind !== 'combat' || !GK || !GK.live) return; for (const it of room.items) if (it.kind === 'tfac' && it.st === 'ready' && !it.taken) edge(it.x, it.y, it.fk === 'god' ? '#ffe9a0' : '#ffd24a', false); for (const s of GK.slots) if (s.fk === 'market') edge(s.x, s.y, '#7ad0f0', false); },
   mini: (mx, my, sc) => { const room = L.room, c = L.ctx, R = L.ROOM; if (!room || room.kind !== 'combat' || !GK || !GK.live) return; c.save(); c.textAlign = 'center'; c.font = '700 9px sans-serif'; for (const s of GK.slots) { const x = mx + (s.x - R.x) * sc, y = my + (s.y - R.y) * sc; if (s.fk === 'market') { c.fillStyle = '#7ad0f0'; c.fillText('市', x, y + 3); } else if (s.fk === 'altar') { c.fillStyle = '#ffe9a0'; c.fillText('★', x, y + 3); } } for (const it of room.items) if (it.kind === 'tfac' && it.fk !== 'god') { const x = mx + (it.x - R.x) * sc, y = my + (it.y - R.y) * sc; c.fillStyle = it.st === 'done' ? 'rgba(180,180,180,.6)' : '#ffd24a'; c.beginPath(); c.moveTo(x, y - 4); c.lineTo(x + 3.5, y); c.lineTo(x, y + 4); c.lineTo(x - 3.5, y); c.fill(); } c.restore(); },
-  skin: { map: { crawler: 'jar', shooter: 'harpy', brute: 'satyr', splitter: 'hydra', splitter2: 'hydra', bomber: 'pot' }, draw: drawGkEnemy, hue: false },
+  enemies: {
+    centaur: { hp: 8, r: 17, name: '半人馬弓手', cost: 3, cap: 2, ai: centaurAi },
+    cyclops: { hp: 17, r: 22, name: '獨眼巨人', cost: 5, cap: 1, ai: cyclopsAi }
+  },
+  skin: { map: { crawler: 'jar', shooter: 'harpy', brute: 'satyr', splitter: 'hydra', splitter2: 'hydra', bomber: 'pot', centaur: 'centaur', cyclops: 'cyclops' }, draw: drawGkEnemy, hue: false },
   weapons: {
     trident: { id: 'trident', name: '三叉戟', tag: '貫穿', mode: 'tap', cd: 0.55, th: 16, desc: '射出會貫穿敵人的三叉戟，傷害高（希臘專屬）',
       fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang, 720, 8, 5.4 * dm, 'lance', 0.95, true); L.sfx('blade'); } },
@@ -1113,9 +1197,10 @@ L.registerWorld({
     { id: 'gkEvents', name: '見多識廣', desc: '希臘神話：一局完成 5 個神話事件（可獲得橄欖油燈）' },
     { id: 'gkBreak', name: '陶罐粉碎機', desc: '希臘神話：一局打破 30 個陶罐敵人（可獲得科林斯頭盔）' },
     { id: 'gkHydra', name: '斬草除根', desc: '希臘神話：擊敗再生的九頭蛇頭（可獲得雙耳瓶燈）' },
+    { id: 'gkWall', name: '撞牆教學', desc: '希臘神話：讓米諾陶衝撞迷宮牆 3 次' },
     { id: 'gkMino', name: '走出迷宮', desc: '希臘神話：擊敗米諾陶（可獲得月桂冠）' }
   ],
-  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter'); if (L0 > 0 || ci >= 1) types.push('splitter'); if (L0 > 0 || ci >= 2) types.push('brute', 'bomber'); },
+  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter'); if (L0 > 0 || ci >= 1) types.push('splitter', 'centaur'); if (L0 > 0 || ci >= 2) types.push('brute', 'bomber', 'cyclops'); },
   boss: fin => fin ? { kind: 'golem', name: '米諾陶', hp: 205, ext: true, xk: 'minotaur' } : { kind: 'golem', name: '美杜莎', hp: 125, ext: true, xk: 'medusa' },
   boss2: gkMoves, drawBoss: e => (e.xk === 'minotaur' ? drawMinotaur(e) : drawMedusa(e)),
   intro: def => (def.xk === 'minotaur'
