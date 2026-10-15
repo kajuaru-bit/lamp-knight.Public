@@ -505,7 +505,12 @@ L.registerWorld({
     lotus: { id: 'lotus', name: '蓮花鏢', tag: '穿透', mode: 'tap', cd: 0.55, th: 14, desc: '一次射出三枚穿透的蓮花鏢，中程（佛寺專屬；用它打倒敵人功德 +3）',
       fire: (ox, oy, ang, dm, pd) => { for (const da of [-0.24, 0, 0.24]) L.shoot(ox, oy, ang + da, 520, 7, 2.2 * dm * pd, 'wind', 0.75, true); L.sfx('blade'); } },
     beads: { id: 'beads', name: '念珠串', tag: '扇形連擊', mode: 'auto', cd: 0.34, th: 14, desc: '長按 F，朝瞄準方向彈出一把扇形念珠，射程比一般短彈長（佛寺專屬；用它打倒敵人功德 +3）',
-      fire: (ox, oy, ang, dm) => { const n = 6, sp = 0.7; for (let i = 0; i < n; i++) L.shoot(L.p.x + Math.cos(ang) * 14, L.p.y - 4 + Math.sin(ang) * 14, ang + (i / (n - 1) - 0.5) * 2 * sp, 400, 5, 1.5 * dm, 'pellet', 0.62); L.sfx('tick'); } }
+      fire: (ox, oy, ang, dm) => { const n = 6, sp = 0.7; for (let i = 0; i < n; i++) L.shoot(L.p.x + Math.cos(ang) * 14, L.p.y - 4 + Math.sin(ang) * 14, ang + (i / (n - 1) - 0.5) * 2 * sp, 400, 5, 1.5 * dm, 'pellet', 0.62); L.sfx('tick'); } },
+    soullamp: { id: 'soullamp', name: '引魂燈', tag: '度化', mode: 'tap', cd: 0.7, th: 14, karma: true, desc: '射出緩慢、可貫穿的燈火；被它打倒的敵人有 45% 直接被度化（渡化道場專屬）',
+      fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang, 300, 9, 3 * dm, 'wind', 1.6, true); L.sfx('flame'); } },
+    oar: { id: 'oar', name: '渡船槳', tag: '近戰', mode: 'tap', cd: 0.55, th: 14, karma: true, range: 135, half: 1.3, dmg: 4.6, kb: 900, desc: '寬廣的一槳，擊退極強；被它打倒的敵人不會轉世（渡化道場專屬）' },
+    bowl: { id: 'bowl', name: '梵音缽', tag: '音波', mode: 'tap', cd: 1.3, th: 14, karma: true, desc: '敲出一圈緩慢擴散、可貫穿的音環；被它打倒的敵人功德 +3（渡化道場專屬）',
+      fire: (ox, oy, ang, dm) => { for (let i = 0; i < 12; i++) L.shoot(ox, oy, i / 12 * TAU, 210, 7, 2.2 * dm, 'wind', 1.0, true); L.sfx('blade'); } }
   },
   types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter'); if (L0 > 0 || ci >= 1) types.push('splitter'); if (L0 > 0 || ci >= 2) types.push('brute', 'bomber'); },
   boss: fin => fin ? { kind: 'golem', name: '千手觀音（虛）', hp: 205, ext: true, xk: 'guanyin' } : { kind: 'golem', name: '守門夜叉', hp: 125, ext: true, xk: 'yaksha' },
@@ -516,7 +521,7 @@ L.registerWorld({
     r.merit = (r.merit || 0) + (zen ? 3 : 1);
     if (zen) { L.burst(e.x, e.y, 8, ['#ffe9a0', '#fff6d8'], 120, true); if (!r.duTip) { r.duTip = true; L.toast('度化：用佛寺的武器打倒敵人，功德 +3', 2.8); } }
   },
-  onFinal: () => { if (L.th() === 14) { L.unlockAch('zenBoss'); if (L.run.karma) L.unlockAch('zkClear'); else if (!L.run.zenDaze) L.unlockAch('zenCalm'); } },
+  onFinal: () => { if (L.th() === 14) { L.unlockAch('zenBoss'); if (L.run.karma) { L.unlockAch('zkClear'); L.later(2.2, () => { if (L.state() === 'play') L.say(ZK_END); }); } else if (!L.run.zenDaze) L.unlockAch('zenCalm'); } },
   pathIntro: layer => layer === 0
     ? [{ who: '旁白', text: '山門在很遠的地方亮著。燈火騎士沿著石板路往上走，身後有什麼，慢慢跟了上來。' }, { who: '旁白', text: '那是沒有被放下的念頭。' }, { who: '小沙彌', text: '施主，別回頭看。看見的越多，它跟得越緊。走累了，前面的道場可以坐一下。' }]
     : layer === 1 ? [{ who: '旁白', text: '第二道山門更高，石階比剛才更陡。念頭也跟得更近了。' }]
@@ -1227,10 +1232,12 @@ L.registerWorld({
 const ZK_R = 170, ZK_NEED = [12, 16, 20], ZK_DU = 20;
 L.NPCS.saved = { short: '度化者', name: '被度化的影', hp: 3, spd: 215, range: 280, cd: 1.2, dmg: 1.4, col: '#ffe9a0', karma: true, desc: '被你度化的影子，變成了同伴',
   chat: ['謝謝你，終於不用再追了。', '我只是想走到亮的地方。', '這一次，換我替你擋一下。'], hurt: '（輕輕散成光點）', lines: [] };
+const ZK_REB = ['「又回來了……」', '「這一世，會不會輕一點？」', '「我記得你的燈。」', '「放下，原來是這種感覺。」'];
+const ZK_END = [{ who: '旁白', text: '大門緩緩開啟。三座道場裡所有被度化的影子，在門前排成一列，靜靜地向你點頭。' }, { who: '小沙彌', text: '我的名字，我想起來了。但是不說了——說出口，就又要執著了。謝謝你，燈火騎士。' }];
 const ZK_STORY = [
   [{ who: '旁白', text: '這座道場沒有出口。門只為累積了足夠功德的人打開。' }, { who: '小沙彌', text: '打倒影子、讓影子放下、布施給路過的人，都是功德。站在蒲團的圈裡，影子放下得更快；長按 F 可以誦經。' }, { who: '小沙彌', text: '被你打倒的，下一間會轉世回來；被你度化的，會成為你的同伴。' }],
-  [{ who: '小沙彌', text: '第二座道場。轉世回來的影子，帶著上一世的樣子，只是比較虛弱。' }],
-  [{ who: '小沙彌', text: '最後一座道場。功德需要得更多，但路也快走完了。' }]
+  [{ who: '小沙彌', text: '第二座道場。轉世回來的影子，帶著上一世的樣子，只是比較虛弱。' }, { who: '小沙彌', text: '……你有沒有發現，它們都不太記得自己是誰？我也是。我只記得，有人曾經對我說「放下吧」。' }],
+  [{ who: '小沙彌', text: '最後一座道場。功德需要得更多，但路也快走完了。' }, { who: '小沙彌', text: '我是這座道場裡，第一個被度化的影子。後來我想留下來，替下一個人指路。' }]
 ];
 function zkInit(room, kind) {
   const r = L.run, R = L.ROOM; r.karmaReborn = r.karmaReborn || []; r.karmaSaved = r.karmaSaved || [];
@@ -1261,6 +1268,10 @@ function zkKill(e) {
   const r = L.run, K = L.room && L.room.karma; if (!K || K.done || e.type === 'boss') return;
   const w = L.WDEF[L.p.weapons[L.p.w]], zen = !!(w && w.th === 14); K.m += zen ? 3 : 1;
   if (zen) L.burst(e.x, e.y, 6, ['#ffe9a0', '#fff6d8'], 110, true);
+  if (e.rb && rand() < 0.2) L.toast(ZK_REB[Math.floor(rand() * ZK_REB.length)], 1.8);
+  const wid = w && w.id;
+  if (wid === 'soullamp' && rand() < 0.45) { K.m += 2; K.du++; r.zkDuN = (r.zkDuN || 0) + 1; if (r.zkDuN >= 20) L.unlockAch('zkDu'); if (r.karmaSaved.length < 12) r.karmaSaved.push(e.type); L.burst(e.x, e.y - 6, 10, ['#ffe9a0', '#fff6d8'], 130, true); return; }
+  if (wid === 'oar') { L.burst(e.x, e.y, 8, ['#cfd8e8', '#fff'], 120, true); return; }
   if (r.karmaReborn.length < 30) r.karmaReborn.push(e.type);
   if (!r.zkRbTip) { r.zkRbTip = true; L.toast('被打倒的敵人，下一間會轉世回來（比較虛弱）', 3); }
 }

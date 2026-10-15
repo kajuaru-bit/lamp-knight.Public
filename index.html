@@ -965,7 +965,7 @@ const CLS = [
   { id: 'slowc', ach2: 30, name: '沙漏客', role: '區域控場', weapon: 'sandrang', hp: 6, spd: 1, achId: 'calm', skill: '緩速領域', sdesc: '在腳下展開大範圍緩速區 5 秒：區內敵人與敵方子彈速度減半', cd: 16, detail: '在自己腳下展開半徑約 230 的緩速區，持續 5 秒：區內敵人的行動與出招節奏、敵方子彈的速度都變成一半（Boss 約 65%）。緩速區留在原地，你可以引敵人進去，或自己站在區裡打。' },
   { id: 'florist', name: '花匠', role: '種花輔助', weapon: 'budgun', hp: 5, spd: 1, ach: 18, skill: '播種', sdesc: '在前方種下種子，長成會攻擊的花 10 秒；攻擊方式沿用種下時手上的武器', cd: 12, detail: '在瞄準方向前方種下一顆種子，約 1 秒後長成花，存在 10 秒，同時最多 3 朵。花會自己朝最近的敵人攻擊，**攻擊方式沿用種下時你手上的武器**（子彈類發射同樣的子彈、近戰類在花的位置揮擊），射速約為本人的一半、傷害約 70%。換不同武器種花，就是不同的花。' },
   { id: 'bellman', ach2: 30, name: '凜風客', role: '控場坦', weapon: 'frostcane', hp: 8, spd: 0.85, mate: 'bell', skill: '吹起寒風', sdesc: '凍結視野內的敵人，凍結的敵人更怕痛', cd: 16, detail: '吹出一陣寒風，視野範圍內的敵人凍結 1.2 秒（Boss 0.5 秒），並清除敵方光球；凍結的敵人受到的傷害 +20%。在極地主題，凍結時間 +0.3 秒、冷卻 −2 秒，且自己被凍結的機率減半、時間 −0.3 秒。被動：近戰擊退 +30%。' },
-  { id: 'shopc', name: '掌櫃', role: '商業輔助', weapon: 'coinx', hp: 6, spd: 1, achId: 'bizBoom', skill: '臨時攤位', sdesc: '在腳邊擺出攤位與小商人 12 秒，賣補血、強化與小物；冷卻 3 個房間。被動：所有商店價格 −4（最低 1）', cd: 0, detail: '被動：商人房與臨時攤位的價格都 −4（最低 1 燈芯）。技能：在腳邊擺一座攤位，小商人會跟你打招呼，攤位 12 秒內賣：補血、一件隨機強化、護身小物。冷卻以房間計算：進入 3 個新房間後才能再擺。' },
+  { id: 'shopc', name: '掌櫃', role: '商業輔助', weapon: 'coinx', hp: 6, spd: 1, achId: 'bizBoom', skill: '臨時攤位', sdesc: '在腳邊擺出攤位與小商人 12 秒，賣補血、強化與小物；冷卻 3 個房間（逃離模式改為移動半間）。被動：所有商店價格 −4（最低 1）', cd: 0, detail: '被動：商人房與臨時攤位的價格都 −4（最低 1 燈芯）。技能：在腳邊擺一座攤位，小商人會跟你打招呼，攤位 12 秒內賣：補血、一件隨機強化、護身小物。冷卻以房間計算：進入 3 個新房間後才能再擺。逃離模式例外：改成移動半個房間的距離（480；攤位強化後約 320）才能再擺。' },
   { id: 'sleepc', name: '嗜睡者', role: '賭運回復', weapon: 'pillow', hp: 6, spd: 1, ach: 22, skill: '入眠', sdesc: '睡 5 秒：移動很慢、視野剩血量 1 的大小、不能攻擊；醒來時範圍攻擊並回復燈火 2', cd: 25, detail: '按技能入睡 5 秒：移速 ×0.4、視野縮到血量 1 的大小、不能攻擊。睡滿 5 秒醒來：範圍攻擊（半徑 130、傷害 3）並回復 2 點燈火。睡眠中被打到會提前醒來：只有範圍攻擊，沒有回血。睡眠中再按一次技能可主動醒來（同樣沒有回血）。冷卻 25 秒，從醒來起算。' },
   { id: 'sugarc', name: '糖衣師', role: '控場近戰', weapon: 'syrup', hp: 7, spd: 1, dlcReq: [['candy', 'candyGuard']], need: '糖果世界：護送＋守燈各通關一次', skill: '糖衣', sdesc: '包上糖殼，擋 3 次傷害；碎裂時迸出彈射的糖碎片', cd: 18, detail: '把自己包成糖殼，可以擋 3 次傷害（25 秒內沒用完會融化）；糖殼碎裂時會往四周迸出 6 片糖碎片，會彈射並傷敵。專屬武器糖漿鞭：近距離揮鞭，命中的敵人被黏住、減速 40%（2 秒），連續命中同一隻黏性疊加，第 3 層暈 0.6 秒。' },
   { id: 'pixelc', name: '像素客', role: '高機動風險型', weapon: 'pong', hp: 4, spd: 1.15, dlcReq: [['arcade', 'escape']], need: '電玩世界：無盡抵達第 6 層＋逃離通關各一次', skill: '讀檔', sdesc: '回到 3 秒前的位置與血量（血量不會比現在低）', cd: 45, detail: '讀檔：回到約 3 秒前的位置，血量取「現在」與「3 秒前」較高者，並有 0.8 秒無敵。冷卻很長（45 秒）。專屬武器乒乓砲：彈球碰牆與障礙會反彈 3 次，每次傷害 +30%，之後折返；彈球靠近時再按攻擊鍵可以接球（完美接球：下一發 ×1.5）；沒接到就消失、裝填 1.2 秒。' },
@@ -1082,7 +1082,9 @@ const LAMPS = {
   lily: { name: '彼岸花提燈', c: '#e0364a', core: '#ffe1e1', req: 'dartRet', deco: 'lily' },
   lotus: { name: '蓮花燈', c: '#ff9fc0', core: '#fff0f4', req: 'zenCalm', deco: 'lotus' },
   olive: { name: '橄欖油燈', c: '#c8d46a', core: '#f6f8d8', req: 'gkEvents', deco: 'olive' },
-  amphora: { name: '雙耳瓶燈', c: '#d9783a', core: '#ffe2c0', req: 'gkHydra' }
+  amphora: { name: '雙耳瓶燈', c: '#d9783a', core: '#ffe2c0', req: 'gkHydra' },
+  longlamp: { name: '長明燈', c: '#ffd86a', core: '#fffbe0', req: 'zkClear', deco: 'longlamp' },
+  wangsheng: { name: '往生燈', c: '#b9c8ff', core: '#f4f6ff', req: 'zkBell', deco: 'wangsheng' }
 };
 const CAPES = {
   red: { name: '赭紅', c: '#b24a32' },
@@ -1091,7 +1093,8 @@ const CAPES = {
   night: { name: '夜紫', c: '#5a4a9c', req: 'last1' },
   letters: { name: '字母積木披風（傳說）', c: '#e8d9b0', req: 'spell', own: 'letters' },
   kasaya: { name: '袈裟披風（傳說）', c: '#c9582a', req: 'zenMuyu', own: 'kasaya' },
-  chiton: { name: '希臘長袍（傳說）', c: '#f2ead8', req: 'gkBless', own: 'chiton' }
+  chiton: { name: '希臘長袍（傳說）', c: '#f2ead8', req: 'gkBless', own: 'chiton' },
+  greyk: { name: '灰袈裟', c: '#8a8a82', req: 'zkClear' }
 };
 const HEADS = {
   none: { name: '無頭飾' },
@@ -1100,7 +1103,9 @@ const HEADS = {
   lily: { name: '紅花髮飾（傳說）', req: 'copyFree', own: 'lily' },
   monk: { name: '小沙彌頭', req: 'zenBoss' },
   laurel: { name: '月桂冠', req: 'gkMino' },
-  helm: { name: '科林斯頭盔', req: 'gkBreak' }
+  helm: { name: '科林斯頭盔', req: 'gkBreak' },
+  lotuscrown: { name: '蓮花冠', req: 'zkClear' },
+  straw: { name: '小沙彌斗笠', req: 'zkDu' }
 };
 const GT = [
   ['花園', '#5fae52', '#cfe8a8', '花苞帽', '花面具', '藤蔓披風', '草編背心', '花瓣燈罩', 'r', '花環燈穗'],
@@ -1201,7 +1206,7 @@ const FLV = {
   'bellman.snow': '雪落在鐘上，聲音就變軟了。', 'bellman.ice': '敲一下，整座山都聽見。',
   'florist.sun': '永遠朝著燈的方向。', 'shopc.apron': '開店的人，也得先學會揉麵。', 'shopc.god': '生意興隆，通四海。',
   'lamp.ink': '字寫壞了，就把燈蓋上，裝作什麼也沒發生。', 'lamp.lily': '開在河的另一邊，卻替這一邊照著路。', 'cape.letters': '每一塊積木，都替你記著一個字。',
-  'head.book': '翻開的那一頁，永遠是你還沒讀過的。', 'head.hat': '擺渡的人不說話，只負責把你送到岸邊。', 'head.lily': '它不屬於這一岸，所以特別紅。', 'head.monk': '頭上的三個點，是三個放下的念頭。', 'lamp.lotus': '泥裡長出來，卻一點也不髒。', 'cape.kasaya': '一針一線，都是別人放下的東西。', 'head.laurel': '勝利的人不一定是最強的，是走出迷宮的。', 'head.helm': '頭盔上的紅羽毛，是從碎掉的陶罐裡撿來的。', 'lamp.amphora': '雙耳瓶裡裝的不是酒，是一整個港口的黃昏。', 'lamp.olive': '一點橄欖油，就能點亮整個下午。', 'cape.chiton': '神祇們都說，這件很適合你。',
+  'head.lotuscrown': '花開的時候，沒有誰在數日子。', 'head.straw': '遮得住太陽，遮不住想說話的眼睛。', 'lamp.longlamp': '有人點了很久，從沒想過要熄。', 'lamp.wangsheng': '飄過去的，都是放下了的。', 'cape.greyk': '洗了很多次，所以什麼都不再執著。', 'head.book': '翻開的那一頁，永遠是你還沒讀過的。', 'head.hat': '擺渡的人不說話，只負責把你送到岸邊。', 'head.lily': '它不屬於這一岸，所以特別紅。', 'head.monk': '頭上的三個點，是三個放下的念頭。', 'lamp.lotus': '泥裡長出來，卻一點也不髒。', 'cape.kasaya': '一針一線，都是別人放下的東西。', 'head.laurel': '勝利的人不一定是最強的，是走出迷宮的。', 'head.helm': '頭盔上的紅羽毛，是從碎掉的陶罐裡撿來的。', 'lamp.amphora': '雙耳瓶裡裝的不是酒，是一整個港口的黃昏。', 'lamp.olive': '一點橄欖油，就能點亮整個下午。', 'cape.chiton': '神祇們都說，這件很適合你。',
   'sugarc.cherry': '最後一顆櫻桃，總是留給戴帽子的人。', 'sugarc.rainbow': '融化之前，每一層顏色都很認真。', 'pixelc.crt': '畫面有點雪花，可是你的臉很清楚。', 'pixelc.gold': '接住的每一個球，都變成一枚硬幣。', 'calib.visor': '擋住的是光，看清的是距離。', 'calib.hud': '視野裡的數字，永遠比你快一步。', 'ferry.lotus': '河上開了一朵花，是給迷路的人看的。', 'ferry.lantern': '一盞接一盞，全是同行的人。',
   'sleepc.pillow': '抱著它，連噩夢都會睡著。', 'sleepc.dream': '醒著的人，才覺得這是夢遊。'
 };
@@ -1940,7 +1945,7 @@ function loadRoom() {
     const pr = [0.25, 0.45, 0.65, 0.8][dL()];
     room.waves = (combatIdx === 0 && run.layer === 0) ? 2 : (rand() < pr ? 3 : 2);
   }
-  if (run.escape && (kind === 'boss' || (kind === 'combat' && !run.path))) { room.col = { x: ROOM.x - 12, v: 13 + 2 * run.layer, delay: kind === 'boss' ? 1e9 : 5 }; if (kind === 'boss') room.escT = 120; }
+  if (run.escape && (kind === 'boss' || (kind === 'combat' && !run.path))) { room.col = { x: ROOM.x - 12, v: 13 + 2 * run.layer, delay: kind === 'boss' ? 1e9 : 5 }; if (kind === 'boss') room.escT = 60; }
   if (run.guard && kind === 'combat') {
     room.gb = { extraT: 14, extras: 0, started: false, rest: false, restDone: {} }; room.combatIdx = 2; room.waves = 6;
     let bx = ROOM.x + ROOM.w * 0.5, by = ROOM.y + ROOM.h * 0.62; for (let t = 0; t < 40; t++) { const x = rr(ROOM.x + 250, ROOM.x + ROOM.w - 250), y = rr(ROOM.y + 210, ROOM.y + ROOM.h - 90); if (!room.obs.some(o => overlap(inflate(o, 54), { x, y, w: 1, h: 1 }))) { bx = x; by = y; break; } }
@@ -2177,7 +2182,7 @@ function newRun() {
 }
 
 /* ---------- special rooms ---------- */
-function weaponOffer(exclude, exo) { const c = WLIST.filter(i => (exo ? !!WDEF[i].cls && WDEF[i].cls !== CLS[p.cls].id : !WDEF[i].cls) && !(WDEF[i].th !== undefined && run.themes.indexOf(WDEF[i].th) < 0) && p.weapons.indexOf(i) < 0 && exclude.indexOf(i) < 0); return c.length ? pickOf(c.reduce((a, i) => a.concat(WDEF[i].th !== undefined ? [i, i, i] : [i]), [])) : null; }
+function weaponOffer(exclude, exo) { const c = WLIST.filter(i => (exo ? !!WDEF[i].cls && WDEF[i].cls !== CLS[p.cls].id : !WDEF[i].cls) && !(WDEF[i].th !== undefined && run.themes.indexOf(WDEF[i].th) < 0) && !(WDEF[i].karma && !run.karma) && p.weapons.indexOf(i) < 0 && exclude.indexOf(i) < 0); return c.length ? pickOf(c.reduce((a, i) => a.concat(WDEF[i].th !== undefined ? [i, i, i] : [i]), [])) : null; }
 function upgradeOffer(exclude, premOnly) { const c = Object.keys(UPG).filter(i => exclude.indexOf(i) < 0 && clsOk(i) && !(i === 'wick' && p.maxHp >= 9) && !(UPG[i].max && upN(i) >= UPG[i].max) && (!premOnly || premOk(i))); return c.length ? pickOf(c.reduce((a, i) => a.concat(UPG[i].cls ? [i, i] : [i]), [])) : null; }
 function shelfIds(kind, avoid) { return room.items.filter(i => !i.taken && i.kind === kind).map(i => i.id).concat(avoid ? [avoid] : []); }
 // slot：這個格子的類型（heal / weapon / upgrade），商人房補貨時依格子類型補上新商品
@@ -2484,7 +2489,7 @@ const ESC_STORY = [
   [{ who: '像素精靈', text: '崩塌變快了……可是我記得這條路。跟著光走，別撞上牆角。' }],
   [{ who: '像素精靈', text: '最後一關了。這座城的主機就在最右邊的螢幕裡——打倒守著它的傢伙，就能重新開機。' }]
 ];
-const ESC_INTRO = def => [{ who: '旁白', text: def.name + '站在最後一格畫面前，螢幕上跳出倒數：120。' }, { who: '像素精靈', text: '牠在拖時間，等崩塌線追上來——快一點！' }];
+const ESC_INTRO = def => [{ who: '旁白', text: def.name + '站在最後一格畫面前，螢幕上跳出倒數：60。' }, { who: '像素精靈', text: '牠在拖時間，等崩塌線追上來——快一點！' }];
 const ESC_OUT = [{ who: '旁白', text: '崩塌線停在腳邊，螢幕重新亮起，跳出一行字：GAME CLEAR。' }, { who: '像素精靈', text: '我們逃出來了……謝謝你，提燈人。下次投幣，換我請你。' }];
 const modeKey = () => run.guard ? (th() === 9 ? 'candyGuard' : th() === 11 ? 'future' : null) : run.escape ? (th() === 11 ? 'futEscape' : th() === 10 ? 'escape' : null) : run.endless ? 'arcade' : null;
 const GUIDE = '指針', SPR = '像素精靈';
@@ -2512,7 +2517,7 @@ const MODE_STORY = {
 const MODE_INTRO = {
   candyGuard: def => [{ who: '旁白', text: def.name + '在糖霜裡緩緩站起來，燈塔的光輕輕顫動。' }, { who: '小糖', text: '別讓它碰到燈塔！' }],
   future: def => [{ who: '旁白', text: def.name + '的核心亮了起來，遠處的霓虹一齊閃爍。' }, { who: GUIDE, text: '目標確認——核心主腦。' }],
-  futEscape: def => [{ who: '旁白', text: def.name + '擋在出口前，倒數開始：120。' }, { who: GUIDE, text: '牠在拖延時間，等刪除線追上來——快！' }],
+  futEscape: def => [{ who: '旁白', text: def.name + '擋在出口前，倒數開始：60。' }, { who: GUIDE, text: '牠在拖延時間，等刪除線追上來——快！' }],
   escape: ESC_INTRO
 };
 const MODE_OUT = {
@@ -2742,11 +2747,11 @@ function updateHud() {
     if (pc > 0) chips.push('★' + PREM[id].name + (pc > 1 ? '×' + pc : ''));
   }
   const upgTxt = chips.join('|');
-  const C0 = CLS[p.cls], skTxt = (p.lantT > 0 ? '變身 ' + Math.ceil(p.lantT) + ' 秒　' : '') + (p.sleepT > 0 ? '睡眠 ' + Math.ceil(p.sleepT) + ' 秒　' : '') + C0.skill + (C0.id === 'shopc' ? (p.roomCd > 0 ? '　' + p.roomCd + ' 房' : '') : (p.skillCd > 0 ? '　' + Math.ceil(p.skillCd) + ' 秒' : ''));
-  const cdFrac = C0.id === 'shopc' ? (p.roomCd > 0 ? p.roomCd / (upN('c_shop') >= 2 ? 2 : 3) : 0) : p.skillCd > 0 ? Math.min(1, p.skillCd / Math.max(0.01, C0.cd * p.cdMul)) : 0;
+  const C0 = CLS[p.cls], skTxt = (p.lantT > 0 ? '變身 ' + Math.ceil(p.lantT) + ' 秒　' : '') + (p.sleepT > 0 ? '睡眠 ' + Math.ceil(p.sleepT) + ' 秒　' : '') + C0.skill + (C0.id === 'shopc' ? (p.roomCd > 0 ? '　' + (run.escape ? Math.ceil(p.stallMove / (upN('c_shop') >= 2 ? 3.2 : 4.8)) + '%' : p.roomCd + ' 房') : '') : (p.skillCd > 0 ? '　' + Math.ceil(p.skillCd) + ' 秒' : ''));
+  const cdFrac = C0.id === 'shopc' ? (p.roomCd > 0 ? (run.escape ? p.stallMove / (upN('c_shop') >= 2 ? 320 : 480) : p.roomCd / (upN('c_shop') >= 2 ? 2 : 3)) : 0) : p.skillCd > 0 ? Math.min(1, p.skillCd / Math.max(0.01, C0.cd * p.cdMul)) : 0;
   $('skFill').style.height = (cdFrac > 0 ? (1 - cdFrac) * 100 : 100) + '%'; $('skill').classList.toggle('cool', cdFrac > 0);
   const autoOn = C0.id === 'watch' && upN('c_watch') >= 2; $('skill').classList.toggle('auto', autoOn && p.autoSkill !== false); $('skill').classList.toggle('autooff', autoOn && p.autoSkill === false);
-  $('tSkFill').style.height = (cdFrac > 0 ? (1 - cdFrac) * 100 : 100) + '%'; $('tSkTxt').textContent = C0.id === 'shopc' ? (p.roomCd > 0 ? p.roomCd + '房' : '技能') : p.skillCd > 0 ? Math.ceil(p.skillCd) : (autoOn ? (p.autoSkill === false ? '手動' : '自動') : '技能');
+  $('tSkFill').style.height = (cdFrac > 0 ? (1 - cdFrac) * 100 : 100) + '%'; $('tSkTxt').textContent = C0.id === 'shopc' ? (p.roomCd > 0 ? (run.escape ? Math.ceil(p.stallMove / (upN('c_shop') >= 2 ? 3.2 : 4.8)) + '%' : p.roomCd + '房') : '技能') : p.skillCd > 0 ? Math.ceil(p.skillCd) : (autoOn ? (p.autoSkill === false ? '手動' : '自動') : '技能');
   const sig = [p.hp, p.maxHp, Math.floor(p.shield * 2), shieldMax(), p.ward > 0, p.w, p.weapons.join(), follow, aimTxt, roomTxt, p.coins, upgTxt, skTxt, p.curse || 0].join('/');
   if (sig === hudSig) return; hudSig = sig;
   lampNodes.forEach((n, i) => { n.classList.toggle('off', i >= p.maxHp); n.classList.toggle('on', i < p.hp); });
@@ -2877,9 +2882,9 @@ const DLC = [
   { id: 'candy', name: '糖果・護送小糖', desc: '三層，帶著小糖走到最後', theme: 9, flag: 'escort', pack: 'dlc.js', ally: 'candy', say: ['小糖加入了：護送他走完糖果世界三層', 2.8] },
   { id: 'candyGuard', name: '糖果・守燈', desc: '每層一間大房，守住燈塔', theme: 9, flag: 'guard', pack: 'dlc.js', say: ['糖果世界・守燈：每層一間大房，裡面有商人，守住燈塔打完所有敵人', 3] },
   { id: 'arcade', name: '電玩・無盡', desc: '像素風，一層接一層越來越強', theme: 10, flag: 'endless', pack: 'dlc.js', say: ['電玩世界・無盡模式：一路往下打，看你能到第幾層', 2.8] },
-  { id: 'escape', name: '電玩・逃離', desc: '崩塌線從左邊追來', theme: 10, flag: 'escape', pack: 'dlc.js', say: ['電玩世界・逃離模式：崩塌線從左邊追來；Boss 房暫停崩塌、120 秒內要打倒', 3.2] },
+  { id: 'escape', name: '電玩・逃離', desc: '崩塌線從左邊追來', theme: 10, flag: 'escape', pack: 'dlc.js', say: ['電玩世界・逃離模式：崩塌線從左邊追來；Boss 房暫停崩塌、60 秒內要打倒', 3.2] },
   { id: 'future', name: '未來・守燈', desc: '每層一間大房，守住燈塔', theme: 11, flag: 'guard', pack: 'dlc.js', say: ['未來世界・守燈：每層一間大房，裡面有商人，守住燈塔打完所有敵人', 3] },
-  { id: 'futEscape', name: '未來・逃離', desc: '崩塌線從左邊追來', theme: 11, flag: 'escape', pack: 'dlc.js', say: ['未來世界・逃離模式：崩塌線從左邊追來；Boss 房暫停崩塌、120 秒內要打倒', 3.2] },
+  { id: 'futEscape', name: '未來・逃離', desc: '崩塌線從左邊追來', theme: 11, flag: 'escape', pack: 'dlc.js', say: ['未來世界・逃離模式：崩塌線從左邊追來；Boss 房暫停崩塌、60 秒內要打倒', 3.2] },
   { id: 'letters', name: '字母書房（DLC2）', desc: '傳統玩法；選到才下載（約 30 KB）', theme: 12, flag: null, pack: 'dlc.js', say: ['字母書房：這一局三層都在書房裡，小心墨水與字母積木', 3] },
   { id: 'dl2long', name: 'DLC2 長線（字母書房＋彼岸）', desc: '6 層：字母書房 3 層、彼岸 3 層；約 25 分鐘（擺渡人解鎖用）', theme: 12, flag: 'dl2', long: true, pack: 'dlc.js', say: ['DLC2 長線：先在字母書房走 3 層，再渡到彼岸走 3 層', 3.2] },
   { id: 'shore', name: '彼岸（DLC2）', desc: '傳統玩法；會模仿武器的影怪', theme: 13, flag: null, pack: 'dlc.js', say: ['彼岸：影子學會了你的武器，小心揮扇、擲鏢與火球', 3] },
@@ -3087,7 +3092,7 @@ function goNext() {
     if (run.step + 1 >= run.plan.length) { run.layer++; run.fin = false; run.step = 0; run.plan = makeLayerPlan(run.layer); layerChanged = true; p.curse = 0; run.hurtL = run.hurtN || 0; }
     else run.step++;
     loadRoom(); placeEntry(); p.vx = p.vy = p.kx = p.ky = 0; placeAllies();
-    if (p.roomCd > 0) { p.roomCd--; hudSig = ''; }
+    if (p.roomCd > 0 && !run.escape) { p.roomCd--; hudSig = ''; }
     if (layerChanged && run.endless) { rec.endlessMax = Math.max(rec.endlessMax || 0, run.layer + 1); toast('無盡：第 ' + (run.layer + 1) + ' 層', 2); if (run.layer >= 5) { unlockAch('endless6'); rec.dlcWin.arcade = 1; saveRec(); } healP(1); }
     if (layerChanged) { if (run.long && !run.dl2) { rec.longMax = Math.max(rec.longMax || 0, run.layer + 1); saveRec(); } writeSave(); }
     const lines = [];
@@ -3937,7 +3942,7 @@ function shrineUse(it) {
   if (it.used) { toast('香已經燃盡', 1.2); return; }
   const c = shrineCost(it); if ((run.merit || 0) < c) { toast('功德不足：佈施需要 ' + c + '（目前 ' + (run.merit || 0) + '）。打倒敵人累積功德，用佛寺武器打倒更多', 3); return; }
   run.merit -= c; it.used = true; hintSig = ''; sfx('pick'); burst(it.x, it.y - 10, 18, ['#ffd27a', C.paper], 160, true); toast('佈施 ' + c + ' 功德……', 1.2);
-  const zw = WLIST.filter(i => WDEF[i].th === 14 && p.weapons.indexOf(i) < 0);
+  const zw = WLIST.filter(i => WDEF[i].th === 14 && !(WDEF[i].karma && !run.karma) && p.weapons.indexOf(i) < 0);
   if (zw.length && rand() < 0.3) { const id = pickOf(zw); giveWeapon(id); toast('佛龕回贈：' + WDEF[id].name, 2.6); return; }
   interact({ kind: 'mystery', id: 'mystery', x: it.x, y: it.y, group: 'prop', price: 0, taken: false });
 }
@@ -4694,6 +4699,8 @@ function drawMech() {
 }
 function updateModes(dt) {
   if (state !== 'play') return;
+  { const sdx = p.x - (p.stX === undefined ? p.x : p.stX), sdy = p.y - (p.stY === undefined ? p.y : p.stY); p.stX = p.x; p.stY = p.y;
+    if (run.escape && p.roomCd > 0 && p.stallMove > 0) { const sd = Math.hypot(sdx, sdy); if (sd < 150) { p.stallMove -= sd; if (p.stallMove <= 0) { p.stallMove = 0; p.roomCd = 0; hudSig = ''; toast('攤位準備好了', 1.2); } } } }
   const c = room.col;
   if (c && (!room.cleared || c.sp)) {
     if (room.escT > 0) { room.escT -= dt; if (room.escT <= 0) { c.v = 45; c.delay = 0; toast('時間到！崩塌線加速了！', 2.2); } }
@@ -5028,9 +5035,9 @@ function useSkill() {
   const c = CLS[p.cls];
   if (c.id === 'shopc') {
     if (state !== 'play') return;
-    if (p.roomCd > 0) { toast('攤位還要 ' + p.roomCd + ' 個房間', 1.2); sfx('tick'); return; }
+    if (p.roomCd > 0) { toast(run.escape ? '攤位冷卻中：還要再移動 ' + Math.ceil(p.stallMove / (upN('c_shop') >= 2 ? 3.2 : 4.8)) + '%（半間）' : '攤位還要 ' + p.roomCd + ' 個房間', 1.2); sfx('tick'); return; }
     if (room.tstall) return;
-    placeStall(); p.roomCd = upN('c_shop') >= 2 ? 2 : 3; room.skillUsed = true; hudSig = ''; return;
+    placeStall(); if (run.escape) { p.roomCd = 1; p.stallMove = upN('c_shop') >= 2 ? 320 : 480; } else p.roomCd = upN('c_shop') >= 2 ? 2 : 3; room.skillUsed = true; hudSig = ''; return;
   }
   if (c.id === 'sleepc') {
     if (state !== 'play') return;
@@ -5876,6 +5883,8 @@ function drawPlayer() {
     if (hd === 'book') { ctx.fillStyle = '#7a3b2c'; poly(ctx, [[-14, -25], [0, -29], [14, -25], [0, -23]]); ctx.fillStyle = '#e8d9b0'; poly(ctx, [[-13, -26], [0, -30], [0, -38], [-12, -34]]); poly(ctx, [[13, -26], [0, -30], [0, -38], [12, -34]]); ctx.strokeStyle = '#8a7a5a'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-9, -32); ctx.lineTo(-3, -34); ctx.moveTo(-9, -29.5); ctx.lineTo(-3, -31.5); ctx.moveTo(9, -32); ctx.lineTo(3, -34); ctx.moveTo(9, -29.5); ctx.lineTo(3, -31.5); ctx.stroke(); }
     else if (hd === 'hat') { ctx.fillStyle = '#c9b27a'; poly(ctx, [[-21, -23], [21, -23], [0, -43]]); ctx.strokeStyle = '#8f7a44'; ctx.lineWidth = 1; for (const k of [-10, -4, 4, 10]) { ctx.beginPath(); ctx.moveTo(0, -43); ctx.lineTo(k * 1.7, -23); ctx.stroke(); } ctx.fillStyle = '#5a4a2a'; ctx.fillRect(-21, -24, 42, 2); }
     else if (hd === 'monk') { ctx.fillStyle = '#d9b48a'; ctx.beginPath(); ctx.arc(0, -22, 12, Math.PI, TAU); ctx.fill(); ctx.fillStyle = '#7a5a3a'; for (const kx of [-5, 0, 5]) circ(ctx, kx, -28 - (kx === 0 ? 2 : 0), 1.1); }
+    else if (hd === 'lotuscrown') { ctx.fillStyle = '#ffb3c6'; for (let k = -2; k <= 2; k++) { ctx.beginPath(); ctx.ellipse(k * 5, -30 - (2 - Math.abs(k)) * 1.6, 2.6, 5.2, k * 0.32, 0, TAU); ctx.fill(); } ctx.fillStyle = '#ffe9a0'; circ(ctx, 0, -27, 2.2); }
+    else if (hd === 'straw') { ctx.fillStyle = '#d9c27a'; poly(ctx, [[-20, -23], [20, -23], [0, -40]]); ctx.fillStyle = '#b89d52'; ctx.fillRect(-20, -24, 40, 2); ctx.fillStyle = '#f4efe0'; ctx.fillRect(-9, -28, 18, 2); }
     else if (hd === 'laurel') { ctx.strokeStyle = '#5f8a3a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, -23, 13, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke(); ctx.fillStyle = '#7fae4a'; for (let k = 0; k < 7; k++) { const a = Math.PI * 1.1 + k * 0.13; poly(ctx, [[Math.cos(a) * 13, -23 + Math.sin(a) * 13], [Math.cos(a) * 17, -23 + Math.sin(a) * 17 - 2], [Math.cos(a + 0.12) * 14, -23 + Math.sin(a + 0.12) * 14]]); } }
     else if (hd === 'helm') { ctx.fillStyle = '#b08a52'; ctx.beginPath(); ctx.arc(0, -22, 13, Math.PI, TAU); ctx.fill(); ctx.fillRect(-13, -23, 26, 3); ctx.fillStyle = '#8a6a3a'; ctx.fillRect(-2, -23, 4, 11); ctx.fillStyle = '#c0392b'; poly(ctx, [[-3, -35], [3, -35], [6, -42], [-6, -42]]); }
     else if (hd === 'lily') { const hx = -9, hy = -27; ctx.strokeStyle = '#d2324a'; ctx.lineWidth = 1.6; ctx.lineCap = 'round'; for (let k = 0; k < 7; k++) { const a = -Math.PI * 0.95 + k * 0.5; ctx.beginPath(); ctx.moveTo(hx, hy); ctx.quadraticCurveTo(hx + Math.cos(a) * 6, hy + Math.sin(a) * 6 - 3, hx + Math.cos(a) * 11, hy + Math.sin(a) * 9 - 2); ctx.stroke(); } ctx.fillStyle = '#ffd7dc'; circ(ctx, hx, hy, 1.6); } }
@@ -5884,7 +5893,7 @@ function drawPlayer() {
   setShadow(ctx, 1.5, 2, 0); ctx.fillStyle = '#7a5a2e'; rrect(ctx, lx - 6, ly - 8, 12, 3, 1.5); noShadow(ctx);
   ctx.fillStyle = lampCol().c; circ(ctx, lx, ly, 7); ctx.fillStyle = lampCol().core; circ(ctx, lx, ly, 3.5);
   { const gl2 = gcOf('lampx'); if (gl2 && gl2.kind === 'pend') { ctx.strokeStyle = gl2.c; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(lx, ly + 7); ctx.lineTo(lx, ly + 14); ctx.stroke(); ctx.fillStyle = gl2.c; ctx.beginPath(); ctx.arc(lx, ly + 16, 2.6, 0, TAU); ctx.fill(); ctx.fillStyle = gl2.c2; circ(ctx, lx, ly + 15.4, 0.9); } }
-  { const dc = lampCol().deco; if (dc === 'ink') { ctx.fillStyle = '#1b2350'; rrect(ctx, lx - 3, ly - 12, 6, 5, 1.5); ctx.strokeStyle = '#e8dcc0'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(lx + 1, ly - 12); ctx.lineTo(lx + 5, ly - 18); ctx.stroke(); } else if (dc === 'olive') { ctx.fillStyle = '#7fae4a'; poly(ctx, [[lx - 2, ly - 10], [lx + 7, ly - 16], [lx + 3, ly - 8]]); poly(ctx, [[lx - 3, ly - 9], [lx - 11, ly - 15], [lx - 6, ly - 7]]); ctx.fillStyle = '#3a4a22'; circ(ctx, lx + 1, ly - 9, 2.2); } else if (dc === 'lotus') { ctx.fillStyle = '#ffb8cf'; for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + (k - 2) * 0.55; ctx.beginPath(); ctx.ellipse(lx + Math.cos(a) * 7, ly - 11 + Math.sin(a) * 4 + 4, 2.6, 5, a + Math.PI / 2, 0, TAU); ctx.fill(); } } else if (dc === 'lily') { ctx.strokeStyle = '#ff7b8c'; ctx.lineWidth = 1.3; ctx.lineCap = 'round'; for (let k = 0; k < 8; k++) { const a = k / 8 * TAU + time * 0.4; ctx.beginPath(); ctx.moveTo(lx + Math.cos(a) * 7, ly + Math.sin(a) * 7); ctx.quadraticCurveTo(lx + Math.cos(a) * 10, ly + Math.sin(a) * 10 - 1, lx + Math.cos(a + 0.3) * 13, ly + Math.sin(a + 0.3) * 13); ctx.stroke(); } } }
+  { const dc = lampCol().deco; if (dc === 'ink') { ctx.fillStyle = '#1b2350'; rrect(ctx, lx - 3, ly - 12, 6, 5, 1.5); ctx.strokeStyle = '#e8dcc0'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(lx + 1, ly - 12); ctx.lineTo(lx + 5, ly - 18); ctx.stroke(); } else if (dc === 'olive') { ctx.fillStyle = '#7fae4a'; poly(ctx, [[lx - 2, ly - 10], [lx + 7, ly - 16], [lx + 3, ly - 8]]); poly(ctx, [[lx - 3, ly - 9], [lx - 11, ly - 15], [lx - 6, ly - 7]]); ctx.fillStyle = '#3a4a22'; circ(ctx, lx + 1, ly - 9, 2.2); } else if (dc === 'lotus') { ctx.fillStyle = '#ffb8cf'; for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + (k - 2) * 0.55; ctx.beginPath(); ctx.ellipse(lx + Math.cos(a) * 7, ly - 11 + Math.sin(a) * 4 + 4, 2.6, 5, a + Math.PI / 2, 0, TAU); ctx.fill(); } } else if (dc === 'longlamp') { ctx.fillStyle = '#7a5a2e'; rrect(ctx, lx - 4, ly - 14, 8, 4, 1.5); ctx.fillStyle = '#ffd86a'; ctx.beginPath(); ctx.ellipse(lx, ly - 18 + Math.sin(time * 6) * 0.6, 2.6, 5, 0, 0, TAU); ctx.fill(); } else if (dc === 'wangsheng') { ctx.fillStyle = 'rgba(190,205,255,.85)'; for (let k = 0; k < 3; k++) { const a = time * 1.4 + k * 2.09; circ(ctx, lx + Math.cos(a) * 11, ly + Math.sin(a) * 5 - 3, 2); } } else if (dc === 'lily') { ctx.strokeStyle = '#ff7b8c'; ctx.lineWidth = 1.3; ctx.lineCap = 'round'; for (let k = 0; k < 8; k++) { const a = k / 8 * TAU + time * 0.4; ctx.beginPath(); ctx.moveTo(lx + Math.cos(a) * 7, ly + Math.sin(a) * 7); ctx.quadraticCurveTo(lx + Math.cos(a) * 10, ly + Math.sin(a) * 10 - 1, lx + Math.cos(a + 0.3) * 13, ly + Math.sin(a + 0.3) * 13); ctx.stroke(); } } }
   ctx.restore();
 }
 function drawAllyFig(n) {
