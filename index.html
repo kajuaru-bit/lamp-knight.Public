@@ -332,7 +332,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.62　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.63　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -1889,7 +1889,7 @@ function shopless(arr, from) {
   return arr;
 }
 function makeLayerPlan(layer) {
-  if (run.guard || run.path) return (layer === 0 ? ['start'] : []).concat(['combat', 'boss']);
+  if (run.guard || run.path || run.greek) return (layer === 0 ? ['start'] : []).concat(['combat', 'boss']);
   // 第 1 層：商人＋寶箱；第 2 層：商人＋事件；第 3 層：商人。第 2、3 層有 1/3 機率多 1 間特殊房，
   // 焦點房（事件→商人→寶箱輪流）權重 3、其他各 1；本層出現過焦點房後，焦點換下一種
   const specials = layer === 0 ? ['merchant', 'treasure'] : layer === 1 ? ['merchant', 'event'] : run.long && layer >= 6 ? ['merchant', 'treasure'] : run.long && layer >= 2 ? ['merchant', layer % 2 === 0 ? 'treasure' : 'event'] : ['merchant'];
@@ -1923,6 +1923,7 @@ function loadRoom() {
   const big = kind === 'combat' || kind === 'boss' || chase || rush, SZ = kind === 'boss' ? BOSSR : BIG;
   ROOM.w = big ? SZ.w : 820; ROOM.h = big ? SZ.h : 450; DOOR.y = ROOM.y + ROOM.h / 2;
   if (run.path && kind === 'combat') { if (port) { ROOM.w = 450; ROOM.h = PATH_LEN; DOOR.y = ROOM.y + 110; } else { ROOM.w = PATH_LEN; ROOM.h = 450; DOOR.y = ROOM.y + ROOM.h / 2; } }
+  if (run.greek && kind === 'combat') { ROOM.w = 2400; ROOM.h = 1500; DOOR.y = ROOM.y + ROOM.h / 2; }
   WORLD.w = big ? ROOM.w + 140 : W; WORLD.h = big ? ROOM.h + 150 : H;
   let combatIdx = 0; for (let i = 0; i < run.step; i++) if (run.plan[i] === 'combat') combatIdx++;
   PAL = THEMES[th()].pal; for (const sc of ['candy', 'arc', 'fut']) stageEl.classList.toggle(sc, THEMES[th()].stage === sc); rec.themesSeen[th()] = 1; if (Object.keys(rec.themesSeen).length >= 4) unlockAch('tour');
@@ -2156,7 +2157,7 @@ function updateChase(dt) {
 function newRun() {
   if (PRAC.on && !PRAC.starting) endPractice();
   resetPlayer(); follow = true; fEdge = 0; hudSig = ''; parts = [];
-  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.hurtL = 0; run.dsK = 0; run.znTip = false; run.merit = 0; run.zenDaze = false; run.muyuN = 0; run.spN = 0; run.pulseTip = false; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.dlc = false; run.escort = false; run.escFail = false; run.dlcPrev = null; run.escHurt = 0; run.escape = false; run.guard = false; run.endless = false; run.path = false; run.dl2 = false; run.modeSeen = {}; run.stickStun = 0; run.sugBreak = 0; run.catchN = 0; run.mateBlock = 0; run.syrupTip = false; run.wickN = 0; run.mechTip = false; run.revive = null; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
+  run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.hurtL = 0; run.dsK = 0; run.znTip = false; run.merit = 0; run.zenDaze = false; run.muyuN = 0; run.spN = 0; run.pulseTip = false; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.dlc = false; run.escort = false; run.escFail = false; run.dlcPrev = null; run.escHurt = 0; run.escape = false; run.guard = false; run.endless = false; run.path = false; run.dl2 = false; run.greek = false; run.modeSeen = {}; run.stickStun = 0; run.sugBreak = 0; run.catchN = 0; run.mateBlock = 0; run.syrupTip = false; run.wickN = 0; run.mechTip = false; run.revive = null; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
   for (const w of p.weapons) rec.seenW[w] = 1;
   allies = [];
   { let t = cleared ? shuffle(run.long ? Object.keys(THEMES).map(Number).filter(i => THEMES[i].pool !== 'dlc' || optDlcPool.checked) : BASE_IDS.slice()).slice(0, 3) : [0, 1, 2];
@@ -2301,7 +2302,7 @@ function refreshShop(stall) {
     let ni = makeItem(o.slot, o.x, o.y, 'shop', o.id); if (scoped) ni = escMk(ni, stall.di);
     room.items[room.items.indexOf(o)] = ni; burst(ni.x, ni.y, 8, [C.paper, C.amber], 90, true);
   }
-  if (stall.esc) { stall.rn++; stall.price = 4 + 2 * stall.rn; } else { room.refreshN++; stall.price = 3 + 2 * room.refreshN; }
+  if (stall.esc) { stall.rn++; stall.price = 3 + 2 * stall.rn; } else { room.refreshN++; stall.price = 3 + 2 * room.refreshN; }
 }
 function interact(it) {
   if (it.taken) return;
@@ -2872,9 +2873,10 @@ const DLC = [
   { id: 'dl2long', name: 'DLC2 長線（字母書房＋彼岸）', desc: '6 層：字母書房 3 層、彼岸 3 層；約 25 分鐘（擺渡人解鎖用）', theme: 12, flag: 'dl2', long: true, pack: 'dlc.js', say: ['DLC2 長線：先在字母書房走 3 層，再渡到彼岸走 3 層', 3.2] },
   { id: 'shore', name: '彼岸（DLC2）', desc: '傳統玩法；會模仿武器的影怪', theme: 13, flag: null, pack: 'dlc.js', say: ['彼岸：影子學會了你的武器，小心揮扇、擲鏢與火球', 3] },
   { id: 'zen', name: '佛寺・修行路（DLC3）', desc: '長條地圖，一路向前；漏掉的敵人會變成雜念；選到才下載', theme: 14, flag: 'path', pack: 'dlc.js', say: ['佛寺・修行路：一直往前走；落在身後的敵人會變成雜念，業障牆從後面推來；道場裡可以靜心、敲木魚', 3.6] },
-  { id: 'japan', name: '日本・觀光維護（DLC3）', desc: '房間制景點；清垃圾、修設施，觀光滿意度影響獎勵；選到才下載', theme: 15, flag: null, pack: 'dlc.js', say: ['日本・觀光維護：妖怪在景點搗亂。走過垃圾就能清掉，靠近壞掉的設施按住 F 修復；觀光滿意度越高，通關獎勵越好', 3.8] }
+  { id: 'japan', name: '日本・觀光維護（DLC3）', desc: '房間制景點；清垃圾、修設施，觀光滿意度影響獎勵；選到才下載', theme: 15, flag: null, pack: 'dlc.js', say: ['日本・觀光維護：妖怪在景點搗亂。走過垃圾就能清掉，靠近壞掉的設施按住 F 修復；觀光滿意度越高，通關獎勵越好', 3.8] },
+  { id: 'greek', name: '希臘神話（DLC3）', desc: '超大地圖，戰鬥房與事件結合；神祇恩賜；選到才下載', theme: 16, flag: 'greek', pack: 'dlc.js', say: ['希臘神話：一整張超大地圖，市集、祭壇與各種神話事件散在各區；最後的迷宮裡有米諾陶', 3.4] },
 ];
-const DLC_FLAGS = ['escort', 'endless', 'escape', 'guard', 'dl2', 'path'];
+const DLC_FLAGS = ['escort', 'endless', 'escape', 'guard', 'dl2', 'path', 'greek'];
 const dlcOf = id => DLC.find(q => q.id === id);
 const DLC_MENU = DLC.map(q => ({ id: q.id, name: q.name, desc: q.desc })).concat([{ id: 'random', name: 'DLC 隨機', desc: '從以上全部隨機抽一種' }]);
 $('dlcList').innerHTML = DLC_MENU.map((q, i) => '<button class="btn" id="btnDlc' + i + '" type="button"></button>').join('') + '<button class="btn alt" id="btnDlc' + DLC_MENU.length + '" type="button"></button>';
@@ -3269,7 +3271,7 @@ function onConfirm() {
 
 /* ---------- weapons ---------- */
 function shoot(x, y, ang, spd, r, dmg, kind, life, pierce) {
-  if (room.path && room.path.daze > 0) ang += (rand() - 0.5) * 0.7;
+  if ((room.path && room.path.daze > 0) || p.drunk > 0) ang += (rand() - 0.5) * 0.7;
   const b = { x, y, vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd, r: r * bigMul(), dmg, life: (life || 1.3) * reachMul(), own: 'p', kind, pl: pierce ? Infinity : upN('pierce'), hit: [] };
   bullets.push(b); return b;
 }
@@ -3849,7 +3851,7 @@ const PATH_LEN = 5600, KARMA_SPD = 90, ZN_MAX = 10;
 const pathLen = () => (room.path && room.path.v ? ROOM.h : ROOM.w);
 const pathProg = o => (room.path.v ? ROOM.y + ROOM.h - o.y : o.x - ROOM.x);
 function pathPos(sv, c) { return room.path.v ? { x: ROOM.x + c, y: ROOM.y + ROOM.h - sv } : { x: ROOM.x + sv, y: ROOM.y + c }; }
-const escMk = (o, di) => { o.di = di; if (o.group === 'shop' && o.price > 1) o.price = Math.ceil(o.price * 1.4); return o; };
+const escMk = (o, di) => { o.di = di; if (o.group === 'shop' && o.price > 1) o.price = Math.ceil(o.price * 1.15); return o; };
 function pathInit() {
   const V = port, len = V ? ROOM.h : ROOM.w, cross = V ? ROOM.w : ROOM.h;
   const D = [0.27, 0.52, 0.77].map(f => { const sv = Math.round(len * f); return V ? { s: sv, w: 400, cx: ROOM.x + ROOM.w / 2, cy: ROOM.y + ROOM.h - sv } : { s: sv, w: 400, cx: ROOM.x + sv, cy: DOOR.y + 20 }; });
@@ -3867,9 +3869,9 @@ function pathInit() {
     D.forEach((d, i) => {
       const mk = (slot, dx, dy) => { const o = escMk(makeItem(slot, d.cx + dx, d.cy + dy, 'shop'), i); room.items.push(o); };
       mk('heal', -130, 105); mk('upgrade', 0, 105); mk(rand() < 0.65 ? 'weapon' : 'upgrade', 130, 105);
-      room.items.push({ kind: 'debug', id: 'debug', x: d.cx - 130, y: d.cy - 105, group: 'stall', price: 5, taken: false, di: i });
-      room.items.push({ kind: 'egg', id: 'egg', x: d.cx, y: d.cy - 105, group: 'stall', price: 6 + i, taken: false, di: i });
-      room.items.push({ kind: 'refresh', id: 'refresh', slot: 'refresh', x: d.cx + 130, y: d.cy - 105, price: 4, group: 'stall', taken: false, di: i, esc: true, rn: 0 });
+      room.items.push({ kind: 'debug', id: 'debug', x: d.cx - 130, y: d.cy - 105, group: 'stall', price: 3, taken: false, di: i });
+      room.items.push({ kind: 'egg', id: 'egg', x: d.cx, y: d.cy - 105, group: 'stall', price: 4 + i, taken: false, di: i });
+      room.items.push({ kind: 'refresh', id: 'refresh', slot: 'refresh', x: d.cx + 130, y: d.cy - 105, price: 3, group: 'stall', taken: false, di: i, esc: true, rn: 0 });
     });
     return;
   }
@@ -5173,7 +5175,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.62　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.63　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -6395,7 +6397,7 @@ function registerWorld(w) {
   optTheme.innerHTML += '<option value="' + w.theme + '">' + w.opt + '</option>'; $('lblDlcPool').hidden = false;
 }
 window.LK = {
-  registerWorld, THEMES,
+  registerWorld, THEMES, applyUpgrade, UPG, giveWeapon, WLIST, makeItem, composeWave, interact,
   get ctx() { return ctx; }, get p() { return p; }, get room() { return room; }, get run() { return run; }, get enemies() { return enemies; }, get bullets() { return bullets; }, get time() { return time; }, get ROOM() { return ROOM; },
   get keys() { return keys; }, get pickups() { return pickups; }, get stageEl() { return stageEl; }, DOOR, healP, dropCoins, overlap, inflate, meleeSwing, rewardUpgrade, shieldMax: () => shieldMax(), hintReset: () => { hintSig = ''; hudSig = ''; },
   C, TAU, circ, rrect, poly, setShadow, noShadow, star4, rand, rr, pickOf, clamp, shuffle, mulberry,
