@@ -1956,7 +1956,7 @@ function loadRoom() {
   room = { variant, big, expl: {}, camInit: false, kind, layer: run.layer, theme: th(), step: run.step, combatIdx, seed: Math.floor(rand() * 1e9), obs: makeObstacles(kindObs), chase: chase ? { t: 20, active: true, killed: 0, n: 0, last: null } : null, wave: -1, delay: 0.9, waves: 1, cleared: special, final: kind === 'boss' && run.layer === lastL(), bg: null, items: [] };
   if (kind === 'combat') {
     const pr = [0.25, 0.45, 0.65, 0.8][dL()];
-    room.waves = (combatIdx === 0 && run.layer === 0) ? 2 : (rand() < pr ? 3 : 2);
+    room.waves = (combatIdx === 0 && run.layer === 0) ? 2 : (rand() < pr ? 3 : 2); if (run.escape || run.endless) room.waves += 1; // 長戰鬥：逃離與無盡多一波
   }
   if (run.escape && (kind === 'boss' || (kind === 'combat' && !run.path))) { room.col = { x: ROOM.x - 12, v: 13 + 2 * run.layer, delay: kind === 'boss' ? 1e9 : 5 }; if (kind === 'boss') room.escT = 60; }
   if (run.guard && kind === 'combat') {
@@ -3814,6 +3814,7 @@ function wakeGroup(g) { for (const e of enemies) if (e.sleep && e.grp === g) { e
 function composeWave() {
   const L = dL(), ci = room.combatIdx, wn = room.wave;
   let budget = Math.min(18, Math.round((3 + L * 2 + ci + wn) * 1.5));
+  const swarm = run.guard || th() === 15, maxList = swarm ? 18 : 14; if (swarm) budget = Math.min(24, Math.round(budget * 1.3)); // 大群小怪：守燈與日本
   let types = ['crawler']; if (L > 0 || ci >= 1) types.push('shooter'); if (L > 0 || ci >= 2) { types.push('brute'); types.push('splitter'); }
   if (th() === 0) { types.push('budling'); if (ci >= 1) types.push('moth'); if (ci >= 2) types.push('vine'); }
   if (th() === 3 && (L > 0 || ci >= 1)) types.push('crane');
@@ -3831,9 +3832,10 @@ function composeWave() {
   if ((th() === 3 || th() === 1) && (L > 0 || ci >= 2)) { types.push('mirrorman'); }
   if (th() === 5) { types = types.map(t => t === 'brute' ? 'flion' : t); if (L > 0 || ci >= 1) { types.push('lavaworm'); types.push('fireelem'); } if (L > 0 || ci >= 2) types.push('ifrit'); types.push('lavaslime'); if (L > 0 || ci >= 1) { types.push('sparker'); types.push('firebat'); } if (L > 0 || ci >= 2) types.push('lizard'); }
   { const W = THEMES[th()]; if (W.types) W.types(types, L, ci); }
+  if (swarm) types.push('crawler', 'crawler', 'splitter');
   const cost = { laser: 3, glitch: 3, syrup: 3, roller: 3, scorpion: 2, mummy: 4, bandit: 3, duster: 2, cactus: 3, wisp: 3, jumper: 3, spore: 2, ghost: 3, sleepwalker: 2, faceless: 2, rusher: 2, mirrorman: 4, ifrit: 5, flion: 3, lavaworm: 2, fireelem: 3, trenchghost: 3, abyss: 5, sparker: 3, lavaslime: 2, lizard: 3, firebat: 1, frostneedle: 2, snowball: 3, mist: 3, budling: 3, moth: 2, vine: 3, fleer: 1, crawler: 1, shooter: 2, brute: 3, splitter: 2, splitter2: 4, bomber: 2, shield: 3, shield2: 2, summoner: 4, blindbomb: 3, bloater: 3, blindshark: 3, deepworm: 3, icecluster: 3, crane: 3 }, cap = { laser: 2, glitch: 2, syrup: 2, roller: 2, mummy: 2, bandit: 2, duster: 2, cactus: 2, wisp: 2, jumper: 2, spore: 2, ghost: 2, sleepwalker: 3, faceless: 2, rusher: 4, mirrorman: 1, ifrit: 1, abyss: 1, trenchghost: 1, fireelem: 2, sparker: 2, lizard: 2, crane: 2, blindshark: 2, deepworm: 2, blindbomb: 2, summoner: 1, shield: 3, polar: 2 }, grp = t => t === 'shield2' ? 'shield' : (t === 'frostneedle' || t === 'snowball' || t === 'mist' || t === 'icecluster') ? 'polar' : t, list = [];
   Object.assign(cost, EXT_COST); Object.assign(cap, EXT_CAP);
-  for (let g = 0; g < 40 && budget > 0 && list.length < 14; g++) {
+  for (let g = 0; g < 40 && budget > 0 && list.length < maxList; g++) {
     const t = pickOf(types);
     if (cap[grp(t)] && list.filter(x => grp(x) === grp(t)).length >= cap[grp(t)]) continue;
     if (cost[t] > budget) { if (budget < 2) { list.push('crawler'); budget -= 1; } continue; }

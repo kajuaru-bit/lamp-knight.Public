@@ -1211,7 +1211,7 @@ L.registerWorld({
     { id: 'gkWall', name: '撞牆教學', desc: '希臘神話：讓米諾陶衝撞迷宮牆 3 次' },
     { id: 'gkMino', name: '走出迷宮', desc: '希臘神話：擊敗米諾陶（可獲得月桂冠）' }
   ],
-  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter'); if (L0 > 0 || ci >= 1) types.push('splitter', 'centaur'); if (L0 > 0 || ci >= 2) types.push('brute', 'bomber', 'cyclops'); },
+  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter'); if (L0 > 0 || ci >= 1) types.push('splitter', 'centaur', 'brute'); if (L0 > 0 || ci >= 2) types.push('brute', 'bomber', 'cyclops'); if (L0 > 0) types.push('splitter2'); }, // 希臘：衝撞怪稍多
   boss: fin => fin ? { kind: 'golem', name: '米諾陶', hp: 205, ext: true, xk: 'minotaur' } : { kind: 'golem', name: '美杜莎', hp: 125, ext: true, xk: 'medusa' },
   boss2: gkMoves, drawBoss: e => (e.xk === 'minotaur' ? drawMinotaur(e) : drawMedusa(e)),
   intro: def => (def.xk === 'minotaur'
@@ -1310,10 +1310,10 @@ function zkTick(dt) {
   const K = room.karma; if (!K || !r.karma || K.done || room.cleared) return;
   if (!K.init) zkStart(room, K);
   K.t += dt; K.chantCd = Math.max(0, K.chantCd - dt);
-  const alive = L.enemies.filter(e => !e.dead && e.type !== 'boss'), cap = 4 + r.layer * 2 + Math.min(3, room.combatIdx || 0);
+  const alive = L.enemies.filter(e => !e.dead && e.type !== 'boss'), cap = 5 + r.layer * 2 + Math.min(3, room.combatIdx || 0);
   K.spawnT -= dt;
   if (alive.length < cap && K.spawnT <= 0) {
-    K.spawnT = Math.max(1.6, 3.4 - r.layer * 0.4); const list = L.composeWave().slice(0, Math.min(3, cap - alive.length)).map(ty => (ty === 'crawler' && rand() < 0.7 ? 'shooter' : ty)); // 道場以多子彈的敵人為主
+    K.spawnT = Math.max(1.6, 3.4 - r.layer * 0.4); const list = L.composeWave().slice(0, Math.min(3, cap - alive.length)).map(ty => (ty === 'crawler' && rand() < 0.85 ? 'shooter' : ty)); // 道場以多子彈的敵人為主
     for (const ty of list) { const sp = L.freeSpot(13), e = L.spawnEnemy(ty, sp.x, sp.y); e.sleep = false; }
   }
   for (const e of L.enemies) {
