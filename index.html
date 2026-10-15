@@ -675,7 +675,7 @@ const WDEF = {
   coinx:   { id: 'coinx',   name: '銅錢鏢', tag: '散射', mode: 'tap', cd: 0.5, cls: 'shopc', desc: '三枚銅錢小扇面散射；身上燈芯每 10 枚傷害 +0.2（最多 +1.5）' },
   pillow:  { id: 'pillow',  name: '枕頭', tag: '昏睡', mode: 'tap', cd: 0.7, cls: 'sleepc', range: 120, half: 1.0, dmg: 5, kb: 700, desc: '慢速近戰重擊；命中使一般敵人昏睡 1 秒（Boss 與精英無效）' },
   syrup:   { id: 'syrup', name: '糖漿鞭', tag: '近戰・黏', mode: 'tap', cd: 0.5, cls: 'sugarc', range: 140, half: 0.9, dmg: 3.2, kb: 300, desc: '近距離揮鞭，命中的敵人被黏住減速 40%（2 秒）；連續命中同一隻黏性疊加，第 3 層暈 0.6 秒' },
-  pong:    { id: 'pong', name: '乒乓砲', tag: '反彈・接球', mode: 'tap', cd: 0.3, cls: 'pixelc', desc: '方形彈球，碰牆反彈 3 次、每次傷害 +30%（4 → 8.8），之後折返；彈球靠近時再按攻擊鍵接球，完美接球讓下一發 ×1.5；沒接到則重新裝填 1.2 秒' },
+  pong:    { id: 'pong', name: '乒乓砲', tag: '反彈・接球', mode: 'tap', cd: 0.3, cls: 'pixelc', desc: '方形彈球，飛行距離較短（約 420），碰牆或障礙反彈後距離重新計算；最多反彈 3 次、每次傷害 +30%（4 → 8.8），之後或飛太遠就折返；彈球靠近時再按攻擊鍵接球，完美接球讓下一發 ×1.5；沒接到則重新裝填 1.2 秒' },
   calgun:  { id: 'calgun', name: '校準槍', tag: '貫穿・距離', mode: 'tap', cd: 0.6, cls: 'calib', desc: '可穿透的子彈；傷害隨飛行距離遞減：100 像素內 ×1.3、300 ×1.0、500 ×0.7、700 ×0.4（基底 6.5）' },
   pole:    { id: 'pole', name: '擺渡篙', tag: '戳刺・推開', mode: 'tap', cd: 0.7, cls: 'ferry', desc: '向前戳刺，射程長、貫穿一整列；戳中的敵人被推開' },
   lure:    { id: 'lure',    name: '蟲餌', tag: '誘引', mode: 'hold', cd: 0.1, desc: '按住在前方放出氣味，最多同時兩個；吸引附近的蟲系敵人，70 像素內的敵人每秒受到 2.5 點傷害；放開後氣味還會留 3 秒' }
@@ -708,7 +708,7 @@ const UPG = {
   c_lantern: { name: '燈籠增產', cls: 'lampist', desc: '【提燈使專屬】第 1 層：小燈籠 +1 盞；第 2 層：再 +1 盞，且火球傷害 +30%', max: 2, price: 13 },
   c_shadow: { name: '影遁精進', cls: 'inkhunter', desc: '【影獵手專屬】第 1 層：影遁距離 +30%；第 2 層：殘影消失時爆炸（範圍傷害 3）', max: 2, price: 13 },
   c_flor:  { name: '花匠心得', cls: 'florist', desc: '【花匠專屬】第 1 層：花存在時間 +4 秒；第 2 層：花的射速 +40%，且同時最多 4 朵', max: 2, price: 13 },
-  c_paperl: { name: '燈籠心得', cls: 'lanternc', desc: '【燈籠專屬】第 1 層：衝刺傷害 +20%；第 2 層：再 +20%，且連擊每次增傷提高到 +40%', max: 2, price: 13 },
+  c_paperl: { name: '燈籠心得', cls: 'lanternc', desc: '【燈籠專屬】第 1 層：衝刺傷害 +20%，且變身期間不會死亡（血量最低保留 1）；第 2 層：再 +20%，且連擊每次增傷提高到 +40%', max: 2, price: 13 },
   c_shop:  { name: '帳房心得', cls: 'shopc', desc: '【掌櫃專屬】第 1 層：攤位多一件商品、價格再 −1；第 2 層：攤位冷卻 2 個房間，且小商人會丟銅板攻擊附近敵人', max: 2, price: 13 },
   c_slp:   { name: '安眠心得', cls: 'sleepc', desc: '【嗜睡者專屬】第 1 層：睡眠時移速 +30%、視野變大（約血量 2）；第 2 層：醒來的攻擊使範圍內敵人沉睡 2 秒，且睡眠被打到只有 50% 機率醒來', max: 2, price: 13 },
   c_slow:  { name: '時光心得', cls: 'slowc', desc: '【沙漏客專屬】第 1 層：緩速範圍 +20%；第 2 層：持續 +1.5 秒、冷卻 −2 秒，且釋放時清除範圍內敵方光球', max: 2, price: 13 },
@@ -740,7 +740,7 @@ const PREM = {
   c_lantern: { name: '燈籠群', cls: 'lampist', desc: '【提燈使專屬】小燈籠增加到 4 盞，火球傷害 +30%（占 2 層）', price: 22, w: 2 },
   c_shadow: { name: '影遁・極', cls: 'inkhunter', desc: '【影獵手專屬】影遁距離 +30% 且殘影消失時爆炸（占 2 層）', price: 22, w: 2 },
   c_flor:  { name: '花匠心得・極', cls: 'florist', desc: '【花匠專屬】花存在 +4 秒、射速 +40%、最多 4 朵（占 2 層）', price: 22, w: 2 },
-  c_paperl: { name: '燈籠心得・極', cls: 'lanternc', desc: '【燈籠專屬】衝刺傷害 +40%，連擊每次增傷提高到 +40%（占 2 層）', price: 22, w: 2 },
+  c_paperl: { name: '燈籠心得・極', cls: 'lanternc', desc: '【燈籠專屬】衝刺傷害 +40%，變身期間不會死亡（血量最低保留 1），連擊每次增傷提高到 +40%（占 2 層）', price: 22, w: 2 },
   c_shop:  { name: '帳房心得・極', cls: 'shopc', desc: '【掌櫃專屬】攤位 +1 商品、價格再 −1、冷卻 2 個房間、小商人丟銅板（占 2 層）', price: 22, w: 2 },
   c_slp:   { name: '安眠心得・極', cls: 'sleepc', desc: '【嗜睡者專屬】睡眠移速 +30%、視野變大、醒來使敵人沉睡 2 秒、被打只有 50% 機率醒來（占 2 層）', price: 22, w: 2 },
   c_slow:  { name: '時光心得・極', cls: 'slowc', desc: '【沙漏客專屬】緩速範圍 +40%、持續 +1.5 秒、冷卻 −2 秒，且釋放時清除範圍內敵方光球（占 2 層）', price: 22, w: 2 },
@@ -3665,7 +3665,7 @@ function hurtPlayer(dmg, nx, ny, frz) {
     p.shield = Math.max(0, p.shield - dmg); if (p.shield <= 0) run.shieldZero = true; p.shieldT = 0; room.hurt = true; p.iframes = 1.0; p.kx = nx * 220; p.ky = ny * 220; shake = 5; sfx('hurt'); hudSig = '';
     burst(p.x, p.y, 10, ['#8fd0ff', C.paper], 150, true); return;
   }
-  p.hp = Math.max(0, p.hp - dmg); room.hurt = true; run.hurtAny = true; p.iframes = 1.0; p.kx = nx * 300; p.ky = ny * 300; shake = 8; sfx('hurt');
+  p.hp = Math.max(0, p.hp - dmg); if (p.hp <= 0 && p.lantT > 0 && upN('c_paperl') >= 1) p.hp = 1; room.hurt = true; run.hurtAny = true; p.iframes = 1.0; p.kx = nx * 300; p.ky = ny * 300; shake = 8; sfx('hurt');
   burst(p.x, p.y, 10, [C.paper, C.cape], 160);
   if (p.hp > 0 && p.sleepT > 0 && (upN('c_slp') < 2 || rand() < 0.5)) wakeUp(true);
   if (p.hp <= 0) die();
@@ -4701,6 +4701,10 @@ function updateModes(dt) {
     if (p.x - p.r < c.x) { if (p.iframes <= 0) hurtFrom('collapse', 1, 1, 0); p.x = c.x + p.r + 2; }
     for (const e of enemies) if (e.type !== 'boss' && !e.dead && e.x < c.x - 6) { if (e.sleep) { e.dead = true; burst(e.x, e.y, 8, ['#ff2e97', '#0a0014'], 110, true); } else e.x = c.x + 6; }
   }
+  if (run.escape && room.kind === 'boss' && !room.cleared && enemies.some(e => e.type === 'boss' && !e.dead && e.spawn <= 0)) { // 逃離系列：Boss 戰會定期叫出小怪
+    room.escMin = (room.escMin === undefined ? 7 : room.escMin) - dt;
+    if (room.escMin <= 0) { room.escMin = 11; if (enemies.filter(e => e.type !== 'boss' && !e.dead).length < 4) { for (let i = 0; i < 2; i++) { const sp = freeSpot(13), m = spawnEnemy(pickOf(run.layer >= 2 ? ['crawler', 'shooter', 'shooter'] : ['crawler', 'shooter']), sp.x, sp.y); m.sleep = false; } if (!run.escMinTip) { run.escMinTip = true; toast('Boss 召來了小怪！', 2); } } }
+  }
   const b = room.beacon;
   if (b && b.hp > 0 && !room.cleared) {
     b.t += dt; b.hurtT = Math.max(0, b.hurtT - dt);
@@ -5507,8 +5511,8 @@ function updatePlay(dt) {
     if (b.sand) { b.sandT -= dt; if (b.sandT <= 0) { b.sandT = 0.09; sands.push({ x: b.x, y: b.y, r: 34, t: 1.0 }); if (sands.length > 60) sands.shift(); } }
     if (b.cal) b.dmg = b.d0 * calMul(Math.hypot(b.x - b.x0, b.y - b.y0));
     if (b.pong) {
-      b.age += dt; b.life = 9;
-      if (!b.ret && (b.bounce <= 0 || b.age > 2.6)) { b.ret = true; b.noObs = true; b.hit = []; }
+      b.age += dt; b.life = 9; if (!b.ret) b.leg = (b.leg || 0) + Math.hypot(b.vx, b.vy) * dt;
+      if (!b.ret && (b.bounce <= 0 || b.leg > 420 || b.age > 6)) { b.ret = true; b.noObs = true; b.hit = []; }
       if (b.ret) { const dx = p.x - b.x, dy = p.y - b.y, dd = Math.hypot(dx, dy) || 1; b.vx = dx / dd * 560; b.vy = dy / dd * 560; if (dd < p.r + 12) { b.dead = true; pongB = null; p.pongReload = 1.2; toast('沒接到！重新裝填', 1); continue; } }
     }
     if (b.bounce > 0) {
@@ -5516,7 +5520,7 @@ function updatePlay(dt) {
       if (b.x < ROOM.x + b.r) { b.x = ROOM.x + b.r; b.vx = Math.abs(b.vx); hit = true; } else if (b.x > ROOM.x + ROOM.w - b.r) { b.x = ROOM.x + ROOM.w - b.r; b.vx = -Math.abs(b.vx); hit = true; }
       if (b.y < ROOM.y + b.r) { b.y = ROOM.y + b.r; b.vy = Math.abs(b.vy); hit = true; } else if (b.y > ROOM.y + ROOM.h - b.r) { b.y = ROOM.y + ROOM.h - b.r; b.vy = -Math.abs(b.vy); hit = true; }
       if (!hit && hitsObstacle(b)) { const sx = b.x, sy = b.y; b.x = sx; b.y = py0; const fx = hitsObstacle(b); b.x = px0; b.y = sy; const fy = hitsObstacle(b); b.x = px0; b.y = py0; if (!fx) b.vx = -b.vx; else if (!fy) b.vy = -b.vy; else { b.vx = -b.vx; b.vy = -b.vy; } hit = true; }
-      if (hit) { b.bounce--; b.dmg *= b.pong ? 1.3 : 1.2; b.hit = []; b.life = Math.max(b.life, 0.6); burst(b.x, b.y, 4, ['#fff2a8', C.amber], 90, true); sfx('tick'); }
+      if (hit) { b.bounce--; if (b.pong) b.leg = 0; b.dmg *= b.pong ? 1.3 : 1.2; b.hit = []; b.life = Math.max(b.life, 0.6); burst(b.x, b.y, 4, ['#fff2a8', C.amber], 90, true); sfx('tick'); }
     }
     if (b.own === 'e') for (const w of walls) if (segDist(b.x, b.y, w.x - w.nx * w.half, w.y - w.ny * w.half, w.x + w.nx * w.half, w.y + w.ny * w.half) < b.r + 7) { b.dead = true; burst(b.x, b.y, 4, [C.paper, C.paperDim], 90); break; }
     if (b.dead) continue;

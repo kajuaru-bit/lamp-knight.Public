@@ -508,7 +508,7 @@ L.registerWorld({
       fire: (ox, oy, ang, dm) => { const n = 6, sp = 0.7; for (let i = 0; i < n; i++) L.shoot(L.p.x + Math.cos(ang) * 14, L.p.y - 4 + Math.sin(ang) * 14, ang + (i / (n - 1) - 0.5) * 2 * sp, 400, 5, 1.5 * dm, 'pellet', 0.62); L.sfx('tick'); } }
   },
   types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter'); if (L0 > 0 || ci >= 1) types.push('splitter'); if (L0 > 0 || ci >= 2) types.push('brute', 'bomber'); },
-  boss: fin => fin ? { kind: 'golem', name: '千手觀音', hp: 205, ext: true, xk: 'guanyin' } : { kind: 'golem', name: '守門夜叉', hp: 125, ext: true, xk: 'yaksha' },
+  boss: fin => fin ? { kind: 'golem', name: '千手觀音（虛）', hp: 205, ext: true, xk: 'guanyin' } : { kind: 'golem', name: '守門夜叉', hp: 125, ext: true, xk: 'yaksha' },
   boss2: zenMoves, drawBoss: drawGuardian,
   onKill: e => {
     const r = L.run; if (L.th() !== 14) return; if (r.karma) { zkKill(e); return; } if (!r.path) return;
@@ -1302,7 +1302,7 @@ function zkTick(dt) {
   const alive = L.enemies.filter(e => !e.dead && e.type !== 'boss'), cap = 4 + r.layer * 2 + Math.min(3, room.combatIdx || 0);
   K.spawnT -= dt;
   if (alive.length < cap && K.spawnT <= 0) {
-    K.spawnT = Math.max(1.6, 3.4 - r.layer * 0.4); const list = L.composeWave().slice(0, Math.min(3, cap - alive.length));
+    K.spawnT = Math.max(1.6, 3.4 - r.layer * 0.4); const list = L.composeWave().slice(0, Math.min(3, cap - alive.length)).map(ty => (ty === 'crawler' && rand() < 0.7 ? 'shooter' : ty)); // 道場以多子彈的敵人為主
     for (const ty of list) { const sp = L.freeSpot(13), e = L.spawnEnemy(ty, sp.x, sp.y); e.sleep = false; }
   }
   for (const e of L.enemies) {
@@ -1313,7 +1313,7 @@ function zkTick(dt) {
   const dj = room.items.find(i => i.fk === 'dojo');
   if (dj && p.near === dj && L.keys.f && K.chantCd <= 0) {
     K.chant += dt;
-    if (K.chant >= 1.6) { K.chant = 0; K.chantCd = 30; let n = 0; for (const e of L.enemies) if (!e.dead && e.type !== 'boss' && Math.hypot(e.x - K.cx, e.y - K.cy) < 300) { zkSave(e, K); n++; } L.sfx('clear'); L.shake(3); L.toast(n ? '誦經：' + n + ' 個影子放下了執念' : '誦經：周圍沒有影子', 2.2); }
+    if (K.chant >= 1.6) { K.chant = 0; K.chantCd = 15; let n = 0; for (const e of L.enemies) if (!e.dead && e.type !== 'boss' && Math.hypot(e.x - K.cx, e.y - K.cy) < 300) { zkSave(e, K); n++; } L.sfx('clear'); L.shake(3); L.toast(n ? '誦經：' + n + ' 個影子放下了執念' : '誦經：周圍沒有影子', 2.2); }
   } else K.chant = Math.max(0, K.chant - dt * 2);
   K.walkT -= dt;
   if (K.walkT <= 0 && K.walks < 2) {
@@ -1336,7 +1336,7 @@ function zkRing(room, it) {
 }
 function zkUse(it) {
   const p = L.p, K = L.room && L.room.karma;
-  if (it.fk === 'dojo') { L.toast('道場：圈內的影子放下得更快；長按 F 誦經，立刻度化周圍的影子（冷卻 30 秒）', 3); return; }
+  if (it.fk === 'dojo') { L.toast('道場：圈內的影子放下得更快；長按 F 誦經，立刻度化周圍的影子（冷卻 15 秒）', 3); return; }
   if (it.fk === 'bell') { L.toast(it.st === 'done' ? '鐘已經敲過了' : '按住 F 約 1.2 秒撞鐘（要停下來）', 1.8); return; }
   if (it.fk === 'walker') {
     if (!K || it.st === 'done') return;
@@ -1351,7 +1351,7 @@ function zkHint(it) {
   return '';
 }
 function zkInfo(it) {
-  if (it.fk === 'dojo') return { name: '道場', desc: '圈內的敵人度化得更快（3 倍）。按住 F 誦經 1.6 秒，立刻度化周圍的影子，冷卻 30 秒' };
+  if (it.fk === 'dojo') return { name: '道場', desc: '圈內的敵人度化得更快（3 倍）。按住 F 誦經 1.6 秒，立刻度化周圍的影子，冷卻 15 秒' };
   if (it.fk === 'bell') return { name: '大鐘' + (it.st === 'done' ? '（已敲）' : ''), desc: '按住 F 約 1.2 秒撞鐘：雜念 −5，周圍敵人減速 8 秒。要停下來，業障牆不會等你' };
   return { name: '路人', desc: '布施 1 燈芯得 2 功德，每位路人最多兩次' };
 }
