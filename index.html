@@ -1960,7 +1960,7 @@ function loadRoom() {
   }
   if (run.escape && (kind === 'boss' || (kind === 'combat' && !run.path))) { room.col = { x: ROOM.x - 12, v: 13 + 2 * run.layer, delay: kind === 'boss' ? 1e9 : 5 }; if (kind === 'boss') room.escT = 60; }
   if (run.guard && kind === 'combat') {
-    room.gb = { extraT: 14, extras: 0, started: false, rest: false, restDone: {} }; room.combatIdx = 2; room.waves = 6;
+    room.gb = { extraT: 14, extras: 0, started: false, rest: false, restDone: {} }; room.combatIdx = 2; room.waves = 4; // 守燈：2+2 波，中間休息一次
     let bx = ROOM.x + ROOM.w * 0.5, by = ROOM.y + ROOM.h * 0.62; for (let t = 0; t < 40; t++) { const x = rr(ROOM.x + 250, ROOM.x + ROOM.w - 250), y = rr(ROOM.y + 210, ROOM.y + ROOM.h - 90); if (!room.obs.some(o => overlap(inflate(o, 54), { x, y, w: 1, h: 1 }))) { bx = x; by = y; break; } }
     room.beacon = { x: bx, y: by, hp: 12, max: 12, t: 0, hurtT: 0 }; room.items.push({ kind: 'beacon', id: 'beacon', x: bx, y: by, group: 'prop', price: 0, taken: false });
     const gcx = ROOM.x + ROOM.w / 2, gy = ROOM.y + 150, gadd = (slot, x, group) => room.items.push(makeItem(slot, x, gy, group));
@@ -2273,7 +2273,7 @@ function itemInfo(it) {
   if (it.kind === 'tzsw') return { name: '按鍵大小牌', desc: '手機專用：在「標準」與「大」兩種觸控按鈕大小之間切換（也可在暫停頁細調）' };
   if (it.kind === 'tutsw') return { name: '新手教學牌', desc: rec.tutOff ? '教學面板目前關閉。再按一次開啟（電腦版，只在起始房顯示）' : '教學面板開著，會留在畫面下方。按一下可以關閉' };
   if (it.kind === 'dlcMenu') return { name: 'DLC 之門', desc: run.dlc ? '目前選擇：' + dlcOf(run.dlc).name + '。按 F 開選單可更換或取消' : '按 F 開選單：糖果（護送／守燈）、電玩（無盡／逃離）、未來（守燈／逃離）或隨機，選一種這一局走（也可不選）' };
-  if (it.kind === 'beacon') return { name: '燈塔', desc: room.gb && room.gb.started ? '休息中：整頓一下（商人還在上方），準備好了再按 F 繼續下一輪' : '碰一下才會開始守燈，敵人才會出現。可以先去上方找商人逛逛（每三波會休息一次）' };
+  if (it.kind === 'beacon') return { name: '燈塔', desc: room.gb && room.gb.started ? '休息中：整頓一下（商人還在上方），準備好了再按 F 繼續下一輪' : '碰一下才會開始守燈，敵人才會出現。可以先去上方找商人逛逛（每兩波會休息一次）' };
   if (it.kind === 'mech') return { name: '古怪機關', desc: it.used ? '已啟動' : '不知道做什麼用的機關，好像可以動……（只能一次）' };
   if (it.kind === 'pracTh') return { name: '練習房・主題牌', desc: '選練習要去的主題（目前：' + TNAMES[PRAC.th] + '）。練習只有一層，不計成就、統計與紙片，也不存檔' };
   if (it.kind === 'pracLv') return { name: '練習房・層級牌', desc: '選對應的層級與強度（目前：' + PLV[PRAC.lv].n + '）' };
@@ -2548,7 +2548,7 @@ const modeIntro = def => { const k = modeKey(); return k && MODE_INTRO[k] ? MODE
 const modeOut = () => { const k = modeKey(); return k ? MODE_OUT[k] || null : null; };
 function announceRoom() {
   { const ms = modeStoryFor(); if (ms) later(0.5, () => say(ms)); }
-  if (room.gb) { toast('守燈戰：這層只有這間房。先逛上方的商人，準備好了走到燈塔按 F 開始；每三波休息一次，守住燈塔打完 6 波', 4.6); return; }
+  if (room.gb) { toast('守燈戰：這層只有這間房。先逛上方的商人，準備好了走到燈塔按 F 開始；打完 2 波休息一次，守住燈塔共打 4 波', 4.6); return; }
   if (room.special && !room.chase) { toast('這裡的敵人好像特別多……也許有辦法提前離開', 3.4); }
   if (run.step === 0 && !(run.telSeen = run.telSeen || {})[run.layer]) { run.telSeen[run.layer] = 1; try { telLayer().enter++; } catch (e) { /* optional */ } }
   if (room.chase) { toast('驚逃影！追上它們，20 秒後會消失（打到全部有寶箱）', 3.2); return; }
@@ -3894,7 +3894,7 @@ function updateWaves(dt) {
   if (enemies.length === 0) {
     room.delay -= dt;
     if (room.delay <= 0) {
-      if (room.gb && room.wave >= 0 && (room.wave + 1) % 3 === 0 && room.wave + 1 < room.waves && !room.gb.restDone[room.wave]) { room.gb.restDone[room.wave] = 1; room.gb.rest = true; hintSig = ''; sfx('clear'); toast('休息時間：可以逛商人、等燈塔回血，準備好了走到燈塔按 F 繼續', 3.4); return; }
+      if (room.gb && room.wave >= 0 && (room.wave + 1) % 2 === 0 && room.wave + 1 < room.waves && !room.gb.restDone[room.wave]) { room.gb.restDone[room.wave] = 1; room.gb.rest = true; hintSig = ''; sfx('clear'); toast('休息時間：可以逛商人、等燈塔回血，準備好了走到燈塔按 F 繼續', 3.4); return; }
       room.wave++;
       if (room.wave < room.waves) { spawnWave(); room.delay = 0.9; if (room.kind === 'combat') toast('第 ' + (room.wave + 1) + ' / ' + room.waves + ' 波'); }
       else if (room.kind === 'combat') roomCleared();
