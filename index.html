@@ -680,7 +680,8 @@ const WDEF = {
   pole:    { id: 'pole', name: '擺渡篙', tag: '戳刺・推開', mode: 'tap', cd: 0.7, cls: 'ferry', desc: '向前戳刺，射程長、貫穿一整列；戳中的敵人被推開' },
   beatstick: { id: 'beatstick', name: '節拍棒', tag: '近戰・快速', mode: 'tap', cd: 0.34, cls: 'beater', range: 118, half: 1.0, dmg: 2.6, kb: 420, desc: '快速的短棒揮擊，揮擊範圍內的敵方子彈會被打掉' },
   echobow: { id: 'echobow', name: '迴響弓', tag: '遠程・連射', mode: 'tap', cd: 0.4, cls: 'echoer', desc: '射出一發快速的迴響彈；共鳴期間可清除前方子彈（或追加遠距離彈）' },
-  lure:    { id: 'lure',    name: '蟲餌', tag: '誘引', mode: 'hold', cd: 0.1, desc: '按住在前方放出氣味，最多同時兩個；吸引附近的蟲系敵人，70 像素內的敵人每秒受到 2.5 點傷害；放開後氣味還會留 3 秒' }
+  lure:    { id: 'lure',    name: '蟲餌', tag: '誘引', mode: 'hold', cd: 0.1, desc: '按住在前方放出氣味，最多同時兩個；吸引附近的蟲系敵人，70 像素內的敵人每秒受到 2.5 點傷害；放開後氣味還會留 3 秒' },
+  bait:    { id: 'bait', name: '誘敵靶', tag: '誘引', mode: 'tap', cd: 0.5, desc: '在前方立起一個靶：場上只會有一個，再按一次會移動到新位置；所有敵人（Boss 除外）都會被吸過去，範圍 91 像素內每秒受到 2.5 點傷害，正中心傷害 ×2' },
 };
 const WLIST = Object.keys(WDEF);
 const WCOL = { flame: '#ffb347', firefly: '#d9ff8a', blade: '#f0e4c8', scatter: '#ffb3c6', lance: '#9fe3ff', ember: '#ff8a4a', beam: '#fff2a8', rang: '#e8dcc0', whip: '#ffd27a', oilgun: '#ffcf70', lamplet: '#ffcf70', shadeblade: '#9a8cc8', frostcane: '#bfe3f5', pblade: '#cfe6f5', watchlamp: '#ffe6a0', bloat: '#8fd8ff', bloat3: '#8fd8ff', glance: '#b0f0ff', dance: '#ff7a3c', lure: '#cfe86a', fan: '#e8e4d8' };
@@ -943,7 +944,7 @@ const STORY = {
 let state = 'menu';            // menu | dialog | play | trans | choice | dying | over | ending
 let time = 0, room = null, deaths = 0, shake = 0, fEdge = 0, follow = true, deadT = 0;
 let allies = [];
-let lure = null, lures = [];
+let lure = null, lures = [], tbait = null;
 let sands = [], slows = [], absorbs = [], erupts = [], jellies = [], frosts = [], enemies = [], bullets = [], parts = [], pickups = [], swings = [], beams = [], rings = [], walls = [], hazards = [], timers = [], tobs = [], blinds = [], vials = [], ppools = [];
 const run = { themes: [0, 1, 2], polarFinal: 'dragon', inkKind: 'shan', layer: 0, step: 0, plan: [], combats: 0, shards: 0, finalKind: 'keeper', gardenKind: 'gardener', focus: 0, t: 0, kills: 0, bought: 0, wGot: 0, ended: false, won: false };
 const fade = { a: 0, dir: 0, cb: null };
@@ -1976,7 +1977,7 @@ function loadRoom() {
     for (let i = 0; i < nJ * 8 && jellies.length < nJ; i++) { const jx = rr(ROOM.x + 160, ROOM.x + ROOM.w - 120), jy = rr(ROOM.y + 90, ROOM.y + ROOM.h - 90); if (room.obs.some(o => overlap(inflate(o, 30), { x: jx, y: jy, w: 1, h: 1 }))) continue; jellies.push({ x: jx, y: jy, r: 17, hp: 3, t: rand() * 6, a: rand() * TAU, flash: 0 }); }
   }
   lampMates = []; cmarks = []; harbors = []; pongB = null; rewindH = [];
-  p.orb = null; lure = null; lures = []; enemies = []; slows = []; sands = []; p.flowers = []; bullets = []; pickups = []; swings = []; beams = []; rings = []; walls = []; hazards = []; vials = []; ppools = []; timers = []; tobs = []; frosts = []; blinds = []; erupts = []; slows = []; tapT.on = false; absorbs = [];
+  p.orb = null; lure = null; lures = []; tbait = null; enemies = []; slows = []; sands = []; p.flowers = []; bullets = []; pickups = []; swings = []; beams = []; rings = []; walls = []; hazards = []; vials = []; ppools = []; timers = []; tobs = []; frosts = []; blinds = []; erupts = []; slows = []; tapT.on = false; absorbs = [];
   if (th() === 2 && kind === 'combat') placeDecor();
   if (th() === 7 && (kind === 'combat' || kind === 'boss')) placeSwamp();
   if (th() === 8 && (kind === 'combat' || kind === 'boss')) placeDesert();
@@ -3321,7 +3322,7 @@ const MELEE_W = { shears: 1, pillow: 1, blade: 1, pblade: 1, shadeblade: 1, fros
 function flMul(wid) { if (!enemies.some(e => e.type === 'faceless' && !e.dead && e.spawn <= 0)) return 1; return MELEE_W[wid] ? 1.12 : 1.24; }
 
 /* ---------- 四個 DLC 職業：糖衣師、像素客、校準員、擺渡人 ---------- */
-Object.assign(WCOL, { syrup: '#ff9ad0', pong: '#9fe8ff', calgun: '#9fe3ff', pole: '#e8dcc0', beatstick: '#ffd27a', echobow: '#bfe8ff' });
+Object.assign(WCOL, { syrup: '#ff9ad0', pong: '#9fe8ff', calgun: '#9fe3ff', pole: '#e8dcc0', beatstick: '#ffd27a', bait: '#ffb36a', echobow: '#bfe8ff' });
 function stickHit(e, n) {
   if (!(e.stickT > 0)) e.stickN = 0;
   e.stickT = 2; e.stickN = (e.stickN || 0) + (n || 1); burst(e.x, e.y - e.r * 0.5, 3, ['#ff9ad0', C.paper], 70, true);
@@ -4138,7 +4139,8 @@ function updateEnemy(e, dt) {
   }
   let tx = p.x, ty = p.y, lured = false;
   if (p.decoy && Math.hypot(p.decoy.x - e.x, p.decoy.y - e.y) < 720) { tx = p.decoy.x; ty = p.decoy.y; }
-  if (BUG[e.type] && lures.length) { let bl = null, bd2 = 520; for (const L of lures) { const dd = Math.hypot(L.x - e.x, L.y - e.y); if (dd < bd2) { bd2 = dd; bl = L; } } if (bl) { tx = bl.x; ty = bl.y; lured = true; } }
+  if (tbait && e.type !== 'boss' && Math.hypot(tbait.x - e.x, tbait.y - e.y) < 1400) { tx = tbait.x; ty = tbait.y; lured = true; }
+  else if (BUG[e.type] && lures.length) { let bl = null, bd2 = 520; for (const L of lures) { const dd = Math.hypot(L.x - e.x, L.y - e.y); if (dd < bd2) { bd2 = dd; bl = L; } } if (bl) { tx = bl.x; ty = bl.y; lured = true; } }
   if (e.tgtB && room.beacon && room.beacon.hp > 0) { tx = room.beacon.x; ty = room.beacon.y; }
   if (e.tgtF && e.tgtF.st !== 'ruin' && Math.hypot(p.x - e.x, p.y - e.y) > 170) { tx = e.tgtF.x; ty = e.tgtF.y; }
   const dx = tx - e.x, dy = ty - e.y, d = Math.hypot(dx, dy) || 1, nx = dx / d, ny = dy / d;
@@ -5525,7 +5527,16 @@ function updateWeapons(dt) {
     if (L.tick <= 0) { L.tick = 0.5; for (const e of enemies) if (!e.dead && e.spawn <= 0 && !e.sleep && Math.hypot(e.x - L.x, e.y - L.y) < 70) hitEnemy(e, 1.25, 0, 0, 0); }
   }
   lures = lures.filter(L => L.t > 0);
+  if (tbait) {
+    tbait.age += dt; tbait.tick -= dt;
+    if (tbait.tick <= 0) { tbait.tick = 0.5; for (const e of enemies) { if (e.dead || e.spawn > 0 || e.sleep) continue; const dd = Math.hypot(e.x - tbait.x, e.y - tbait.y); if (dd < 91 + e.r * 0.3) hitEnemy(e, dd < 32 ? 2.5 : 1.25, 0, 0, 0); } }
+  }
 }
+WDEF.bait.fire = (ox, oy, ang, dm) => {
+  const x = clamp(p.x + Math.cos(ang) * 150, ROOM.x + 20, ROOM.x + ROOM.w - 20), y = clamp(p.y + Math.sin(ang) * 150, ROOM.y + 20, ROOM.y + ROOM.h - 20);
+  if (tbait) burst(tbait.x, tbait.y, 6, ['#ffb36a', C.paper], 100, true);
+  tbait = { x, y, age: 0, tick: 0.4 }; burst(x, y, 10, ['#ffb36a', '#fff2c0'], 140, true); rings.push({ x, y, R: 91, t: 0.3, dur: 0.3 }); sfx('tick');
+};
 function telTick(dt) {
   if (run.cPrev === undefined) run.cPrev = p.coins;
   const d = p.coins - run.cPrev; run.cPrev = p.coins;
@@ -6383,6 +6394,12 @@ function render() {
     } else {
       const ec = b.root ? '#8fd45a' : b.frz ? '#8fd8ff' : C.violet; ctx.globalAlpha = 0.3; ctx.fillStyle = ec; circ(ctx, b.x, b.y, b.r * 1.9); ctx.globalAlpha = 1; ctx.fillStyle = ec; circ(ctx, b.x, b.y, b.r); ctx.fillStyle = '#efe0ff'; circ(ctx, b.x, b.y, b.r * 0.45);
     }
+  }
+  if (tbait) {
+    ctx.save(); ctx.globalAlpha = 0.28; ctx.fillStyle = '#ffb36a'; circ(ctx, tbait.x, tbait.y, 91);
+    ctx.globalAlpha = 0.5; ctx.fillStyle = '#ff8a3a'; circ(ctx, tbait.x, tbait.y, 32);
+    ctx.globalAlpha = 0.9; ctx.strokeStyle = '#fff2c0'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(tbait.x, tbait.y, 50 + (time * 40) % 30, 0, TAU); ctx.stroke();
+    ctx.fillStyle = '#fff2c0'; circ(ctx, tbait.x, tbait.y, 8); ctx.fillStyle = '#d6463a'; circ(ctx, tbait.x, tbait.y, 4); ctx.restore();
   }
   for (const L of lures) {
     ctx.save(); const a = L.rel ? 0.25 + 0.4 * (L.t / 3) : 0.75;
