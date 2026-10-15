@@ -332,7 +332,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.61　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.62　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -1933,8 +1933,7 @@ function loadRoom() {
     const pr = [0.25, 0.45, 0.65, 0.8][dL()];
     room.waves = (combatIdx === 0 && run.layer === 0) ? 2 : (rand() < pr ? 3 : 2);
   }
-  if (run.escape && (kind === 'treasure' || kind === 'merchant' || kind === 'event')) room.col = { x: ROOM.x - 12, v: (ROOM.w + 12) / 30, delay: 0, sp: true };
-  if (run.escape && (kind === 'combat' || kind === 'boss')) { room.col = { x: ROOM.x - 12, v: 13 + 2 * run.layer, delay: kind === 'boss' ? 1e9 : 5 }; if (kind === 'boss') room.escT = 120; }
+  if (run.escape && (kind === 'boss' || (kind === 'combat' && !run.path))) { room.col = { x: ROOM.x - 12, v: 13 + 2 * run.layer, delay: kind === 'boss' ? 1e9 : 5 }; if (kind === 'boss') room.escT = 120; }
   if (run.guard && kind === 'combat') {
     room.gb = { extraT: 14, extras: 0, started: false, rest: false, restDone: {} }; room.combatIdx = 2; room.waves = 6;
     let bx = ROOM.x + ROOM.w * 0.5, by = ROOM.y + ROOM.h * 0.62; for (let t = 0; t < 40; t++) { const x = rr(ROOM.x + 250, ROOM.x + ROOM.w - 250), y = rr(ROOM.y + 210, ROOM.y + ROOM.h - 90); if (!room.obs.some(o => overlap(inflate(o, 54), { x, y, w: 1, h: 1 }))) { bx = x; by = y; break; } }
@@ -2237,6 +2236,8 @@ const DING_LINES = ['嗡——有緣之人，取走吧。', '三百年沒人敲�
 function itemInfo(it) {
   if (it.kind === 'coins') return { name: '一袋燈芯', desc: '燈芯 +' + it.amount + '（穩定但沒有成長）' };
   if (it.kind === 'mystery') return { name: '神祕寶箱', desc: it.used ? '箱子已經空了' : '只有一個「？」。打開會得到隨機獎勵（可能是武器、強化、精良強化、燈芯或燈火）' };
+  if (it.kind === 'debug') return { name: '除錯程式', desc: th() === 11 ? '清空資料損毀條，並解除當機' : '清空錯誤條，並解除當機' };
+  if (it.kind === 'egg') return { name: '彩蛋箱', desc: '付燈芯打開，得到一份隨機回禮（武器、強化、精良強化、燈芯或燈火）；每站一個，只能一次' };
   if (it.kind === 'muyu') return { name: '木魚', desc: it.taps > 0 ? '縮圈到最小時再按 F：圓滿＝雜念清空，其他＝減半（剩 ' + it.taps + ' 次）' : '木魚裂了' };
   if (it.kind === 'shrine') return { name: '佛龕', desc: it.used ? '香已經燃盡' : '佈施 ' + shrineCost(it) + ' 功德，得到一份回禮（可能是佛寺專屬武器）；只能一次' };
   if (it.kind === 'tfac') { const W0 = THEMES[th()]; return W0.info ? W0.info(it) : { name: '設施', desc: '' }; }
@@ -2258,7 +2259,7 @@ function itemInfo(it) {
   if (it.kind === 'npc') return { name: NPCS[it.id].name, desc: NPCS[it.id].desc + '。血量 ' + NPCS[it.id].hp + '，倒下後清空房間會站起來' };
   if (it.kind === 'ward') return { name: '護身符', desc: '小商人的小物：8 秒內擋下一次傷害（每兩次攻擊擋一次）' };
   if (it.kind === 'restock') return { name: '空位', desc: '付 1 燈芯請商人補上新商品；也可以直接用換貨架重新抽選全部商品' };
-  if (it.kind === 'refresh') return { name: '換貨架', desc: '付費重新抽選三格商品（含燈油）；每刷新一次，價格 +2 燈芯' };
+  if (it.kind === 'refresh') return { name: '換貨架', desc: it.esc ? '只重新抽選這一站的三格商品；每刷新一次，價格 +2 燈芯' : '付費重新抽選三格商品（含燈油）；每刷新一次，價格 +2 燈芯' };
   if (it.kind === 'upgrade' && it.prem) return { name: '★精良　' + PREM[it.id].name, desc: PREM[it.id].desc };
   if (it.kind === 'weapon') { const w = WDEF[it.id], cur = p.weapons[repIdx()] ? WDEF[p.weapons[repIdx()]] : null; return { name: w.name + '（' + w.tag + '）', desc: w.desc + (cur && p.weapons.length >= 3 ? '　｜　換掉「' + cur.name + '」：冷卻 ' + cur.cd + ' 秒 → ' + w.cd + ' 秒' : '　｜　冷卻 ' + w.cd + ' 秒') }; }
   if (it.kind === 'upgrade') return { name: UPG[it.id].name, desc: UPG[it.id].desc };
@@ -2294,13 +2295,13 @@ function applyUpgrade(id, prem) {
 }
 function rewardUpgrade() { const uid = upgradeOffer(shelfIds('upgrade')) || 'oil'; applyUpgrade(uid, false); return uid; }
 function refreshShop(stall) {
-  const slots = room.items.filter(i => i.group === 'shop');
+  const scoped = stall.di !== undefined, slots = room.items.filter(i => i.group === 'shop' && (!scoped || i.di === stall.di));
   for (const o of slots) o.taken = true;
   for (const o of slots) {
-    const ni = makeItem(o.slot, o.x, o.y, 'shop', o.id);
+    let ni = makeItem(o.slot, o.x, o.y, 'shop', o.id); if (scoped) ni = escMk(ni, stall.di);
     room.items[room.items.indexOf(o)] = ni; burst(ni.x, ni.y, 8, [C.paper, C.amber], 90, true);
   }
-  room.refreshN++; stall.price = 3 + 2 * room.refreshN;
+  if (stall.esc) { stall.rn++; stall.price = 4 + 2 * stall.rn; } else { room.refreshN++; stall.price = 3 + 2 * room.refreshN; }
 }
 function interact(it) {
   if (it.taken) return;
@@ -2357,9 +2358,11 @@ function interact(it) {
   if (it.group === 'hpshop') { if (p.hp <= it.hpPrice) { toast('血量不夠，不能用燈火買', 2); sfx('tick'); return; } p.hp -= it.hpPrice; run.bought++; hudSig = ''; toast('用 ' + it.hpPrice + ' 點燈火換走了', 2); }
   if ((it.group === 'shop' || it.group === 'stall') && p.coins < cost(it)) { toast('燈芯不夠'); sfx('tick'); return; }
   if (it.kind === 'restock') {
-    const cr = cost(it); p.coins -= cr; paid(cr); const idx = room.items.indexOf(it), ni = makeItem(it.slot, it.x, it.y, 'shop', it.id);
+    const cr = cost(it); p.coins -= cr; paid(cr); const idx = room.items.indexOf(it), ni = makeItem(it.slot, it.x, it.y, 'shop', it.id); if (it.di !== undefined) { escMk(ni, it.di); }
     if (idx >= 0) room.items[idx] = ni; burst(ni.x, ni.y, 8, [C.paper, C.amber], 90, true); toast('商人補上了新商品'); sfx('pick'); hudSig = ''; return;
   }
+  if (it.kind === 'debug') { const cr = cost(it), P = room.path; p.coins -= cr; paid(cr); it.taken = true; if (P) { P.zn = 0; P.daze = 0; } sfx('clear'); burst(it.x, it.y, 16, ['#6ff3ff', C.paper], 150, true); toast(th() === 11 ? '資料修復：損毀歸零' : '除錯完成：錯誤歸零', 1.8); hudSig = ''; return; }
+  if (it.kind === 'egg') { const cr = cost(it); p.coins -= cr; paid(cr); it.taken = true; sfx('buy'); burst(it.x, it.y, 18, ['#ffd27a', '#ff2e97', '#6ff3ff'], 170, true); toast('彩蛋箱彈開了……', 1.2); hudSig = ''; interact({ kind: 'mystery', id: 'mystery', x: it.x, y: it.y, group: 'prop', price: 0, taken: false }); return; }
   if (it.kind === 'refresh') { const cr = cost(it); p.coins -= cr; paid(cr); refreshShop(it); toast('商品換新了'); sfx('buy'); hudSig = ''; return; }
   if (it.kind === 'heal' && p.hp >= p.maxHp) { toast('血量已經滿了'); sfx('tick'); return; }
   if (it.kind === 'coins') { p.coins += it.amount; toast('燈芯 +' + it.amount); }
@@ -2372,7 +2375,7 @@ function interact(it) {
   if (it.group === 'shop') {
     const cs = cost(it); p.coins -= cs; paid(cs); run.bought++; sfx('buy');
     const idx = room.items.indexOf(it);
-    if (idx >= 0 && !it.temp) room.items[idx] = { kind: 'restock', id: 'restock', slot: it.slot, x: it.x, y: it.y, price: 1, group: 'shop', taken: false };
+    if (idx >= 0 && !it.temp) room.items[idx] = { kind: 'restock', id: 'restock', slot: it.slot, x: it.x, y: it.y, price: 1, group: 'shop', taken: false, di: it.di };
   }
   if (it.group === 'choose') for (const o of room.items) if (!o.taken) {
     o.taken = true;
@@ -2435,6 +2438,8 @@ function updateHint() {
     else if (it.kind === 'themesel') act = 'F 切換必遇主題（目前：' + (run.themePick >= 0 ? TNAMES[run.themePick] : '隨機') + '）';
     else if (it.kind === 'mystery') act = it.used ? '' : 'F 打開「？」';
     else if (it.kind === 'ding') act = it.used ? '' : 'F 觸摸古鼎';
+    else if (it.kind === 'debug') act = 'F 除錯';
+    else if (it.kind === 'egg') act = 'F 打開彩蛋箱';
     else if (it.kind === 'muyu') act = it.taps <= 0 ? '' : room.path && room.path.ring && room.path.ring.it === it ? 'F 現在敲！（縮圈最小時）' : 'F 敲木魚';
     else if (it.kind === 'shrine') act = it.used ? '' : 'F 佈施 ' + shrineCost(it) + ' 功德（目前 ' + (run.merit || 0) + '）';
     else if (it.kind === 'tfac') { const W0 = THEMES[th()]; act = W0.hint ? W0.hint(it) : ''; }
@@ -3092,7 +3097,7 @@ function setDlc(k) {
   if (!k) { rebuildPlan(); toast('取消 DLC，回到一般模式', 1.6); return; }
   const d = dlcOf(k); if (!d) return;
   run.dlc = k; run.dlcPrev = { themes: run.themes.slice(), base: (run.themeBase || run.themes).slice(), long: run.long, pick: run.themePick }; run.long = !!d.long; run.themePick = -1;
-  run.themes = d.flag === 'dl2' ? [12, 13, 13] : [d.theme, d.theme, d.theme]; if (d.flag) run[d.flag] = true;
+  run.themes = d.flag === 'dl2' ? [12, 13, 13] : [d.theme, d.theme, d.theme]; if (d.flag) run[d.flag] = true; if (d.flag === 'escape') run.path = true;
   if (d.ally && !allies.some(a => a.id === d.ally)) addAlly(d.ally, p.x - 40, p.y);
   toast(d.say[0], d.say[1]);
   run.themeBase = run.themes.slice(); rebuildPlan();
@@ -3834,7 +3839,7 @@ function updateWaves(dt) {
 }
 function roomCleared() {
   if (room.special) { dropCoins(ROOM.x + ROOM.w - 170, DOOR.y, 12); toast('特殊戰鬥房全清：完整獎勵！', 2.6); for (const o of room.items) if (o.kind === 'mech') o.used = true; }
-  room.cleared = true; sfx('clear'); toast(room.path ? '走完修行路了' : '洞窟清空'); run.combats++; if (p.curse > 0) { p.curse--; hudSig = ''; }
+  room.cleared = true; sfx('clear'); toast(room.path ? (room.path.esc ? '衝過終點了' : '走完修行路了') : '洞窟清空'); run.combats++; if (p.curse > 0) { p.curse--; hudSig = ''; }
   const lx = ROOM.x + ROOM.w - 170;
   if (!run.practice && run.combats % 2 === 0 && run.shards < 5) { pickups.push({ kind: 'shard', x: lx, y: DOOR.y - 40, t: 0, idx: run.shards }); run.shards++; }
   if (rand() < (p.hp <= 2 ? 0.35 : 0.15)) pickups.push({ kind: 'oil', x: lx, y: DOOR.y + 40, t: 0 });
@@ -3844,11 +3849,12 @@ const PATH_LEN = 5600, KARMA_SPD = 90, ZN_MAX = 10;
 const pathLen = () => (room.path && room.path.v ? ROOM.h : ROOM.w);
 const pathProg = o => (room.path.v ? ROOM.y + ROOM.h - o.y : o.x - ROOM.x);
 function pathPos(sv, c) { return room.path.v ? { x: ROOM.x + c, y: ROOM.y + ROOM.h - sv } : { x: ROOM.x + sv, y: ROOM.y + c }; }
+const escMk = (o, di) => { o.di = di; if (o.group === 'shop' && o.price > 1) o.price = Math.ceil(o.price * 1.4); return o; };
 function pathInit() {
   const V = port, len = V ? ROOM.h : ROOM.w, cross = V ? ROOM.w : ROOM.h;
   const D = [0.27, 0.52, 0.77].map(f => { const sv = Math.round(len * f); return V ? { s: sv, w: 400, cx: ROOM.x + ROOM.w / 2, cy: ROOM.y + ROOM.h - sv } : { s: sv, w: 400, cx: ROOM.x + sv, cy: DOOR.y + 20 }; });
   D.forEach(d => { d.x = d.cx; d.y = d.cy; });
-  room.path = { v: V, next: 520, ws: -380, zn: 0, daze: 0, med: 0, medOn: false, dojos: D, hurtT: 0, ring: null, flash: 0 };
+  room.path = { esc: !!run.escape, v: V, next: 520, ws: -380, zn: 0, daze: 0, med: 0, medOn: false, dojos: D, hurtT: 0, ring: null, flash: 0 };
   const obs = [];
   for (let t = 0; t < 500 && obs.length < 20; t++) {
     const w = rr(34, 62), h = rr(34, 62), sv = rr(260, len - 300), c = rr(30, cross - 30 - (V ? w : h));
@@ -3857,6 +3863,16 @@ function pathInit() {
     const q = V ? { x: ROOM.x + c, y: ROOM.y + ROOM.h - sv - h, w, h } : { x: ROOM.x + sv, y: ROOM.y + c, w, h }; q.s = sv; q.c = c; obs.push(q);
   }
   room.obs = obs;
+  if (run.escape) {
+    D.forEach((d, i) => {
+      const mk = (slot, dx, dy) => { const o = escMk(makeItem(slot, d.cx + dx, d.cy + dy, 'shop'), i); room.items.push(o); };
+      mk('heal', -130, 105); mk('upgrade', 0, 105); mk(rand() < 0.65 ? 'weapon' : 'upgrade', 130, 105);
+      room.items.push({ kind: 'debug', id: 'debug', x: d.cx - 130, y: d.cy - 105, group: 'stall', price: 5, taken: false, di: i });
+      room.items.push({ kind: 'egg', id: 'egg', x: d.cx, y: d.cy - 105, group: 'stall', price: 6 + i, taken: false, di: i });
+      room.items.push({ kind: 'refresh', id: 'refresh', slot: 'refresh', x: d.cx + 130, y: d.cy - 105, price: 4, group: 'stall', taken: false, di: i, esc: true, rn: 0 });
+    });
+    return;
+  }
   D.forEach(d => { const o = makeItem('heal', d.cx, d.cy + 105, 'shop'); o.price = 7; room.items.push(o); });
   D.forEach((d, i) => { room.items.push({ kind: 'muyu', id: 'muyu', x: d.cx + 120, y: d.cy, group: 'prop', price: 0, taken: false, taps: 3, di: i }); room.items.push({ kind: 'shrine', id: 'shrine', x: d.cx - 120, y: d.cy, group: 'prop', price: 0, taken: false, used: false, di: i }); });
 }
@@ -3867,25 +3883,31 @@ const ZEN_TUT = [
   { t: '道場：靜心與木魚', b: '每層有三個道場，裡面沒有敵人。\n中間蒲團：站著不動、按住 F 約 2 秒，雜念清空。\n右邊木魚：按 F 出現縮圈，圈縮到最小時再按 F＝雜念清空，否則減半（每個木魚 3 次）。\n左邊佛龕：參拜一次，得到一份隨機回禮。' }
 ];
 let zt = { i: 0, wait: 0, shown: -1 };
+const ESC_TUT = [
+  { t: '逃離長路：一直往前', b: '這一層是一條很長的路，畫面鎖在你身上。\n沿途有敵人出現在前方——打倒它們，或繞過去繼續跑。' },
+  { t: '塌陷線（刪除線）：從後面推來', b: '一道線從起點往前推，被追上會被推著走並持續扣血。\n所以不能停在原地太久。走進「商人停靠站」時線會暫停。' },
+  { t: '錯誤：落在身後的敵人', b: '敵人落到身後、超出畫面，會變成「錯誤」。上方錯誤條滿了就「當機」6 秒：子彈散開、視野變窄。\n打倒敵人不會增加錯誤；一路只顧跑才會。' },
+  { t: '商人停靠站', b: '每層三站，沒有敵人，塌陷線暫停。\n商人賣補血、強化、武器（比平常貴），另有「除錯程式」＝清空錯誤條、「彩蛋箱」＝付費抽一份隨機回禮、換貨架。' },
+];
 function renderZenTut() {
-  const q = ZEN_TUT[zt.i], ok = zt.wait <= 0, last = zt.i === ZEN_TUT.length - 1;
-  $('ztT').textContent = q.t; $('ztB').textContent = q.b; $('ztP').textContent = '說明 ' + (zt.i + 1) + ' / ' + ZEN_TUT.length + '　（這一段不能跳過）';
+  const TB = zt.tbl || ZEN_TUT, q = TB[zt.i], ok = zt.wait <= 0, last = zt.i === TB.length - 1;
+  $('ztT').textContent = q.t; $('ztB').textContent = q.b; $('ztP').textContent = '說明 ' + (zt.i + 1) + ' / ' + TB.length + '　（這一段不能跳過）';
   $('ztBtn').disabled = !ok; $('ztBtn').innerHTML = (ok ? (last ? '開始修行' : '繼續') : '請先閱讀（' + Math.ceil(zt.wait) + '）') + '<kbd>F</kbd>';
 }
-function openZenTut(then) { zt = { i: 0, wait: 2.4, shown: 3, then }; show('zentut', true); setState('zentut'); renderZenTut(); }
+function openZenTut(then, tbl, key) { zt = { i: 0, wait: 2.4, shown: 3, then, tbl: tbl || ZEN_TUT, key: key || 'zenTut' }; show('zentut', true); setState('zentut'); renderZenTut(); }
 function updateZenTut(dt) { if (zt.wait > 0) { zt.wait -= dt; const c = Math.ceil(Math.max(0, zt.wait)); if (c !== zt.shown) { zt.shown = c; renderZenTut(); } } }
 function zenTutNext() {
   if (state !== 'zentut' || zt.wait > 0) return;
   sfx('tick'); zt.i++;
-  if (zt.i >= ZEN_TUT.length) { show('zentut', false); setState('play'); rec.zenTut = (rec.zenTut || 0) + 1; saveRec(); hintSig = ''; if (zt.then) { const f = zt.then; zt.then = null; f(); } return; }
+  if (zt.i >= (zt.tbl || ZEN_TUT).length) { show('zentut', false); setState('play'); const zk = zt.key || 'zenTut'; rec[zk] = (rec[zk] || 0) + 1; saveRec(); hintSig = ''; if (zt.then) { const f = zt.then; zt.then = null; f(); } return; }
   zt.wait = 2.4; zt.shown = 3; renderZenTut();
 }
 $('ztBtn').addEventListener('click', () => { if (state === 'zentut') zenTutNext(); });
 function addZn(n) {
   const P = room.path; if (!P || P.daze > 0) return;
   P.zn = Math.min(ZN_MAX, P.zn + n); P.flash = 0.4;
-  if (!run.znTip) { run.znTip = true; toast('敵人落在身後會變成雜念——雜念滿了會迷亂', 3); }
-  if (P.zn >= ZN_MAX) { P.daze = 6; P.zn = 5; run.zenDaze = true; toast('心神迷亂！射擊散開、視野變窄', 2.4); sfx('hit'); shake = Math.max(shake, 6); }
+  if (!run.znTip) { run.znTip = true; toast(P.esc ? '敵人落在身後會變成錯誤——錯誤滿了會當機' : '敵人落在身後會變成雜念——雜念滿了會迷亂', 3); }
+  if (P.zn >= ZN_MAX) { P.daze = 6; P.zn = 5; run.zenDaze = true; toast(P.esc ? '當機了！射擊散開、視野變窄' : '心神迷亂！射擊散開、視野變窄', 2.4); sfx('hit'); shake = Math.max(shake, 6); }
 }
 function muyuTap(it) {
   const P = room.path; if (!P) return;
@@ -3926,7 +3948,7 @@ function updatePath(dt) {
   if (state !== 'play' || room.kind !== 'combat') { return; }
   if (!P.intro) {
     P.intro = true; const W0 = THEMES[th()], lines = W0.pathIntro ? W0.pathIntro(run.layer) : null, story = () => { if (lines && lines.length) say(lines); };
-    if (run.layer === 0 && !(rec.zenTut >= 1)) openZenTut(story); else story();
+    if (P.esc) { if (run.layer === 0 && !(rec.escTut >= 1)) openZenTut(story, ESC_TUT, 'escTut'); else story(); } else if (run.layer === 0 && !(rec.zenTut >= 1)) openZenTut(story); else story();
     return;
   }
   if (!room.cleared) {
@@ -3955,13 +3977,13 @@ function updatePath(dt) {
     P.ws += (dj ? 0 : KARMA_SPD * (1 + 0.08 * dL())) * dt;
     if (ps - 8 < P.ws) {
       P.hurtT -= dt; if (P.v) p.ky = Math.min(p.ky, -140); else p.kx = Math.max(p.kx, 140);
-      if (P.hurtT <= 0) { P.hurtT = 1.6; if (!run.wallTip) { run.wallTip = true; toast('業障牆追上來了——往前走，到道場才會停', 2.6); } hurtFrom('karma', 1, 1, 0); }
+      if (P.hurtT <= 0) { P.hurtT = 1.6; if (!run.wallTip) { run.wallTip = true; toast(P.esc ? (th() === 11 ? '刪除線追上來了——往前跑，到停靠站才會停' : '塌陷線追上來了——往前跑，到停靠站才會停') : '業障牆追上來了——往前走，到道場才會停', 2.6); } hurtFrom(P.esc ? 'collapse' : 'karma', 1, 1, 0); }
     } else P.hurtT = Math.min(P.hurtT, 0.6);
     // 靜心：站在道場中央蒲團上，按住 F 約 2 秒
-    const onMat = dj && Math.hypot(p.x - dj.cx, p.y - dj.cy) < 60 && p.speed < 70;
+    const onMat = !P.esc && dj && Math.hypot(p.x - dj.cx, p.y - dj.cy) < 60 && p.speed < 70;
     P.medOn = !!(onMat && keys.f && !p.near);
     if (P.medOn) { P.med += dt; if (P.med >= 2) { P.med = 0; P.zn = 0; P.daze = 0; toast('靜心：雜念清空', 1.8); sfx('clear'); burst(dj.cx, dj.cy, 18, ['#ffe9a0', C.paper], 160, true); } } else P.med = Math.max(0, P.med - dt * 2);
-    if (dj && !dj.said) { dj.said = true; const W1 = THEMES[th()], di = P.dojos.indexOf(dj); if (!run.dojoTip) { run.dojoTip = true; toast('道場：業障牆暫停。蒲團上按住 F 靜心、木魚與佛龕在兩側', 3.2); later(3.4, () => { if (W1.dojoLine) toast(W1.dojoLine(run.layer, di), 3.4); }); } else if (W1.dojoLine) toast(W1.dojoLine(run.layer, di), 3.4); }
+    if (dj && !dj.said) { dj.said = true; const W1 = THEMES[th()], di = P.dojos.indexOf(dj); if (!run.dojoTip) { run.dojoTip = true; toast(P.esc ? '商人停靠站：線暫停了，慢慢逛' : '道場：業障牆暫停。蒲團上按住 F 靜心、木魚與佛龕在兩側', 3.2); later(3.4, () => { if (W1.dojoLine) toast(W1.dojoLine(run.layer, di), 3.4); }); } else if (W1.dojoLine) toast(W1.dojoLine(run.layer, di), 3.4); }
     // 終點
     if (ps > pathLen() - 220) { for (const e of enemies) if (e.type !== 'boss') e.dead = true; bullets = bullets.filter(b => b.own === 'p'); roomCleared(); }
   }
@@ -3971,13 +3993,31 @@ function updatePath(dt) {
 function updateZnHud() {
   const P = room && room.path, bar = $('znBar'), fog = $('znFog'); if (!bar || !fog) return;
   const on = !!P && state !== 'menu' && state !== 'over' && (room.kind === 'combat' || (P.boss && !room.cleared)); bar.hidden = !on; fog.hidden = !(on && (P.daze > 0 || (P.boss && P.ph === 3))); fog.classList.toggle('soft', !!(on && P.boss && P.ph === 3 && !(P.daze > 0)));
-  if (znMer) znMer.textContent = '功德 ' + (run.merit || 0);
+  if (znMer) znMer.textContent = P && P.esc ? '' : '功德 ' + (run.merit || 0);
   if (!on) return;
-  if (znFill) znFill.style.width = (P.zn / ZN_MAX * 100).toFixed(0) + '%'; bar.classList.toggle('flash', P.flash > 0); if (znTxt) znTxt.textContent = P.daze > 0 ? '迷亂 ' + Math.ceil(P.daze) : '雜念';
+  if (znFill) znFill.style.width = (P.zn / ZN_MAX * 100).toFixed(0) + '%'; bar.classList.toggle('flash', P.flash > 0); if (znTxt) znTxt.textContent = P.esc ? (P.daze > 0 ? '當機 ' + Math.ceil(P.daze) : th() === 11 ? '資料損毀' : '錯誤 ERROR') : P.daze > 0 ? '迷亂 ' + Math.ceil(P.daze) : '雜念';
+}
+function drawEscPath(P) {
+  const V = P.v, fut = th() === 11, c1 = fut ? '#00e5ff' : '#ff2e97', c2 = fut ? '#e8fbff' : '#00e5ff', bg = fut ? '#031526' : '#0a0014';
+  if (V) {
+    const y1 = ROOM.y + ROOM.h - P.ws, y2 = ROOM.y + ROOM.h + 460;
+    if (y2 > y1) { ctx.fillStyle = bg; ctx.fillRect(ROOM.x - 120, y1, ROOM.w + 240, y2 - y1); ctx.save(); ctx.globalAlpha = 0.55; for (let i = 0; i < 40; i++) { ctx.fillStyle = i % 3 ? c1 : c2; ctx.fillRect(ROOM.x - 60 + ((i * 53) % (ROOM.w + 120)), y1 + 10 + ((i * 37 + Math.floor(time * 12) * 11) % Math.max(20, y2 - y1)), 30 + (i * 7) % 40, 4); } ctx.restore(); ctx.fillStyle = c1; ctx.fillRect(ROOM.x - 120, y1 - 4, ROOM.w + 240, 4); }
+  } else {
+    const x0 = ROOM.x - 460, x1 = ROOM.x + P.ws;
+    if (x1 > x0) { ctx.fillStyle = bg; ctx.fillRect(x0, 0, x1 - x0 - 0.5, WORLD.h); ctx.save(); ctx.globalAlpha = 0.55; for (let i = 0; i < 40; i++) { ctx.fillStyle = i % 3 ? c1 : c2; ctx.fillRect(x0 + ((i * 53) % Math.max(10, x1 - x0)), ROOM.y - 60 + ((i * 37 + Math.floor(time * 12) * 11) % (ROOM.h + 120)), 30 + (i * 7) % 40, 4); } ctx.restore(); ctx.fillStyle = c1; ctx.fillRect(x1 - 4, 0, 4, WORLD.h); }
+  }
+  for (const d of P.dojos) {
+    const rx = V ? 170 : d.w / 2, ry = V ? d.w / 2 : 170;
+    ctx.save(); ctx.translate(d.cx, d.cy); ctx.globalAlpha = 0.9;
+    ctx.fillStyle = fut ? 'rgba(0,229,255,.1)' : 'rgba(255,46,151,.1)'; ctx.fillRect(-rx, -ry, rx * 2, ry * 2);
+    ctx.strokeStyle = c1; ctx.lineWidth = 2; ctx.setLineDash([10, 8]); ctx.strokeRect(-rx + 4, -ry + 4, rx * 2 - 8, ry * 2 - 8); ctx.setLineDash([]);
+    ctx.globalAlpha = 1; ctx.fillStyle = 'rgba(240,240,255,.85)'; ctx.font = '700 15px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(fut ? '補給停靠站' : '商人停靠站', 0, V ? -ry - 6 : -ry - 6); ctx.restore();
+  }
 }
 function drawPathBack() {
   const P = room.path; if (!P || room.kind !== 'combat') return;
   const V = P.v;
+  if (P.esc) { drawEscPath(P); return; }
   if (V) {
     const y1 = ROOM.y + ROOM.h - P.ws, y2 = ROOM.y + ROOM.h + 460;
     if (y2 > y1) {
@@ -5133,7 +5173,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.61　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.62　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -5714,6 +5754,8 @@ function drawItem(it) {
   if (it.kind === 'weapon') { ctx.fillStyle = WCOL[it.id]; star4(ctx, 0, 0, 15, time * 0.6); noShadow(ctx); ctx.fillStyle = C.paper; circ(ctx, 0, 0, 4); }
   else if (it.kind === 'restock') { ctx.strokeStyle = C.paperDim; ctx.lineWidth = 3; ctx.setLineDash([5, 4]); ctx.strokeRect(-12, -12, 24, 24); ctx.setLineDash([]); ctx.fillStyle = C.amber; ctx.fillRect(-1.5, -7, 3, 14); ctx.fillRect(-7, -1.5, 14, 3); noShadow(ctx); }
   else if (it.kind === 'refresh') { ctx.strokeStyle = C.paper; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(0, 0, 11, 0.4, 4.4); ctx.stroke(); ctx.fillStyle = C.amber; poly(ctx, [[8, -12], [16, -2], [3, -2]]); noShadow(ctx); }
+  else if (it.kind === 'debug') { ctx.fillStyle = '#0b1a2a'; rrect(ctx, -13, -11, 26, 22, 3); ctx.fillStyle = '#6ff3ff'; ctx.font = '700 12px monospace'; ctx.textAlign = 'center'; ctx.fillText('>_', 0, 4); }
+  else if (it.kind === 'egg') { ctx.fillStyle = '#ffd23f'; rrect(ctx, -12, -11, 24, 22, 4); ctx.fillStyle = '#ff2e97'; ctx.fillRect(-12, -3, 24, 5); ctx.fillStyle = '#0b0626'; ctx.font = '700 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('?', 0, 9); }
   else if (it.kind === 'coins') { ctx.fillStyle = '#7a4b2a'; rrect(ctx, -11, -8, 22, 20, 6); ctx.fillStyle = C.amber; circ(ctx, 0, 2, 6); ctx.fillStyle = '#ffd98a'; circ(ctx, 0, 2, 3.4); ctx.fillStyle = '#955a30'; rrect(ctx, -8, -13, 16, 6, 3); noShadow(ctx); }
   else if (it.kind === 'upgrade') { if (it.prem) { ctx.fillStyle = '#ffd98a'; ctx.rotate(Math.PI / 4); rrect(ctx, -14, -14, 28, 28, 4); ctx.rotate(-Math.PI / 4); ctx.globalAlpha = 0.5 + 0.3 * Math.sin(time * 5); star4(ctx, 0, -22, 6, time); ctx.globalAlpha = 1; } ctx.fillStyle = C.amber; ctx.rotate(Math.PI / 4); rrect(ctx, -9, -9, 18, 18, 3); ctx.rotate(-Math.PI / 4); noShadow(ctx); ctx.fillStyle = C.paper; circ(ctx, 0, 0, 3.5); }
   else if (it.kind === 'ward') { ctx.fillStyle = '#cfe6f5'; poly(ctx, [[-11, -10], [11, -10], [11, 2], [0, 14], [-11, 2]]); ctx.strokeStyle = '#6a8fb0'; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = C.amber; circ(ctx, 0, -2, 3.2); }
@@ -6158,11 +6200,11 @@ function drawPathMap() {
   const at = sv => V ? { x: bx + bw / 2, y: by + bh - sv / len * bh } : { x: bx + sv / len * bw, y: by + bh / 2 };
   ctx.save(); ctx.fillStyle = 'rgba(10,8,20,.78)'; ctx.fillRect(bx - 3, by - 3, bw + 6, bh + 6); ctx.strokeStyle = 'rgba(240,228,200,.4)'; ctx.lineWidth = 1; ctx.strokeRect(bx - 3, by - 3, bw + 6, bh + 6);
   const ws = clamp(P.ws, 0, len), a = at(0), b = at(ws);
-  ctx.fillStyle = 'rgba(138,84,214,.9)'; if (V) ctx.fillRect(bx, b.y, bw, a.y - b.y); else ctx.fillRect(bx, by, b.x - bx, bh);
+  ctx.fillStyle = P.esc ? (th() === 11 ? 'rgba(0,229,255,.85)' : 'rgba(255,46,151,.9)') : 'rgba(138,84,214,.9)'; if (V) ctx.fillRect(bx, b.y, bw, a.y - b.y); else ctx.fillRect(bx, by, b.x - bx, bh);
   ctx.fillStyle = '#ffd98a'; for (const d of P.dojos) { const q = at(d.s); if (V) ctx.fillRect(bx - 2, q.y - 1.5, bw + 4, 3); else ctx.fillRect(q.x - 1.5, by - 2, 3, bh + 4); }
   const g = at(len); ctx.fillStyle = C.amber; if (V) ctx.fillRect(bx - 2, g.y, bw + 4, 3); else ctx.fillRect(g.x - 3, by - 2, 3, bh + 4);
   const q = at(clamp(pathProg(p), 0, len)); ctx.fillStyle = C.paper; circ(ctx, q.x, q.y, 4.5);
-  ctx.fillStyle = 'rgba(240,228,200,.8)'; ctx.font = '700 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('業障牆', V ? bx + bw / 2 : bx + 20, V ? by + bh + 14 : by - 6);
+  ctx.fillStyle = 'rgba(240,228,200,.8)'; ctx.font = '700 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(P.esc ? (th() === 11 ? '刪除線' : '塌陷線') : '業障牆', V ? bx + bw / 2 : bx + 20, V ? by + bh + 14 : by - 6);
   ctx.restore();
 }
 function render() {
