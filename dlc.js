@@ -8,7 +8,7 @@ const { C, TAU, circ, rrect, poly, setShadow, noShadow, star4, blip, rand, rr, p
 
 /* ================= 糖果／電玩／未來（原在主檔） ================= */
 const CANDY_SKIN = { syrup: 'syrup', roller: 'roller', crawler: 'gummy', shooter: 'lolli', brute: 'cookie', splitter: 'jelly', splitter2: 'jelly', bomber: 'gumdrop' };
-const ARC_SKIN = { crawler: 'invader', shooter: 'ghost', brute: 'block', splitter: 'slimepx', splitter2: 'slimepx', bomber: 'bombpx', roller: 'chomp', glitch: 'glitch' };
+const ARC_SKIN = { crawler: 'invader', shooter: 'ghost', brute: 'block', splitter: 'slimepx', splitter2: 'slimepx', bomber: 'bombpx', roller: 'chomp', glitch: 'glitch', egg: 'block' };
 const FUT_SKIN = { crawler: 'drone', shooter: 'turret', brute: 'mech', splitter: 'nano', splitter2: 'nano', bomber: 'mine', laser: 'laser', glitch: 'phase' };
 const PAL9 = { ink: '#7a4a86', floor: '#ffe6f0', floor2: '#ffd3e6', wall1: '#ff9ec7', wall2: '#ffc4de', top: '#fff2f8', door: '#c77dff' };
 const PAL10 = { ink: '#12123a', floor: '#2f5f9a', floor2: '#3b73b8', wall1: '#3a3a8c', wall2: '#6a6ae0', top: '#b4b8ff', door: '#ffd23f' };
@@ -181,6 +181,7 @@ L.registerWorld(  { theme: 9, name: '糖果世界', pool: 'dlc', opt: '糖果世
     drawBoss: e => drawCandyBoss(e) });
 
 L.registerWorld(  { theme: 10, name: '電玩世界', pool: 'dlc', opt: '電玩世界（DLC）', pal: PAL10, amb: ['lowpass', 900, 0.5, 0.004], noDark: true, noPaper: true, stage: 'arc',
+    enemies: { egg: { hp: 3, r: 16, name: '彩蛋方塊', cost: 99, cap: 0, ai: () => ({ mx: 0, my: 0, touch: 0 }) } },
     skin: { map: ARC_SKIN, draw: e => drawArcEnemy(e), hue: false }, obsDraw: (g, o, rng) => drawArcObs(g, o, rng),
     ev: r => { const n = [262, 330, 392, 523, 659][Math.floor(r() * 5)]; blip(n, n, 0.08, 'square', 0.012); setTimeout(() => blip(n * 1.5, n * 1.5, 0.08, 'square', 0.01), 110); },
     boss: fin => fin ? { kind: 'golem', name: '像素魔王', hp: 205, arc: true } : { kind: 'golem', name: '街機巨獸', hp: 125, arc: true },
@@ -741,7 +742,7 @@ function jpHint(it) { return it.st === 'broken' ? '按住 F 修復' : ''; }
 function jpUse(it) { if (it.st === 'broken' && !L.run.jpHoldTip) { L.run.jpHoldTip = true; L.toast('按「住」F 不放，修復進度條會慢慢滿起來', 2.8); } }
 function jpHud() {
   const st = document.createElement('style');
-  st.textContent = '#tourBar{position:absolute;top:1.2cqw;left:50%;transform:translateX(-50%);display:flex;gap:.6cqw;align-items:center;color:var(--paper);font-size:clamp(10px,1.3cqw,15px);pointer-events:none;z-index:6;text-shadow:0 1px 2px #000}#tourBar i{display:block;width:16cqw;height:.9cqw;min-height:7px;background:rgba(0,0,0,.55);border:1px solid #c9b99a}#tourBar b{display:block;height:100%;width:0;background:#8fd08a}#tourBar em{font-style:normal;color:#ffd27a;margin-left:.6cqw}#tourBar[hidden]{display:none}';
+  st.textContent = '#tourBar[hidden],#karmaBar[hidden]{display:none}#tourBar{position:absolute;top:1.2cqw;left:50%;transform:translateX(-50%);display:flex;gap:.6cqw;align-items:center;color:var(--paper);font-size:clamp(10px,1.3cqw,15px);pointer-events:none;z-index:6;text-shadow:0 1px 2px #000}#tourBar i{display:block;width:16cqw;height:.9cqw;min-height:7px;background:rgba(0,0,0,.55);border:1px solid #c9b99a}#tourBar b{display:block;height:100%;width:0;background:#8fd08a}#tourBar em{font-style:normal;color:#ffd27a;margin-left:.6cqw}#tourBar[hidden]{display:none}';
   document.head.appendChild(st);
   const bar = document.createElement('div'); bar.id = 'tourBar'; bar.hidden = true; bar.innerHTML = '<span>觀光滿意度</span><i><b></b></i><em></em>'; L.stageEl.appendChild(bar);
   const fill = bar.querySelector('b'), txt = bar.querySelector('em');
@@ -1245,7 +1246,8 @@ function zkInit(room, kind) {
   if (r.karma && kind === 'combat' && L.th() === 14) {
     room.obs.length = 0;
     const cx = R.x + R.w / 2, cy = R.y + R.h / 2, ci = room.combatIdx || 0;
-    room.karma = { need: ZK_NEED[Math.min(2, r.layer)] + ci * 2, m: 0, t: 0, spawnT: 1.2, walkT: rr(10, 18), walks: 0, chant: 0, chantCd: 0, done: false, du: 0, cx, cy, init: false };
+    room.karma = { need: Math.max(3, ZK_NEED[Math.min(2, r.layer)] + ci * 2 - (r.karmaDisc || 0)), m: 0, t: 0, spawnT: 1.2, walkT: rr(10, 18), walks: 0, chant: 0, chantCd: 0, done: false, du: 0, cx, cy, init: false };
+    r.karmaDisc = 0;
     room.items.push({ kind: 'tfac', id: 'tfac', fk: 'dojo', x: cx, y: cy, group: 'prop', price: 0, taken: false, st: 'ready', t: 0 });
     return;
   }
@@ -1404,7 +1406,7 @@ function zkBack() {
 }
 function zkHud() {
   const st = document.createElement('style');
-  st.textContent = '#karmaBar{position:absolute;top:1.2cqw;left:50%;transform:translateX(-50%);display:flex;gap:.6cqw;align-items:center;color:var(--paper);font-size:clamp(10px,1.3cqw,15px);pointer-events:none;z-index:6;text-shadow:0 1px 2px #000}#karmaBar i{display:block;width:16cqw;height:.9cqw;min-height:7px;background:rgba(0,0,0,.55);border:1px solid var(--paper)}#karmaBar b{display:block;height:100%;background:#ffe9a0;width:0}';
+  st.textContent = '#karmaBar[hidden]{display:none}#karmaBar{position:absolute;top:1.2cqw;left:50%;transform:translateX(-50%);display:flex;gap:.6cqw;align-items:center;color:var(--paper);font-size:clamp(10px,1.3cqw,15px);pointer-events:none;z-index:6;text-shadow:0 1px 2px #000}#karmaBar i{display:block;width:16cqw;height:.9cqw;min-height:7px;background:rgba(0,0,0,.55);border:1px solid var(--paper)}#karmaBar b{display:block;height:100%;background:#ffe9a0;width:0}';
   document.head.appendChild(st);
   const bar = document.createElement('div'); bar.id = 'karmaBar'; bar.hidden = true; bar.innerHTML = '<span>功德</span><i><b></b></i><em></em>'; L.stageEl.appendChild(bar);
   const fill = bar.querySelector('b'), txt = bar.querySelector('em');
@@ -1414,6 +1416,119 @@ function zkHud() {
     txt.textContent = Math.min(K.m, K.need) + ' / ' + K.need + '　轉世 ' + ((L.run.karmaReborn || []).length) + '　友軍 ' + L.allies.filter(a => a.id === 'saved').length;
   }, 150);
 }
+
+
+/* ================= 主題事件（第 3 步）：事件房 25% 機率出現該主題專屬事件 ================= */
+function xProp(it, col, glyph, used) {
+  const c = L.ctx; c.save(); c.translate(it.x, it.y + Math.sin(L.time * 2 + it.x) * 2);
+  c.fillStyle = 'rgba(0,0,0,.28)'; c.beginPath(); c.ellipse(0, 26, 30, 8, 0, 0, TAU); c.fill(); if (used) c.globalAlpha = 0.45;
+  c.fillStyle = col; L.rrect(c, -24, -26, 48, 52, 8); c.fill(); c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 2; L.rrect(c, -24, -26, 48, 52, 8); c.stroke();
+  c.fillStyle = '#fff'; c.font = '700 26px serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(glyph, 0, 0); c.restore();
+}
+function xAdd(room, cx, cy, id, extra) { room.items.push(Object.assign({ kind: 'xev', id, x: cx, y: cy, group: 'prop', price: 0, taken: false, used: false }, extra || {})); }
+function xOnce(extraFn) { return null; }
+const XEV = {
+  9: { // 糖果雨
+    rain: {
+      toast: '糖果雨：15 秒內撿糖果（燈芯），小心黑糖會爆炸', setup: () => { },
+      tick(dt, room) {
+        const R = room.xr = room.xr || { t: 0, d: 0, n: 0, end: false }; if (R.end) return; R.t += dt; R.d -= dt;
+        if (R.d <= 0 && R.t < 15) { R.d = 0.42; R.n++; const sp = L.freeSpot(14);
+          if (R.n % 7 === 0) L.pickups.push({ kind: 'oil', x: sp.x, y: sp.y, t: 0 });
+          else if (L.rand() < 0.18) { const b = L.spawnEnemy('bomber', sp.x, sp.y); b.state = 'fuse'; b.st = 1.4; b.spawn = 0; }
+          else L.dropCoins(sp.x, sp.y, 2); L.burst(sp.x, sp.y, 6, ['#ff9ec7', '#fff2f8', '#ffd23f'], 90, true); }
+        if (R.t >= 15) { R.end = true; L.toast('糖果雨停了'); }
+      }
+    }
+  },
+  10: { // 彩蛋關
+    egg: {
+      toast: '彩蛋關：20 秒內打破所有彩蛋方塊，全破有大獎', setup: () => { },
+      tick(dt, room) {
+        let R = room.xr; if (!R) { R = room.xr = { t: 0, eggs: [], end: false }; for (let i = 0; i < 8; i++) { const sp = L.freeSpot(16); const e = L.spawnEnemy('egg', sp.x, sp.y); e.spawn = 0; R.eggs.push(e); } }
+        if (R.end) return; R.t += dt;
+        for (const e of R.eggs) if (e.dead && !e.paid) { e.paid = true; const r = L.rand(); if (r < 0.6) L.dropCoins(e.x, e.y, 4); else if (r < 0.85) L.pickups.push({ kind: 'oil', x: e.x, y: e.y, t: 0 }); else L.dropCoins(e.x, e.y, 8); }
+        if (R.eggs.every(e => e.dead)) { R.end = true; const w = L.offerWeapon(); if (w && L.p.weapons.length < 3) { L.giveWeapon(w); L.toast('全破！大獎：武器', 2.6); } else { const u = L.premUpgrade(); L.toast('全破！大獎：精良強化「' + L.UPGN(u) + '」', 2.6); } }
+        else if (R.t >= 20) { R.end = true; for (const e of R.eggs) if (!e.dead) { e.dead = true; e.paid = true; } L.toast('時間到'); }
+      }
+    }
+  },
+  11: { // 補給艙
+    pod: {
+      toast: '補給艙：用 1 點燈火換一份精良強化', setup: (room, cx, cy) => xAdd(room, cx, cy, 'pod'),
+      info: it => ({ name: '補給艙', desc: it.used ? '艙體已經空了' : '付出 1 點燈火（血量需大於 1），得到一份隨機精良強化；只能一次' }),
+      hint: it => it.used ? '' : 'F 換取精良強化（−1 燈火）',
+      use(it) { if (it.used) return; if (L.p.hp <= 1) { L.toast('血量不夠'); L.sfx('tick'); return; } L.p.hp -= 1; it.used = true; const u = L.premUpgrade(); L.sfx('pick'); L.toast('補給艙：精良強化「' + L.UPGN(u) + '」', 2.6); },
+      draw: it => xProp(it, '#2a8fbd', '艙', it.used)
+    }
+  },
+  12: { // 禁書
+    tome: {
+      toast: '禁書：翻開得強力強化，但下一場戰鬥會多出墨水射手', setup: (room, cx, cy) => xAdd(room, cx, cy, 'tome'),
+      info: it => ({ name: '禁書', desc: it.used ? '書頁已經空白' : '得到一份精良強化，代價是下一場戰鬥每波多出 2 隻射手；只能一次' }),
+      hint: it => it.used ? '' : 'F 翻開禁書',
+      use(it) { if (it.used) return; it.used = true; const u = L.premUpgrade(); L.run.xInk = 1; L.run.xInkAt = undefined; L.sfx('pick'); L.toast('禁書：精良強化「' + L.UPGN(u) + '」——墨水在書頁間蠢動……', 2.8); },
+      draw: it => xProp(it, '#6b3f1d', '禁', it.used)
+    }
+  },
+  13: { // 影子交易
+    shadow: {
+      toast: '影子交易：把手上的武器交給影子，換回兩份回禮', setup: (room, cx, cy) => xAdd(room, cx, cy, 'shadow'),
+      info: it => ({ name: '影子商人', desc: it.used ? '影子散去了' : '交出目前手上的武器（需至少 2 把），換回 1 把武器加 1 份強化；只能一次' }),
+      hint: it => it.used ? '' : 'F 交出手上的武器',
+      use(it) { if (it.used) return; const P = L.p; if (P.weapons.length < 2) { L.toast('至少要有 2 把武器才能交易'); L.sfx('tick'); return; }
+        const gone = P.weapons.splice(P.w, 1)[0]; P.w = 0; it.used = true; const w = L.offerWeapon(); if (w) L.giveWeapon(w); const u = L.premUpgrade(); L.sfx('pick'); L.toast('影子收走了舊武器，回禮：' + (w ? '新武器＋' : '') + '精良強化「' + L.UPGN(u) + '」', 3); },
+      draw: it => xProp(it, '#3b3a5a', '影', it.used)
+    }
+  },
+  14: { // 供燈
+    lamp: {
+      toast: '供燈：每次捐 10 燈芯，下一間道場所需功德 −2（最多 3 次）', setup: (room, cx, cy) => xAdd(room, cx, cy, 'lamp', { n: 0 }),
+      info: it => ({ name: '供燈台', desc: '每次捐 10 燈芯：下一間渡化道場所需功德 −2；捐滿 3 次再得燈火 +2。已捐 ' + it.n + ' / 3' }),
+      hint: it => it.n >= 3 ? '燈火已供滿' : 'F 供燈（10 燈芯）',
+      use(it) { if (it.n >= 3) return; if (L.p.coins < 10) { L.toast('燈芯不夠'); L.sfx('tick'); return; } L.p.coins -= 10; it.n++; L.run.karmaDisc = (L.run.karmaDisc || 0) + 2; L.sfx('buy'); L.burst(it.x, it.y - 10, 10, ['#ffe9a0', '#fff'], 120, true);
+        if (it.n >= 3) { L.healP(2); L.toast('供燈圓滿：燈火 +2，下一間道場功德 −' + L.run.karmaDisc, 2.6); } else L.toast('供燈 ' + it.n + ' / 3：下一間道場功德 −' + L.run.karmaDisc, 2); },
+      draw: it => xProp(it, '#b8863c', '燈', it.n >= 3)
+    }
+  },
+  15: { // 神籤
+    omen: {
+      toast: '神籤：抽一支籤，吉凶自負', setup: (room, cx, cy) => xAdd(room, cx, cy, 'omen'),
+      info: it => ({ name: '神籤筒', desc: it.used ? '籤已經抽過了' : '抽一支籤：大吉＝燈火 +3 與精良強化；吉＝燈芯 +15、燈火 +1；凶＝先收下 25 燈芯，但下一場戰鬥敵人變多' }),
+      hint: it => it.used ? '' : 'F 抽籤',
+      use(it) { if (it.used) return; it.used = true; const r = L.rand(); L.sfx('pick');
+        if (r < 0.2) { L.healP(3); const u = L.premUpgrade(); L.toast('大吉！燈火 +3、精良強化「' + L.UPGN(u) + '」', 3); }
+        else if (r < 0.65) { L.p.coins += 15; L.healP(1); L.toast('吉：燈芯 +15、燈火 +1', 2.4); }
+        else { L.p.coins += 25; L.run.xOmen = 1; L.run.xOmenAt = undefined; L.toast('凶……先收下 25 燈芯，下一場戰鬥敵人變多', 3); } },
+      draw: it => xProp(it, '#c0392b', '籤', it.used)
+    }
+  },
+  16: { // 神殿試煉
+    trial: {
+      toast: '神殿試煉：撐過 3 波衝撞怪，得神的恩賜', setup: (room, cx, cy) => xAdd(room, cx, cy, 'trial', { st: 0 }),
+      info: it => ({ name: '試煉祭壇', desc: it.st === 2 ? '試煉完成' : it.st === 1 ? '試煉進行中' : '開始後會依序出現 3 波衝撞怪；全部擊倒得燈火 +2 與精良強化' }),
+      hint: it => it.st === 0 ? 'F 開始試煉' : '',
+      use(it) { if (it.st !== 0) return; it.st = 1; L.room.xr = { w: 0, it }; L.toast('試煉開始！', 2); L.sfx('kill'); },
+      tick(dt, room) {
+        const R = room.xr; if (!R || R.it.st !== 1) return; if (L.enemies.some(e => !e.dead)) return;
+        const waves = [['brute', 'brute'], ['brute', 'brute', 'brute'], ['brute', 'brute', 'brute', 'splitter2']];
+        if (R.w >= waves.length) { R.it.st = 2; L.healP(2); const u = L.premUpgrade(); L.sfx('clear'); L.toast('試煉通過！燈火 +2、精良強化「' + L.UPGN(u) + '」', 3); return; }
+        for (const t of waves[R.w]) { const sp = L.freeSpot(20); const e = L.spawnEnemy(t, sp.x, sp.y); e.spawn = 0.8; } R.w++; L.toast('第 ' + R.w + ' / 3 波');
+      },
+      draw: it => xProp(it, '#c9a45a', '試', it.st === 2)
+    }
+  }
+};
+for (const th in XEV) L.THEMES[th].events = XEV[th];
+// 下一場戰鬥追加敵人（禁書／神籤凶）：只作用在事件之後的第一間戰鬥房
+function xNext(flag, list) {
+  const r = L.run, room = L.room; if (!r[flag]) return [];
+  if (r[flag + 'At'] === undefined) r[flag + 'At'] = room.step;
+  if (room.step > r[flag + 'At'] && room.step !== r[flag + 'At']) { r[flag] = 0; r[flag + 'At'] = undefined; return []; }
+  return list;
+}
+{ const prev12 = L.THEMES[12].extra; L.THEMES[12].extra = (L0, ci) => (prev12 ? prev12(L0, ci) : []).concat(xNext('xInk', ['shooter', 'shooter'])); }
+{ const prev15 = L.THEMES[15].extra; L.THEMES[15].extra = (L0, ci) => (prev15 ? prev15(L0, ci) : []).concat(xNext('xOmen', ['crawler', 'crawler', 'crawler', 'crawler'])); }
 
 try { jpHud(); } catch (e) { /* 滿意度條只是輔助顯示 */ }
 try { zkHud(); } catch (e) { /* 功德條只是輔助顯示 */ }

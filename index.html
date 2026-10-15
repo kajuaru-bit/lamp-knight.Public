@@ -133,7 +133,7 @@ body.mobile .bar{display:none}
 @keyframes achpop{0%{opacity:0;transform:translate(-50%,-14px)}10%,80%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
 .ach div{display:flex;gap:.8cqw;align-items:center}.ach div>span:last-child{display:block}.ach .medal{flex:none;line-height:0}
 .fusegrid{display:flex;flex-wrap:wrap;gap:.4cqw;justify-content:flex-start}.fusecard{max-width:70cqw;width:70cqw;max-height:86%;overflow:auto;background:#1a1526;border:1px solid #6b5a3a;padding:1.2cqw 1.6cqw}.fusecard h3{font-size:clamp(14px,2.2cqw,26px);margin:0 0 .5cqw}.fusecard h4{margin:.8cqw 0 .3cqw;font-size:clamp(11px,1.4cqw,17px)}.fusecard .btn{font-size:clamp(10px,1.25cqw,15px);padding:.4cqw .9cqw}.fusecard .btn:disabled{opacity:.4}#fuseModal{z-index:30;background:rgba(6,4,12,.97)}
-.infowrap{position:relative;flex-wrap:wrap}#znBar{position:absolute;top:1.2cqw;left:50%;transform:translateX(-50%);display:flex;gap:.6cqw;align-items:center;color:var(--paper);font-size:clamp(10px,1.3cqw,15px);pointer-events:none;z-index:6;text-shadow:0 1px 2px #000}#znBar i{display:block;width:16cqw;height:.9cqw;min-height:7px;background:rgba(0,0,0,.55);border:1px solid #8a7ab0}#znBar b{display:block;height:100%;width:0;background:#b79cff}#znBar.flash b{background:#fff}#znBar em{font-style:normal;color:#ffd27a;margin-left:.6cqw}#znFog.soft{background:radial-gradient(circle at 50% 50%,rgba(20,10,40,0) 26%,rgba(20,10,40,.86) 62%)}#znBar[hidden],#znFog[hidden]{display:none}#znFog{position:absolute;inset:0;pointer-events:none;z-index:5;background:radial-gradient(circle at 50% 50%,rgba(20,10,40,0) 12%,rgba(20,10,40,.93) 42%)}
+.infowrap{position:relative;flex-wrap:wrap}#znBar[hidden]{display:none}#znBar{position:absolute;top:1.2cqw;left:50%;transform:translateX(-50%);display:flex;gap:.6cqw;align-items:center;color:var(--paper);font-size:clamp(10px,1.3cqw,15px);pointer-events:none;z-index:6;text-shadow:0 1px 2px #000}#znBar i{display:block;width:16cqw;height:.9cqw;min-height:7px;background:rgba(0,0,0,.55);border:1px solid #8a7ab0}#znBar b{display:block;height:100%;width:0;background:#b79cff}#znBar.flash b{background:#fff}#znBar em{font-style:normal;color:#ffd27a;margin-left:.6cqw}#znFog.soft{background:radial-gradient(circle at 50% 50%,rgba(20,10,40,0) 26%,rgba(20,10,40,.86) 62%)}#znBar[hidden],#znFog[hidden]{display:none}#znFog{position:absolute;inset:0;pointer-events:none;z-index:5;background:radial-gradient(circle at 50% 50%,rgba(20,10,40,0) 12%,rgba(20,10,40,.93) 42%)}
 .sidecol{display:flex;flex-direction:column;gap:.6cqw;width:100%;flex:none}.sidecol:not(:has(.longrow:not([hidden]))){display:none}.sidecol .longrow{margin:0;max-width:100%;justify-content:flex-start;text-align:left;font-size:clamp(calc(9px*var(--fz,1)),1.15cqw,14px)}@container (min-width:1000px){body:not(.port) .infowrap{flex-wrap:nowrap}body:not(.port) .sidecol{position:absolute;left:100%;top:0;margin-left:2.2cqw;width:20cqw}}
 .longrow{display:flex;gap:.8cqw;align-items:center;justify-content:center;margin:.6cqw auto 0;padding:.5cqw 1.2cqw;background:#2a2238;border:1px solid #6b5a3a;color:var(--paper);font-size:clamp(calc(10px*var(--fz,1)),1.35cqw,16px);cursor:pointer;max-width:92%}.longrow b{color:var(--amber)}.longrow input{width:1.6em;height:1.6em;flex:none}
 .pager{display:flex;gap:1.2cqw;align-items:center;justify-content:center;margin-top:.8cqw;color:var(--paper-dim);font-size:clamp(calc(10px*var(--fz,1)),1.35cqw,16px)}.pager button{font:inherit;color:var(--paper);background:#3b2f1c;border:1px solid #6b5a3a;padding:.3cqw 1.4cqw;cursor:pointer}.pager button[disabled]{opacity:.35;cursor:default}
@@ -1912,7 +1912,8 @@ function shopless(arr, from) {
   return arr;
 }
 function makeLayerPlan(layer) {
-  if (run.karma) return (layer === 0 ? ['start'] : []).concat(['combat', 'combat', 'combat', 'boss']);
+  if (run.karma) return (layer === 0 ? ['start'] : []).concat(layer >= 1 ? ['combat', 'event', 'combat', 'combat', 'boss'] : ['combat', 'combat', 'combat', 'boss']); // 第 2 層起多一間主題事件房（供燈）
+  if (run.greek && layer >= 1) return ['combat', 'event', 'boss']; // 希臘第 2 層起多一間主題事件房（神殿試煉）
   if (run.guard || run.path || run.greek) return (layer === 0 ? ['start'] : []).concat(['combat', 'boss']);
   // 第 1 層：商人＋寶箱；第 2 層：商人＋事件；第 3 層：商人。第 2、3 層有 1/3 機率多 1 間特殊房，
   // 焦點房（事件→商人→寶箱輪流）權重 3、其他各 1；本層出現過焦點房後，焦點換下一種
@@ -1941,7 +1942,7 @@ function loadRoom() {
   if (kind === 'event') {
     if (run.forceVariant) variant = run.forceVariant;
     else if (run.layer === 1 && priorEv === 0) variant = 'normal';
-    else { const W = [['chase', 3], ['mimic', 2], ['well', 2], ['grand', 1], ['normal', 2]].concat(run.noShop ? [] : [['fake', 2]]).concat(run.layer >= 1 ? [['rush', 2]] : []); let r0 = rand() * W.reduce((a0, q) => a0 + q[1], 0); for (const q of W) { r0 -= q[1]; if (r0 <= 0) { variant = q[0]; break; } } variant = variant || 'normal'; }
+    else { const W = [['chase', 3], ['mimic', 2], ['well', 2], ['grand', 1], ['normal', 2]].concat(run.noShop ? [] : [['fake', 2]]).concat(run.layer >= 1 ? [['rush', 2]] : []); let r0 = rand() * W.reduce((a0, q) => a0 + q[1], 0); for (const q of W) { r0 -= q[1]; if (r0 <= 0) { variant = q[0]; break; } } variant = variant || 'normal'; { const xe = THEMES[th()].events; if (xe && (rand() < 0.25 || run.karma || run.greek)) variant = 'x:' + pickOf(Object.keys(xe)); } }
   }
   const chase = variant === 'chase', rush = variant === 'rush';
   const big = kind === 'combat' || kind === 'boss' || chase || rush, SZ = kind === 'boss' ? BOSSR : BIG;
@@ -2241,6 +2242,7 @@ function setupSpecial() {
   if (cleared) room.items.push({ kind: 'dlcMenu', id: 'dlcMenu', x: ROOM.x + 740, y: ROOM.y + 90, group: 'prop', price: 0, taken: false });
   if (cleared) for (const q of [['pracTh', 570], ['pracLv', 650], ['pracGo', 740]]) room.items.push({ kind: q[0], id: q[0], x: ROOM.x + q[1], y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); if (mobile) room.items.push({ kind: 'tzsw', id: 'tzsw', x: ROOM.x + 450, y: ROOM.y + ROOM.h - 70, group: 'prop', price: 0, taken: false }); return; }
   const add = (slot, x, group) => room.items.push(makeItem(slot, x, cy, group));
+  if (k === 'event') { const xe = xevOf(); if (xe) { xe.setup(room, cx, cy); return; } }
   if (k === 'event' && room.variant === 'fake') {
     add('heal', cx - 130, 'shop'); add('upgrade', cx, 'shop'); add(rand() < 0.65 ? 'weapon' : 'upgrade', cx + 130, 'shop'); room.fakeT = 1.2; return;
   }
@@ -2272,6 +2274,7 @@ function itemInfo(it) {
   if (it.kind === 'egg') return { name: '彩蛋箱', desc: '付燈芯打開，得到一份隨機回禮（武器、強化、精良強化、燈芯或燈火）；每站一個，只能一次' };
   if (it.kind === 'muyu') return { name: '木魚', desc: it.taps > 0 ? '縮圈到最小時再按 F：圓滿＝雜念清空，其他＝減半（剩 ' + it.taps + ' 次）' : '木魚裂了' };
   if (it.kind === 'shrine') return { name: '佛龕', desc: it.used ? '香已經燃盡' : '佈施 ' + shrineCost(it) + ' 功德，得到一份回禮（可能是佛寺專屬武器）；只能一次' };
+  if (it.kind === 'xev') { const xe = xevOf(); return xe ? xe.info(it) : { name: '事件', desc: '' }; }
   if (it.kind === 'tfac') { const W0 = THEMES[th()]; return W0.info ? W0.info(it) : { name: '設施', desc: '' }; }
   if (it.kind === 'ding') return { name: '古鼎', desc: it.used ? '鼎已經安靜下來了' : '青銅古鼎，傳說摸一下會賜予一件寶物（只能一次）' };
   if (it.kind === 'well') return it.id === 'grand'
@@ -2343,6 +2346,7 @@ function interact(it) {
   if (it.kind === 'mech') { mechUse(it); return; }
   if (it.kind === 'muyu') { muyuTap(it); return; }
   if (it.kind === 'shrine') { shrineUse(it); return; }
+  if (it.kind === 'xev') { const xe = xevOf(); if (xe) xe.use(it); hudSig = ''; hintSig = ''; return; }
   if (it.kind === 'tfac') { const W0 = THEMES[th()]; if (W0.useItem) W0.useItem(it); return; }
   if (it.kind === 'beacon') { const g = room.gb; if (!g) return; if (!g.started) { g.started = true; room.delay = 0.6; toast('敵人來了！守住燈塔', 2.2); } else if (g.rest) { g.rest = false; room.delay = 0.6; g.extraT = 14; toast('下一輪開始！', 2); } sfx('pick'); hintSig = ''; return; }
   if (it.kind === 'pracTh') { PRAC.th = (PRAC.th + 1) % TNAMES.length; sfx('pick'); toast('練習主題：' + TNAMES[PRAC.th], 1.6); hintSig = ''; return; }
@@ -2474,6 +2478,7 @@ function updateHint() {
     else if (it.kind === 'egg') act = 'F 打開彩蛋箱';
     else if (it.kind === 'muyu') act = it.taps <= 0 ? '' : room.path && room.path.ring && room.path.ring.it === it ? 'F 現在敲！（縮圈最小時）' : 'F 敲木魚';
     else if (it.kind === 'shrine') act = it.used ? '' : 'F 佈施 ' + shrineCost(it) + ' 功德（目前 ' + (run.merit || 0) + '）';
+    else if (it.kind === 'xev') { const xe = xevOf(); act = xe ? xe.hint(it) : ''; }
     else if (it.kind === 'tfac') { const W0 = THEMES[th()]; act = W0.hint ? W0.hint(it) : ''; }
     else if (it.kind === 'well') act = it.dry ? '池水已經乾涸' : (it.id === 'grand' ? (it.n >= 5 ? '池水平靜了' : 'F 投入 ' + (3 * (it.n + 1)) + ' 燈芯（第 ' + (it.n + 1) + ' / 5 次）') : (it.n >= 6 ? '池水平靜了' : 'F 投入 4 燈芯（第 ' + (it.n + 1) + ' / 6 次）')) + (!it.dry && it.n < (it.id === 'grand' ? 5 : 6) && p.coins < (it.id === 'grand' ? 3 * (it.n + 1) : 4) ? '（燈芯不夠）' : '');
     else if (it.kind === 'weapon') act = p.weapons.length < 3 ? 'F 拿取' : 'F 取代' + (run.path || run.guard ? '下一格的「' : '手上的「') + WDEF[p.weapons[repIdx()]].name + '」';
@@ -2565,6 +2570,7 @@ function announceRoom() {
   if (room.variant === 'fake') { toast('商人房：用燈芯交換'); later(0.2, () => toast('商人：「客官，要看看嗎？」', 1.2)); }
   else if (room.variant === 'mimic') toast('寶箱房：挑一樣帶走');
   else if (room.variant === 'mystery') toast('神祕寶箱房：只有一個「？」，打開看看', 2.6);
+  else if (xevOf()) toast(xevOf().toast, 3)
   else if (room.variant === 'well') toast('許願池：投 4 燈芯碰碰運氣（最多 6 次）', 2.8);
   else if (room.variant === 'grand') toast('華麗許願池：越投越貴，但越投越靈', 2.8);
   else if (room.kind === 'treasure') toast('寶箱房：挑一樣帶走');
@@ -3889,10 +3895,12 @@ function revealFake() {
   const fm = spawnEnemy('fakemerch', ROOM.x + ROOM.w / 2, ROOM.y + 100); fm.spawn = 0.9; burst(fm.x, fm.y, 24, [C.violet, C.ember, C.paper], 230, true);
   shake = Math.max(shake, 9); sfx('kill'); toast('商人……露出了獠牙！是偽商人！', 2.8);
 }
+function xevOf() { const v = room && room.variant; if (typeof v !== 'string' || v.slice(0, 2) !== 'x:') return null; const ev = THEMES[th()].events; return ev ? ev[v.slice(2)] || null : null; }
 function updateWaves(dt) {
   if (state !== 'play') return;
   if (room.fans) for (const fn of room.fans) if (!fn.done && run.t - fn.t0 > 3.2) { fn.done = true; if (!fn.hit) { run.dodged = (run.dodged || 0) + 1; if (run.dodged >= 20) unlockAch('dodge'); } }
   if (room.variant === 'fake' && !room.fakeDone) { room.fakeT -= dt; if (room.fakeT <= 0) revealFake(); return; }
+  { const xe = xevOf(); if (xe && xe.tick) xe.tick(dt, room); }
   if (room.cleared) return;
   if (room.path && !room.path.boss) return;
   if (room.karma) return;
@@ -5733,6 +5741,7 @@ function drawItem(it) {
   if (it.kind === 'beacon') return;
   if (it.taken) return;
   if (it.kind === 'muyu' || it.kind === 'shrine') { drawPathItem(it); return; }
+  if (it.kind === 'xev') { const xe = xevOf(); if (xe && xe.draw) xe.draw(it); return; }
   if (it.kind === 'tfac') { const W0 = THEMES[th()]; if (W0.drawItem) W0.drawItem(it); return; }
   if (it.kind === 'switch') {
     ctx.save(); ctx.translate(it.x, it.y); setShadow(ctx, 2, 3, 0);
@@ -6502,6 +6511,7 @@ window.LK = {
   addAlly, NPCS, get allies() { return allies; }, roomCleared, registerWorld, THEMES, bossDef: () => bossDef(), applyUpgrade, UPG, giveWeapon, WLIST, makeItem, composeWave, interact,
   get ctx() { return ctx; }, get p() { return p; }, get room() { return room; }, get run() { return run; }, get enemies() { return enemies; }, get bullets() { return bullets; }, get time() { return time; }, get ROOM() { return ROOM; },
   get keys() { return keys; }, get pickups() { return pickups; }, get stageEl() { return stageEl; }, DOOR, healP, dropCoins, overlap, inflate, meleeSwing, rewardUpgrade, shieldMax: () => shieldMax(), hintReset: () => { hintSig = ''; hudSig = ''; },
+  premUpgrade: () => { const uid = upgradeOffer(shelfIds('upgrade'), true) || upgradeOffer(shelfIds('upgrade')) || 'oil'; applyUpgrade(uid, premOk(uid)); return uid; }, offerWeapon: () => weaponOffer(shelfIds('weapon')), UPGN: id => UPG[id] && UPG[id].name,
   C, TAU, circ, rrect, poly, setShadow, noShadow, star4, rand, rr, pickOf, clamp, shuffle, mulberry,
   blip, sfx, toast, burst, later, say, unlockAch, shoot, WDEF, hurtFrom, hitEnemy, enemyShot, bossShot, markStrike, spawnEnemy, freeSpot, dL: () => dL(), th: () => th(), shake: v => { shake = Math.max(shake, v); }, state: () => state
 };
