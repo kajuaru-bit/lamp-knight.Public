@@ -707,7 +707,7 @@ const UPG = {
   c_cal:   { name: '焦距調整', cls: 'calib', desc: '【校準員專屬】第 1 層：校準槍的傷害衰減變慢 35％；第 2 層：傷害下限 ×0.7，且座標標記可同時標記 2 個目標', max: 2, price: 11 },
   c_fer:   { name: '渡口深處', cls: 'ferry', desc: '【擺渡人專屬】第 1 層：燈火隊員 +1 名、存在 +4 秒；第 2 層：隊員消失時留下 4 秒的「渡口」（站上去回血），射速 +30％', max: 2, price: 11 },
   c_beat:  { name: '強勁節拍', cls: 'beater', desc: '【擊節者專屬】第 1 層：起拍的加成次數 5 → 7 次；第 2 層：加成攻擊會震開附近敵人並清除範圍內的敵方子彈', max: 2, price: 11 },
-  c_echo:  { name: '餘音繞樑', cls: 'echoer', desc: '【回響手專屬】第 1 層：共鳴持續 6 → 9 秒；第 2 層：清彈改為全向範圍，追加的遠距離彈傷害 ×1.5', max: 2, price: 11 },
+  c_resn:  { name: '餘音繞樑', cls: 'echoer', desc: '【回響手專屬】第 1 層：共鳴持續 6 → 9 秒；第 2 層：清彈改為全向範圍，追加的遠距離彈傷害 ×1.5', max: 2, price: 11 },
   c_wall:  { name: '雙層屏障', cls: 'mage', desc: '【折紙術士專屬】同時立起兩道前後相隔的紙牆；紙牆也能擋住敵人（敵人無法穿過）', max: 2, price: 10 },
   c_warm:  { name: '濃縮暖光', cls: 'oiler', desc: '【燈油師專屬】第 1 層：暖光恢復量 +1；第 2 層：暖光冷卻 −20%', max: 2, price: 13 },
   c_shield: { name: '厚紙盾', cls: 'shield', desc: '【紙盾衛專屬】第 1 層：護盾上限 +1；第 2 層：護盾恢復速度 +30%', max: 2, price: 13 },
@@ -742,7 +742,7 @@ const PREM = {
   c_cal:   { name: '焦距調整・極', cls: 'calib', desc: '校準槍傷害衰減變慢且下限 ×0.7，座標標記可同時標記 2 個目標（占 2 層）', price: 19, w: 2 },
   c_fer:   { name: '渡口深處・極', cls: 'ferry', desc: '燈火隊員 +1 名、存在 +4 秒，消失時留下回血的渡口，射速 +30％（占 2 層）', price: 19, w: 2 },
   c_beat:  { name: '強勁節拍・極', cls: 'beater', desc: '起拍加成 7 次，加成攻擊震開敵人並清除範圍內子彈（占 2 層）', price: 19, w: 2 },
-  c_echo:  { name: '餘音繞樑・極', cls: 'echoer', desc: '共鳴持續 9 秒、清彈全向、追加遠距離彈傷害 ×1.5（占 2 層）', price: 19, w: 2 },
+  c_resn:  { name: '餘音繞樑・極', cls: 'echoer', desc: '共鳴持續 9 秒、清彈全向、追加遠距離彈傷害 ×1.5（占 2 層）', price: 19, w: 2 },
   c_wall:  { name: '分立屏障', cls: 'mage', desc: '【折紙術士專屬】兩道紙牆改成可以分開立起：施放後 6 秒內可以再立一道；紙牆也能擋住敵人', price: 18, w: 2 },
   c_warm:  { name: '暖光・極', cls: 'oiler', desc: '【燈油師專屬】暖光恢復量 +1 且冷卻 −20%（占 2 層）', price: 22, w: 2 },
   c_shield: { name: '鋼紙盾', cls: 'shield', desc: '【紙盾衛專屬】護盾上限 +1 且恢復速度 +30%（占 2 層）', price: 22, w: 2 },
@@ -2195,7 +2195,14 @@ function newRun() {
 }
 
 /* ---------- special rooms ---------- */
-function weaponOffer(exclude, exo) { const c = WLIST.filter(i => (exo ? !!WDEF[i].cls && WDEF[i].cls !== CLS[p.cls].id : !WDEF[i].cls) && !(WDEF[i].th !== undefined && run.themes.indexOf(WDEF[i].th) < 0) && !(WDEF[i].karma && !run.karma) && p.weapons.indexOf(i) < 0 && exclude.indexOf(i) < 0); return c.length ? pickOf(c.reduce((a, i) => a.concat(WDEF[i].th !== undefined ? [i, i, i] : [i]), [])) : null; }
+const AFF = { // 主題傾向：偏好的武器／強化（出現機率較高、商店折扣），heal＝補血折扣
+  bullet: { w: ['pblade', 'whip', 'pole', 'dance', 'orb', 'shears', 'blade', 'syrup', 'pillow', 'frostcane', 'beatstick', 'oar', 'fan'], u: ['shoes', 'wick'] },
+  charge: { w: ['spear', 'hammer', 'frostcane', 'pole', 'syrup', 'beatstick', 'shears', 'shakujo'], u: ['reach', 'wick'] },
+  swarm: { w: ['scatter', 'fan', 'lance', 'glance', 'bloat', 'bloat3', 'lyre', 'coinx', 'broom', 'bowl', 'beads', 'lure', 'bait'], u: ['pierce', 'big'] },
+  long: { w: ['orb', 'oilgun', 'lamplet', 'lure', 'bait'], u: ['wick', 'oil', 'skcd'], heal: 1 }
+};
+function affinity() { if (th() === 14 && run.karma) return AFF.bullet; if (th() === 16) return AFF.charge; if (th() === 15 || run.guard) return AFF.swarm; if (run.escape || run.endless) return AFF.long; return null; }
+function weaponOffer(exclude, exo) { const c = WLIST.filter(i => (exo ? !!WDEF[i].cls && WDEF[i].cls !== CLS[p.cls].id : !WDEF[i].cls) && !(WDEF[i].th !== undefined && run.themes.indexOf(WDEF[i].th) < 0) && !(WDEF[i].karma && !run.karma) && p.weapons.indexOf(i) < 0 && exclude.indexOf(i) < 0); return c.length ? pickOf(c.reduce((a, i) => a.concat(WDEF[i].th !== undefined ? [i, i, i] : (affinity() && affinity().w.indexOf(i) >= 0 ? [i, i] : [i])), [])) : null; }
 function upgradeOffer(exclude, premOnly) { const c = Object.keys(UPG).filter(i => exclude.indexOf(i) < 0 && clsOk(i) && !(i === 'wick' && p.maxHp >= 9) && !(UPG[i].max && upN(i) >= UPG[i].max) && (!premOnly || premOk(i))); return c.length ? pickOf(c.reduce((a, i) => a.concat(UPG[i].cls ? [i, i] : [i]), [])) : null; }
 function shelfIds(kind, avoid) { return room.items.filter(i => !i.taken && i.kind === kind).map(i => i.id).concat(avoid ? [avoid] : []); }
 // slot：這個格子的類型（heal / weapon / upgrade），商人房補貨時依格子類型補上新商品
@@ -2217,16 +2224,16 @@ function makeItem(...a) {
 }
 function makeItem0(slot, x, y, group, avoid, forcePrem) {
   const shop = group === 'shop';
-  if (slot === 'heal') return { kind: 'heal', id: 'heal', slot, x, y, price: shop ? 4 : 0, group, amount: shop ? 2 : 3, taken: false };
+  if (slot === 'heal') return { kind: 'heal', id: 'heal', slot, x, y, price: shop ? 4 - ((affinity() || {}).heal || 0) : 0, group, amount: shop ? 2 : 3, taken: false };
   if (slot === 'weapon') {
     const ex0 = shelfIds('weapon', avoid), wid = (group === 'choose' && room.kind === 'treasure' && rand() < 0.35 && weaponOffer(ex0, true)) || weaponOffer(ex0);
-    if (wid) return { kind: 'weapon', id: wid, slot, x, y, price: shop ? 9 : 0, group, taken: false };
+    if (wid) return { kind: 'weapon', id: wid, slot, x, y, price: shop ? 9 - (affinity() && affinity().w.indexOf(wid) >= 0 ? 2 : 0) : 0, group, taken: false };
   }
   const chance = forcePrem ? 1 : shop ? PREM_CHANCE.shop : PREM_CHANCE[room.kind] || 0, excl = shelfIds('upgrade', avoid);
   let uid = rand() < chance ? upgradeOffer(excl, true) : null;
   const prem = !!uid;
   if (!uid) uid = upgradeOffer(excl) || 'oil';
-  return { kind: 'upgrade', id: uid, slot, x, y, prem, price: shop ? (prem ? PREM[uid].price : (UPG[uid].price || 7)) : 0, group, taken: false };
+  return { kind: 'upgrade', id: uid, slot, x, y, prem, price: shop ? Math.max(4, (prem ? PREM[uid].price : (UPG[uid].price || 7)) - (affinity() && affinity().u.indexOf(uid) >= 0 ? 2 : 0)) : 0, group, taken: false };
 }
 function setupSpecial() {
   const cx = ROOM.x + ROOM.w / 2, cy = DOOR.y, k = room.kind;
@@ -3387,7 +3394,7 @@ function newSkill(c) {
   } else if (id === 'beater') {
     p.beatN = 5 + (upN('c_beat') >= 1 ? 2 : 0); rings.push({ x: p.x, y: p.y, R: 70, t: 0.3, dur: 0.3 }); burst(p.x, p.y, 12, ['#ffd27a', '#ff8a5a', C.paper], 170, true); sfx('clear'); toast('起拍！接下來 ' + p.beatN + ' 次攻擊有加成', 1.8); hudSig = '';
   } else if (id === 'echoer') {
-    p.echoT = 6 + (upN('c_echo') >= 1 ? 3 : 0); rings.push({ x: p.x, y: p.y, R: 80, t: 0.35, dur: 0.35 }); burst(p.x, p.y, 12, ['#9fe3ff', C.paper], 170, true); sfx('clear'); toast('共鳴！' + p.echoT + ' 秒', 1.6); hudSig = '';
+    p.echoT = 6 + (upN('c_resn') >= 1 ? 3 : 0); rings.push({ x: p.x, y: p.y, R: 80, t: 0.35, dur: 0.35 }); burst(p.x, p.y, 12, ['#9fe3ff', C.paper], 170, true); sfx('clear'); toast('共鳴！' + p.echoT + ' 秒', 1.6); hudSig = '';
   } else if (id === 'ferry') {
     const up = upN('c_fer') >= 1, n = 2 + (up ? 1 : 0), T = 14 + (up ? 4 : 0); lampMates = []; lampLost = false; lampBatch = n;
     for (let i = 0; i < n; i++) lampMates.push({ x: p.x + Math.cos(i / n * TAU) * 40, y: p.y + Math.sin(i / n * TAU) * 40, hp: 2, t: T, T, cd: 0.4, i, n, fl: 0 });
@@ -3491,8 +3498,8 @@ function attack() {
 WDEF.echobow.fire = (ox, oy, ang, dm) => { shoot(ox, oy, ang, 640, 5.5, 2.3 * dm, 'pellet', 0.95); sfx('tick'); };
 function weaponClears(w) { return !!(w.range || MELEE_W[w.id] || w.id === 'whip' || w.id === 'pole'); }
 function echoAttack(w, ox, oy, ang, dm) {
-  if (weaponClears(w)) { shoot(ox, oy, ang, 900, 5, 2.4 * dm * (upN('c_echo') >= 2 ? 1.5 : 1), 'lance', 1.0, true); sfx('blade'); return; }
-  const all = upN('c_echo') >= 2;
+  if (weaponClears(w)) { shoot(ox, oy, ang, 900, 5, 2.4 * dm * (upN('c_resn') >= 2 ? 1.5 : 1), 'lance', 1.0, true); sfx('blade'); return; }
+  const all = upN('c_resn') >= 2;
   for (const b of bullets) {
     if (b.own !== 'e' || b.dead) continue;
     const dx = b.x - p.x, dy = b.y - p.y, d = Math.hypot(dx, dy); if (d > 230 + b.r) continue;
