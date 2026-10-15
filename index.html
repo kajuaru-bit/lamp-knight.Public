@@ -695,6 +695,7 @@ const UPG = {
   pierce: { name: '穿透彈', desc: '子彈多穿透 1 隻敵人；本來就會穿透的武器改為傷害 +15%（最多 3 層）', max: 3, price: 13 },
   big:    { name: '大子彈', desc: '子彈變大 25%，更好命中（最多 2 層）', max: 2, price: 8 },
   reach:  { name: '長臂', desc: '攻擊範圍 +20%：近戰、光束、長鞭與子彈射程都變長（最多 2 層）', max: 2, price: 8 },
+  magnet: { name: '磁吸燈芯', desc: '燈芯的吸引與撿取範圍變大（吸引 +70、撿取 +18 像素；最多 2 層）', max: 2, price: 7 },
   crit:   { name: '暴擊符', desc: '暴擊率 +10%，暴擊造成 1.8 倍傷害（最多 4 層）', max: 4, price: 11 },
   skcd:   { name: '快手印', desc: '職業技能冷卻 −12%（最多 3 層）', max: 3, price: 11 },
   skpow:  { name: '擴音燈罩', desc: '職業技能的範圍與傷害 +20%（最多 3 層）', max: 3, price: 11 },
@@ -729,6 +730,7 @@ const PREM = {
   pierce: { name: '雙重穿透彈', desc: '子彈多穿透 2 隻；本來就會穿透的武器傷害 +30%（占 2 層上限）', price: 22, w: 2 },
   big:    { name: '巨大子彈', desc: '子彈半徑 +50%（占 2 層上限）', price: 14, w: 2 },
   reach:  { name: '長臂之極', desc: '攻擊範圍 +40%（占 2 層上限）', price: 14, w: 2 },
+  magnet: { name: '磁吸燈芯・極', desc: '燈芯的吸引與撿取範圍大幅變大（吸引 +140、撿取 +36 像素；占 2 層上限）', price: 12, w: 2 },
   crit:   { name: '致命符', desc: '暴擊率 +25%（占 2 層上限）', price: 19, w: 2 },
   skcd:   { name: '疾手印', desc: '職業技能冷卻 −25%（占 2 層上限）', price: 19, w: 2 },
   skpow:  { name: '轟鳴燈罩', desc: '職業技能的範圍與傷害 +45%（占 2 層上限）', price: 19, w: 2 },
@@ -5631,8 +5633,9 @@ function updatePlay(dt) {
     k.t += dt;
     if (k.vx) { k.x = clamp(k.x + k.vx * dt, ROOM.x + 10, ROOM.x + ROOM.w - 10); k.y = clamp(k.y + k.vy * dt, ROOM.y + 10, ROOM.y + ROOM.h - 10); const f = Math.exp(-5 * dt); k.vx *= f; k.vy *= f; }
     const pd = Math.hypot(p.x - k.x, p.y - k.y);
-    if (pd < 150 && pd > 1 && k.t > 0.25) { const step = Math.min(240 * dt, pd); k.x += (p.x - k.x) / pd * step; k.y += (p.y - k.y) / pd * step; }
-    if (pd < p.r + 52 && k.t > 0.25) {
+    const mg = k.kind === 'coin' ? upN('magnet') : 0;
+    if (pd < 150 + 70 * mg && pd > 1 && k.t > 0.25) { const step = Math.min(240 * dt, pd); k.x += (p.x - k.x) / pd * step; k.y += (p.y - k.y) / pd * step; }
+    if (pd < p.r + 52 + 18 * mg && k.t > 0.25) {
       k.dead = true;
       if (k.kind === 'coin') { p.coins++; sfx('coin'); hudSig = ''; }
       else if (k.kind === 'oil') { sfx('pick'); healP(2); toast('燈油補充，燈亮了一些'); burst(k.x, k.y, 10, [C.amber, C.paper], 140, true); }
@@ -6435,9 +6438,9 @@ function render() {
     const ax = p.x + p.aim.x * 42, ay = p.y + p.aim.y * 42, an = Math.atan2(p.aim.y, p.aim.x);
     ctx.save(); ctx.translate(ax, ay); ctx.rotate(an); ctx.globalAlpha = 0.85; ctx.fillStyle = p.aimSrc === 'wasd' ? C.paper : C.amber; poly(ctx, [[-5, -6], [6, 0], [-5, 6], [-2, 0]]); ctx.restore();
     if (mouse.has) {
-      ctx.save(); ctx.translate(mouse.x + cam.x, mouse.y + cam.y); ctx.globalAlpha = follow ? 0.95 : 0.45; ctx.strokeStyle = C.paper; ctx.lineWidth = 2;
+      ctx.save(); ctx.translate(mouse.x + cam.x, mouse.y + cam.y); ctx.globalAlpha = follow ? 0.95 : 0.45; ctx.strokeStyle = th() === 9 ? '#000' : C.paper; ctx.lineWidth = 2;
       if (!follow) ctx.setLineDash([3, 4]);
-      ctx.beginPath(); ctx.arc(0, 0, 9, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = C.amber; circ(ctx, 0, 0, 2); ctx.restore();
+      ctx.beginPath(); ctx.arc(0, 0, 9, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = th() === 9 ? '#000' : C.amber; circ(ctx, 0, 0, 2); ctx.restore();
     }
   }
   ctx.restore();
