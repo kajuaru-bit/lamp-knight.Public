@@ -332,7 +332,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.63　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.64　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -752,7 +752,7 @@ const upN = id => p.upg[id] || 0;
 const cost = it => { const b = it.price; if (!b || (it.group !== 'shop' && it.group !== 'stall')) return b; return CLS[p.cls].id === 'shopc' ? Math.max(it.kind === 'heal' ? 2 : 1, b - 4 - (upN('c_shop') >= 1 ? 1 : 0)) : b; };
 function paid(n) { if (room.kind !== 'merchant') return; rec.spent = (rec.spent || 0) + n; saveRec(); if (rec.spent >= 50) unlockAch('bizBoom'); }
 const slpOn = () => p.sleepT > 0;
-const slpSpd = () => (slpOn() ? (upN('c_slp') >= 1 ? 0.52 : 0.4) : 1) * (inMud() ? 0.7 : 1) * (inQuick() ? 0.5 : 1) * (typeof room !== 'undefined' && room && room.tour && room.tour.slow ? 0.82 : 1);
+const slpSpd = () => (slpOn() ? (upN('c_slp') >= 1 ? 0.52 : 0.4) : 1) * (inMud() ? 0.7 : 1) * (inQuick() ? 0.5 : 1) * (typeof room !== 'undefined' && room && room.tour && room.tour.slow ? 0.82 : 1) * (p.stone > 0 ? 0.3 : 1);
 const inQuick = () => !!(typeof room !== 'undefined' && room && room.sw && room.sw.some(z => z.k === 'quick' && Math.hypot(p.x - z.x, p.y - z.y) < z.r));
 const inMud = () => !!(typeof room !== 'undefined' && room && room.sw && room.sw.some(z => z.k === 'mud' && Math.hypot(p.x - z.x, p.y - z.y) < z.r));
 const shieldMax = () => (CLS[p.cls].sh || 0) + (upN('c_shield') >= 1 ? 1 : 0);
@@ -1080,7 +1080,8 @@ const LAMPS = {
   violet: { name: '紫燭', c: '#c08cff', core: '#f3e6ff', req: 'allies3' },
   ink: { name: '墨水瓶燈罩', c: '#4b5fb0', core: '#e3e9ff', req: 'inkSafe', deco: 'ink' },
   lily: { name: '彼岸花提燈', c: '#e0364a', core: '#ffe1e1', req: 'dartRet', deco: 'lily' },
-  lotus: { name: '蓮花燈', c: '#ff9fc0', core: '#fff0f4', req: 'zenCalm', deco: 'lotus' }
+  lotus: { name: '蓮花燈', c: '#ff9fc0', core: '#fff0f4', req: 'zenCalm', deco: 'lotus' },
+  olive: { name: '橄欖油燈', c: '#c8d46a', core: '#f6f8d8', req: 'gkEvents', deco: 'olive' }
 };
 const CAPES = {
   red: { name: '赭紅', c: '#b24a32' },
@@ -1088,14 +1089,16 @@ const CAPES = {
   gold: { name: '金織', c: '#d1a23a', req: 'clearAll' },
   night: { name: '夜紫', c: '#5a4a9c', req: 'last1' },
   letters: { name: '字母積木披風（傳說）', c: '#e8d9b0', req: 'spell', own: 'letters' },
-  kasaya: { name: '袈裟披風（傳說）', c: '#c9582a', req: 'zenMuyu', own: 'kasaya' }
+  kasaya: { name: '袈裟披風（傳說）', c: '#c9582a', req: 'zenMuyu', own: 'kasaya' },
+  chiton: { name: '希臘長袍（傳說）', c: '#f2ead8', req: 'gkBless', own: 'chiton' }
 };
 const HEADS = {
   none: { name: '無頭飾' },
   book: { name: '書僮帽', req: 'dictBoss' },
   hat: { name: '擺渡人斗笠', req: 'shoreBoss' },
   lily: { name: '紅花髮飾（傳說）', req: 'copyFree', own: 'lily' },
-  monk: { name: '小沙彌頭', req: 'zenBoss' }
+  monk: { name: '小沙彌頭', req: 'zenBoss' },
+  laurel: { name: '月桂冠', req: 'gkMino' }
 };
 const GT = [
   ['花園', '#5fae52', '#cfe8a8', '花苞帽', '花面具', '藤蔓披風', '草編背心', '花瓣燈罩', 'r', '花環燈穗'],
@@ -1196,7 +1199,7 @@ const FLV = {
   'bellman.snow': '雪落在鐘上，聲音就變軟了。', 'bellman.ice': '敲一下，整座山都聽見。',
   'florist.sun': '永遠朝著燈的方向。', 'shopc.apron': '開店的人，也得先學會揉麵。', 'shopc.god': '生意興隆，通四海。',
   'lamp.ink': '字寫壞了，就把燈蓋上，裝作什麼也沒發生。', 'lamp.lily': '開在河的另一邊，卻替這一邊照著路。', 'cape.letters': '每一塊積木，都替你記著一個字。',
-  'head.book': '翻開的那一頁，永遠是你還沒讀過的。', 'head.hat': '擺渡的人不說話，只負責把你送到岸邊。', 'head.lily': '它不屬於這一岸，所以特別紅。', 'head.monk': '頭上的三個點，是三個放下的念頭。', 'lamp.lotus': '泥裡長出來，卻一點也不髒。', 'cape.kasaya': '一針一線，都是別人放下的東西。',
+  'head.book': '翻開的那一頁，永遠是你還沒讀過的。', 'head.hat': '擺渡的人不說話，只負責把你送到岸邊。', 'head.lily': '它不屬於這一岸，所以特別紅。', 'head.monk': '頭上的三個點，是三個放下的念頭。', 'lamp.lotus': '泥裡長出來，卻一點也不髒。', 'cape.kasaya': '一針一線，都是別人放下的東西。', 'head.laurel': '勝利的人不一定是最強的，是走出迷宮的。', 'lamp.olive': '一點橄欖油，就能點亮整個下午。', 'cape.chiton': '神祇們都說，這件很適合你。',
   'sugarc.cherry': '最後一顆櫻桃，總是留給戴帽子的人。', 'sugarc.rainbow': '融化之前，每一層顏色都很認真。', 'pixelc.crt': '畫面有點雪花，可是你的臉很清楚。', 'pixelc.gold': '接住的每一個球，都變成一枚硬幣。', 'calib.visor': '擋住的是光，看清的是距離。', 'calib.hud': '視野裡的數字，永遠比你快一步。', 'ferry.lotus': '河上開了一朵花，是給迷路的人看的。', 'ferry.lantern': '一盞接一盞，全是同行的人。',
   'sleepc.pillow': '抱著它，連噩夢都會睡著。', 'sleepc.dream': '醒著的人，才覺得這是夢遊。'
 };
@@ -2592,7 +2595,7 @@ function damageTob(o, dmg) {
 function plant(kind, cx, cy, w, h) {
   if (tobs.length >= 6) return false;
   const x = clamp(cx - w / 2, ROOM.x + 20, ROOM.x + ROOM.w - 20 - w), y = clamp(cy - h / 2, ROOM.y + 20, ROOM.y + ROOM.h - 20 - h);
-  const o = { kind, x, y, w, h, hp: (kind === 'bud' || kind === 'ice' || kind === 'pillar' || kind === 'bubble' || kind === 'rock') ? 3 : 6, maxHp: (kind === 'bud' || kind === 'ice' || kind === 'pillar' || kind === 'bubble' || kind === 'rock') ? 3 : 6, t: 0, dur: 5, flash: 0 };
+  const o = { kind, x, y, w, h, hp: (kind === 'bud' || kind === 'ice' || kind === 'pillar' || kind === 'bubble' || kind === 'rock' || kind === 'gjar') ? 3 : 6, maxHp: (kind === 'bud' || kind === 'ice' || kind === 'pillar' || kind === 'bubble' || kind === 'rock' || kind === 'gjar') ? 3 : 6, t: 0, dur: 5, flash: 0 };
   const nx = clamp(p.x, o.x, o.x + o.w), ny = clamp(p.y, o.y, o.y + o.h);
   if (Math.hypot(p.x - nx, p.y - ny) < p.r + 26) return false;
   tobs.push(o); burst(x + w / 2, y + h / 2, 10, ['#6fae6b', '#9ac27a', '#f2a9c4'], 120);
@@ -2603,6 +2606,7 @@ function plantFor(e, dx, dy, d) {
   const ux = -dx / d, uy = -dy / d; // 從玩家指向敵人
   const ice = th() === 1, ink = th() === 3;
   if (th() === 5) { if (e.type === 'shooter') plant('rock', p.x + ux * 130, p.y + uy * 130, 44, 44); else { const horiz = Math.abs(ux) > Math.abs(uy); plant('rockw', p.x + ux * 150, p.y + uy * 150, horiz ? 26 : 100, horiz ? 100 : 26); } return; }
+  if (th() === 16) { if (e.type === 'shooter') plant('gjar', p.x + ux * 130, p.y + uy * 130, 44, 44); else { const horiz = Math.abs(ux) > Math.abs(uy); plant('gwall', p.x + ux * 150, p.y + uy * 150, horiz ? 26 : 100, horiz ? 100 : 26); } return; }
   if (th() === 4) { if (e.type === 'shooter') plant('bubble', p.x + ux * 130, p.y + uy * 130, 44, 44); else { const horiz = Math.abs(ux) > Math.abs(uy); plant('coral', p.x + ux * 150, p.y + uy * 150, horiz ? 26 : 100, horiz ? 100 : 26); } return; }
   if (e.type === 'shooter') plant(ice ? 'ice' : ink ? 'pillar' : 'bud', p.x + ux * 130, p.y + uy * 130, 40, 40);
   else { const horiz = Math.abs(ux) > Math.abs(uy); plant(ice ? 'icew' : ink ? 'screen' : 'thorn', p.x + ux * 150, p.y + uy * 150, horiz ? 24 : 96, horiz ? 96 : 24); }
@@ -2650,6 +2654,10 @@ function drawTob(o) {
     ctx.fillStyle = o.flash > 0 ? C.paper : '#c0523a'; rrect(ctx, o.x, o.y, o.w, o.h, 8); ctx.fillStyle = o.flash > 0 ? C.paper : '#f2a08a';
     const hz = o.w > o.h, n = hz ? 3 : 4; for (let i = 0; i < n; i++) { const t0 = (i + 0.5) / n; if (hz) poly(ctx, [[o.x + o.w * t0 - 6, o.y + 4], [o.x + o.w * t0, o.y - 12 + (i % 2) * 5], [o.x + o.w * t0 + 6, o.y + 4]]); else poly(ctx, [[o.x + 4, o.y + o.h * t0 - 6], [o.x - 12 + (i % 2) * 5, o.y + o.h * t0], [o.x + 4, o.y + o.h * t0 + 6]]); }
     ctx.fillStyle = '#ffe0d0'; circ(ctx, o.x + o.w / 2, o.y + o.h / 2, 3);
+  } else if (o.kind === 'gjar') {
+    ctx.fillStyle = o.flash > 0 ? C.paper : '#1a1410'; ctx.beginPath(); ctx.ellipse(cx, cy + 3, 18, 20, 0, 0, TAU); ctx.fill(); ctx.fillRect(cx - 7, cy - 24, 14, 9); ctx.fillStyle = o.flash > 0 ? C.paper : '#e08a4c'; ctx.fillRect(cx - 15, cy - 2, 30, 3);
+  } else if (o.kind === 'gwall') {
+    ctx.fillStyle = o.flash > 0 ? C.paper : '#c9bd9c'; rrect(ctx, o.x, o.y, o.w, o.h, 4); ctx.fillStyle = o.flash > 0 ? C.paper : '#1a1410'; const hz2 = o.w > o.h; for (let i = 0; i < Math.floor((hz2 ? o.w : o.h) / 18); i++) { if (hz2) ctx.fillRect(o.x + 6 + i * 18, o.y + o.h / 2 - 1.5, 9, 3); else ctx.fillRect(o.x + o.w / 2 - 1.5, o.y + 6 + i * 18, 3, 9); }
   } else if (o.kind === 'bud') {
     ctx.fillStyle = o.flash > 0 ? C.paper : '#3f6b4c'; circ(ctx, cx, cy + 4, 20); ctx.fillStyle = o.flash > 0 ? C.paper : '#e58fb0'; poly(ctx, [[cx - 14, cy - 2], [cx - 6, cy - 26], [cx, cy - 6], [cx + 6, cy - 26], [cx + 14, cy - 2]]);
     ctx.fillStyle = '#f6d36b'; circ(ctx, cx, cy + 2, 5);
@@ -5175,7 +5183,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.63　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.64　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -5308,7 +5316,7 @@ function attackUpdate(dt) {
     return;
   }
   const w = WDEF[p.weapons[p.w]];
-  if (room.path && room.path.medOn) { fEdge = 0; p.charge = 0; return; }
+  if ((room.path && room.path.medOn) || p.stone > 0) { fEdge = 0; p.charge = 0; return; }
   p.blind = state === 'play' && inBlind();
   if (p.blind) { if (!run.blindToast) { run.blindToast = true; toast('被墨汁蒙住了——在黑色區域裡無法開火', 2.6); } fEdge = 0; p.charge = 0; return; }
   if (w.mode === 'charge') {
@@ -5473,7 +5481,7 @@ function updatePlay(dt) {
   run.t += dt; try { telTick(dt); } catch (e) { /* telemetry is optional */ }
   runTimers(dt);
   follow = !mouse.down;
-  p.iframes = Math.max(0, p.iframes - dt); p.cd = Math.max(0, p.cd - dt); p.noiseT = Math.max(0, (p.noiseT || 0) - dt); p.skillCd = Math.max(0, p.skillCd - dt); if (p.sleepT > 0) { p.sleepT -= dt; p.skillCd = Math.max(0.01, p.sleepT); if (p.sleepT <= 0) wakeUp(false); } updateStall(dt); p.chainT = Math.max(0, p.chainT - dt); fEdge = Math.max(0, fEdge - dt); p.recoil = Math.max(0, p.recoil - dt);
+  p.iframes = Math.max(0, p.iframes - dt); p.stone = Math.max(0, (p.stone || 0) - dt); p.cd = Math.max(0, p.cd - dt); p.noiseT = Math.max(0, (p.noiseT || 0) - dt); p.skillCd = Math.max(0, p.skillCd - dt); if (p.sleepT > 0) { p.sleepT -= dt; p.skillCd = Math.max(0.01, p.sleepT); if (p.sleepT <= 0) wakeUp(false); } updateStall(dt); p.chainT = Math.max(0, p.chainT - dt); fEdge = Math.max(0, fEdge - dt); p.recoil = Math.max(0, p.recoil - dt);
   if (room.big) markExplored();
   playerMove(dt); updateAllies(dt); aimUpdate(); p.near = room.items.length ? nearestItem() : null; attackUpdate(dt); updateWeapons(dt); updateClassTimers(dt); updateNewCls(dt); updateWaves(dt); updatePath(dt); { const W0 = THEMES[th()]; if (W0.tick) W0.tick(dt); } updateChase(dt); updateRush(dt); updateDecor(dt); updateSwamp(dt); updateTimed(dt); updateBlooms(); updateModes(dt); updateMech(dt); updateMech(dt);
   for (const e of enemies) { if (e.stickT > 0) e.stickT -= dt; updateEnemy(e, dt * slowAt(e.x, e.y, e.type === 'boss') * (e.stickT > 0 ? 0.6 : 1)); if (e.pin && !e.dead) { e.x = e.pin.x; e.y = e.pin.y; } }
@@ -5777,6 +5785,7 @@ function drawPickup(k) {
   noShadow(ctx); ctx.restore();
 }
 function drawPlayer() {
+  if (p.stone > 0) { ctx.save(); ctx.globalAlpha = 0.6; ctx.fillStyle = '#9a9a9a'; circ(ctx, p.x, p.y - 4, p.r + 9); ctx.fillStyle = '#6a6a6a'; ctx.font = '700 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('石化', p.x, p.y - 34); ctx.restore(); }
   const moving = p.speed > 15, walk = Math.sin(p.walkT * 9), bob = moving ? Math.abs(walk) * -2.2 : Math.sin(time * 2) * -0.8;
   const sway = clamp(-p.vx * 0.04, -6, 6), faceX = p.aim.x >= 0 ? 1 : -1;
   ctx.save(); ctx.translate(p.x, p.y);
@@ -5858,13 +5867,14 @@ function drawPlayer() {
     if (hd === 'book') { ctx.fillStyle = '#7a3b2c'; poly(ctx, [[-14, -25], [0, -29], [14, -25], [0, -23]]); ctx.fillStyle = '#e8d9b0'; poly(ctx, [[-13, -26], [0, -30], [0, -38], [-12, -34]]); poly(ctx, [[13, -26], [0, -30], [0, -38], [12, -34]]); ctx.strokeStyle = '#8a7a5a'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-9, -32); ctx.lineTo(-3, -34); ctx.moveTo(-9, -29.5); ctx.lineTo(-3, -31.5); ctx.moveTo(9, -32); ctx.lineTo(3, -34); ctx.moveTo(9, -29.5); ctx.lineTo(3, -31.5); ctx.stroke(); }
     else if (hd === 'hat') { ctx.fillStyle = '#c9b27a'; poly(ctx, [[-21, -23], [21, -23], [0, -43]]); ctx.strokeStyle = '#8f7a44'; ctx.lineWidth = 1; for (const k of [-10, -4, 4, 10]) { ctx.beginPath(); ctx.moveTo(0, -43); ctx.lineTo(k * 1.7, -23); ctx.stroke(); } ctx.fillStyle = '#5a4a2a'; ctx.fillRect(-21, -24, 42, 2); }
     else if (hd === 'monk') { ctx.fillStyle = '#d9b48a'; ctx.beginPath(); ctx.arc(0, -22, 12, Math.PI, TAU); ctx.fill(); ctx.fillStyle = '#7a5a3a'; for (const kx of [-5, 0, 5]) circ(ctx, kx, -28 - (kx === 0 ? 2 : 0), 1.1); }
+    else if (hd === 'laurel') { ctx.strokeStyle = '#5f8a3a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, -23, 13, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke(); ctx.fillStyle = '#7fae4a'; for (let k = 0; k < 7; k++) { const a = Math.PI * 1.1 + k * 0.13; poly(ctx, [[Math.cos(a) * 13, -23 + Math.sin(a) * 13], [Math.cos(a) * 17, -23 + Math.sin(a) * 17 - 2], [Math.cos(a + 0.12) * 14, -23 + Math.sin(a + 0.12) * 14]]); } }
     else if (hd === 'lily') { const hx = -9, hy = -27; ctx.strokeStyle = '#d2324a'; ctx.lineWidth = 1.6; ctx.lineCap = 'round'; for (let k = 0; k < 7; k++) { const a = -Math.PI * 0.95 + k * 0.5; ctx.beginPath(); ctx.moveTo(hx, hy); ctx.quadraticCurveTo(hx + Math.cos(a) * 6, hy + Math.sin(a) * 6 - 3, hx + Math.cos(a) * 11, hy + Math.sin(a) * 9 - 2); ctx.stroke(); } ctx.fillStyle = '#ffd7dc'; circ(ctx, hx, hy, 1.6); } }
   const kick = p.recoil > 0 ? p.recoil * 40 : 0, lx = p.aim.x * (24 + kick), ly = p.aim.y * (24 + kick) - 4;
   ctx.strokeStyle = C.paperDim; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(p.aim.x * 8, -2); ctx.lineTo(lx, ly - 7); ctx.stroke();
   setShadow(ctx, 1.5, 2, 0); ctx.fillStyle = '#7a5a2e'; rrect(ctx, lx - 6, ly - 8, 12, 3, 1.5); noShadow(ctx);
   ctx.fillStyle = lampCol().c; circ(ctx, lx, ly, 7); ctx.fillStyle = lampCol().core; circ(ctx, lx, ly, 3.5);
   { const gl2 = gcOf('lampx'); if (gl2 && gl2.kind === 'pend') { ctx.strokeStyle = gl2.c; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(lx, ly + 7); ctx.lineTo(lx, ly + 14); ctx.stroke(); ctx.fillStyle = gl2.c; ctx.beginPath(); ctx.arc(lx, ly + 16, 2.6, 0, TAU); ctx.fill(); ctx.fillStyle = gl2.c2; circ(ctx, lx, ly + 15.4, 0.9); } }
-  { const dc = lampCol().deco; if (dc === 'ink') { ctx.fillStyle = '#1b2350'; rrect(ctx, lx - 3, ly - 12, 6, 5, 1.5); ctx.strokeStyle = '#e8dcc0'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(lx + 1, ly - 12); ctx.lineTo(lx + 5, ly - 18); ctx.stroke(); } else if (dc === 'lotus') { ctx.fillStyle = '#ffb8cf'; for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + (k - 2) * 0.55; ctx.beginPath(); ctx.ellipse(lx + Math.cos(a) * 7, ly - 11 + Math.sin(a) * 4 + 4, 2.6, 5, a + Math.PI / 2, 0, TAU); ctx.fill(); } } else if (dc === 'lily') { ctx.strokeStyle = '#ff7b8c'; ctx.lineWidth = 1.3; ctx.lineCap = 'round'; for (let k = 0; k < 8; k++) { const a = k / 8 * TAU + time * 0.4; ctx.beginPath(); ctx.moveTo(lx + Math.cos(a) * 7, ly + Math.sin(a) * 7); ctx.quadraticCurveTo(lx + Math.cos(a) * 10, ly + Math.sin(a) * 10 - 1, lx + Math.cos(a + 0.3) * 13, ly + Math.sin(a + 0.3) * 13); ctx.stroke(); } } }
+  { const dc = lampCol().deco; if (dc === 'ink') { ctx.fillStyle = '#1b2350'; rrect(ctx, lx - 3, ly - 12, 6, 5, 1.5); ctx.strokeStyle = '#e8dcc0'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(lx + 1, ly - 12); ctx.lineTo(lx + 5, ly - 18); ctx.stroke(); } else if (dc === 'olive') { ctx.fillStyle = '#7fae4a'; poly(ctx, [[lx - 2, ly - 10], [lx + 7, ly - 16], [lx + 3, ly - 8]]); poly(ctx, [[lx - 3, ly - 9], [lx - 11, ly - 15], [lx - 6, ly - 7]]); ctx.fillStyle = '#3a4a22'; circ(ctx, lx + 1, ly - 9, 2.2); } else if (dc === 'lotus') { ctx.fillStyle = '#ffb8cf'; for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + (k - 2) * 0.55; ctx.beginPath(); ctx.ellipse(lx + Math.cos(a) * 7, ly - 11 + Math.sin(a) * 4 + 4, 2.6, 5, a + Math.PI / 2, 0, TAU); ctx.fill(); } } else if (dc === 'lily') { ctx.strokeStyle = '#ff7b8c'; ctx.lineWidth = 1.3; ctx.lineCap = 'round'; for (let k = 0; k < 8; k++) { const a = k / 8 * TAU + time * 0.4; ctx.beginPath(); ctx.moveTo(lx + Math.cos(a) * 7, ly + Math.sin(a) * 7); ctx.quadraticCurveTo(lx + Math.cos(a) * 10, ly + Math.sin(a) * 10 - 1, lx + Math.cos(a + 0.3) * 13, ly + Math.sin(a + 0.3) * 13); ctx.stroke(); } } }
   ctx.restore();
 }
 function drawAllyFig(n) {
@@ -6180,6 +6190,7 @@ function drawBigUI() {
   }
   for (const e of enemies) if (!e.dead && e.spawn <= 0 && !e.sleep) edgeArrow(e.x, e.y, C.ember, false);
   if (canExit()) edgeArrow(ROOM.x + ROOM.w, DOOR.y, C.amber, true);
+  { const W0 = THEMES[th()]; if (W0.arrows) W0.arrows(edgeArrow); }
   // 小地圖：只顯示走過的區域
   if (room.path && !room.path.boss && room.kind === 'combat') drawPathMap();
   if (!room.big || (mobile && !mapOpen) || room.path) return;
@@ -6192,6 +6203,7 @@ function drawBigUI() {
   if (canExit()) { ctx.fillStyle = C.amber; ctx.fillRect(mx + mw - 2, my + mh / 2 - 6 * sc * 4, 4, 12); }
   for (const e of enemies) if (!e.dead && e.spawn <= 0 && (e.sleep || Math.hypot(e.x - p.x, e.y - p.y) < 520)) { if (e.sleep) { ctx.fillStyle = 'rgba(40,0,0,.8)'; circ(ctx, mx + (e.x - ROOM.x) * sc, my + (e.y - ROOM.y) * sc, 3.2); ctx.fillStyle = '#ff3b30'; circ(ctx, mx + (e.x - ROOM.x) * sc, my + (e.y - ROOM.y) * sc, 2.3); } else { ctx.fillStyle = '#ffd27a'; circ(ctx, mx + (e.x - ROOM.x) * sc, my + (e.y - ROOM.y) * sc, 2); } }
   ctx.fillStyle = C.paper; circ(ctx, mx + (p.x - ROOM.x) * sc, my + (p.y - ROOM.y) * sc, 3);
+  { const W0 = THEMES[th()]; if (W0.mini) W0.mini(mx, my, sc); }
   ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.strokeRect(mx + (cam.x + view.x - ROOM.x) * sc, my + (cam.y + view.y - ROOM.y) * sc, view.w * sc, view.h * sc);
   ctx.restore();
 }

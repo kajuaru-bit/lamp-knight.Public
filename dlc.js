@@ -816,7 +816,7 @@ const GK_PAL = { ink: '#1a1410', floor: '#b5714a', floor2: '#bd7a52', wall1: '#2
 const GK_BLK = '#1a1410', GK_ORG = '#e08a4c', GK_CRM = '#f0d9b0';
 const GK_EV = ['oracle', 'zeus', 'siren', 'labyr', 'pandora', 'styx', 'dion'];
 const GK_NAME = { oracle: '德爾菲神諭', zeus: '宙斯的試煉', siren: '海妖之歌', labyr: '米諾陶迷宮', pandora: '潘朵拉的盒子', styx: '冥河擺渡', dion: '酒神狂歡', god: '神祇祭壇' };
-const GK_ZONE = ['市集廣場', '神殿', '港口', '橄欖林', '中庭', '迷宮入口'];
+const GK_ZONE = ['港口', '神殿', '市集廣場', '橄欖林', '中庭', '迷宮入口'];
 const GK_GODS = {
   apollo: { name: '阿波羅', ups: ['shade', 'crit'], desc: '燈光範圍 +15%、暴擊率 +10%' },
   athena: { name: '雅典娜', ups: ['wick'], shield: 1, desc: '最大血量 +1，並得到護盾 +1' },
@@ -824,18 +824,23 @@ const GK_GODS = {
   hermes: { name: '赫密斯', ups: ['shoes', 'hands'], desc: '移動速度 +10%、攻擊間隔 −12%' },
   demeter: { name: '狄蜜特', ups: ['wick'], heal: 3, desc: '最大血量 +1，並恢復 3 點燈火' }
 };
+const GK_STORY = [
+  [{ who: '旁白', text: '黑色的人影在陶罐的表面一個接一個轉過身來。這一頁的故事，從市集開始。' }, { who: '陶工', text: '（陶罐裡傳出老人的聲音）想走出去，先去祭壇求個恩賜；市集在右上角，神話的事件散在各處，地圖邊緣的黃色箭頭就是。' }],
+  [{ who: '旁白', text: '神殿的影子更長了。第二頁，罐子上的人像都低著頭。' }, { who: '陶工', text: '前面那位蛇髮的女士，不要直視她。柱子後面，是最好的朋友。' }],
+  [{ who: '旁白', text: '最後一頁。陶罐的底部畫著一座迷宮，迷宮的中央，有一個很大的影子。' }, { who: '陶工', text: '米諾陶不是壞蛋，只是一個關了太久的人。別手軟，但也別忘了，你的燈還亮著。' }]
+];
 let GK = null;
 function gkMake(R) {
   const zw = R.w / 3, zh = R.h / 2, zc = z => ({ x: R.x + (z % 3 + 0.5) * zw, y: R.y + (Math.floor(z / 3) + 0.5) * zh });
-  const evs = L.shuffle(GK_EV.slice()).slice(0, 3), zs = L.shuffle([2, 3, 4, 5]);
-  const c0 = zc(0), c1 = zc(1), slots = [{ fk: 'market', x: c0.x + 40, y: c0.y - 70 }, { fk: 'altar', x: c1.x, y: c1.y - 70 }];
-  evs.forEach((fk, i) => { const c = zc(zs[i]); slots.push({ fk, x: c.x + rr(-110, 110), y: c.y + rr(-80, 80) }); });
+  const evs = L.shuffle(GK_EV.slice()).slice(0, 3), zs = L.shuffle([0, 3, 4, 5]);
+  const c2 = zc(2), c1 = zc(1), slots = [{ fk: 'market', x: R.x + R.w - 340, y: R.y + 170 }, { fk: 'altar', x: c1.x, y: c1.y - 70 }];
+  evs.forEach((fk, i) => { const c = zc(zs[i]); slots.push(fk === 'labyr' ? { fk, x: c.x, y: c.y } : { fk, x: c.x + rr(-110, 110), y: c.y + rr(-80, 80) }); });
   GK = { slots, R: { x: R.x, y: R.y, w: R.w, h: R.h } };
   return GK;
 }
 function gkObs(kind, R, D) {
   const big = kind === 'combat'; if (big) gkMake(R); const sl = big && GK ? GK.slots : [];
-  const keep = sl.map(s => s.fk === 'market' ? { x: s.x - 230, y: s.y - 90, w: 520, h: 200 } : s.fk === 'altar' ? { x: s.x - 200, y: s.y - 90, w: 400, h: 200 } : { x: s.x - 130, y: s.y - 130, w: 260, h: 260 });
+  const keep = sl.map(s => s.fk === 'market' ? { x: s.x - 230, y: s.y - 100, w: 520, h: 220 } : s.fk === 'altar' ? { x: s.x - 200, y: s.y - 90, w: 400, h: 200 } : s.fk === 'labyr' ? { x: s.x - 220, y: s.y - 190, w: 420, h: 380 } : { x: s.x - 130, y: s.y - 130, w: 260, h: 260 });
   keep.push({ x: R.x, y: D.y - 100, w: 170, h: 200 }, { x: R.x + R.w - 170, y: D.y - 100, w: 170, h: 200 });
   const n = big ? 34 : 9, obs = [], ks = ['col', 'col', 'col', 'jar', 'olive', 'olive', 'stat'];
   for (let t = 0; t < 900 && obs.length < n; t++) {
@@ -856,6 +861,8 @@ function gkObsDraw(g, o) {
   } else if (jk === 'olive') {
     g.fillStyle = '#4a3320'; rrect(g, cx - 4, cy, 8, o.h * 0.5, 3); noShadow(g);
     g.fillStyle = '#6f7f48'; circ(g, cx, cy - 2, o.w * 0.5); g.fillStyle = '#8a9a5c'; circ(g, cx - o.w * 0.18, cy - 6, o.w * 0.28); g.fillStyle = '#4f5d33'; circ(g, cx + o.w * 0.2, cy + 2, o.w * 0.24);
+  } else if (jk === 'wall') {
+    g.fillStyle = '#6a3a22'; g.fillRect(o.x, o.y, o.w, o.h); noShadow(g); g.fillStyle = '#8a4e2e'; g.fillRect(o.x + 2, o.y + 2, o.w - 4, o.h - 4); g.fillStyle = GK_BLK; const hz = o.w > o.h; for (let i = 0; i < Math.floor((hz ? o.w : o.h) / 20); i++) { if (hz) g.fillRect(o.x + 6 + i * 20, o.y + o.h / 2 - 1.5, 10, 3); else g.fillRect(o.x + o.w / 2 - 1.5, o.y + 6 + i * 20, 3, 10); }
   } else if (jk === 'stat') {
     g.fillStyle = '#c9c2b4'; rrect(g, o.x + o.w * 0.15, o.y + o.h * 0.72, o.w * 0.7, o.h * 0.28, 3); noShadow(g);
     g.fillStyle = '#e4ddcc'; rrect(g, cx - o.w * 0.16, o.y + o.h * 0.28, o.w * 0.32, o.h * 0.46, 4); circ(g, cx, o.y + o.h * 0.2, o.w * 0.17);
@@ -875,10 +882,11 @@ function gkBg(g, rm, rng, arR) {
   if (!big) return;
   g.font = '700 34px sans-serif'; g.textAlign = 'center'; g.fillStyle = 'rgba(40,16,6,.22)'; for (let z = 0; z < 6; z++) g.fillText(GK_ZONE[z], R.x + (z % 3 + 0.5) * zw, R.y + (Math.floor(z / 3) + 0.5) * zh + 120);
   // 港口的水
-  g.fillStyle = 'rgba(70,130,180,.30)'; g.beginPath(); g.ellipse(R.x + 2.5 * zw, R.y + 0.5 * zh + 40, zw * 0.34, zh * 0.28, 0, 0, TAU); g.fill(); g.strokeStyle = 'rgba(240,250,255,.45)'; g.lineWidth = 3; for (let k = 0; k < 4; k++) { g.beginPath(); g.arc(R.x + 2.5 * zw - 110 + k * 70, R.y + 0.5 * zh + 40, 22, 0.2, 2.9); g.stroke(); }
+  g.fillStyle = 'rgba(70,130,180,.30)'; g.beginPath(); g.ellipse(R.x + 0.5 * zw, R.y + 0.5 * zh + 40, zw * 0.34, zh * 0.28, 0, 0, TAU); g.fill(); g.strokeStyle = 'rgba(240,250,255,.45)'; g.lineWidth = 3; for (let k = 0; k < 4; k++) { g.beginPath(); g.arc(R.x + 0.5 * zw - 110 + k * 70, R.y + 0.5 * zh + 40, 22, 0.2, 2.9); g.stroke(); }
 }
 function gkBack() {
-  const room = L.room, c = L.ctx, time = L.time; if (!GK || !room || room.kind !== 'combat' || !GK.live) return;
+  const room = L.room, c = L.ctx, time = L.time; if (room && room.kind === 'boss') { const m = L.enemies.find(q => q.type === 'boss' && !q.dead && q.xk === 'medusa'); if (m && m.gaze) { const g = m.gaze, p = L.p, act = g.t <= 3.4 - g.tele; c.save(); c.strokeStyle = act ? 'rgba(200,255,120,.85)' : 'rgba(200,255,120,.35)'; c.lineWidth = act ? 6 : 2; if (!act) c.setLineDash([10, 10]); c.beginPath(); c.moveTo(m.x, m.y); c.lineTo(p.x, p.y); c.stroke(); c.restore(); } return; }
+  if (!GK || !room || room.kind !== 'combat' || !GK.live) return;
   for (const s of GK.slots) {
     if (s.fk === 'market') { c.save(); c.translate(s.x, s.y - 52); c.fillStyle = GK_BLK; c.fillRect(-250, -6, 500, 8); for (let i = 0; i < 10; i++) { c.fillStyle = i % 2 ? GK_ORG : GK_CRM; c.beginPath(); c.moveTo(-250 + i * 50, 2); c.lineTo(-200 + i * 50, 2); c.lineTo(-225 + i * 50, 24); c.fill(); } c.fillStyle = 'rgba(40,16,6,.55)'; c.font = '700 15px sans-serif'; c.textAlign = 'center'; c.fillText('市集', 0, -14); c.restore(); }
     else if (s.fk === 'altar') { c.save(); c.translate(s.x, s.y + 20); c.fillStyle = 'rgba(240,217,176,.35)'; c.beginPath(); c.ellipse(0, 0, 230, 70, 0, 0, TAU); c.fill(); c.fillStyle = 'rgba(40,16,6,.55)'; c.font = '700 15px sans-serif'; c.textAlign = 'center'; c.fillText('神祇祭壇：三選一', 0, -84); c.restore(); }
@@ -898,9 +906,13 @@ function gkInit(room, kind) {
     } else if (s.fk === 'altar') {
       const ids = L.shuffle(Object.keys(GK_GODS)).slice(0, 3);
       ids.forEach((gid, i) => room.items.push({ kind: 'tfac', id: 'tfac', fk: 'god', g: gid, x: s.x + (i - 1) * 120, y: s.y, group: 'prop', price: 0, taken: false, st: 'ready', t: rand() * 6 }));
+    } else if (s.fk === 'labyr') {
+      const mx = s.x - 150, my = s.y - 150, W = (x, y, w, h) => room.obs.push({ x: mx + x, y: my + y, w, h, jk: 'wall' });
+      W(0, 0, 300, 24); W(0, 276, 300, 24); W(276, 0, 24, 300); W(0, 24, 24, 76); W(0, 200, 24, 76); W(24, 100, 150, 24); W(126, 176, 150, 24);
+      room.items.push({ kind: 'tfac', id: 'tfac', fk: 'labyr', x: mx - 56, y: my + 150, mx, my, group: 'prop', price: 0, taken: false, st: 'ready', t: rand() * 6 });
     } else room.items.push({ kind: 'tfac', id: 'tfac', fk: s.fk, x: s.x, y: s.y, group: 'prop', price: 0, taken: false, st: 'ready', t: rand() * 6 });
   }
-  if (room.combatIdx === 0) L.later(1.0, () => { if (L.room !== room) return; L.toast('希臘：市集在左上、祭壇在上方中間，其他地方散著神話事件；走進去才會叫醒敵人', 4.6); });
+  { const sd = r.gkSaid = r.gkSaid || {}; if (!sd[r.layer]) { sd[r.layer] = 1; const T0 = GK_STORY[Math.min(2, r.layer)]; L.later(2.2, () => { if (L.room === room && L.state() === 'play') L.say(T0); }); } }
 }
 function gkReward(it, coins) { const u = L.rewardUpgrade(); L.dropCoins(it.x, it.y + 30, coins || 8); L.sfx('clear'); L.burst(it.x, it.y - 10, 22, [GK_ORG, C.paper, '#ffe9a0'], 190, true); return L.UPG[u] ? L.UPG[u].name : '強化'; }
 function gkDone(it, msg) { it.st = 'done'; const r = L.run; r.gkEv = (r.gkEv || 0) + 1; if (r.gkEv >= 5) L.unlockAch('gkEvents'); if (msg) L.toast(msg, 3); L.hintReset(); }
@@ -929,7 +941,7 @@ function gkUse(it) {
   } else if (it.fk === 'siren') {
     it.st = 'busy'; it.mobs = gkSpawn(4 + (L.dL() >= 1 ? 1 : 0), it, ['shooter', 'shooter', 'crawler']); L.toast('歌聲響起……海妖來了！全部打倒', 3); L.hintReset();
   } else if (it.fk === 'labyr') {
-    it.st = 'busy'; it.mobs = gkSpawn(2, it, ['brute']); for (const e of it.mobs) { e.hp = e.maxHp = Math.round(e.hp * 2); e.r = Math.round(e.r * 1.25); } L.toast('迷宮的守衛醒了：打倒牠們，換一把武器', 3); L.hintReset();
+    it.st = 'busy'; it.mobs = [L.spawnEnemy('brute', it.mx + 60, it.my + 150), L.spawnEnemy('brute', it.mx + 70, it.my + 230)]; for (const e of it.mobs) { e.sleep = false; e.hp = e.maxHp = Math.round(e.hp * 2); e.r = Math.round(e.r * 1.25); } L.toast('迷宮的守衛醒了：打倒牠們，到迷宮深處拿武器', 3); L.hintReset();
   } else if (it.fk === 'pandora') {
     it.st = 'busy'; L.interact({ kind: 'mystery', id: 'mystery', x: it.x, y: it.y, group: 'prop', price: 0, taken: false }); it.mobs = gkSpawn(4, it, ['crawler', 'shooter', 'bomber']); L.toast('盒子裡放出了災厄！', 2.6); L.hintReset();
   } else if (it.fk === 'styx') {
@@ -938,8 +950,19 @@ function gkUse(it) {
     it.st = 'busy'; it.rt = 10; it.cd = 0; p.drunk = 10; L.toast('酒神狂歡！10 秒內瞄準會亂飄，但燈芯一直掉', 3); L.hintReset();
   }
 }
+function gkLos(a, b) {
+  const rm = L.room, n = Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / 16);
+  for (let i = 1; i < n; i++) { const x = a.x + (b.x - a.x) * i / n, y = a.y + (b.y - a.y) * i / n; if (rm.obs.some(o => x > o.x - 4 && x < o.x + o.w + 4 && y > o.y - 4 && y < o.y + o.h + 4)) return false; }
+  return true;
+}
+function gkBossTick(dt, room, p) {
+  const e = L.enemies.find(q => q.type === 'boss' && !q.dead && q.xk === 'medusa'); if (!e || !e.gaze) return;
+  const g = e.gaze; g.t -= dt; if (g.t <= 0) { e.gaze = null; return; }
+  if (g.t > 3.4 - g.tele || g.hit) return;
+  if (gkLos(e, p) && Math.hypot(e.x - p.x, e.y - p.y) < 900) { g.ex += dt; if (g.ex >= 0.5) { g.hit = true; p.stone = 2.4; L.sfx('hit'); L.shake(6); L.burst(p.x, p.y, 16, ['#9a9a9a', '#c8c8c8'], 160, true); L.toast('石化了！動作變慢、不能攻擊', 2.2); } } else g.ex = Math.max(0, g.ex - dt);
+}
 function gkTick(dt) {
-  const room = L.room, p = L.p; if (!GK || !room || !GK.live || room.kind !== 'combat' || L.state() !== 'play') { if (p && p.drunk > 0 && (!room || room.kind !== 'combat')) p.drunk = 0; return; }
+  const room = L.room, p = L.p; if (room && room.kind === 'boss' && L.state() === 'play') { gkBossTick(dt, room, p); return; } if (!GK || !room || !GK.live || room.kind !== 'combat' || L.state() !== 'play') { if (p && p.drunk > 0 && (!room || room.kind !== 'combat')) p.drunk = 0; return; }
   if (p.drunk > 0) p.drunk = Math.max(0, p.drunk - dt);
   for (const q of GK.strikes) { q.t -= dt; if (q.t <= 0 && !q.done) { q.done = true; L.burst(q.x, q.y, 14, ['#fff2a8', C.paper], 190, true); L.sfx('hit'); L.shake(4); if (Math.hypot(p.x - q.x, p.y - q.y) < q.r + p.r && p.iframes <= 0) L.hurtFrom('zeus', 1, 0, 1); } }
   GK.strikes = GK.strikes.filter(q => !q.done);
@@ -954,7 +977,7 @@ function gkTick(dt) {
     } else if (it.st === 'busy' && it.mobs) {
       if (it.mobs.every(e => e.dead)) {
         if (it.fk === 'siren') { const nm = gkReward(it, 12); gkDone(it, '海妖安靜了：' + nm); }
-        else if (it.fk === 'labyr') { const w = L.makeItem('weapon', it.x, it.y + 40, 'prop'); room.items.push(w); L.dropCoins(it.x, it.y + 20, 12); gkDone(it, '米諾陶的守衛倒下了：獎勵一把武器'); }
+        else if (it.fk === 'labyr') { const w = L.makeItem('weapon', it.mx + 230, it.my + 150, 'prop'); room.items.push(w); L.dropCoins(it.mx + 230, it.my + 120, 12); gkDone(it, '守衛倒下了：迷宮深處出現了一把武器'); }
         else if (it.fk === 'pandora') { gkDone(it, '災厄平息了，盒子裡剩下的是希望'); L.healP(1); }
       }
     }
@@ -967,7 +990,7 @@ function gkHint(it) {
 }
 function gkInfo(it) {
   if (it.fk === 'god') { const G = GK_GODS[it.g]; return { name: G.name + '的祭壇', desc: '恩賜：' + G.desc + '。三座祭壇只能選一座' }; }
-  const dd = { oracle: '付 3 燈芯：六成得到祝福（一個強化），四成厄運（敵人出現）', zeus: '站進圈內撐過 20 秒閃電，成功得到強化與燈芯；離開圈外不計時', siren: '引來一群海妖。全部打倒得到強化與燈芯；不想打就不要碰', labyr: '兩隻精英守衛。打倒後獎勵一把武器和燈芯', pandora: '打開得到神祕寶箱的隨機獎勵，同時放出一波災厄；打完回 1 點燈火', styx: '付 2 燈芯，卡戎直接把你載到出口這一側（跳過沿途的區域）', dion: '10 秒內瞄準亂飄，但不停掉出燈芯' };
+  const dd = { oracle: '付 3 燈芯：六成得到祝福（一個強化），四成厄運（敵人出現）', zeus: '站進圈內撐過 20 秒閃電，成功得到強化與燈芯；離開圈外不計時', siren: '引來一群海妖。全部打倒得到強化與燈芯；不想打就不要碰', labyr: '迷宮的入口。兩隻精英守衛醒來後會追出來；打倒後，迷宮深處會出現一把武器', pandora: '打開得到神祕寶箱的隨機獎勵，同時放出一波災厄；打完回 1 點燈火', styx: '付 2 燈芯，卡戎直接把你載到出口這一側（跳過沿途的區域）', dion: '10 秒內瞄準亂飄，但不停掉出燈芯' };
   return { name: GK_NAME[it.fk] + (it.st === 'done' ? '（已結束）' : ''), desc: dd[it.fk] || '' };
 }
 function gkDraw(it) {
@@ -1051,7 +1074,7 @@ function gkMoves(e, phase, ang) {
   const a = L.pickOf(pool);
   if (a === 'fan') { for (let w = 0; w < 3; w++) L.later(w * 0.4, () => { if (e.dead || L.state() !== 'play') return; const aa = aim(); for (let i = -2; i <= 2; i++) L.bossShot(e, e.x, e.y, aa + i * 0.2, 190, false, 6); L.sfx('hit'); }); L.toast(med ? '蛇髮亂舞！' : '牛角衝撞！', 1.1); }
   else if (a === 'ring') { const n = 14, off = rand() * TAU; for (let i = 0; i < n; i++) L.bossShot(e, e.x, e.y, off + i / n * TAU, 150, false, 7); L.sfx('hit'); L.toast('一圈衝擊', 1.1); }
-  else if (a === 'gaze') { L.toast('石化視線！快橫向移動', 1.6); for (let k = 0; k < 6; k++) L.later(0.6 + k * 0.14, () => { if (e.dead || L.state() !== 'play') return; L.bossShot(e, e.x, e.y, aim(), 360, false, 6); }); }
+  else if (a === 'gaze') { e.gaze = { t: 3.4, tele: 0.9, ex: 0, hit: false }; L.toast('石化視線！躲到柱子後面，別被她看到', 2.6); }
   else if (a === 'charge') { L.toast('米諾陶衝過來了！', 1.4); for (let k = 0; k < 3; k++) L.markStrike(e, p.x + (k - 1) * 70, p.y + (k - 1) * 20, 62, 1.0 + k * 0.25, {}); }
   else if (a === 'stomp') { L.toast('大地震動！', 1.4); for (let k = 0; k < 7; k++) { const aa = k / 7 * TAU, d = 150 + (k % 2) * 80; L.markStrike(e, e.x + Math.cos(aa) * d, e.y + Math.sin(aa) * d, 58, 1.2, {}); } }
   else if (a === 'call') { const alive = L.enemies.filter(q => !q.dead && q.type !== 'boss').length; if (alive < 6) for (let i = 0; i < 2; i++) { const sp = L.freeSpot(13), m = L.spawnEnemy(med ? 'shooter' : 'crawler', sp.x, sp.y); m.sleep = false; } L.toast(med ? '蛇群爬出來了' : '迷宮的守衛趕來了', 1.4); }
@@ -1062,6 +1085,8 @@ L.registerWorld({
   pal: GK_PAL, noDark: true,
   amb: ['bandpass', 1400, 1.5, 0.004], ev: r => { const n = [392, 440, 523, 587][Math.floor(r() * 4)]; L.blip(n, n * 1.003, 0.8, 'triangle', 0.007); },
   bg: gkBg, obsDraw: gkObsDraw, obs: gkObs, roomInit: gkInit, tick: gkTick, back: gkBack, drawItem: gkDraw, info: gkInfo, hint: gkHint, useItem: gkUse,
+  arrows: edge => { const room = L.room; if (!room || room.kind !== 'combat' || !GK || !GK.live) return; for (const it of room.items) if (it.kind === 'tfac' && it.st === 'ready' && !it.taken) edge(it.x, it.y, it.fk === 'god' ? '#ffe9a0' : '#ffd24a', false); for (const s of GK.slots) if (s.fk === 'market') edge(s.x, s.y, '#7ad0f0', false); },
+  mini: (mx, my, sc) => { const room = L.room, c = L.ctx, R = L.ROOM; if (!room || room.kind !== 'combat' || !GK || !GK.live) return; c.save(); c.textAlign = 'center'; c.font = '700 9px sans-serif'; for (const s of GK.slots) { const x = mx + (s.x - R.x) * sc, y = my + (s.y - R.y) * sc; if (s.fk === 'market') { c.fillStyle = '#7ad0f0'; c.fillText('市', x, y + 3); } else if (s.fk === 'altar') { c.fillStyle = '#ffe9a0'; c.fillText('★', x, y + 3); } } for (const it of room.items) if (it.kind === 'tfac' && it.fk !== 'god') { const x = mx + (it.x - R.x) * sc, y = my + (it.y - R.y) * sc; c.fillStyle = it.st === 'done' ? 'rgba(180,180,180,.6)' : '#ffd24a'; c.beginPath(); c.moveTo(x, y - 4); c.lineTo(x + 3.5, y); c.lineTo(x, y + 4); c.lineTo(x - 3.5, y); c.fill(); } c.restore(); },
   skin: { map: { crawler: 'jar', shooter: 'harpy', brute: 'satyr', splitter: 'hydra', splitter2: 'hydra', bomber: 'pot' }, draw: drawGkEnemy, hue: false },
   weapons: {
     trident: { id: 'trident', name: '三叉戟', tag: '貫穿', mode: 'tap', cd: 0.55, th: 16, desc: '射出會貫穿敵人的三叉戟，傷害高（希臘專屬）',
@@ -1073,9 +1098,9 @@ L.registerWorld({
       fire: (ox, oy, ang, dm) => { const o = rand() * TAU; for (let i = 0; i < 7; i++) L.shoot(ox, oy, o + i / 7 * TAU, 320, 6, 2.5 * dm, 'pellet', 0.5, true); L.sfx('flame'); } }
   },
   ach: [
-    { id: 'gkBless', name: '神的寵兒', desc: '希臘神話：同一局三層都接受了神祇恩賜' },
-    { id: 'gkEvents', name: '見多識廣', desc: '希臘神話：一局完成 5 個神話事件' },
-    { id: 'gkMino', name: '走出迷宮', desc: '希臘神話：擊敗米諾陶' }
+    { id: 'gkBless', name: '神的寵兒', desc: '希臘神話：同一局三層都接受了神祇恩賜（可獲得希臘長袍）' },
+    { id: 'gkEvents', name: '見多識廣', desc: '希臘神話：一局完成 5 個神話事件（可獲得橄欖油燈）' },
+    { id: 'gkMino', name: '走出迷宮', desc: '希臘神話：擊敗米諾陶（可獲得月桂冠）' }
   ],
   types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter'); if (L0 > 0 || ci >= 1) types.push('splitter'); if (L0 > 0 || ci >= 2) types.push('brute', 'bomber'); },
   boss: fin => fin ? { kind: 'golem', name: '米諾陶', hp: 205, ext: true, xk: 'minotaur' } : { kind: 'golem', name: '美杜莎', hp: 125, ext: true, xk: 'medusa' },
