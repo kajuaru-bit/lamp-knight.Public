@@ -332,7 +332,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.58　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.59　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -674,6 +674,10 @@ const WDEF = {
   budgun:  { id: 'budgun',  name: '花苞槍', tag: '開花', mode: 'tap', cd: 0.5, cls: 'florist', desc: '拋出花苞，落地或命中後開出小花，花粉 2 秒內持續傷害範圍內的敵人' },
   coinx:   { id: 'coinx',   name: '銅錢鏢', tag: '散射', mode: 'tap', cd: 0.5, cls: 'shopc', desc: '三枚銅錢小扇面散射；身上燈芯每 10 枚傷害 +0.2（最多 +1.5）' },
   pillow:  { id: 'pillow',  name: '枕頭', tag: '昏睡', mode: 'tap', cd: 0.7, cls: 'sleepc', range: 120, half: 1.0, dmg: 5, kb: 700, desc: '慢速近戰重擊；命中使一般敵人昏睡 1 秒（Boss 與精英無效）' },
+  syrup:   { id: 'syrup', name: '糖漿鞭', tag: '近戰・黏', mode: 'tap', cd: 0.5, cls: 'sugarc', range: 140, half: 0.9, dmg: 3.2, kb: 300, desc: '近距離揮鞭，命中的敵人被黏住減速 40%（2 秒）；連續命中同一隻黏性疊加，第 3 層暈 0.6 秒' },
+  pong:    { id: 'pong', name: '乒乓砲', tag: '反彈・接球', mode: 'tap', cd: 0.3, cls: 'pixelc', desc: '方形彈球，碰牆反彈 3 次、每次傷害 +30%（4 → 8.8），之後折返；彈球靠近時再按攻擊鍵接球，完美接球讓下一發 ×1.5；沒接到則重新裝填 1.2 秒' },
+  calgun:  { id: 'calgun', name: '校準槍', tag: '貫穿・距離', mode: 'tap', cd: 0.6, cls: 'calib', desc: '可穿透的子彈；傷害隨飛行距離遞減：100 像素內 ×1.3、300 ×1.0、500 ×0.7、700 ×0.4（基底 6.5）' },
+  pole:    { id: 'pole', name: '擺渡篙', tag: '戳刺・推開', mode: 'tap', cd: 0.7, cls: 'ferry', desc: '向前戳刺，射程長、貫穿一整列；戳中的敵人被推開' },
   lure:    { id: 'lure',    name: '蟲餌', tag: '誘引', mode: 'hold', cd: 0.1, desc: '按住在前方放出氣味，最多同時兩個；吸引附近的蟲系敵人，70 像素內的敵人每秒受到 2.5 點傷害；放開後氣味還會留 3 秒' }
 };
 const WLIST = Object.keys(WDEF);
@@ -694,6 +698,10 @@ const UPG = {
   c_echo:  { name: '迴響光波', cls: 'knight', desc: '【提燈騎士專屬】光爆結束 0.5 秒後再放出一道半徑 60% 的光波，傷害 1', max: 2, price: 10 },
   c_swarm: { name: '螢火增殖', cls: 'hunter', desc: '【螢火獵人專屬】螢火蟲群從 10 隻增加到 14 隻', max: 2, price: 13 },
   c_chain: { name: '連裁', cls: 'cutter', desc: '【剪紙匠專屬】衝刺結束後 1.5 秒內，可以再衝刺一次（不重新計冷卻）', max: 2, price: 13 },
+  c_sug:   { name: '糖心', cls: 'sugarc', desc: '【糖衣師專屬】第 1 層：糖衣多擋 1 次（3 → 4 次）；第 2 層：糖碎片傷害 +50%，且命中的敵人被黏住', max: 2, price: 11 },
+  c_pix:   { name: '連線加成', cls: 'pixelc', desc: '【像素客專屬】第 1 層：乒乓砲多反彈 1 次（3 → 4 次）；第 2 層：接球窗口加長、完美接球回 1 燈芯、讀檔冷卻 −10 秒', max: 2, price: 11 },
+  c_cal:   { name: '焦距調整', cls: 'calib', desc: '【校準員專屬】第 1 層：校準槍的傷害衰減變慢 35％；第 2 層：傷害下限 ×0.7，且座標標記可同時標記 2 個目標', max: 2, price: 11 },
+  c_fer:   { name: '渡口深處', cls: 'ferry', desc: '【擺渡人專屬】第 1 層：燈火隊員 +1 名、存在 +4 秒；第 2 層：隊員消失時留下 4 秒的「渡口」（站上去回血），射速 +30％', max: 2, price: 11 },
   c_wall:  { name: '雙層屏障', cls: 'mage', desc: '【折紙術士專屬】同時立起兩道前後相隔的紙牆；紙牆也能擋住敵人（敵人無法穿過）', max: 2, price: 10 },
   c_warm:  { name: '濃縮暖光', cls: 'oiler', desc: '【燈油師專屬】第 1 層：暖光恢復量 +1；第 2 層：暖光冷卻 −20%', max: 2, price: 13 },
   c_shield: { name: '厚紙盾', cls: 'shield', desc: '【紙盾衛專屬】第 1 層：護盾上限 +1；第 2 層：護盾恢復速度 +30%', max: 2, price: 13 },
@@ -722,6 +730,10 @@ const PREM = {
   c_echo:  { name: '雙重迴響', cls: 'knight', desc: '【提燈騎士專屬】第二道光波半徑 100%、傷害 2', price: 18, w: 2 },
   c_swarm: { name: '螢火洪流', cls: 'hunter', desc: '【螢火獵人專屬】螢火蟲群增加到 20 隻', price: 22, w: 2 },
   c_chain: { name: '連裁・極', cls: 'cutter', desc: '【剪紙匠專屬】衝刺傷害 +30%；衝刺撞到敵人時，結束後恢復 1 燈火', price: 22, w: 2 },
+  c_sug:   { name: '糖心・極', cls: 'sugarc', desc: '糖衣多擋 1 次，且糖碎片傷害 +50%、命中的敵人被黏住（占 2 層）', price: 19, w: 2 },
+  c_pix:   { name: '連線加成・極', cls: 'pixelc', desc: '乒乓砲多反彈 1 次，接球窗口加長、完美接球回 1 燈芯、讀檔冷卻 −10 秒（占 2 層）', price: 19, w: 2 },
+  c_cal:   { name: '焦距調整・極', cls: 'calib', desc: '校準槍傷害衰減變慢且下限 ×0.7，座標標記可同時標記 2 個目標（占 2 層）', price: 19, w: 2 },
+  c_fer:   { name: '渡口深處・極', cls: 'ferry', desc: '燈火隊員 +1 名、存在 +4 秒，消失時留下回血的渡口，射速 +30％（占 2 層）', price: 19, w: 2 },
   c_wall:  { name: '分立屏障', cls: 'mage', desc: '【折紙術士專屬】兩道紙牆改成可以分開立起：施放後 6 秒內可以再立一道；紙牆也能擋住敵人', price: 18, w: 2 },
   c_warm:  { name: '暖光・極', cls: 'oiler', desc: '【燈油師專屬】暖光恢復量 +1 且冷卻 −20%（占 2 層）', price: 22, w: 2 },
   c_shield: { name: '鋼紙盾', cls: 'shield', desc: '【紙盾衛專屬】護盾上限 +1 且恢復速度 +30%（占 2 層）', price: 22, w: 2 },
@@ -954,8 +966,13 @@ const CLS = [
   { id: 'florist', name: '花匠', role: '種花輔助', weapon: 'budgun', hp: 5, spd: 1, ach: 18, skill: '播種', sdesc: '在前方種下種子，長成會攻擊的花 10 秒；攻擊方式沿用種下時手上的武器', cd: 12, detail: '在瞄準方向前方種下一顆種子，約 1 秒後長成花，存在 10 秒，同時最多 3 朵。花會自己朝最近的敵人攻擊，**攻擊方式沿用種下時你手上的武器**（子彈類發射同樣的子彈、近戰類在花的位置揮擊），射速約為本人的一半、傷害約 70%。換不同武器種花，就是不同的花。' },
   { id: 'bellman', ach2: 30, name: '凜風客', role: '控場坦', weapon: 'frostcane', hp: 8, spd: 0.85, mate: 'bell', skill: '吹起寒風', sdesc: '凍結視野內的敵人，凍結的敵人更怕痛', cd: 16, detail: '吹出一陣寒風，視野範圍內的敵人凍結 1.2 秒（Boss 0.5 秒），並清除敵方光球；凍結的敵人受到的傷害 +20%。在極地主題，凍結時間 +0.3 秒、冷卻 −2 秒，且自己被凍結的機率減半、時間 −0.3 秒。被動：近戰擊退 +30%。' },
   { id: 'shopc', name: '掌櫃', role: '商業輔助', weapon: 'coinx', hp: 6, spd: 1, achId: 'bizBoom', skill: '臨時攤位', sdesc: '在腳邊擺出攤位與小商人 12 秒，賣補血、強化與小物；冷卻 3 個房間。被動：所有商店價格 −4（最低 1）', cd: 0, detail: '被動：商人房與臨時攤位的價格都 −4（最低 1 燈芯）。技能：在腳邊擺一座攤位，小商人會跟你打招呼，攤位 12 秒內賣：補血、一件隨機強化、護身小物。冷卻以房間計算：進入 3 個新房間後才能再擺。' },
-  { id: 'sleepc', name: '嗜睡者', role: '賭運回復', weapon: 'pillow', hp: 6, spd: 1, ach: 22, skill: '入眠', sdesc: '睡 5 秒：移動很慢、視野剩血量 1 的大小、不能攻擊；醒來時範圍攻擊並回復燈火 2', cd: 25, detail: '按技能入睡 5 秒：移速 ×0.4、視野縮到血量 1 的大小、不能攻擊。睡滿 5 秒醒來：範圍攻擊（半徑 130、傷害 3）並回復 2 點燈火。睡眠中被打到會提前醒來：只有範圍攻擊，沒有回血。睡眠中再按一次技能可主動醒來（同樣沒有回血）。冷卻 25 秒，從醒來起算。' }
+  { id: 'sleepc', name: '嗜睡者', role: '賭運回復', weapon: 'pillow', hp: 6, spd: 1, ach: 22, skill: '入眠', sdesc: '睡 5 秒：移動很慢、視野剩血量 1 的大小、不能攻擊；醒來時範圍攻擊並回復燈火 2', cd: 25, detail: '按技能入睡 5 秒：移速 ×0.4、視野縮到血量 1 的大小、不能攻擊。睡滿 5 秒醒來：範圍攻擊（半徑 130、傷害 3）並回復 2 點燈火。睡眠中被打到會提前醒來：只有範圍攻擊，沒有回血。睡眠中再按一次技能可主動醒來（同樣沒有回血）。冷卻 25 秒，從醒來起算。' },
+  { id: 'sugarc', name: '糖衣師', role: '控場近戰', weapon: 'syrup', hp: 7, spd: 1, dlcReq: [['candy', 'candyGuard']], need: '糖果世界：護送＋守燈各通關一次', skill: '糖衣', sdesc: '包上糖殼，擋 3 次傷害；碎裂時迸出彈射的糖碎片', cd: 18, detail: '把自己包成糖殼，可以擋 3 次傷害（25 秒內沒用完會融化）；糖殼碎裂時會往四周迸出 6 片糖碎片，會彈射並傷敵。專屬武器糖漿鞭：近距離揮鞭，命中的敵人被黏住、減速 40%（2 秒），連續命中同一隻黏性疊加，第 3 層暈 0.6 秒。' },
+  { id: 'pixelc', name: '像素客', role: '高機動風險型', weapon: 'pong', hp: 4, spd: 1.15, dlcReq: [['arcade', 'escape']], need: '電玩世界：無盡抵達第 6 層＋逃離通關各一次', skill: '讀檔', sdesc: '回到 3 秒前的位置與血量（血量不會比現在低）', cd: 45, detail: '讀檔：回到約 3 秒前的位置，血量取「現在」與「3 秒前」較高者，並有 0.8 秒無敵。冷卻很長（45 秒）。專屬武器乒乓砲：彈球碰牆與障礙會反彈 3 次，每次傷害 +30%，之後折返；彈球靠近時再按攻擊鍵可以接球（完美接球：下一發 ×1.5）；沒接到就消失、裝填 1.2 秒。' },
+  { id: 'calib', name: '校準員', role: '遠程精準', weapon: 'calgun', hp: 5, spd: 1, dlcReq: [['future', 'futEscape']], need: '未來世界：守燈＋逃離各通關一次', skill: '座標標記', sdesc: '標記最近的敵人（優先 Boss），3 秒後引爆；施放與引爆都會清除附近的敵方子彈', cd: 14, detail: '座標標記：對最近的敵人（有 Boss 時優先）打上標記，3 秒後在標記處引爆（半徑 130、傷害 8）；施放時清除身邊 170 像素的敵方子彈，引爆時清除標記處 150 像素的敵方子彈。專屬武器校準槍：可穿透的子彈，傷害隨距離遞減（100 像素內 ×1.3、300 ×1.0、500 ×0.7、700 ×0.4）。' },
+  { id: 'ferry', name: '擺渡人', role: '召喚輔助', weapon: 'pole', hp: 6, spd: 0.95, dlcReq: [['letters', 'shore'], ['dl2long']], need: 'DLC2：字母書房＋彼岸各通關一次，或 DLC2 長線通關一次', skill: '渡燈', sdesc: '召喚 2 名自發光的燈火隊員，14 秒；會自動射擊，消失時震開敵方子彈', cd: 22, detail: '渡燈：在身邊召喚 2 名燈火隊員（血量 2，各自發出一圈光），存在 14 秒，會自動朝最近的敵人射擊（傷害 1.2、每 0.9 秒）；消失時迸出光圈，清掉附近的敵方子彈；再次施放會取代舊的。專屬武器擺渡篙：向前戳刺，射程長、貫穿一整列，戳中的敵人被推開。' },
 ];
+let lampMates = [], cmarks = [], harbors = [], pongB = null, rewindH = [];
 let chosen = 0, cleared = false, menuAgain = false;
 /* ---------- 紀錄、成就、造型 ---------- */
 const REC_KEY = 'lampknight.rec';
@@ -963,13 +980,13 @@ function loadRec() {
   let r = {}; try { r = JSON.parse(localStorage.getItem(REC_KEY) || '{}') || {}; } catch (e) { r = {}; }
   r.runs = r.runs || 0; r.clears = r.clears || 0; r.time = r.time || 0; r.best = r.best || 0;
   r.deaths = r.deaths || {}; r.kills = r.kills || {}; r.byCls = r.byCls || {}; r.ach = r.ach || {}; r.seenW = r.seenW || {}; r.allies = r.allies || {}; r.endings = r.endings || {};
-  r.paper = r.paper || 0; r.scrap = r.scrap || 0; r.tutKeys = r.tutKeys || {}; r.mates = r.mates || {}; r.bossK = r.bossK || {}; r.themesSeen = r.themesSeen || {}; r.sleepKills = r.sleepKills || 0; r.fanKills = r.fanKills || 0; r.cos = r.cos || { lamp: 'warm', cape: 'red' }; r.cosOwn = r.cosOwn || {}; r.gacha = r.gacha || { n: 0, pity: 0 }; r.seenC = !!r.seenC; r.seenV = !!r.seenV;
+  r.dlcWin = r.dlcWin || {}; r.paper = r.paper || 0; r.scrap = r.scrap || 0; r.tutKeys = r.tutKeys || {}; r.mates = r.mates || {}; r.bossK = r.bossK || {}; r.themesSeen = r.themesSeen || {}; r.sleepKills = r.sleepKills || 0; r.fanKills = r.fanKills || 0; r.cos = r.cos || { lamp: 'warm', cape: 'red' }; r.cosOwn = r.cosOwn || {}; r.gacha = r.gacha || { n: 0, pity: 0 }; r.seenC = !!r.seenC; r.seenV = !!r.seenV;
   r.ui = Object.assign({ autoDlg: false, dlgSpd: 1, toast: 1, tz: 1, to: 2, lefty: false }, r.ui || {});
   return r;
 }
 let rec = loadRec();
 const DLG_SPD = [0.7, 1, 1.8, 99], DLG_NAME = ['慢', '中', '快', '瞬間'], TOAST_M = [0.7, 1, 1.6], TOAST_NAME = ['短', '中', '長'], TZ_V = [0.85, 1, 1.2], TZ_NAME = ['小', '中', '大'], TO_V = [0.55, 0.8, 1], TO_NAME = ['淡', '中', '濃'];
-const CLS_TYPE = { knight: 'atk', hunter: 'atk', cutter: 'atk', inkhunter: 'atk', lanternc: 'atk', shield: 'def', watch: 'def', bellman: 'def', mage: 'bal', oiler: 'bal', lampist: 'bal', slowc: 'sup', florist: 'sup', shopc: 'sup', sleepc: 'sup' };
+const CLS_TYPE = { knight: 'atk', hunter: 'atk', cutter: 'atk', inkhunter: 'atk', lanternc: 'atk', shield: 'def', watch: 'def', bellman: 'def', mage: 'bal', oiler: 'bal', lampist: 'bal', slowc: 'sup', florist: 'sup', shopc: 'sup', sleepc: 'sup', sugarc: 'def', pixelc: 'atk', calib: 'atk', ferry: 'sup' };
 const TYPE_INFO = { atk: { name: '攻擊型', col: '#ee6a3c' }, def: { name: '防守型', col: '#5aa6e0' }, bal: { name: '平衡型', col: '#a8d36a' }, sup: { name: '輔助型', col: '#c79bff' } };
 let clsFilter = 'all';
 function saveRec() { if (run.practice) return; try { localStorage.setItem(REC_KEY, JSON.stringify(rec)); } catch (e) { /* storage is optional */ } }
@@ -1134,6 +1151,10 @@ function gachaHtml() {
     + '<p class="quiet">機率：普通 70%、稀有 25%、傳說 5%；每 30 抽保底 1 個傳說；重複的外觀變成紙屑（普通 1、稀有 3、傳說 10）；合成價：普通 5、稀有 15、傳說 40 紙屑。抽到的外觀到「造型」頁裝備（頭飾、身衣、燈飾、小飾品四欄）。</p></div>';
 }
 const CLSCOS = {
+  sugarc: { name: '帽子', opts: { plain: { name: '糖霜帽' } } },
+  pixelc: { name: '帽子', opts: { plain: { name: '像素帽' } } },
+  calib: { name: '護目鏡', opts: { plain: { name: '校準鏡' } } },
+  ferry: { name: '斗笠', opts: { plain: { name: '擺渡笠' } } },
   knight: { name: '披風', opts: { plain: { name: '短披風' }, long: { name: '長披風', clears: 1 }, crane: { name: '紙鶴披風', clears: 3 }, fan: { name: '扇紋披風', req: 'fanFame' } } },
   hunter: { name: '帽子', opts: { none: { name: '無帽' }, straw: { name: '斗笠', clears: 1 }, feather: { name: '羽毛帽', clears: 3 } } },
   cutter: { name: '剪刀花紋', opts: { none: { name: '素面' }, cross: { name: '剪痕', clears: 1 }, flower: { name: '剪紙花', clears: 3 } } },
@@ -1188,7 +1209,9 @@ const achCount = () => Object.keys(rec.ach).length;
 const MATE_CLS = { lamp: 'lampist', ink: 'inkhunter', bell: 'bellman' };
 const mateOpen = id => !!(rec.mates[id] && rec.mates[id].got);
 const mateChance = id => Math.min(1, 0.5 + 0.25 * ((rec.mates[id] || {}).fails || 0));
-const clsUnlocked = i => !!optUnlock.checked || (CLS[i].ach2 && achCount() >= CLS[i].ach2) || (CLS[i].achId ? !!rec.ach[CLS[i].achId] : CLS[i].mate ? mateOpen(CLS[i].mate) : CLS[i].ach ? achCount() >= CLS[i].ach : (i === 0 || cleared));
+const dlcDone = k => !!((rec.dlcWin || {})[k] || rec.ach[{ arcade: 'endless6', escape: 'escapeWin', future: 'guardWin', candy: 'escortWin' }[k]]);
+const dlcReqOk = c => c.dlcReq.some(g => g.every(dlcDone));
+const clsUnlocked = i => !!optUnlock.checked || (CLS[i].ach2 && achCount() >= CLS[i].ach2) || (CLS[i].dlcReq ? dlcReqOk(CLS[i]) : CLS[i].achId ? !!rec.ach[CLS[i].achId] : CLS[i].mate ? mateOpen(CLS[i].mate) : CLS[i].ach ? achCount() >= CLS[i].ach : (i === 0 || cleared));
 const lastL = () => run.endless ? 9999 : run.long ? (run.ext ? 8 : 5) : 2;
 const thIdx = () => run.dl2 ? (run.layer >= 3 ? 1 : 0) : run.long ? (run.layer >= 6 ? run.layer - 3 : Math.min(2, run.layer >> 1)) : Math.min(run.layer, 2);
 const dL = () => run.long ? (run.layer >= 6 ? 3 : Math.min(2, (run.layer + 1) >> 1)) : Math.min(3, run.layer);
@@ -1375,7 +1398,7 @@ function wallBlock(e) {
   for (const w of walls) {
     const x1 = w.x - w.nx * w.half, y1 = w.y - w.ny * w.half, dx = 2 * w.nx * w.half, dy = 2 * w.ny * w.half, l2 = dx * dx + dy * dy || 1;
     const t = clamp(((e.x - x1) * dx + (e.y - y1) * dy) / l2, 0, 1), cx = x1 + dx * t, cy = y1 + dy * t; let ex = e.x - cx, ey = e.y - cy, d = Math.hypot(ex, ey); const m = e.r + 6;
-    if (d < m) { if (d < 0.01) { ex = w.ny; ey = -w.nx; if ((e.x - p.x) * ex + (e.y - p.y) * ey < 0) { ex = -ex; ey = -ey; } d = 1; } e.x = cx + ex / d * m; e.y = cy + ey / d * m; }
+    if (d < m) { if (run.t - (e.wallHit || -9) > 0.5) { e.wallHit = run.t; hitEnemy(e, 1.2 * p.skillPow, 0, 0, 0, true); } if (d < 0.01) { ex = w.ny; ey = -w.nx; if ((e.x - p.x) * ex + (e.y - p.y) * ey < 0) { ex = -ex; ey = -ey; } d = 1; } e.x = cx + ex / d * m; e.y = cy + ey / d * m; }
   }
 }
 function chipObs(b) {
@@ -1898,6 +1921,7 @@ function loadRoom() {
     const pr = [0.25, 0.45, 0.65, 0.8][dL()];
     room.waves = (combatIdx === 0 && run.layer === 0) ? 2 : (rand() < pr ? 3 : 2);
   }
+  if (run.escape && (kind === 'treasure' || kind === 'merchant' || kind === 'event')) room.col = { x: ROOM.x - 12, v: (ROOM.w + 12) / 30, delay: 0, sp: true };
   if (run.escape && (kind === 'combat' || kind === 'boss')) { room.col = { x: ROOM.x - 12, v: 13 + 2 * run.layer, delay: kind === 'boss' ? 1e9 : 5 }; if (kind === 'boss') room.escT = 120; }
   if (run.guard && kind === 'combat') {
     room.gb = { extraT: 14, extras: 0, started: false, rest: false, restDone: {} }; room.combatIdx = 2; room.waves = 6;
@@ -1918,6 +1942,7 @@ function loadRoom() {
     const nJ = kind === 'boss' ? 2 : run.layer === 0 ? 2 : 3;
     for (let i = 0; i < nJ * 8 && jellies.length < nJ; i++) { const jx = rr(ROOM.x + 160, ROOM.x + ROOM.w - 120), jy = rr(ROOM.y + 90, ROOM.y + ROOM.h - 90); if (room.obs.some(o => overlap(inflate(o, 30), { x: jx, y: jy, w: 1, h: 1 }))) continue; jellies.push({ x: jx, y: jy, r: 17, hp: 3, t: rand() * 6, a: rand() * TAU, flash: 0 }); }
   }
+  lampMates = []; cmarks = []; harbors = []; pongB = null; rewindH = [];
   p.orb = null; lure = null; lures = []; enemies = []; slows = []; sands = []; p.flowers = []; bullets = []; pickups = []; swings = []; beams = []; rings = []; walls = []; hazards = []; vials = []; ppools = []; timers = []; tobs = []; frosts = []; blinds = []; erupts = []; slows = []; tapT.on = false; absorbs = [];
   if (th() === 2 && kind === 'combat') placeDecor();
   if (th() === 7 && (kind === 'combat' || kind === 'boss')) placeSwamp();
@@ -2223,7 +2248,7 @@ function itemInfo(it) {
   if (it.kind === 'restock') return { name: '空位', desc: '付 1 燈芯請商人補上新商品；也可以直接用換貨架重新抽選全部商品' };
   if (it.kind === 'refresh') return { name: '換貨架', desc: '付費重新抽選三格商品（含燈油）；每刷新一次，價格 +2 燈芯' };
   if (it.kind === 'upgrade' && it.prem) return { name: '★精良　' + PREM[it.id].name, desc: PREM[it.id].desc };
-  if (it.kind === 'weapon') { const w = WDEF[it.id], cur = p.weapons[p.w] ? WDEF[p.weapons[p.w]] : null; return { name: w.name + '（' + w.tag + '）', desc: w.desc + (cur && p.weapons.length >= 3 ? '　｜　換掉「' + cur.name + '」：冷卻 ' + cur.cd + ' 秒 → ' + w.cd + ' 秒' : '　｜　冷卻 ' + w.cd + ' 秒') }; }
+  if (it.kind === 'weapon') { const w = WDEF[it.id], cur = p.weapons[repIdx()] ? WDEF[p.weapons[repIdx()]] : null; return { name: w.name + '（' + w.tag + '）', desc: w.desc + (cur && p.weapons.length >= 3 ? '　｜　換掉「' + cur.name + '」：冷卻 ' + cur.cd + ' 秒 → ' + w.cd + ' 秒' : '　｜　冷卻 ' + w.cd + ' 秒') }; }
   if (it.kind === 'upgrade') return { name: UPG[it.id].name, desc: UPG[it.id].desc };
   return { name: '燈油', desc: '血量 +' + it.amount };
 }
@@ -2232,11 +2257,12 @@ function nearestItem() {
   for (const it of room.items) { if (it.taken) continue; const d = Math.hypot(p.x - it.x, p.y - it.y); if (d < bd) { bd = d; best = it; } }
   return best;
 }
+function repIdx() { return run.path || run.guard ? (p.w + 1) % Math.max(1, p.weapons.length) : p.w; }
 function giveWeapon(id) {
   const name = WDEF[id].name; try { telW(id).take++; } catch (e) { /* optional */ }
   run.wGot++; rec.seenW[id] = 1; if (Object.keys(rec.seenW).length >= 6) unlockAch('weapons'); saveRec();
   if (p.weapons.length < 3) { p.weapons.push(id); p.w = p.weapons.length - 1; toast('獲得 ' + name); }
-  else { const old = WDEF[p.weapons[p.w]].name; p.weapons[p.w] = id; toast(name + ' 取代了 ' + old); }
+  else { const ri = repIdx(), old = WDEF[p.weapons[ri]].name; p.weapons[ri] = id; toast(name + ' 取代了' + (ri !== p.w ? '下一格的 ' : ' ') + old); }
 }
 function applyUpgrade(id, prem) {
   try { telU(id).pick++; } catch (e) { /* optional */ }
@@ -2401,7 +2427,7 @@ function updateHint() {
     else if (it.kind === 'shrine') act = it.used ? '' : 'F 佈施 ' + shrineCost(it) + ' 功德（目前 ' + (run.merit || 0) + '）';
     else if (it.kind === 'tfac') { const W0 = THEMES[th()]; act = W0.hint ? W0.hint(it) : ''; }
     else if (it.kind === 'well') act = it.dry ? '池水已經乾涸' : (it.id === 'grand' ? (it.n >= 5 ? '池水平靜了' : 'F 投入 ' + (3 * (it.n + 1)) + ' 燈芯（第 ' + (it.n + 1) + ' / 5 次）') : (it.n >= 6 ? '池水平靜了' : 'F 投入 4 燈芯（第 ' + (it.n + 1) + ' / 6 次）')) + (!it.dry && it.n < (it.id === 'grand' ? 5 : 6) && p.coins < (it.id === 'grand' ? 3 * (it.n + 1) : 4) ? '（燈芯不夠）' : '');
-    else if (it.kind === 'weapon') act = p.weapons.length < 3 ? 'F 拿取' : 'F 取代手上的「' + WDEF[p.weapons[p.w]].name + '」';
+    else if (it.kind === 'weapon') act = p.weapons.length < 3 ? 'F 拿取' : 'F 取代' + (run.path || run.guard ? '下一格的「' : '手上的「') + WDEF[p.weapons[repIdx()]].name + '」';
     else act = it.kind === 'tzsw' ? 'F 切換按鍵大小' : it.kind === 'tutsw' ? (rec.tutOff ? 'F 開啟教學' : 'F 關閉教學') : it.kind === 'noshop' ? (run.noShop ? 'F 取下木牌' : 'F 掛上木牌') : it.kind === 'switch' ? (room.lampOn ? 'F 關燈' : 'F 開燈') : it.kind === 'npc' ? 'F 邀請同行（隊伍 ' + allies.length + ' / 2）' : it.kind === 'refresh' ? 'F 刷新全部商品' : it.kind === 'restock' ? 'F 補貨' : it.kind === 'heal' ? 'F 喝下' : 'F 拿取';
     if (it.group === 'shop' || it.group === 'stall') act += '　' + cost(it) + ' 燈芯' + (p.coins < cost(it) ? '（不夠）' : '');
     if (it.group === 'hpshop') act += '　' + it.hpPrice + ' 燈火（血量）' + (p.hp <= it.hpPrice ? '（血量不夠）' : '');
@@ -2429,7 +2455,15 @@ function updateTut(dt) {
   if (mobile) { el.innerHTML = '<b>操作說明（起始房的教學牌可關閉）</b><p>' + $('mHelp').textContent.replace(/\n/g, '<br>') + '</p>'; return; }
   el.innerHTML = '<b>按鍵練習（不強制；起始房的木牌可關閉）</b><div class="chips">' + TUT.map(r => '<i class="' + (rec.tutKeys[r[0]] ? 'ok' : '') + '">' + r[1] + '</i>').join('') + '</div>' + (rec.tutDone ? '<p>全部按過了！可以出發了。</p>' : '') + TUT.filter(r => !rec.tutKeys[r[0]]).map(r => '<p>' + r[2] + '</p>').join('') + '<small>按過的鍵會打勾，說明就會消失（C、V 不用練習）</small>';
 }
+const ESC_STORY = [
+  [{ who: '旁白', text: '電玩城的電源被人拔掉了。畫面從左邊開始，一格一格地消失。' }, { who: '像素精靈', text: '別回頭！被吃掉的格子不會再回來——往右跑，出口在最右邊。' }],
+  [{ who: '像素精靈', text: '崩塌變快了……可是我記得這條路。跟著光走，別撞上牆角。' }],
+  [{ who: '像素精靈', text: '最後一關了。這座城的主機就在最右邊的螢幕裡——打倒守著它的傢伙，就能重新開機。' }]
+];
+const ESC_INTRO = def => [{ who: '旁白', text: def.name + '站在最後一格畫面前，螢幕上跳出倒數：120。' }, { who: '像素精靈', text: '牠在拖時間，等崩塌線追上來——快一點！' }];
+const ESC_OUT = [{ who: '旁白', text: '崩塌線停在腳邊，螢幕重新亮起，跳出一行字：GAME CLEAR。' }, { who: '像素精靈', text: '我們逃出來了……謝謝你，提燈人。下次投幣，換我請你。' }];
 function announceRoom() {
+  if (run.escape && room.kind === 'combat' && !(run.escSeen = run.escSeen || {})[run.layer] && ESC_STORY[run.layer]) { run.escSeen[run.layer] = 1; later(0.5, () => say(ESC_STORY[run.layer])); }
   if (room.gb) { toast('守燈戰：這層只有這間房。先逛上方的商人，準備好了走到燈塔按 F 開始；每三波休息一次，守住燈塔打完 6 波', 4.6); return; }
   if (room.special && !room.chase) { toast('這裡的敵人好像特別多……也許有辦法提前離開', 3.4); }
   if (run.step === 0 && !(run.telSeen = run.telSeen || {})[run.layer]) { run.telSeen[run.layer] = 1; try { telLayer().enter++; } catch (e) { /* optional */ } }
@@ -2681,7 +2715,7 @@ function renderClasses() {
   { const fb = $('clsFilter'); if (fb) fb.innerHTML = [['all', '全部'], ['atk', '攻擊型'], ['def', '防守型'], ['bal', '平衡型'], ['sup', '輔助型']].map(a => '<button type="button" data-f="' + a[0] + '" class="' + (clsFilter === a[0] ? 'on' : '') + '">' + a[1] + '</button>').join(''); }
   const c = CLS[chosen], ok = clsUnlocked(chosen), inf = $('clsInfo');
   if (inf) inf.innerHTML = ok ? '<b>' + c.name + '</b>　' + c.role + '　<span style="color:' + TYPE_INFO[CLS_TYPE[c.id]].col + '">定位：' + TYPE_INFO[CLS_TYPE[c.id]].name + '</span>　血量 ' + c.hp + (c.sh ? '＋護盾 ' + c.sh : '') + '　' + WDEF[c.weapon].name + '<br>空白鍵：' + c.skill + '——' + c.sdesc
-    : '<b>' + c.name + '（未解鎖）</b>　' + c.role + '<br>' + (c.mate ? '與' + NPCS[c.mate].short + '同行通關，有機率解鎖（目前機率 ' + Math.round(mateChance(c.mate) * 100) + '%，第一次通關之後才開始算）' : c.achId ? '達成成就「' + ACH.find(a => a.id === c.achId).name + '」後解鎖：' + ACH.find(a => a.id === c.achId).desc : c.ach ? '達成 ' + c.ach + ' 個成就後解鎖（目前 ' + achCount() + ' 個）' : '通關一次後解鎖') + (c.ach2 ? '<br>（也可以累計達成 ' + c.ach2 + ' 個成就解鎖，目前 ' + achCount() + ' 個）' : '');
+    : '<b>' + c.name + '（未解鎖）</b>　' + c.role + '<br>' + (c.need ? '解鎖條件：' + c.need : c.mate ? '與' + NPCS[c.mate].short + '同行通關，有機率解鎖（目前機率 ' + Math.round(mateChance(c.mate) * 100) + '%，第一次通關之後才開始算）' : c.achId ? '達成成就「' + ACH.find(a => a.id === c.achId).name + '」後解鎖：' + ACH.find(a => a.id === c.achId).desc : c.ach ? '達成 ' + c.ach + ' 個成就後解鎖（目前 ' + achCount() + ' 個）' : '通關一次後解鎖') + (c.ach2 ? '<br>（也可以累計達成 ' + c.ach2 + ' 個成就解鎖，目前 ' + achCount() + ' 個）' : '');
 }
 function selectClass(i) {
   if (i < 0 || i >= CLS.length) return;
@@ -2873,7 +2907,7 @@ function bossIntroLines() {
   const k = bossDef().kind;
   { const W = THEMES[th()]; if (W.intro) return W.intro(bossDef()); }
   if (th() === 11) return [{ who: '旁白', text: bossDef().name + '的核心亮了起來，遠處的霓虹一齊閃爍。' }];
-  if (th() === 10) return [{ who: '旁白', text: bossDef().name + '投下硬幣——遊戲開始。' }];
+  if (th() === 10) return run.escape ? ESC_INTRO(bossDef()) : [{ who: '旁白', text: bossDef().name + '投下硬幣——遊戲開始。' }];
   if (th() === 9) return [{ who: '旁白', text: bossDef().name + '在糖霜裡緩緩站起來，甜甜的香氣變得有點嗆。' }];
   if (run.layer === lastL() && th() === 2) return STORY.bossIntro.concat(STORY.bossIntroV[k === 'final' ? 'keeper' : k] || []);
   return STORY.bossTalk[k] || STORY.gardenIntro[k] || STORY.midIntro[1];
@@ -2980,7 +3014,7 @@ function goNext() {
     else run.step++;
     loadRoom(); placeEntry(); p.vx = p.vy = p.kx = p.ky = 0; placeAllies();
     if (p.roomCd > 0) { p.roomCd--; hudSig = ''; }
-    if (layerChanged && run.endless) { rec.endlessMax = Math.max(rec.endlessMax || 0, run.layer + 1); toast('無盡：第 ' + (run.layer + 1) + ' 層', 2); if (run.layer >= 5) unlockAch('endless6'); healP(1); }
+    if (layerChanged && run.endless) { rec.endlessMax = Math.max(rec.endlessMax || 0, run.layer + 1); toast('無盡：第 ' + (run.layer + 1) + ' 層', 2); if (run.layer >= 5) { unlockAch('endless6'); rec.dlcWin.arcade = 1; saveRec(); } healP(1); }
     if (layerChanged) { if (run.long && !run.dl2) { rec.longMax = Math.max(rec.longMax || 0, run.layer + 1); saveRec(); } writeSave(); }
     const lines = [];
     if (layerChanged && (!run.long || !(run.layer & 1)) && STORY.layerIntro[run.long ? run.layer >> 1 : run.layer]) lines.push(STORY.layerIntro[run.long ? run.layer >> 1 : run.layer]);
@@ -3129,11 +3163,12 @@ function bossDefeated() {
   if (run.practice) { bullets = []; room.cleared = true; toast(bossDef().name + '倒下了（練習）'); clearAdds(); sfx('clear'); later(1.8, () => showPrac(true)); return; }
   recBoss(); wickDrop(); run.fin = true; if ((run.frz || 0) >= 5) unlockAch('calm');
   bullets = []; room.cleared = true; toast(bossDef().name + '倒下了'); clearAdds(); if (th() === 7) { if (run.poolHitL !== run.layer) unlockAch('swampWalk'); if (p.curse >= 3) unlockAch('purifier'); }
+  if (run.dlc && !(run.dlc === 'candy' && run.escFail)) { rec.dlcWin[run.dlc] = 1; saveRec(); }
   if (run.dl2) { rec.dl2Clears = (rec.dl2Clears || 0) + 1; saveRec(); }
   else if (run.long) { if (run.ext) rec.extClears = (rec.extClears || 0) + 1; else rec.longClears = (rec.longClears || 0) + 1; saveRec(); }
   if (!room.hurt) unlockAch('flawless'); endRun(true);
   if (!cleared) { cleared = true; try { localStorage.setItem('lampknight.cleared', '1'); } catch (e) { /* storage is optional */ } }
-  later(1.8, () => say(THEMES[th()].outro ? THEMES[th()].outro() : th() === 11 ? [{ who: '旁白', text: '核心熄滅的瞬間，整座城市的霓虹同時安靜下來，又一盞一盞亮起。' }] : th() === 10 ? [{ who: '旁白', text: '螢幕閃了三下，跳出一行字：GAME CLEAR。' }] : th() === 9 ? [{ who: '旁白', text: '糖霜融化了，空氣裡留下最初的甜味。' }, { who: '小糖', text: '找到了……謝謝你，提燈人。' }] : th() === 2 ? STORY.bossEnd : (STORY.bossDown[bossDef().kind] || []).concat([{ who: '旁白', text: '最深處的光靜靜等著，要由你決定它的去向。' }]), () => { show('choice', true); setState('choice'); }));
+  later(1.8, () => say(THEMES[th()].outro ? THEMES[th()].outro() : th() === 11 ? [{ who: '旁白', text: '核心熄滅的瞬間，整座城市的霓虹同時安靜下來，又一盞一盞亮起。' }] : th() === 10 ? (run.escape ? ESC_OUT : [{ who: '旁白', text: '螢幕閃了三下，跳出一行字：GAME CLEAR。' }]) : th() === 9 ? [{ who: '旁白', text: '糖霜融化了，空氣裡留下最初的甜味。' }, { who: '小糖', text: '找到了……謝謝你，提燈人。' }] : th() === 2 ? STORY.bossEnd : (STORY.bossDown[bossDef().kind] || []).concat([{ who: '旁白', text: '最深處的光靜靜等著，要由你決定它的去向。' }]), () => { show('choice', true); setState('choice'); }));
 }
 function midBossDefeated() {
   { const W = THEMES[th()]; if (W && W.onMid && !run.practice) W.onMid(); }
@@ -3195,6 +3230,116 @@ function fireBeam(ch) {
 }
 const MELEE_W = { shears: 1, pillow: 1, blade: 1, pblade: 1, shadeblade: 1, frostcane: 1, dance: 1 };
 function flMul(wid) { if (!enemies.some(e => e.type === 'faceless' && !e.dead && e.spawn <= 0)) return 1; return MELEE_W[wid] ? 1.12 : 1.24; }
+
+/* ---------- 四個 DLC 職業：糖衣師、像素客、校準員、擺渡人 ---------- */
+Object.assign(WCOL, { syrup: '#ff9ad0', pong: '#9fe8ff', calgun: '#9fe3ff', pole: '#e8dcc0' });
+function stickHit(e, n) {
+  if (!(e.stickT > 0)) e.stickN = 0;
+  e.stickT = 2; e.stickN = (e.stickN || 0) + (n || 1); burst(e.x, e.y - e.r * 0.5, 3, ['#ff9ad0', C.paper], 70, true);
+  if (e.stickN >= 3) { e.stickN = 0; if (e.type !== 'boss' && !e.elite) e.stun = Math.max(e.stun || 0, 0.6); }
+}
+function sugarBreak() {
+  const up = upN('c_sug') >= 2;
+  for (let i = 0; i < 6; i++) { const b = shoot(p.x, p.y, i / 6 * TAU + 0.3, 380, 6, 2.4 * p.dmgMul * p.skillPow * (up ? 1.5 : 1), 'pellet', 1.0); b.bounce = 2; if (up) b.sticky = true; }
+  rings.push({ x: p.x, y: p.y, R: 90, t: 0.3, dur: 0.3 }); burst(p.x, p.y, 16, ['#ff9ad0', '#ffe0f0', C.paper], 200, true); sfx('clear'); toast('糖衣碎裂！', 1.2);
+}
+const CAL_PTS = [[0, 1.3], [100, 1.3], [300, 1.0], [500, 0.7], [700, 0.4], [99999, 0.4]];
+function calMul(d) {
+  let f = 0.4;
+  for (let i = 1; i < CAL_PTS.length; i++) if (d <= CAL_PTS[i][0]) { const a = CAL_PTS[i - 1], b = CAL_PTS[i]; f = a[1] + (b[1] - a[1]) * (d - a[0]) / (b[0] - a[0]); break; }
+  if (f < 1 && upN('c_cal') >= 1) f = 1 - (1 - f) * 0.65;
+  if (upN('c_cal') >= 2) f = Math.max(f, 0.7);
+  return f;
+}
+WDEF.pong.fire = (ox, oy, ang, dm) => {
+  if (pongB && !pongB.dead && bullets.indexOf(pongB) >= 0) {
+    p.cd = 0.05; const win = upN('c_pix') >= 2 ? 0.4 : 0.25;
+    if (pongB.ret && Math.hypot(pongB.x - p.x, pongB.y - p.y) < 450 * win) {
+      pongB.dead = true; pongB = null; p.pongBuff = 1.5; p.cd = 0; if (upN('c_pix') >= 2) p.coins++;
+      burst(p.x, p.y, 10, ['#9fe8ff', '#ffe27a', C.paper], 150, true); sfx('pick'); toast('完美接球！下一發 ×1.5', 1.2); hudSig = '';
+    }
+    return;
+  }
+  if (p.pongReload > 0) { p.cd = 0.1; return; }
+  const bf = p.pongBuff || 1; p.pongBuff = 1;
+  const b = shoot(ox, oy, ang, 520, 8, 4 * dm * bf, 'pong', 3, true); b.pong = true; b.bounce = 3 + (upN('c_pix') >= 1 ? 1 : 0); b.age = 0; pongB = b; p.cd = 0.3; sfx('flame');
+};
+WDEF.calgun.fire = (ox, oy, ang, dm) => { const b = shoot(ox, oy, ang, 900, 5, 6.5 * dm, 'lance', 0.85, true); b.cal = true; b.d0 = 6.5 * dm; b.x0 = ox; b.y0 = oy; sfx('blade'); };
+WDEF.pole.fire = (ox, oy, ang, dm) => {
+  const a = p.aim, len = 270 * reachMul(), wd = 30, x0 = p.x, y0 = p.y - 4;
+  swings.push({ type: 'whip', x: x0, y: y0, ang, len, wd, t: 0.16, dur: 0.16 }); sfx('blade');
+  for (const e of enemies) {
+    if (e.spawn > 0 || e.dead) continue;
+    const dx = e.x - x0, dy = e.y - y0, tt = dx * a.x + dy * a.y;
+    if (tt < -e.r || tt > len + e.r) continue;
+    if (Math.abs(dx * a.y - dy * a.x) <= wd / 2 + e.r) { hitEnemy(e, 4.2 * dm, a.x, a.y, 760, true); if (!e.dead && e.type !== 'boss' && !e.elite) e.stun = Math.max(e.stun || 0, 0.3); }
+  }
+};
+function newSkill(c) {
+  const id = c.id;
+  if (id === 'sugarc') {
+    p.sugar = 3 + (upN('c_sug') >= 1 ? 1 : 0); p.sugarT = 25; burst(p.x, p.y, 14, ['#ff9ad0', '#ffe0f0', C.paper], 160, true); rings.push({ x: p.x, y: p.y, R: 60, t: 0.3, dur: 0.3 }); sfx('clear'); toast('糖衣！可以擋 ' + p.sugar + ' 次傷害', 1.8); hudSig = '';
+  } else if (id === 'pixelc') {
+    const h = rewindH[0]; if (!h) { p.skillCd = 1; toast('還沒有存檔點', 1); return; }
+    burst(p.x, p.y, 12, ['#9fe8ff', '#ffe27a'], 160, true); p.x = h.x; p.y = h.y; p.hp = Math.max(p.hp, h.hp); p.iframes = Math.max(p.iframes, 0.8); p.vx = p.vy = p.kx = p.ky = 0; rewindH = [];
+    if (upN('c_pix') >= 2) p.skillCd = Math.max(2, p.skillCd - 10);
+    burst(p.x, p.y, 14, ['#9fe8ff', '#ffe27a', C.paper], 180, true); rings.push({ x: p.x, y: p.y, R: 80, t: 0.35, dur: 0.35 }); sfx('clear'); toast('讀檔！回到 3 秒前', 1.6); hudSig = '';
+  } else if (id === 'calib') {
+    const cand = enemies.filter(e => !e.dead && e.spawn <= 0 && !e.sleep).sort((a, b) => ((b.type === 'boss') - (a.type === 'boss')) || (Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y)));
+    if (!cand.length) { p.skillCd = 0.8; toast('沒有可以標記的目標', 1.2); return; }
+    cmarks = cand.slice(0, upN('c_cal') >= 2 ? 2 : 1).map(e => ({ e, x: e.x, y: e.y, t: 3, T: 3 }));
+    for (const b of bullets) if (b.own === 'e' && Math.hypot(b.x - p.x, b.y - p.y) < 170) { b.dead = true; burst(b.x, b.y, 4, ['#9fe3ff', C.paper], 100, true); }
+    rings.push({ x: p.x, y: p.y, R: 170, t: 0.35, dur: 0.35 }); sfx('clear'); toast('座標標記！3 秒後引爆', 1.6);
+  } else if (id === 'ferry') {
+    const up = upN('c_fer') >= 1, n = 2 + (up ? 1 : 0), T = 14 + (up ? 4 : 0); lampMates = [];
+    for (let i = 0; i < n; i++) lampMates.push({ x: p.x + Math.cos(i / n * TAU) * 40, y: p.y + Math.sin(i / n * TAU) * 40, hp: 2, t: T, T, cd: 0.4, i, n, fl: 0 });
+    burst(p.x, p.y, 14, ['#ffe9a0', C.amber, C.paper], 170, true); rings.push({ x: p.x, y: p.y, R: 70, t: 0.3, dur: 0.3 }); sfx('clear'); toast('渡燈！燈火隊員登場', 1.6);
+  }
+}
+function updateNewCls(dt) {
+  if (state !== 'play') return;
+  p.pongReload = Math.max(0, (p.pongReload || 0) - dt);
+  if (p.sugar > 0) { p.sugarT -= dt; if (p.sugarT <= 0) { p.sugar = 0; toast('糖衣融化了', 1.2); hudSig = ''; } }
+  if (CLS[p.cls].id === 'pixelc') {
+    if (!rewindH.length || time - rewindH[rewindH.length - 1].t >= 0.1) rewindH.push({ x: p.x, y: p.y, hp: p.hp, t: time });
+    while (rewindH.length && time - rewindH[0].t > 3.2) rewindH.shift();
+  }
+  for (const m of cmarks) {
+    if (m.e && !m.e.dead) { m.x = m.e.x; m.y = m.e.y; }
+    m.t -= dt;
+    if (m.t <= 0) {
+      m.done = true; const R = 130;
+      for (const e of enemies) { if (e.dead || e.spawn > 0) continue; const dx = e.x - m.x, dy = e.y - m.y, d = Math.hypot(dx, dy); if (d < R + e.r) hitEnemy(e, 8 * p.dmgMul * p.skillPow, dx / (d || 1), dy / (d || 1), 300); }
+      for (const b of bullets) if (b.own === 'e' && Math.hypot(b.x - m.x, b.y - m.y) < 150) { b.dead = true; burst(b.x, b.y, 4, ['#9fe3ff', C.paper], 100, true); }
+      rings.push({ x: m.x, y: m.y, R: 150, t: 0.4, dur: 0.4 }); burst(m.x, m.y, 18, ['#9fe3ff', '#ffffff', C.amber], 220, true); shake = Math.max(shake, 5); sfx('kill');
+    }
+  }
+  cmarks = cmarks.filter(m => !m.done);
+  for (const m of lampMates) {
+    m.t -= dt; m.cd -= dt; m.fl = Math.max(0, m.fl - dt);
+    const a = time * 1.3 + m.i * TAU / m.n, k = Math.min(1, dt * 7); m.x += (p.x + Math.cos(a) * 58 - m.x) * k; m.y += (p.y + Math.sin(a) * 40 - 10 - m.y) * k;
+    if (m.cd <= 0) {
+      let tg = null, bd = 380; for (const e of enemies) { if (e.dead || e.spawn > 0 || e.burrow || e.sleep) continue; const dd = Math.hypot(e.x - m.x, e.y - m.y); if (dd < bd) { bd = dd; tg = e; } }
+      if (tg) { m.cd = 0.9 / (upN('c_fer') >= 2 ? 1.3 : 1); shoot(m.x, m.y, Math.atan2(tg.y - m.y, tg.x - m.x), 520, 4, 1.2 * p.skillPow, 'npc', 0.8); sfx('fly'); }
+    }
+    for (const b of bullets) if (b.own === 'e' && !b.dead && Math.hypot(b.x - m.x, b.y - m.y) < b.r + 11) { b.dead = true; m.hp -= 1; m.fl = 0.2; burst(m.x, m.y, 5, ['#ffe9a0', C.paper], 100, true); }
+    if (m.t <= 0 || m.hp <= 0) {
+      m.dead = true; for (const b of bullets) if (b.own === 'e' && Math.hypot(b.x - m.x, b.y - m.y) < 150) { b.dead = true; burst(b.x, b.y, 3, ['#ffe9a0'], 80, true); }
+      rings.push({ x: m.x, y: m.y, R: 150, t: 0.4, dur: 0.4 }); burst(m.x, m.y, 12, ['#ffe9a0', C.amber, C.paper], 170, true);
+      if (upN('c_fer') >= 2) harbors.push({ x: m.x, y: m.y, t: 4, h: 0 });
+    }
+  }
+  lampMates = lampMates.filter(m => !m.dead);
+  for (const h of harbors) { h.t -= dt; if (Math.hypot(p.x - h.x, p.y - h.y) < 55) { h.h += dt; if (h.h >= 1.5 && p.hp < p.maxHp) { h.h = 0; healP(1); toast('渡口：燈亮了一些', 1); } } }
+  harbors = harbors.filter(h => h.t > 0);
+}
+function drawNewCls() {
+  for (const h of harbors) { ctx.save(); ctx.globalAlpha = Math.min(0.6, h.t * 0.3); ctx.fillStyle = '#ffe9a0'; ctx.beginPath(); ctx.ellipse(h.x, h.y + 6, 44, 20, 0, 0, TAU); ctx.fill(); ctx.strokeStyle = C.amber; ctx.lineWidth = 2; ctx.stroke(); ctx.restore(); }
+  for (const e of enemies) if (e.stickT > 0 && !e.dead) { ctx.save(); ctx.globalAlpha = 0.55; ctx.strokeStyle = '#ff9ad0'; ctx.lineWidth = 3; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 4, 0, TAU); ctx.stroke(); ctx.restore(); }
+  for (const m of cmarks) { const u = m.t / m.T, r = 30 + 60 * u; ctx.save(); ctx.translate(m.x, m.y); ctx.strokeStyle = '#ff5a5a'; ctx.lineWidth = 2.5; ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.stroke(); ctx.beginPath(); ctx.arc(0, 0, 130, 0, TAU); ctx.globalAlpha = 0.25; ctx.stroke(); ctx.globalAlpha = 0.95; ctx.beginPath(); ctx.moveTo(-12, 0); ctx.lineTo(12, 0); ctx.moveTo(0, -12); ctx.lineTo(0, 12); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.font = '700 14px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(Math.ceil(m.t), 0, -r - 6); ctx.restore(); }
+  for (const m of lampMates) { ctx.save(); ctx.translate(m.x, m.y + Math.sin(time * 4 + m.i) * 2); ctx.globalAlpha = 0.3; ctx.fillStyle = '#ffe9a0'; circ(ctx, 0, 0, 22); ctx.globalAlpha = 1; ctx.fillStyle = m.fl > 0 ? '#ffffff' : '#ffd98a'; circ(ctx, 0, 0, 9); ctx.fillStyle = '#fff6d8'; circ(ctx, 0, -1, 4); ctx.fillStyle = C.dark; ctx.fillRect(-4, 2, 2, 2); ctx.fillRect(2, 2, 2, 2); ctx.restore(); }
+  if (p.sugar > 0 && state === 'play') { ctx.save(); ctx.translate(p.x, p.y - 4); ctx.globalAlpha = 0.3; ctx.fillStyle = '#ffb3d1'; circ(ctx, 0, 0, 27); ctx.globalAlpha = 0.9; ctx.strokeStyle = '#ff7ab8'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(0, 0, 27, 0, TAU); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.font = '700 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('×' + p.sugar, 0, -32); ctx.restore(); }
+}
 function attack() {
   if (p.sleepT > 0) return;
   const wid = p.weapons[p.w], w = WDEF[wid], a = p.aim, ang = Math.atan2(a.y, a.x), dm = p.dmgMul, pd = pierceDmg(), rm = reachMul();
@@ -3252,6 +3397,7 @@ function meleeSwing(w, ang, mul) {
       if (d > range + e.r) continue;
       let da = Math.atan2(dy, dx) - ang; da = Math.atan2(Math.sin(da), Math.cos(da));
       if (Math.abs(da) <= half) hitEnemy(e, mdm * dm, dx / (d || 1), dy / (d || 1), (w.kb || 520) * (CLS[p.cls].id === 'bellman' ? 1.3 : 1), true);
+      if (w.id === 'syrup' && !e.dead) stickHit(e);
       if (w.id === 'pillow' && !e.dead && e.type !== 'boss' && !e.elite) { e.stun = Math.max(e.stun || 0, 1); burst(e.x, e.y - e.r, 5, ['#b9b3ff', C.paper], 90, true); }
     }
     swingTobs(p.x, p.y, ang, range, half, mdm * dm);
@@ -3435,6 +3581,7 @@ function hurtFrom(src, ...a) { hitSrc = src; if (src === 'dartshade' && p.iframe
 function hurtPlayer(dmg, nx, ny, frz) {
   if (p.iframes > 0 || state !== 'play') return;
   if (p.ward > 0) { p.wardTog = !p.wardTog; if (p.wardTog) { p.iframes = 0.6; burst(p.x, p.y, 8, ['#ffe6a0', C.paper], 140, true); sfx('tick'); return; } }
+  if (p.sugar > 0) { p.sugar--; p.iframes = 0.8; p.kx = nx * 120; p.ky = ny * 120; burst(p.x, p.y, 8, ['#ff9ad0', '#ffe0f0'], 140, true); sfx('tick'); hudSig = ''; if (p.sugar <= 0) sugarBreak(); return; }
   run.hurtN = (run.hurtN || 0) + 1; run.dmgIn = (run.dmgIn || 0) + dmg;
   if (p.shield > 0) {
     p.shield = Math.max(0, p.shield - dmg); if (p.shield <= 0) run.shieldZero = true; p.shieldT = 0; room.hurt = true; p.iframes = 1.0; p.kx = nx * 220; p.ky = ny * 220; shake = 5; sfx('hurt'); hudSig = '';
@@ -3651,6 +3798,7 @@ function pathInit() {
     const q = V ? { x: ROOM.x + c, y: ROOM.y + ROOM.h - sv - h, w, h } : { x: ROOM.x + sv, y: ROOM.y + c, w, h }; q.s = sv; q.c = c; obs.push(q);
   }
   room.obs = obs;
+  D.forEach(d => room.items.push(makeItem('heal', d.cx, d.cy + 105, 'shop')));
   D.forEach((d, i) => { room.items.push({ kind: 'muyu', id: 'muyu', x: d.cx + 120, y: d.cy, group: 'prop', price: 0, taken: false, taps: 3, di: i }); room.items.push({ kind: 'shrine', id: 'shrine', x: d.cx - 120, y: d.cy, group: 'prop', price: 0, taken: false, used: false, di: i }); });
 }
 const ZEN_TUT = [
@@ -4433,7 +4581,7 @@ function drawMech() {
 function updateModes(dt) {
   if (state !== 'play') return;
   const c = room.col;
-  if (c && !room.cleared) {
+  if (c && (!room.cleared || c.sp)) {
     if (room.escT > 0) { room.escT -= dt; if (room.escT <= 0) { c.v = 45; c.delay = 0; toast('時間到！崩塌線加速了！', 2.2); } }
     if (c.delay > 0) c.delay -= dt; else c.x += c.v * dt;
     if (p.x - p.r < c.x) { if (p.iframes <= 0) hurtFrom('collapse', 1, 1, 0); p.x = c.x + p.r + 2; }
@@ -4782,6 +4930,7 @@ function useSkill() {
     p.chainLeft = (c.id === 'cutter' && upN('c_chain') >= 1) || (c.id === 'mage' && upN('c_wall') >= 2) ? 1 : 0;
     p.chainT = c.id === 'mage' ? 6 : 99;
   }
+  if (c.id === 'sugarc' || c.id === 'pixelc' || c.id === 'calib' || c.id === 'ferry') { newSkill(c); return; }
   if (c.id === 'lanternc') {
     p.lantT = 10 * Math.max(1, p.skillPow); if (p.lcombo > 0) toast('連擊重新計算', 0.9); p.lcombo = 0; p.lDashCd = 0; p.skillCd = p.lantT + c.cd * p.cdMul;
     rings.push({ x: p.x, y: p.y, R: 110, t: 0.45, dur: 0.45 }); sfx('clear'); burst(p.x, p.y, 14, ['#ee6a3c', '#ffd27a', C.paper], 170, true); toast('化身燈籠！按 F 衝刺', 1.8); hudSig = '';
@@ -4925,7 +5074,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.58　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.59　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -5225,8 +5374,8 @@ function updatePlay(dt) {
   follow = !mouse.down;
   p.iframes = Math.max(0, p.iframes - dt); p.cd = Math.max(0, p.cd - dt); p.noiseT = Math.max(0, (p.noiseT || 0) - dt); p.skillCd = Math.max(0, p.skillCd - dt); if (p.sleepT > 0) { p.sleepT -= dt; p.skillCd = Math.max(0.01, p.sleepT); if (p.sleepT <= 0) wakeUp(false); } updateStall(dt); p.chainT = Math.max(0, p.chainT - dt); fEdge = Math.max(0, fEdge - dt); p.recoil = Math.max(0, p.recoil - dt);
   if (room.big) markExplored();
-  playerMove(dt); updateAllies(dt); aimUpdate(); p.near = room.items.length ? nearestItem() : null; attackUpdate(dt); updateWeapons(dt); updateClassTimers(dt); updateWaves(dt); updatePath(dt); { const W0 = THEMES[th()]; if (W0.tick) W0.tick(dt); } updateChase(dt); updateRush(dt); updateDecor(dt); updateSwamp(dt); updateTimed(dt); updateBlooms(); updateModes(dt); updateMech(dt); updateMech(dt);
-  for (const e of enemies) { updateEnemy(e, dt * slowAt(e.x, e.y, e.type === 'boss')); if (e.pin && !e.dead) { e.x = e.pin.x; e.y = e.pin.y; } }
+  playerMove(dt); updateAllies(dt); aimUpdate(); p.near = room.items.length ? nearestItem() : null; attackUpdate(dt); updateWeapons(dt); updateClassTimers(dt); updateNewCls(dt); updateWaves(dt); updatePath(dt); { const W0 = THEMES[th()]; if (W0.tick) W0.tick(dt); } updateChase(dt); updateRush(dt); updateDecor(dt); updateSwamp(dt); updateTimed(dt); updateBlooms(); updateModes(dt); updateMech(dt); updateMech(dt);
+  for (const e of enemies) { if (e.stickT > 0) e.stickT -= dt; updateEnemy(e, dt * slowAt(e.x, e.y, e.type === 'boss') * (e.stickT > 0 ? 0.6 : 1)); if (e.pin && !e.dead) { e.x = e.pin.x; e.y = e.pin.y; } }
   for (let i = 0; i < enemies.length; i++) for (let j = i + 1; j < enemies.length; j++) {
     const a = enemies[i], b = enemies[j]; if (a.type === 'boss' || b.type === 'boss') continue;
     const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1, m = a.r + b.r;
@@ -5242,12 +5391,18 @@ function updatePlay(dt) {
     if (b.seek) { let tg = null, bd = 260; for (const e of enemies) { if (e.dead || e.spawn > 0 || e.burrow) continue; const dd = Math.hypot(e.x - b.x, e.y - b.y); if (dd < bd) { bd = dd; tg = e; } } if (tg) { const sp = Math.hypot(b.vx, b.vy) || 1, cur = Math.atan2(b.vy, b.vx); let da = Math.atan2(tg.y - b.y, tg.x - b.x) - cur; da = Math.atan2(Math.sin(da), Math.cos(da)); const na = cur + clamp(da, -3.2 * dt, 3.2 * dt); b.vx = Math.cos(na) * sp; b.vy = Math.sin(na) * sp; } }
     if (b.wave) { b.w0 += dt; const ca = Math.cos(b.w0 * 9) * 2.4 * dt, cs = Math.cos(ca), sn = Math.sin(ca), vx0 = b.vx; b.vx = vx0 * cs - b.vy * sn; b.vy = vx0 * sn + b.vy * cs; }
     if (b.sand) { b.sandT -= dt; if (b.sandT <= 0) { b.sandT = 0.09; sands.push({ x: b.x, y: b.y, r: 34, t: 1.0 }); if (sands.length > 60) sands.shift(); } }
+    if (b.cal) b.dmg = b.d0 * calMul(Math.hypot(b.x - b.x0, b.y - b.y0));
+    if (b.pong) {
+      b.age += dt; b.life = 9;
+      if (!b.ret && (b.bounce <= 0 || b.age > 2.6)) { b.ret = true; b.noObs = true; b.hit = []; }
+      if (b.ret) { const dx = p.x - b.x, dy = p.y - b.y, dd = Math.hypot(dx, dy) || 1; b.vx = dx / dd * 560; b.vy = dy / dd * 560; if (dd < p.r + 12) { b.dead = true; pongB = null; p.pongReload = 1.2; toast('沒接到！重新裝填', 1); continue; } }
+    }
     if (b.bounce > 0) {
       const px0 = b.x - b.vx * dt, py0 = b.y - b.vy * dt; let hit = false;
       if (b.x < ROOM.x + b.r) { b.x = ROOM.x + b.r; b.vx = Math.abs(b.vx); hit = true; } else if (b.x > ROOM.x + ROOM.w - b.r) { b.x = ROOM.x + ROOM.w - b.r; b.vx = -Math.abs(b.vx); hit = true; }
       if (b.y < ROOM.y + b.r) { b.y = ROOM.y + b.r; b.vy = Math.abs(b.vy); hit = true; } else if (b.y > ROOM.y + ROOM.h - b.r) { b.y = ROOM.y + ROOM.h - b.r; b.vy = -Math.abs(b.vy); hit = true; }
       if (!hit && hitsObstacle(b)) { const sx = b.x, sy = b.y; b.x = sx; b.y = py0; const fx = hitsObstacle(b); b.x = px0; b.y = sy; const fy = hitsObstacle(b); b.x = px0; b.y = py0; if (!fx) b.vx = -b.vx; else if (!fy) b.vy = -b.vy; else { b.vx = -b.vx; b.vy = -b.vy; } hit = true; }
-      if (hit) { b.bounce--; b.dmg *= 1.2; b.hit = []; b.life = Math.max(b.life, 0.6); burst(b.x, b.y, 4, ['#fff2a8', C.amber], 90, true); sfx('tick'); }
+      if (hit) { b.bounce--; b.dmg *= b.pong ? 1.3 : 1.2; b.hit = []; b.life = Math.max(b.life, 0.6); burst(b.x, b.y, 4, ['#fff2a8', C.amber], 90, true); sfx('tick'); }
     }
     if (b.own === 'e') for (const w of walls) if (segDist(b.x, b.y, w.x - w.nx * w.half, w.y - w.ny * w.half, w.x + w.nx * w.half, w.y + w.ny * w.half) < b.r + 7) { b.dead = true; burst(b.x, b.y, 4, [C.paper, C.paperDim], 90); break; }
     if (b.dead) continue;
@@ -5265,7 +5420,7 @@ function updatePlay(dt) {
       if (b.life <= 0 || outOfRoom(b)) { b.dead = true; continue; }
       if (b.own === 'p') { const jl = jellyHit(b); if (jl) { jl.hp -= 1; jl.flash = 0.12; b.dead = true; burst(b.x, b.y, 4, ['#9ff0e0'], 90, true); if (jl.hp <= 0) { burst(jl.x, jl.y, 14, ['#9ff0e0', '#7fe0d0', C.paper], 160, true); sfx('kill'); if (!run.jellyToast) { run.jellyToast = true; toast('水母破了——那圈光也跟著散了', 2.2); } } continue; } }
       const tb = tobHit(b); if (tb) { if (b.own === 'p') damageTob(tb, b.dmg || 1); b.dead = true; burst(b.x, b.y, 3, ['#9ac27a'], 80, true); continue; }
-      if (hitsObstacle(b)) { chipObs(b); b.dead = true; burst(b.x, b.y, 3, b.own === 'p' ? [C.amber] : [C.violet], 80, true); continue; }
+      if (!b.noObs && !(b.bounce > 0) && hitsObstacle(b)) { chipObs(b); b.dead = true; burst(b.x, b.y, 3, b.own === 'p' ? [C.amber] : [C.violet], 80, true); continue; }
     }
     if (b.own === 'p') {
       const kb = { bloat: 240, glance: 200, flame: 260, lance: 200, pellet: 90, fly: 120, ember: 140, rang: 160, npc: 100 }[b.kind] || 120;
@@ -5278,6 +5433,7 @@ function updatePlay(dt) {
           const l = Math.hypot(b.vx, b.vy) || 1; killKind = b.refl ? 'refl' : b.kind; const blocked = hitEnemy(e, b.dmg, b.vx / l, b.vy / l, kb); killKind = null; if (e.dead && b.kind === 'bloat' && b.grow && b.age >= b.grow.T) unlockAch('balloon');
           if (blocked) { if (b.kind === 'rang') { b.back = true; b.hit = []; } else b.dead = true; break; }
           if (b.oil) p.skillCd = Math.max(0, p.skillCd - 0.3);
+          if (b.sticky) stickHit(e, 1);
           if (b.split && !blocked) { b.split = false; const ba = Math.atan2(b.vy, b.vx); for (const da of [-0.7, 0.7]) { const c2 = shoot(b.x, b.y, ba + da, 480, 4, 1 * p.dmgMul, 'pellet', 0.35); c2.hit = [e]; } }
           b.hit.push(e); if (b.home) { b.imm = 0.3; b.hit = []; }
           if (b.pl > 0) b.pl--; else { b.dead = true; break; }
@@ -5563,6 +5719,10 @@ function drawPlayer() {
     if (cc === 'apron') { ctx.fillStyle = '#e8e0cf'; rrect(ctx, -7, 0, 14, 14, 3); ctx.fillStyle = '#b8a888'; ctx.fillRect(-7, 2, 14, 1.5); }
     else if (cc === 'god') { ctx.fillStyle = '#e6b93a'; circ(ctx, -13, 4, 3.2); circ(ctx, 13, 4, 3.2); ctx.fillStyle = '#fff2b0'; for (let k = 0; k < 3; k++) { ctx.globalAlpha = 0.4 + 0.5 * Math.abs(Math.sin(time * 3 + k)); circ(ctx, -14 + k * 14, -30 + (k % 2) * 4, 1.4); } ctx.globalAlpha = 1; }
     else { ctx.fillStyle = '#8a5a2b'; rrect(ctx, -16, 4, 10, 8, 1.5); ctx.fillStyle = C.paper; for (let k = 0; k < 3; k++) circ(ctx, -13 + k * 3, 8, 1); } }
+  if (cid === 'sugarc') { ctx.fillStyle = '#ffb3d1'; poly(ctx, [[-10, -26], [10, -26], [9, -36], [0, -41], [-9, -36]]); ctx.fillStyle = '#fff'; circ(ctx, 0, -37, 3); }
+  if (cid === 'pixelc') { ctx.fillStyle = '#2a6a9a'; ctx.fillRect(-12, -35, 24, 9); ctx.fillStyle = '#9fe8ff'; ctx.fillRect(-9, -32, 18, 3); ctx.fillStyle = '#ffe27a'; ctx.fillRect(10, -30, 6, 3); }
+  if (cid === 'calib') { ctx.fillStyle = '#26303c'; ctx.fillRect(-13, -29, 26, 7); ctx.fillStyle = '#9fe3ff'; circ(ctx, -6, -25.5, 3); circ(ctx, 6, -25.5, 3); }
+  if (cid === 'ferry') { ctx.fillStyle = '#c9a86a'; poly(ctx, [[-19, -26], [19, -26], [0, -41]]); ctx.fillStyle = '#ffd98a'; circ(ctx, 0, -42, 3); }
   if (cid === 'sleepc') { ctx.fillStyle = cc === 'dream' ? '#7a68d8' : '#5a67b8'; poly(ctx, [[-11, -26], [11, -26], [8, -37], [18, -33], [17, -27]]); ctx.fillStyle = C.amber; circ(ctx, 18, -30, 2.6);
     if (cc === 'pillow') { ctx.fillStyle = '#efe8f8'; rrect(ctx, -17, -2, 8, 16, 3); ctx.strokeStyle = '#b9aed8'; ctx.lineWidth = 1; ctx.strokeRect(-16.5, -1.5, 7, 15); }
     else if (cc === 'dream') { ctx.fillStyle = 'rgba(190,180,255,.45)'; poly(ctx, [[-10, -4], [10, -4], [16, 24], [-16, 24]]); ctx.fillStyle = '#cfd8ff'; ctx.font = '700 9px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('z', 12 + Math.sin(time * 2) * 2, -36); } }
@@ -5828,6 +5988,7 @@ function drawLight() {
   if (room.lampOn || THEMES[th()].noDark) { g.restore(); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H); return R; }
   hole(g, p.x, p.y, R, 1);
   for (const L of lures) hole(g, L.x, L.y, 70, 0.7);
+  for (const m of lampMates) hole(g, m.x, m.y, 90, 0.9);
   if (state === 'play' && p.weapons[p.w] === 'dance') for (const off of [0, Math.PI]) hole(g, p.x + Math.cos((p.danceA || 0) + off) * 74, p.y - 4 + Math.sin((p.danceA || 0) + off) * 74, 60, 0.8);
   for (const b of bullets) if (b.own === 'p') hole(g, b.x, b.y, b.kind === 'flame' ? 70 : b.kind === 'lance' ? 60 : 38, 0.8); else hole(g, b.x, b.y, 34, 0.5);
   for (const r of rings) hole(g, r.x, r.y, r.R * 1.1, 0.8 * (r.t / r.dur));
@@ -5908,7 +6069,8 @@ function drawBigUI() {
   for (const e of enemies) if (!e.dead && e.spawn <= 0 && !e.sleep) edgeArrow(e.x, e.y, C.ember, false);
   if (canExit()) edgeArrow(ROOM.x + ROOM.w, DOOR.y, C.amber, true);
   // 小地圖：只顯示走過的區域
-  if (!room.big || (mobile && !mapOpen) || (room.path && room.path.v)) return;
+  if (room.path && !room.path.boss && room.kind === 'combat') drawPathMap();
+  if (!room.big || (mobile && !mapOpen) || room.path) return;
   const mw = port ? 100 : mobile ? 150 : 160, mh = Math.round(mw * ROOM.h / ROOM.w), mx = port ? view.x + view.w - mw - 12 : mobile ? W - mw - 18 : 22, my = port ? view.y + view.h - mh - 16 : mobile ? 215 : 132, sc = mw / ROOM.w;
   ctx.save(); ctx.globalAlpha = 0.9; ctx.fillStyle = 'rgba(10,8,20,.78)'; ctx.fillRect(mx - 4, my - 4, mw + 8, mh + 8);
   ctx.strokeStyle = 'rgba(240,228,200,.4)'; ctx.lineWidth = 1; ctx.strokeRect(mx - 4, my - 4, mw + 8, mh + 8);
@@ -5919,6 +6081,20 @@ function drawBigUI() {
   for (const e of enemies) if (!e.dead && e.spawn <= 0 && (e.sleep || Math.hypot(e.x - p.x, e.y - p.y) < 520)) { if (e.sleep) { ctx.fillStyle = 'rgba(40,0,0,.8)'; circ(ctx, mx + (e.x - ROOM.x) * sc, my + (e.y - ROOM.y) * sc, 3.2); ctx.fillStyle = '#ff3b30'; circ(ctx, mx + (e.x - ROOM.x) * sc, my + (e.y - ROOM.y) * sc, 2.3); } else { ctx.fillStyle = '#ffd27a'; circ(ctx, mx + (e.x - ROOM.x) * sc, my + (e.y - ROOM.y) * sc, 2); } }
   ctx.fillStyle = C.paper; circ(ctx, mx + (p.x - ROOM.x) * sc, my + (p.y - ROOM.y) * sc, 3);
   ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.strokeRect(mx + (cam.x + view.x - ROOM.x) * sc, my + (cam.y + view.y - ROOM.y) * sc, view.w * sc, view.h * sc);
+  ctx.restore();
+}
+function drawPathMap() {
+  const P = room.path, V = P.v, len = pathLen();
+  const bw = V ? 12 : Math.min(300, view.w - 70), bh = V ? Math.min(300, view.h - 170) : 12;
+  const bx = V ? view.x + 10 : view.x + view.w / 2 - bw / 2, by = V ? view.y + 86 : view.y + 104;
+  const at = sv => V ? { x: bx + bw / 2, y: by + bh - sv / len * bh } : { x: bx + sv / len * bw, y: by + bh / 2 };
+  ctx.save(); ctx.fillStyle = 'rgba(10,8,20,.78)'; ctx.fillRect(bx - 3, by - 3, bw + 6, bh + 6); ctx.strokeStyle = 'rgba(240,228,200,.4)'; ctx.lineWidth = 1; ctx.strokeRect(bx - 3, by - 3, bw + 6, bh + 6);
+  const ws = clamp(P.ws, 0, len), a = at(0), b = at(ws);
+  ctx.fillStyle = 'rgba(138,84,214,.9)'; if (V) ctx.fillRect(bx, b.y, bw, a.y - b.y); else ctx.fillRect(bx, by, b.x - bx, bh);
+  ctx.fillStyle = '#ffd98a'; for (const d of P.dojos) { const q = at(d.s); if (V) ctx.fillRect(bx - 2, q.y - 1.5, bw + 4, 3); else ctx.fillRect(q.x - 1.5, by - 2, 3, bh + 4); }
+  const g = at(len); ctx.fillStyle = C.amber; if (V) ctx.fillRect(bx - 2, g.y, bw + 4, 3); else ctx.fillRect(g.x - 3, by - 2, 3, bh + 4);
+  const q = at(clamp(pathProg(p), 0, len)); ctx.fillStyle = C.paper; circ(ctx, q.x, q.y, 4.5);
+  ctx.fillStyle = 'rgba(240,228,200,.8)'; ctx.font = '700 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('業障牆', V ? bx + bw / 2 : bx + 20, V ? by + bh + 14 : by - 6);
   ctx.restore();
 }
 function render() {
@@ -5932,7 +6108,7 @@ function render() {
   drawPathBack(); { const W0 = THEMES[th()]; if (W0.back) W0.back(); } drawDoor(); drawProp(); drawBlinds(); drawDecor(); drawSwamp(); drawVials(); drawOrb();
   for (const a of absorbs) { ctx.save(); ctx.globalAlpha = Math.min(0.5, a.t * 0.4); ctx.strokeStyle = '#b8a0ff'; ctx.lineWidth = 2; ctx.setLineDash([6, 8]); ctx.beginPath(); ctx.arc(a.x, a.y, a.r, 0, TAU); ctx.stroke(); ctx.restore(); }
   for (const it of room.items) drawItem(it);
-  drawStall(); drawModes(); drawMech();
+  drawNewCls(); drawStall(); drawModes(); drawMech();
   for (const o of tobs) drawTob(o);
   for (const j of jellies) drawJelly(j);
   for (const k of pickups) drawPickup(k);
@@ -6009,6 +6185,8 @@ function render() {
       if (b.kind === 'rang') {
         ctx.save(); ctx.translate(b.x, b.y); ctx.globalAlpha = 0.3; ctx.fillStyle = col[1]; circ(ctx, 0, 0, b.r * 1.8); ctx.globalAlpha = 1;
         ctx.fillStyle = col[0]; star4(ctx, 0, 0, b.r * 1.7, b.rot || 0); ctx.fillStyle = '#fff6d8'; circ(ctx, 0, 0, b.r * 0.4); ctx.restore();
+      } else if (b.kind === 'pong') {
+        ctx.save(); ctx.translate(b.x, b.y); ctx.globalAlpha = 0.35; ctx.fillStyle = '#2a6a9a'; ctx.fillRect(-b.vx * 0.03 - b.r, -b.vy * 0.03 - b.r, b.r * 2, b.r * 2); ctx.globalAlpha = 1; ctx.fillStyle = b.ret ? '#ffe27a' : '#9fe8ff'; ctx.fillRect(-b.r, -b.r, b.r * 2, b.r * 2); ctx.fillStyle = '#ffffff'; ctx.fillRect(-b.r * 0.4, -b.r * 0.4, b.r * 0.8, b.r * 0.8); ctx.restore();
       } else if (b.kind === 'lance' || b.kind === 'glance') {
         ctx.strokeStyle = col[0]; ctx.lineWidth = b.r * 1.4; ctx.lineCap = 'round'; ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.moveTo(b.x - b.vx * 0.035, b.y - b.vy * 0.035); ctx.lineTo(b.x + b.vx * 0.01, b.y + b.vy * 0.01); ctx.stroke(); ctx.globalAlpha = 1;
         ctx.fillStyle = '#ffffff'; circ(ctx, b.x, b.y, b.r * 0.5);
