@@ -3861,7 +3861,7 @@ function composeWave() {
 function makeBoss(b, x, y) {
   {
     const e = spawnEnemy('boss', x, y);
-    e.candy = !!b.candy; e.arc = !!b.arc; e.fut = !!b.fut; e.ext = !!b.ext; e.xk = b.xk; e.kind = b.kind; e.hp = e.maxHp = Math.round(b.hp * (run.long ? 1 + 0.12 * Math.max(0, run.layer - 2) : 1)); e.cd = 2.2;
+    e.candy = !!b.candy; e.arc = !!b.arc; e.fut = !!b.fut; e.ext = !!b.ext; e.xk = b.xk; e.kind = b.kind; e.hp = e.maxHp = Math.round(b.hp * (run.long ? 1 + 0.12 * Math.max(0, run.layer - 2) : 1) * (run.guard ? 2 : 1)); e.cd = 2.2;
     if (b.kind === 'guard') { e.layers = [{ id: 0, hp: 26, max: 26 }, { id: 1, hp: 18, max: 18 }, { id: 2, hp: 12, max: 12 }]; e.layerMax = 56; e.gapA = 0; }
     if (b.kind === 'ore') room.timed = { t: 60, on: true }; e.gen = 0; e.sc = 1; e.weak = 0; if (b.kind === 'summon' || b.kind === 'hive') e.summon = 2.5;
     if (BOSS2[b.kind]) { e.r = (b.kind === 'giant' || b.kind === 'golem' || b.kind === 'toad' || b.kind === 'rootking' || b.kind === 'scorpking' || b.kind === 'mummyking') ? 56 : (b.kind === 'dragon' || b.kind === 'idragon' || b.kind === 'vdragon' || b.kind === 'serpent') ? 40 : (b.kind === 'shan' || b.kind === 'kraken') ? 50 : 40; e.cd = 2.4; e.summon = 12; if (b.kind === 'nightmare') e.r = 44; if (b.kind === 'mirrorgiant') e.r = 56; }
