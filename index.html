@@ -332,7 +332,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
 <main class="wrap">
   <header class="top">
     <h1>燈火騎士</h1>
-    <p class="sub">可玩原型 v2.64　需要鍵盤與滑鼠，請用電腦開啟</p>
+    <p class="sub">可玩原型 v2.65　需要鍵盤與滑鼠，請用電腦開啟</p>
   </header>
 
   <div class="bar" id="bar"><span id="barMsg"></span><button class="barbtn" id="btnGiveUp" type="button">放棄這局</button><button class="barbtn" id="btnSwap" type="button">換職業</button></div>
@@ -1081,7 +1081,8 @@ const LAMPS = {
   ink: { name: '墨水瓶燈罩', c: '#4b5fb0', core: '#e3e9ff', req: 'inkSafe', deco: 'ink' },
   lily: { name: '彼岸花提燈', c: '#e0364a', core: '#ffe1e1', req: 'dartRet', deco: 'lily' },
   lotus: { name: '蓮花燈', c: '#ff9fc0', core: '#fff0f4', req: 'zenCalm', deco: 'lotus' },
-  olive: { name: '橄欖油燈', c: '#c8d46a', core: '#f6f8d8', req: 'gkEvents', deco: 'olive' }
+  olive: { name: '橄欖油燈', c: '#c8d46a', core: '#f6f8d8', req: 'gkEvents', deco: 'olive' },
+  amphora: { name: '雙耳瓶燈', c: '#d9783a', core: '#ffe2c0', req: 'gkHydra' }
 };
 const CAPES = {
   red: { name: '赭紅', c: '#b24a32' },
@@ -1098,7 +1099,8 @@ const HEADS = {
   hat: { name: '擺渡人斗笠', req: 'shoreBoss' },
   lily: { name: '紅花髮飾（傳說）', req: 'copyFree', own: 'lily' },
   monk: { name: '小沙彌頭', req: 'zenBoss' },
-  laurel: { name: '月桂冠', req: 'gkMino' }
+  laurel: { name: '月桂冠', req: 'gkMino' },
+  helm: { name: '科林斯頭盔', req: 'gkBreak' }
 };
 const GT = [
   ['花園', '#5fae52', '#cfe8a8', '花苞帽', '花面具', '藤蔓披風', '草編背心', '花瓣燈罩', 'r', '花環燈穗'],
@@ -1199,7 +1201,7 @@ const FLV = {
   'bellman.snow': '雪落在鐘上，聲音就變軟了。', 'bellman.ice': '敲一下，整座山都聽見。',
   'florist.sun': '永遠朝著燈的方向。', 'shopc.apron': '開店的人，也得先學會揉麵。', 'shopc.god': '生意興隆，通四海。',
   'lamp.ink': '字寫壞了，就把燈蓋上，裝作什麼也沒發生。', 'lamp.lily': '開在河的另一邊，卻替這一邊照著路。', 'cape.letters': '每一塊積木，都替你記著一個字。',
-  'head.book': '翻開的那一頁，永遠是你還沒讀過的。', 'head.hat': '擺渡的人不說話，只負責把你送到岸邊。', 'head.lily': '它不屬於這一岸，所以特別紅。', 'head.monk': '頭上的三個點，是三個放下的念頭。', 'lamp.lotus': '泥裡長出來，卻一點也不髒。', 'cape.kasaya': '一針一線，都是別人放下的東西。', 'head.laurel': '勝利的人不一定是最強的，是走出迷宮的。', 'lamp.olive': '一點橄欖油，就能點亮整個下午。', 'cape.chiton': '神祇們都說，這件很適合你。',
+  'head.book': '翻開的那一頁，永遠是你還沒讀過的。', 'head.hat': '擺渡的人不說話，只負責把你送到岸邊。', 'head.lily': '它不屬於這一岸，所以特別紅。', 'head.monk': '頭上的三個點，是三個放下的念頭。', 'lamp.lotus': '泥裡長出來，卻一點也不髒。', 'cape.kasaya': '一針一線，都是別人放下的東西。', 'head.laurel': '勝利的人不一定是最強的，是走出迷宮的。', 'head.helm': '頭盔上的紅羽毛，是從碎掉的陶罐裡撿來的。', 'lamp.amphora': '雙耳瓶裡裝的不是酒，是一整個港口的黃昏。', 'lamp.olive': '一點橄欖油，就能點亮整個下午。', 'cape.chiton': '神祇們都說，這件很適合你。',
   'sugarc.cherry': '最後一顆櫻桃，總是留給戴帽子的人。', 'sugarc.rainbow': '融化之前，每一層顏色都很認真。', 'pixelc.crt': '畫面有點雪花，可是你的臉很清楚。', 'pixelc.gold': '接住的每一個球，都變成一枚硬幣。', 'calib.visor': '擋住的是光，看清的是距離。', 'calib.hud': '視野裡的數字，永遠比你快一步。', 'ferry.lotus': '河上開了一朵花，是給迷路的人看的。', 'ferry.lantern': '一盞接一盞，全是同行的人。',
   'sleepc.pillow': '抱著它，連噩夢都會睡著。', 'sleepc.dream': '醒著的人，才覺得這是夢遊。'
 };
@@ -5183,7 +5185,7 @@ cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', t
 function applyMobile() {
   document.body.classList.toggle('mobile', mobile);
   $('btnMode').textContent = '操作：' + (mobile ? '手機' : '電腦') + '（點此切換）';
-  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.64　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
+  document.querySelector('.sub').textContent = mobile ? '可玩原型 v2.65　手機版：直向（上方畫面、下方操作區）與橫向皆可' : '可玩原型 v2.47　需要鍵盤與滑鼠，請用電腦開啟';
   $('guide').textContent = mobile ? '點選職業，按「開始冒險」；遊戲中左下搖桿移動、右下攻擊。' : 'W／S 選職業，F 開始冒險；C 造型，V 成就。遊戲中按 P 或 Esc 暫停。';
   $('mHelp').textContent = '【手機操作】\n左下搖桿：移動　右下：攻擊／拿取／選擇（自動瞄準開＝按鈕；關＝搖桿，要拉到圈外才會改變方向）\n攻擊上方：職業技能　技能旁：換武器（也可直接點畫面下方的武器欄）\n右上：小地圖　左上：暫停';
   syncTouch(); applyUi(); updatePort();
@@ -5868,6 +5870,7 @@ function drawPlayer() {
     else if (hd === 'hat') { ctx.fillStyle = '#c9b27a'; poly(ctx, [[-21, -23], [21, -23], [0, -43]]); ctx.strokeStyle = '#8f7a44'; ctx.lineWidth = 1; for (const k of [-10, -4, 4, 10]) { ctx.beginPath(); ctx.moveTo(0, -43); ctx.lineTo(k * 1.7, -23); ctx.stroke(); } ctx.fillStyle = '#5a4a2a'; ctx.fillRect(-21, -24, 42, 2); }
     else if (hd === 'monk') { ctx.fillStyle = '#d9b48a'; ctx.beginPath(); ctx.arc(0, -22, 12, Math.PI, TAU); ctx.fill(); ctx.fillStyle = '#7a5a3a'; for (const kx of [-5, 0, 5]) circ(ctx, kx, -28 - (kx === 0 ? 2 : 0), 1.1); }
     else if (hd === 'laurel') { ctx.strokeStyle = '#5f8a3a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, -23, 13, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke(); ctx.fillStyle = '#7fae4a'; for (let k = 0; k < 7; k++) { const a = Math.PI * 1.1 + k * 0.13; poly(ctx, [[Math.cos(a) * 13, -23 + Math.sin(a) * 13], [Math.cos(a) * 17, -23 + Math.sin(a) * 17 - 2], [Math.cos(a + 0.12) * 14, -23 + Math.sin(a + 0.12) * 14]]); } }
+    else if (hd === 'helm') { ctx.fillStyle = '#b08a52'; ctx.beginPath(); ctx.arc(0, -22, 13, Math.PI, TAU); ctx.fill(); ctx.fillRect(-13, -23, 26, 3); ctx.fillStyle = '#8a6a3a'; ctx.fillRect(-2, -23, 4, 11); ctx.fillStyle = '#c0392b'; poly(ctx, [[-3, -35], [3, -35], [6, -42], [-6, -42]]); }
     else if (hd === 'lily') { const hx = -9, hy = -27; ctx.strokeStyle = '#d2324a'; ctx.lineWidth = 1.6; ctx.lineCap = 'round'; for (let k = 0; k < 7; k++) { const a = -Math.PI * 0.95 + k * 0.5; ctx.beginPath(); ctx.moveTo(hx, hy); ctx.quadraticCurveTo(hx + Math.cos(a) * 6, hy + Math.sin(a) * 6 - 3, hx + Math.cos(a) * 11, hy + Math.sin(a) * 9 - 2); ctx.stroke(); } ctx.fillStyle = '#ffd7dc'; circ(ctx, hx, hy, 1.6); } }
   const kick = p.recoil > 0 ? p.recoil * 40 : 0, lx = p.aim.x * (24 + kick), ly = p.aim.y * (24 + kick) - 4;
   ctx.strokeStyle = C.paperDim; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(p.aim.x * 8, -2); ctx.lineTo(lx, ly - 7); ctx.stroke();
@@ -6409,7 +6412,7 @@ function registerWorld(w) {
   optTheme.innerHTML += '<option value="' + w.theme + '">' + w.opt + '</option>'; $('lblDlcPool').hidden = false;
 }
 window.LK = {
-  registerWorld, THEMES, applyUpgrade, UPG, giveWeapon, WLIST, makeItem, composeWave, interact,
+  registerWorld, THEMES, bossDef: () => bossDef(), applyUpgrade, UPG, giveWeapon, WLIST, makeItem, composeWave, interact,
   get ctx() { return ctx; }, get p() { return p; }, get room() { return room; }, get run() { return run; }, get enemies() { return enemies; }, get bullets() { return bullets; }, get time() { return time; }, get ROOM() { return ROOM; },
   get keys() { return keys; }, get pickups() { return pickups; }, get stageEl() { return stageEl; }, DOOR, healP, dropCoins, overlap, inflate, meleeSwing, rewardUpgrade, shieldMax: () => shieldMax(), hintReset: () => { hintSig = ''; hudSig = ''; },
   C, TAU, circ, rrect, poly, setShadow, noShadow, star4, rand, rr, pickOf, clamp, shuffle, mulberry,

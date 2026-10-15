@@ -839,6 +839,15 @@ function gkMake(R) {
   return GK;
 }
 function gkObs(kind, R, D) {
+  if (kind === 'boss') {
+    let fin = false; try { fin = L.bossDef().xk === 'minotaur'; } catch (e) { fin = false; }
+    if (fin) { // 米諾陶房：三道錯開缺口的迷宮牆（缺口寬 250，夠 Boss 通過）
+      const W = 24, gap = 250, out = [], xs = [R.x + 330, R.x + 620, R.x + 910];
+      xs.forEach((x, i) => { const top = i % 2 === 0; if (top) out.push({ x, y: R.y, w: W, h: R.h - gap, jk: 'wall' }); else out.push({ x, y: R.y + gap, w: W, h: R.h - gap, jk: 'wall' }); });
+      out.push({ x: R.x + 470, y: R.y + R.h / 2 - 20, w: 40, h: 40, jk: 'stat' }, { x: R.x + 760, y: R.y + R.h / 2 - 20, w: 40, h: 40, jk: 'stat' });
+      return out;
+    }
+  }
   const big = kind === 'combat'; if (big) gkMake(R); const sl = big && GK ? GK.slots : [];
   const keep = sl.map(s => s.fk === 'market' ? { x: s.x - 230, y: s.y - 100, w: 520, h: 220 } : s.fk === 'altar' ? { x: s.x - 200, y: s.y - 90, w: 400, h: 200 } : s.fk === 'labyr' ? { x: s.x - 220, y: s.y - 190, w: 420, h: 380 } : { x: s.x - 130, y: s.y - 130, w: 260, h: 260 });
   keep.push({ x: R.x, y: D.y - 100, w: 170, h: 200 }, { x: R.x + R.w - 170, y: D.y - 100, w: 170, h: 200 });
@@ -964,6 +973,7 @@ function gkBossTick(dt, room, p) {
 function gkTick(dt) {
   const room = L.room, p = L.p; if (room && room.kind === 'boss' && L.state() === 'play') { gkBossTick(dt, room, p); return; } if (!GK || !room || !GK.live || room.kind !== 'combat' || L.state() !== 'play') { if (p && p.drunk > 0 && (!room || room.kind !== 'combat')) p.drunk = 0; return; }
   if (p.drunk > 0) p.drunk = Math.max(0, p.drunk - dt);
+  for (const e of L.enemies) if (!e.dead && e.skin === 'satyr' && !e.gkRage && e.hp <= e.maxHp * 0.5) { e.gkRage = true; e.spd *= 1.35; L.burst(e.x, e.y - 10, 10, ['#ff6a3a', C.paper], 150, true); }
   for (const q of GK.strikes) { q.t -= dt; if (q.t <= 0 && !q.done) { q.done = true; L.burst(q.x, q.y, 14, ['#fff2a8', C.paper], 190, true); L.sfx('hit'); L.shake(4); if (Math.hypot(p.x - q.x, p.y - q.y) < q.r + p.r && p.iframes <= 0) L.hurtFrom('zeus', 1, 0, 1); } }
   GK.strikes = GK.strikes.filter(q => !q.done);
   for (const it of room.items) {
@@ -1041,6 +1051,7 @@ function drawGkEnemy(e) {
     eye(-r * 0.28, bob - r * 0.2, r * 0.17); eye(r * 0.28, bob - r * 0.2, r * 0.17); c.fillStyle = GK_ORG; poly(c, [[-4, bob + 2], [4, bob + 2], [0, bob + 9]]);
   } else if (sk === 'satyr') {
     c.fillStyle = body(GK_BLK); circ(c, 0, bob, r); poly(c, [[-r * 0.7, bob - r * 0.6], [-r * 1.05, bob - r * 1.4], [-r * 0.25, bob - r * 0.85]]); poly(c, [[r * 0.7, bob - r * 0.6], [r * 1.05, bob - r * 1.4], [r * 0.25, bob - r * 0.85]]);
+    if (e.gkRage) { c.fillStyle = 'rgba(255,80,40,.28)'; circ(c, 0, bob, r * 1.35); }
     eye(-r * 0.32, bob - r * 0.15, r * 0.18); eye(r * 0.32, bob - r * 0.15, r * 0.18); c.fillStyle = GK_ORG; c.fillRect(-r * 0.4, bob + r * 0.35, r * 0.8, 3); poly(c, [[-r * 0.2, bob + r * 0.5], [r * 0.2, bob + r * 0.5], [0, bob + r * 1.0]]);
   } else if (sk === 'hydra') {
     c.fillStyle = body(GK_BLK); circ(c, 0, bob + r * 0.3, r * 0.8); for (const s of [-1, 0, 1]) { c.strokeStyle = body(GK_BLK); c.lineWidth = 5; c.beginPath(); c.moveTo(s * r * 0.3, bob + r * 0.1); c.quadraticCurveTo(s * r * 0.9, bob - r * 0.6, s * r * 0.7 + Math.sin(t * 3 + s) * 3, bob - r * 1.1); c.stroke(); circ(c, s * r * 0.7 + Math.sin(t * 3 + s) * 3, bob - r * 1.15, r * 0.3); eye(s * r * 0.7 + 2, bob - r * 1.2, 2.2); }
@@ -1100,6 +1111,8 @@ L.registerWorld({
   ach: [
     { id: 'gkBless', name: '神的寵兒', desc: '希臘神話：同一局三層都接受了神祇恩賜（可獲得希臘長袍）' },
     { id: 'gkEvents', name: '見多識廣', desc: '希臘神話：一局完成 5 個神話事件（可獲得橄欖油燈）' },
+    { id: 'gkBreak', name: '陶罐粉碎機', desc: '希臘神話：一局打破 30 個陶罐敵人（可獲得科林斯頭盔）' },
+    { id: 'gkHydra', name: '斬草除根', desc: '希臘神話：擊敗再生的九頭蛇頭（可獲得雙耳瓶燈）' },
     { id: 'gkMino', name: '走出迷宮', desc: '希臘神話：擊敗米諾陶（可獲得月桂冠）' }
   ],
   types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter'); if (L0 > 0 || ci >= 1) types.push('splitter'); if (L0 > 0 || ci >= 2) types.push('brute', 'bomber'); },
@@ -1108,7 +1121,12 @@ L.registerWorld({
   intro: def => (def.xk === 'minotaur'
     ? [{ who: '旁白', text: '迷宮最深處，黑色的影子低下頭，牛角刮過石牆，火花濺了一地。' }, { who: '旁白', text: '那是米諾陶——陶罐上所有故事的最後一頁。' }]
     : [{ who: '旁白', text: '神殿的柱子之間，蛇髮輕輕地動。石像們的表情，都停在最後一刻。' }, { who: '旁白', text: '不要直視她——躲到柱子後面，橫向移動。' }]),
-  onKill: e => { },
+  onKill: e => {
+    const r = L.run;
+    if (e.skin === 'jar') { r.gkJars = (r.gkJars || 0) + 1; if (r.gkJars >= 30) L.unlockAch('gkBreak'); if (L.rand() < 0.3) { L.dropCoins(e.x, e.y, 1 + Math.floor(L.rand() * 3)); L.burst(e.x, e.y, 8, [GK_ORG, '#e0642c', C.paper], 140, true); } }
+    else if (e.skin === 'hydra' && e.type === 'splitter2' && !e.gkRe && L.rand() < 0.25) { const h = L.spawnEnemy('splitter2', e.x, e.y); h.sleep = false; h.gkRe = true; h.hp = h.maxHp = Math.max(3, Math.round(h.maxHp * 0.5)); L.burst(e.x, e.y, 14, ['#6ac06a', C.paper], 160, true); L.toast('九頭蛇的頭又長出來了！', 1.6); }
+    else if (e.skin === 'hydra' && e.gkRe) L.unlockAch('gkHydra');
+  },
   onFinal: () => { if (L.th() === 16) L.unlockAch('gkMino'); },
   outro: () => [{ who: '旁白', text: '米諾陶倒下，迷宮的牆一面一面變淡，露出外面的海。' }, { who: '旁白', text: '陶罐上的故事說完了。你的燈，還亮著。' }]
 });
