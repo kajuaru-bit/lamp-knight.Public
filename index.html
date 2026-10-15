@@ -678,6 +678,8 @@ const WDEF = {
   pong:    { id: 'pong', name: '乒乓砲', tag: '反彈・接球', mode: 'tap', cd: 0.3, cls: 'pixelc', desc: '方形彈球，飛行距離較短（約 420），碰牆或障礙反彈後距離重新計算；最多反彈 3 次、每次傷害 +30%（4 → 8.8），之後或飛太遠就折返；彈球靠近時再按攻擊鍵接球，完美接球讓下一發 ×1.5；沒接到則重新裝填 1.2 秒' },
   calgun:  { id: 'calgun', name: '校準槍', tag: '貫穿・距離', mode: 'tap', cd: 0.6, cls: 'calib', desc: '可穿透的子彈；傷害隨飛行距離遞減：100 像素內 ×1.3、300 ×1.0、500 ×0.7、700 ×0.4（基底 6.5）' },
   pole:    { id: 'pole', name: '擺渡篙', tag: '戳刺・推開', mode: 'tap', cd: 0.7, cls: 'ferry', desc: '向前戳刺，射程長、貫穿一整列；戳中的敵人被推開' },
+  beatstick: { id: 'beatstick', name: '節拍棒', tag: '近戰・快速', mode: 'tap', cd: 0.34, cls: 'beater', range: 118, half: 1.0, dmg: 2.6, kb: 420, desc: '快速的短棒揮擊，揮擊範圍內的敵方子彈會被打掉' },
+  echobow: { id: 'echobow', name: '迴響弓', tag: '遠程・連射', mode: 'tap', cd: 0.4, cls: 'echoer', desc: '射出一發快速的迴響彈；共鳴期間可清除前方子彈（或追加遠距離彈）' },
   lure:    { id: 'lure',    name: '蟲餌', tag: '誘引', mode: 'hold', cd: 0.1, desc: '按住在前方放出氣味，最多同時兩個；吸引附近的蟲系敵人，70 像素內的敵人每秒受到 2.5 點傷害；放開後氣味還會留 3 秒' }
 };
 const WLIST = Object.keys(WDEF);
@@ -702,6 +704,8 @@ const UPG = {
   c_pix:   { name: '連線加成', cls: 'pixelc', desc: '【像素客專屬】第 1 層：乒乓砲多反彈 1 次（3 → 4 次）；第 2 層：接球窗口加長、完美接球回 1 燈芯、讀檔冷卻 −10 秒', max: 2, price: 11 },
   c_cal:   { name: '焦距調整', cls: 'calib', desc: '【校準員專屬】第 1 層：校準槍的傷害衰減變慢 35％；第 2 層：傷害下限 ×0.7，且座標標記可同時標記 2 個目標', max: 2, price: 11 },
   c_fer:   { name: '渡口深處', cls: 'ferry', desc: '【擺渡人專屬】第 1 層：燈火隊員 +1 名、存在 +4 秒；第 2 層：隊員消失時留下 4 秒的「渡口」（站上去回血），射速 +30％', max: 2, price: 11 },
+  c_beat:  { name: '強勁節拍', cls: 'beater', desc: '【擊節者專屬】第 1 層：起拍的加成次數 5 → 7 次；第 2 層：加成攻擊會震開附近敵人並清除範圍內的敵方子彈', max: 2, price: 11 },
+  c_echo:  { name: '餘音繞樑', cls: 'echoer', desc: '【回響手專屬】第 1 層：共鳴持續 6 → 9 秒；第 2 層：清彈改為全向範圍，追加的遠距離彈傷害 ×1.5', max: 2, price: 11 },
   c_wall:  { name: '雙層屏障', cls: 'mage', desc: '【折紙術士專屬】同時立起兩道前後相隔的紙牆；紙牆也能擋住敵人（敵人無法穿過）', max: 2, price: 10 },
   c_warm:  { name: '濃縮暖光', cls: 'oiler', desc: '【燈油師專屬】第 1 層：暖光恢復量 +1；第 2 層：暖光冷卻 −20%', max: 2, price: 13 },
   c_shield: { name: '厚紙盾', cls: 'shield', desc: '【紙盾衛專屬】第 1 層：護盾上限 +1；第 2 層：護盾恢復速度 +30%', max: 2, price: 13 },
@@ -734,6 +738,8 @@ const PREM = {
   c_pix:   { name: '連線加成・極', cls: 'pixelc', desc: '乒乓砲多反彈 1 次，接球窗口加長、完美接球回 1 燈芯、讀檔冷卻 −10 秒（占 2 層）', price: 19, w: 2 },
   c_cal:   { name: '焦距調整・極', cls: 'calib', desc: '校準槍傷害衰減變慢且下限 ×0.7，座標標記可同時標記 2 個目標（占 2 層）', price: 19, w: 2 },
   c_fer:   { name: '渡口深處・極', cls: 'ferry', desc: '燈火隊員 +1 名、存在 +4 秒，消失時留下回血的渡口，射速 +30％（占 2 層）', price: 19, w: 2 },
+  c_beat:  { name: '強勁節拍・極', cls: 'beater', desc: '起拍加成 7 次，加成攻擊震開敵人並清除範圍內子彈（占 2 層）', price: 19, w: 2 },
+  c_echo:  { name: '餘音繞樑・極', cls: 'echoer', desc: '共鳴持續 9 秒、清彈全向、追加遠距離彈傷害 ×1.5（占 2 層）', price: 19, w: 2 },
   c_wall:  { name: '分立屏障', cls: 'mage', desc: '【折紙術士專屬】兩道紙牆改成可以分開立起：施放後 6 秒內可以再立一道；紙牆也能擋住敵人', price: 18, w: 2 },
   c_warm:  { name: '暖光・極', cls: 'oiler', desc: '【燈油師專屬】暖光恢復量 +1 且冷卻 −20%（占 2 層）', price: 22, w: 2 },
   c_shield: { name: '鋼紙盾', cls: 'shield', desc: '【紙盾衛專屬】護盾上限 +1 且恢復速度 +30%（占 2 層）', price: 22, w: 2 },
@@ -971,6 +977,8 @@ const CLS = [
   { id: 'pixelc', name: '像素客', role: '高機動風險型', weapon: 'pong', hp: 4, spd: 1.15, dlcReq: [['arcade', 'escape']], need: '電玩世界：無盡抵達第 6 層＋逃離通關各一次', skill: '讀檔', sdesc: '回到 3 秒前的位置與血量（血量不會比現在低）', cd: 45, detail: '讀檔：回到約 3 秒前的位置，血量取「現在」與「3 秒前」較高者，並有 0.8 秒無敵。冷卻很長（45 秒）。專屬武器乒乓砲：彈球碰牆與障礙會反彈 3 次，每次傷害 +30%，之後折返；彈球靠近時再按攻擊鍵可以接球（完美接球：下一發 ×1.5）；沒接到就消失、裝填 1.2 秒。' },
   { id: 'calib', name: '校準員', role: '遠程精準', weapon: 'calgun', hp: 5, spd: 1, dlcReq: [['future', 'futEscape']], need: '未來世界：守燈＋逃離各通關一次', skill: '座標標記', sdesc: '標記最近的敵人（優先 Boss），3 秒後引爆；施放與引爆都會清除附近的敵方子彈', cd: 14, detail: '座標標記：對最近的敵人（有 Boss 時優先）打上標記，3 秒後在標記處引爆（半徑 130、傷害 8）；施放時清除身邊 170 像素的敵方子彈，引爆時清除標記處 150 像素的敵方子彈。專屬武器校準槍：可穿透的子彈，傷害隨距離遞減（100 像素內 ×1.3、300 ×1.0、500 ×0.7、700 ×0.4）。' },
   { id: 'ferry', name: '擺渡人', role: '召喚輔助', weapon: 'pole', hp: 6, spd: 0.95, dlcReq: [['letters', 'shore'], ['dl2long']], need: 'DLC2：字母書房＋彼岸各通關一次，或 DLC2 長線通關一次', skill: '渡燈', sdesc: '召喚 2 名自發光的燈火隊員，14 秒；會自動射擊，消失時震開敵方子彈', cd: 22, detail: '渡燈：在身邊召喚 2 名燈火隊員（血量 2，各自發出一圈光），存在 14 秒，會自動朝最近的敵人射擊（傷害 1.2、每 0.9 秒）；消失時迸出光圈，清掉附近的敵方子彈；再次施放會取代舊的。專屬武器擺渡篙：向前戳刺，射程長、貫穿一整列，戳中的敵人被推開。' },
+  { id: 'beater', name: '擊節者', role: '近戰・能量爆發', weapon: 'beatstick', hp: 6, spd: 1, dlcReq: [['zen', 'zenKarma']], need: '佛寺：修行路＋渡化道場各通關一次', skill: '起拍', sdesc: '接下來 5 次攻擊都有加成（傷害 ×1.8）；冷卻改用「能量」：造成傷害與受到傷害都會累積', cd: 60, detail: '起拍：接下來 5 次攻擊傷害 ×1.8。技能冷卻不看時間，而是累積能量（需要 60）：每造成 1 點傷害 +1，每損失 1 點燈火 +8（每間房最多靠受傷充能 2 次）。強化二：加成攻擊會震開附近敵人並清除範圍內的敵方子彈。專屬武器節拍棒：快速短棒，揮擊範圍內的敵方子彈會被打掉。' },
+  { id: 'echoer', name: '回響手', role: '遠程・清彈', weapon: 'echobow', hp: 5, spd: 1.05, dlcReq: [['greek', 'japan']], need: '希臘神話＋日本觀光維護各通關一次', skill: '共鳴', sdesc: '6 秒內：武器本來無法清子彈的，攻擊時可清除前方子彈；本來就能清子彈的（近戰類），每次攻擊額外射出遠距離子彈', cd: 14, detail: '共鳴：持續 6 秒。手上武器是遠程（無法清子彈）時，每次攻擊會清除前方 230 像素內的敵方子彈；手上武器是近戰或戳刺（本來就能清子彈）時，每次攻擊額外射出一發遠距離貫穿彈（傷害 2.4）。專屬武器迴響弓：快速的遠程單發。' },
 ];
 let lampLost = false, lampBatch = 0, lampMates = [], cmarks = [], harbors = [], pongB = null, rewindH = [];
 let chosen = 0, cleared = false, menuAgain = false;
@@ -986,7 +994,7 @@ function loadRec() {
 }
 let rec = loadRec();
 const DLG_SPD = [0.7, 1, 1.8, 99], DLG_NAME = ['慢', '中', '快', '瞬間'], TOAST_M = [0.7, 1, 1.6], TOAST_NAME = ['短', '中', '長'], TZ_V = [0.85, 1, 1.2], TZ_NAME = ['小', '中', '大'], TO_V = [0.55, 0.8, 1], TO_NAME = ['淡', '中', '濃'];
-const CLS_TYPE = { knight: 'atk', hunter: 'atk', cutter: 'atk', inkhunter: 'atk', lanternc: 'atk', shield: 'def', watch: 'def', bellman: 'def', mage: 'bal', oiler: 'bal', lampist: 'bal', slowc: 'sup', florist: 'sup', shopc: 'sup', sleepc: 'sup', sugarc: 'def', pixelc: 'atk', calib: 'atk', ferry: 'sup' };
+const CLS_TYPE = { knight: 'atk', hunter: 'atk', cutter: 'atk', inkhunter: 'atk', lanternc: 'atk', shield: 'def', watch: 'def', bellman: 'def', mage: 'bal', oiler: 'bal', lampist: 'bal', slowc: 'sup', florist: 'sup', shopc: 'sup', sleepc: 'sup', sugarc: 'def', pixelc: 'atk', calib: 'atk', ferry: 'sup', beater: 'atk', echoer: 'bal' };
 const TYPE_INFO = { atk: { name: '攻擊型', col: '#ee6a3c' }, def: { name: '防守型', col: '#5aa6e0' }, bal: { name: '平衡型', col: '#a8d36a' }, sup: { name: '輔助型', col: '#c79bff' } };
 let clsFilter = 'all';
 function saveRec() { if (run.practice) return; try { localStorage.setItem(REC_KEY, JSON.stringify(rec)); } catch (e) { /* storage is optional */ } }
@@ -1174,6 +1182,8 @@ const CLSCOS = {
   sugarc: { name: '帽子', opts: { plain: { name: '糖霜帽' }, cherry: { name: '櫻桃糖帽', clears: 1 }, rainbow: { name: '彩虹糖帽', req: 'sugarShell' } } },
   pixelc: { name: '帽子', opts: { plain: { name: '像素帽' }, crt: { name: 'CRT 螢幕帽', clears: 1 }, gold: { name: '金幣帽', req: 'perfectCatch' } } },
   calib: { name: '護目鏡', opts: { plain: { name: '校準鏡' }, visor: { name: '護目面罩', clears: 1 }, hud: { name: '抬頭顯示鏡', req: 'bullseye' } } },
+  beater: { name: '髮帶', opts: { plain: { name: '節拍髮帶' }, drum: { name: '鼓點髮帶', clears: 1 } } },
+  echoer: { name: '耳飾', opts: { plain: { name: '回聲耳環' }, ring: { name: '共鳴耳環', clears: 1 } } },
   ferry: { name: '斗笠', opts: { plain: { name: '擺渡笠' }, lotus: { name: '蓮花笠', clears: 1 }, lantern: { name: '燈籠笠', req: 'fleetShield' } } },
   knight: { name: '披風', opts: { plain: { name: '短披風' }, long: { name: '長披風', clears: 1 }, crane: { name: '紙鶴披風', clears: 3 }, fan: { name: '扇紋披風', req: 'fanFame' } } },
   hunter: { name: '帽子', opts: { none: { name: '無帽' }, straw: { name: '斗笠', clears: 1 }, feather: { name: '羽毛帽', clears: 3 } } },
@@ -2747,7 +2757,7 @@ function updateHud() {
     if (pc > 0) chips.push('★' + PREM[id].name + (pc > 1 ? '×' + pc : ''));
   }
   const upgTxt = chips.join('|');
-  const C0 = CLS[p.cls], skTxt = (p.lantT > 0 ? '變身 ' + Math.ceil(p.lantT) + ' 秒　' : '') + (p.sleepT > 0 ? '睡眠 ' + Math.ceil(p.sleepT) + ' 秒　' : '') + C0.skill + (C0.id === 'shopc' ? (p.roomCd > 0 ? '　' + (run.escape ? Math.ceil(p.stallMove / (upN('c_shop') >= 2 ? 3.2 : 4.8)) + '%' : p.roomCd + ' 房') : '') : (p.skillCd > 0 ? '　' + Math.ceil(p.skillCd) + ' 秒' : ''));
+  const C0 = CLS[p.cls], skTxt = (p.beatN > 0 ? '加成 ' + p.beatN + ' 下　' : '') + (p.echoT > 0 ? '共鳴 ' + Math.ceil(p.echoT) + ' 秒　' : '') + (p.lantT > 0 ? '變身 ' + Math.ceil(p.lantT) + ' 秒　' : '') + (p.sleepT > 0 ? '睡眠 ' + Math.ceil(p.sleepT) + ' 秒　' : '') + C0.skill + (C0.id === 'shopc' ? (p.roomCd > 0 ? '　' + (run.escape ? Math.ceil(p.stallMove / (upN('c_shop') >= 2 ? 3.2 : 4.8)) + '%' : p.roomCd + ' 房') : '') : (p.skillCd > 0 ? '　' + Math.ceil(p.skillCd) + ' 秒' : ''));
   const cdFrac = C0.id === 'shopc' ? (p.roomCd > 0 ? (run.escape ? p.stallMove / (upN('c_shop') >= 2 ? 320 : 480) : p.roomCd / (upN('c_shop') >= 2 ? 2 : 3)) : 0) : p.skillCd > 0 ? Math.min(1, p.skillCd / Math.max(0.01, C0.cd * p.cdMul)) : 0;
   $('skFill').style.height = (cdFrac > 0 ? (1 - cdFrac) * 100 : 100) + '%'; $('skill').classList.toggle('cool', cdFrac > 0);
   const autoOn = C0.id === 'watch' && upN('c_watch') >= 2; $('skill').classList.toggle('auto', autoOn && p.autoSkill !== false); $('skill').classList.toggle('autooff', autoOn && p.autoSkill === false);
@@ -2948,7 +2958,7 @@ function refreshPauseOpts() {
 function fillPause() {
   const c = CLS[p.cls];
   $('pClass').textContent = c.name + '　' + c.role + '　血量 ' + p.hp + ' / ' + p.maxHp;
-  $('pSkillName').textContent = '空白鍵　' + c.skill + '　（冷卻 ' + Math.round(c.cd * p.cdMul * 10) / 10 + ' 秒，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd) + ' 秒' : '已就緒') + '）';
+  $('pSkillName').textContent = '空白鍵　' + c.skill + '　（' + (c.id === 'beater' ? '需要能量 ' : '冷卻 ') + Math.round(c.cd * p.cdMul * 10) / 10 + (c.id === 'beater' ? '，' : ' 秒，') + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd) + (c.id === 'beater' ? ' 點' : ' 秒') : '已就緒') + '）';
   $('pSkillDesc').textContent = c.sdesc + '。';
   $('pSkillCd').textContent = c.detail;
   $('pBuffs').textContent = buffLines(); refreshPauseOpts();
@@ -3311,7 +3321,7 @@ const MELEE_W = { shears: 1, pillow: 1, blade: 1, pblade: 1, shadeblade: 1, fros
 function flMul(wid) { if (!enemies.some(e => e.type === 'faceless' && !e.dead && e.spawn <= 0)) return 1; return MELEE_W[wid] ? 1.12 : 1.24; }
 
 /* ---------- 四個 DLC 職業：糖衣師、像素客、校準員、擺渡人 ---------- */
-Object.assign(WCOL, { syrup: '#ff9ad0', pong: '#9fe8ff', calgun: '#9fe3ff', pole: '#e8dcc0' });
+Object.assign(WCOL, { syrup: '#ff9ad0', pong: '#9fe8ff', calgun: '#9fe3ff', pole: '#e8dcc0', beatstick: '#ffd27a', echobow: '#bfe8ff' });
 function stickHit(e, n) {
   if (!(e.stickT > 0)) e.stickN = 0;
   e.stickT = 2; e.stickN = (e.stickN || 0) + (n || 1); burst(e.x, e.y - e.r * 0.5, 3, ['#ff9ad0', C.paper], 70, true);
@@ -3371,6 +3381,10 @@ function newSkill(c) {
     cmarks = cand.slice(0, upN('c_cal') >= 2 ? 2 : 1).map(e => ({ e, x: e.x, y: e.y, t: 3, T: 3 }));
     for (const b of bullets) if (b.own === 'e' && Math.hypot(b.x - p.x, b.y - p.y) < 170) { b.dead = true; burst(b.x, b.y, 4, ['#9fe3ff', C.paper], 100, true); }
     rings.push({ x: p.x, y: p.y, R: 170, t: 0.35, dur: 0.35 }); sfx('clear'); toast('座標標記！3 秒後引爆', 1.6);
+  } else if (id === 'beater') {
+    p.beatN = 5 + (upN('c_beat') >= 1 ? 2 : 0); rings.push({ x: p.x, y: p.y, R: 70, t: 0.3, dur: 0.3 }); burst(p.x, p.y, 12, ['#ffd27a', '#ff8a5a', C.paper], 170, true); sfx('clear'); toast('起拍！接下來 ' + p.beatN + ' 次攻擊有加成', 1.8); hudSig = '';
+  } else if (id === 'echoer') {
+    p.echoT = 6 + (upN('c_echo') >= 1 ? 3 : 0); rings.push({ x: p.x, y: p.y, R: 80, t: 0.35, dur: 0.35 }); burst(p.x, p.y, 12, ['#9fe3ff', C.paper], 170, true); sfx('clear'); toast('共鳴！' + p.echoT + ' 秒', 1.6); hudSig = '';
   } else if (id === 'ferry') {
     const up = upN('c_fer') >= 1, n = 2 + (up ? 1 : 0), T = 14 + (up ? 4 : 0); lampMates = []; lampLost = false; lampBatch = n;
     for (let i = 0; i < n; i++) lampMates.push({ x: p.x + Math.cos(i / n * TAU) * 40, y: p.y + Math.sin(i / n * TAU) * 40, hp: 2, t: T, T, cd: 0.4, i, n, fl: 0 });
@@ -3379,7 +3393,7 @@ function newSkill(c) {
 }
 function updateNewCls(dt) {
   if (state !== 'play') return;
-  p.pongReload = Math.max(0, (p.pongReload || 0) - dt);
+  p.pongReload = Math.max(0, (p.pongReload || 0) - dt); if (p.echoT > 0) { p.echoT = Math.max(0, p.echoT - dt); if (p.echoT <= 0) { hudSig = ''; toast('共鳴結束', 1); } }
   if (p.sugar > 0) { p.sugarT -= dt; if (p.sugarT <= 0) { p.sugar = 0; toast('糖衣融化了', 1.2); hudSig = ''; } }
   if (CLS[p.cls].id === 'pixelc') {
     if (!rewindH.length || time - rewindH[rewindH.length - 1].t >= 0.1) rewindH.push({ x: p.x, y: p.y, hp: p.hp, t: time });
@@ -3467,8 +3481,32 @@ function attack() {
     }
   }
   else if (w.fire) w.fire(ox, oy, ang, dm, pd);
-  else meleeSwing(w, ang, 1);
+  else meleeSwing(w, ang, CLS[p.cls].id === 'beater' && p.beatN > 0 ? beatGo() : 1);
+  if (CLS[p.cls].id === 'echoer' && p.echoT > 0) echoAttack(w, ox, oy, ang, dm);
   if (wid === 'shears') later(0.15, () => { if (state === 'play' && p.sleepT <= 0) meleeSwing(w, Math.atan2(p.aim.y, p.aim.x), 1.5); });
+}
+WDEF.echobow.fire = (ox, oy, ang, dm) => { shoot(ox, oy, ang, 640, 5.5, 2.3 * dm, 'pellet', 0.95); sfx('tick'); };
+function weaponClears(w) { return !!(w.range || MELEE_W[w.id] || w.id === 'whip' || w.id === 'pole'); }
+function echoAttack(w, ox, oy, ang, dm) {
+  if (weaponClears(w)) { shoot(ox, oy, ang, 900, 5, 2.4 * dm * (upN('c_echo') >= 2 ? 1.5 : 1), 'lance', 1.0, true); sfx('blade'); return; }
+  const all = upN('c_echo') >= 2;
+  for (const b of bullets) {
+    if (b.own !== 'e' || b.dead) continue;
+    const dx = b.x - p.x, dy = b.y - p.y, d = Math.hypot(dx, dy); if (d > 230 + b.r) continue;
+    if (!all) { let da = Math.atan2(dy, dx) - ang; da = Math.atan2(Math.sin(da), Math.cos(da)); if (Math.abs(da) > 1.1) continue; }
+    b.dead = true; burst(b.x, b.y, 4, ['#9fe3ff', C.paper], 100, true);
+  }
+  rings.push({ x: p.x + Math.cos(ang) * 30, y: p.y + Math.sin(ang) * 30, R: 120, t: 0.25, dur: 0.25 });
+}
+function beatGo() {
+  p.beatN--; hudSig = '';
+  if (upN('c_beat') >= 2) {
+    for (const b of bullets) if (b.own === 'e' && !b.dead && Math.hypot(b.x - p.x, b.y - p.y) < 200 + b.r) { b.dead = true; burst(b.x, b.y, 4, ['#ffd27a', C.paper], 100, true); }
+    for (const e of enemies) { if (e.dead || e.spawn > 0 || e.type === 'boss') continue; const dx = e.x - p.x, dy = e.y - p.y, d = Math.hypot(dx, dy) || 1; if (d < 200 + e.r) { e.kx = (e.kx || 0) + dx / d * 420; e.ky = (e.ky || 0) + dy / d * 420; } }
+    rings.push({ x: p.x, y: p.y, R: 200, t: 0.3, dur: 0.3 });
+  }
+  burst(p.x, p.y, 6, ['#ffd27a', C.paper], 140, true); if (p.beatN <= 0) toast('加成結束', 1);
+  return 1.8;
 }
 function meleeSwing(w, ang, mul) {
   const dm = p.dmgMul, rm = reachMul();
@@ -3555,7 +3593,7 @@ function hitEnemy(e, dmg, dx, dy, kb, melee) {
   if (p.shadowBuf > 0 && CLS[p.cls].id === 'inkhunter') { dmg *= 1.5; p.shadowBuf = 0; burst(e.x, e.y - e.r * 0.4, 8, ['#a89ad8', C.paper], 150, true); }
   if (CLS[p.cls].id === 'watch' && Math.hypot(e.x - p.x, e.y - p.y) < lightR()) dmg *= (p.skillLight > 0 ? 1.45 : 1.3) + (upN('c_watch') >= 1 ? 0.1 : 0);
   if (p.crit > 0 && rand() < p.crit) { dmg *= 1.8; burst(e.x, e.y - e.r * 0.4, 8, ['#fff2a8', C.amber], 170, true); }
-  run.dmgOut = (run.dmgOut || 0) + Math.min(dmg, Math.max(0, e.hp)); e.hp -= dmg; e.flash = 0.08;
+  run.dmgOut = (run.dmgOut || 0) + Math.min(dmg, Math.max(0, e.hp)); e.hp -= dmg; e.flash = 0.08; if (p.skillCd > 0 && CLS[p.cls].id === 'beater' && !(p.beatN > 0)) { p.skillCd = Math.max(0, p.skillCd - Math.min(dmg, 12)); hudSig = ''; }
   if (e.type === 'deepworm' && e.hp > 0 && !e.split && (e.state === 'wind' || e.hp < e.maxHp * 0.6)) wormSplit(e);
   if (e.garden && !e.healed && !(e.healT > 0) && e.hp > 0 && e.hp <= e.maxHp * 0.5) e.healT = 0.8;
   if (e.type !== 'boss') { e.kx += dx * kb; e.ky += dy * kb; }
@@ -3670,6 +3708,7 @@ function hurtPlayer(dmg, nx, ny, frz) {
     p.shield = Math.max(0, p.shield - dmg); if (p.shield <= 0) run.shieldZero = true; p.shieldT = 0; room.hurt = true; p.iframes = 1.0; p.kx = nx * 220; p.ky = ny * 220; shake = 5; sfx('hurt'); hudSig = '';
     burst(p.x, p.y, 10, ['#8fd0ff', C.paper], 150, true); return;
   }
+  if (CLS[p.cls].id === 'beater' && p.skillCd > 0 && ((room.beatHurt = (room.beatHurt || 0) + 1) <= 2)) { p.skillCd = Math.max(0, p.skillCd - 8 * dmg); hudSig = ''; }
   p.hp = Math.max(0, p.hp - dmg); if (p.hp <= 0 && p.lantT > 0 && upN('c_paperl') >= 1) p.hp = 1; room.hurt = true; run.hurtAny = true; p.iframes = 1.0; p.kx = nx * 300; p.ky = ny * 300; shake = 8; sfx('hurt');
   burst(p.x, p.y, 10, [C.paper, C.cape], 160);
   if (p.hp > 0 && p.sleepT > 0 && (upN('c_slp') < 2 || rand() < 0.5)) wakeUp(true);
@@ -5055,7 +5094,7 @@ function useSkill() {
     p.chainLeft = (c.id === 'cutter' && upN('c_chain') >= 1) || (c.id === 'mage' && upN('c_wall') >= 2) ? 1 : 0;
     p.chainT = c.id === 'mage' ? 6 : 99;
   }
-  if (c.id === 'sugarc' || c.id === 'pixelc' || c.id === 'calib' || c.id === 'ferry') { newSkill(c); return; }
+  if (c.id === 'sugarc' || c.id === 'pixelc' || c.id === 'calib' || c.id === 'ferry' || c.id === 'beater' || c.id === 'echoer') { newSkill(c); return; }
   if (c.id === 'lanternc') {
     p.lantT = 10 * Math.max(1, p.skillPow); if (p.lcombo > 0) toast('連擊重新計算', 0.9); p.lcombo = 0; p.lDashCd = 0; p.skillCd = p.lantT + c.cd * p.cdMul;
     rings.push({ x: p.x, y: p.y, R: 110, t: 0.45, dur: 0.45 }); sfx('clear'); burst(p.x, p.y, 14, ['#ee6a3c', '#ffd27a', C.paper], 170, true); toast('化身燈籠！按 F 衝刺', 1.8); hudSig = '';
@@ -5497,7 +5536,7 @@ function updatePlay(dt) {
   run.t += dt; try { telTick(dt); } catch (e) { /* telemetry is optional */ }
   runTimers(dt);
   follow = !mouse.down;
-  p.iframes = Math.max(0, p.iframes - dt); p.stone = Math.max(0, (p.stone || 0) - dt); p.cd = Math.max(0, p.cd - dt); p.noiseT = Math.max(0, (p.noiseT || 0) - dt); p.skillCd = Math.max(0, p.skillCd - dt); if (p.sleepT > 0) { p.sleepT -= dt; p.skillCd = Math.max(0.01, p.sleepT); if (p.sleepT <= 0) wakeUp(false); } updateStall(dt); p.chainT = Math.max(0, p.chainT - dt); fEdge = Math.max(0, fEdge - dt); p.recoil = Math.max(0, p.recoil - dt);
+  p.iframes = Math.max(0, p.iframes - dt); p.stone = Math.max(0, (p.stone || 0) - dt); p.cd = Math.max(0, p.cd - dt); p.noiseT = Math.max(0, (p.noiseT || 0) - dt); p.skillCd = Math.max(0, p.skillCd - (CLS[p.cls].id === 'beater' ? 0 : dt)); if (p.sleepT > 0) { p.sleepT -= dt; p.skillCd = Math.max(0.01, p.sleepT); if (p.sleepT <= 0) wakeUp(false); } updateStall(dt); p.chainT = Math.max(0, p.chainT - dt); fEdge = Math.max(0, fEdge - dt); p.recoil = Math.max(0, p.recoil - dt);
   if (room.big) markExplored();
   playerMove(dt); updateAllies(dt); aimUpdate(); p.near = room.items.length ? nearestItem() : null; attackUpdate(dt); updateWeapons(dt); updateClassTimers(dt); updateNewCls(dt); updateWaves(dt); updatePath(dt); { const W0 = THEMES[th()]; if (W0.tick) W0.tick(dt); } updateChase(dt); updateRush(dt); updateDecor(dt); updateSwamp(dt); updateTimed(dt); updateBlooms(); updateModes(dt); updateMech(dt); updateMech(dt);
   for (const e of enemies) { if (e.stickT > 0) e.stickT -= dt; updateEnemy(e, dt * slowAt(e.x, e.y, e.type === 'boss') * (e.stickT > 0 ? 0.6 : 1)); if (e.pin && !e.dead) { e.x = e.pin.x; e.y = e.pin.y; } }
@@ -5857,6 +5896,8 @@ function drawPlayer() {
   if (cid === 'calib') { ctx.fillStyle = '#26303c'; ctx.fillRect(-13, -29, 26, 7); ctx.fillStyle = '#9fe3ff'; circ(ctx, -6, -25.5, 3); circ(ctx, 6, -25.5, 3);
     if (cc === 'visor') { ctx.globalAlpha = 0.55; ctx.fillStyle = '#6adcff'; ctx.fillRect(-14, -30, 28, 9); ctx.globalAlpha = 1; }
     else if (cc === 'hud') { ctx.strokeStyle = '#7dff9a'; ctx.lineWidth = 1.5; ctx.strokeRect(-13, -30, 26, 9); ctx.fillStyle = '#7dff9a'; ctx.fillRect(15, -31, 3, 3); ctx.fillRect(15, -26, 5, 2); } }
+  if (cid === 'beater') { ctx.fillStyle = '#d6463a'; ctx.fillRect(-12, -30, 24, 4); ctx.fillStyle = '#ffd27a'; ctx.fillRect(-3, -30, 6, 4); if (cc === 'drum') { ctx.fillStyle = '#ffd27a'; circ(ctx, 14, -26, 3); circ(ctx, -14, -26, 3); } }
+  if (cid === 'echoer') { ctx.strokeStyle = '#9fe3ff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(-13, -18, 4, 0, TAU); ctx.stroke(); if (cc === 'ring') { ctx.beginPath(); ctx.arc(-13, -18, 7, 0, TAU); ctx.stroke(); ctx.beginPath(); ctx.arc(13, -18, 4, 0, TAU); ctx.stroke(); } }
   if (cid === 'ferry') { ctx.fillStyle = '#c9a86a'; poly(ctx, [[-19, -26], [19, -26], [0, -41]]); ctx.fillStyle = '#ffd98a'; circ(ctx, 0, -42, 3);
     if (cc === 'lotus') { ctx.fillStyle = '#ffb3c6'; for (const dx of [-6, 0, 6]) circ(ctx, dx, -44 + Math.abs(dx) * 0.3, 3.5); }
     else if (cc === 'lantern') { ctx.fillStyle = '#d6303a'; circ(ctx, 17, -22, 4.5); ctx.fillStyle = '#ffd98a'; circ(ctx, 17, -22, 2); } }
