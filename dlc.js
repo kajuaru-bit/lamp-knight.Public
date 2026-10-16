@@ -1547,6 +1547,7 @@ L.registerWorld({
 const PAL18 = { ink: '#05061a', floor: '#12163f', floor2: '#171c4e', wall1: '#0b0d2e', wall2: '#2a2f7a', top: '#9ab0ff', door: '#ffd23f' };
 const COS_SKIN = { crawler: 'stardust', shooter: 'satellite', brute: 'asteroid', comet: 'comet', satellite: 'satellite', blackhole: 'blackhole', bomber: 'asteroid' };
 const ZODIAC = ['牡羊座', '金牛座', '雙子座', '巨蟹座', '獅子座', '處女座', '天秤座', '天蠍座', '射手座', '摩羯座', '水瓶座', '雙魚座'];
+const COS_SHARDS = ['星圖碎片：第一個被點亮的星座，只有三顆星，卻讓整片夜空有了方向。', '星圖碎片：彗星不是迷路，它只是每一次都想回到出發的地方。', '星圖碎片：黑洞不是空的，裡面塞滿了沒說出口的話。', '星圖碎片：衛星繞著同一顆星轉了很久，只為了看她一眼。'];
 const COS_STORY = [
   [{ who: '旁白', text: '天空被撕開了一道口子。星星一顆一顆掉出來，散在黑色的地板上，連不成任何圖案。' }, { who: '星圖守護者', text: '提燈的旅人，你的燈，是這片宇宙裡唯一還在「自己發光」的東西。其他的，都只是在反射。' }, { who: '星圖守護者', text: '踩過地上的星點，依序連起來，就能讓星座重新亮起。黑洞會把你往它那裡拉，記得保持距離。' }],
   [{ who: '星圖守護者', text: '第二層。你有沒有覺得，星星之間的距離變遠了？那不是錯覺，宇宙一直在長大。' }, { who: '旁白', text: '彗星拖著長長的尾巴掠過，每一顆都在趕赴一個沒人記得的約定。' }, { who: '星圖守護者', text: '古人把星星連成圖，是因為他們害怕夜晚太空。他們需要在黑暗裡，找到一個看得懂的形狀。' }],
@@ -1612,11 +1613,22 @@ function cosInit(room, kind) {
   const r = L.run; if (L.th() !== 18 || kind === 'start') return;
   { const sd = r.cosSaid = r.cosSaid || {}; if (!sd[r.layer]) { sd[r.layer] = 1; const T0 = COS_STORY[Math.min(2, r.layer)]; L.later(1.6, () => { if (L.room === room && L.state() === 'play') L.say(T0); }); } }
   if (kind !== 'combat' && kind !== 'boss') return;
-  const R = L.ROOM, n = 5, pts = []; for (let t = 0; t < 200 && pts.length < n; t++) { const x = R.x + 90 + rand() * (R.w - 180), y = R.y + 90 + rand() * (R.h - 180); if (pts.every(q => Math.hypot(q.x - x, q.y - y) > 160) && !(room.obs || []).some(o => x > o.x - 42 && x < o.x + o.w + 42 && y > o.y - 42 && y < o.y + o.h + 42) && !(kind === 'boss' && Math.hypot(x - (R.x + R.w / 2), y - (R.y + R.h / 2)) < 130)) pts.push({ x, y }); }
+  cosNewCons(room, kind);
+}
+function cosNewCons(room, kind) {
+  const r = L.run; room.items = room.items.filter(it => it.fk !== 'star');
+  const R = L.ROOM, n = 5, pts = []; for (let t = 0; t < 300 && pts.length < n; t++) { const x = R.x + 90 + rand() * (R.w - 180), y = R.y + 90 + rand() * (R.h - 180); if (pts.every(q => Math.hypot(q.x - x, q.y - y) > 160) && !(room.obs || []).some(o => x > o.x - 42 && x < o.x + o.w + 42 && y > o.y - 42 && y < o.y + o.h + 42) && !(kind === 'boss' && Math.hypot(x - (R.x + R.w / 2), y - (R.y + R.h / 2)) < 130)) pts.push({ x, y }); }
   r.cosIdx = ((r.cosIdx === undefined ? Math.floor(rand() * 12) : r.cosIdx) + 1) % 12;
   room.cons = { pts, i: 0, done: false, name: ZODIAC[r.cosIdx], kind: r.cosIdx % 3 };
   pts.forEach((q, k) => room.items.push({ kind: 'tfac', id: 'star', fk: 'star', k, x: q.x, y: q.y, group: 'prop', price: 0, taken: false }));
 }
+// 戰鬥房：一波打完後，要踩完星點領到星座祝福才會進下一波
+function cosHold(room) {
+  if (room.kind !== 'combat' || room.wave < 0 || !room.cons || room.cons.done) return false;
+  if (!room.cons.hinted) { room.cons.hinted = true; L.toast('這一波清空了——踩完亮著的星點，領取星座祝福後進入下一波', 2.6); }
+  return true;
+}
+function cosWave(room) { if (room.kind === 'combat' && room.wave >= 1) cosNewCons(room, 'combat'); }
 function cosTick(dt) {
   const room = L.room, K = room && room.cons, P = L.p; if (!K || K.done || L.th() !== 18) return;
   const q = K.pts[K.i]; if (!q) return;
@@ -1640,13 +1652,13 @@ function cosDraw(it) {
 L.registerWorld({
   theme: 18, name: '星座宇宙', pool: 'dlc', opt: '星座宇宙（DLC4）', pal: PAL18, noDark: true, noPaper: true,
   amb: ['lowpass', 380, 0.7, 0.006], ev: r => { const n = [392, 523, 659, 784][Math.floor(r() * 4)]; L.blip(n, n * 1.5, 0.6, 'sine', 0.01); },
-  skin: { map: COS_SKIN, draw: drawCosEnemy, hue: false }, bg: cosBg, obsDraw: cosObs,
+  skin: { map: COS_SKIN, draw: drawCosEnemy, hue: false }, bg: cosBg, obsDraw: cosObs, obs: () => [], ownStory: true, holdWave: cosHold, onWave: cosWave, shards: COS_SHARDS,
   enemies: {
     comet: { hp: 6, r: 13, name: '彗星', cost: 3, cap: 3, ai: cometAi },
     satellite: { hp: 6, r: 13, name: '衛星', cost: 3, cap: 3, ai: satAi },
     blackhole: { hp: 16, r: 17, name: '黑洞', cost: 5, cap: 1, ai: holeAi }
   },
-  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'comet'); if (L0 > 0 || ci >= 1) types.push('satellite', 'satellite'); if (L0 > 0 || ci >= 2) types.push('blackhole', 'brute'); if (L0 > 0) types.push('comet'); },
+  types: (types, L0, ci) => { types.length = 0; const w0 = L.room ? Math.max(0, L.room.wave) : 0; types.push('crawler', 'crawler', 'comet', 'satellite'); if (w0 >= 1 || L0 > 0) types.push('brute'); if (w0 >= 2 || L0 > 0) types.push('satellite', 'blackhole'); if (w0 >= 3) types.push('comet', 'brute'); },
   boss: fin => fin ? { kind: 'golem', name: '宇宙核心', hp: 290, ext: true, xk: 'core' } : { kind: 'golem', name: '超新星', hp: 180, ext: true, xk: 'nova' },
   boss2: cosMoves, drawBoss: drawCosBoss, roomInit: cosInit, tick: cosTick, drawItem: cosDraw,
   info: it => ({ name: '星點', desc: '依序踩過亮著的星點，連成星座，完成後得到星座祝福' }), hint: it => '', useItem: it => { },

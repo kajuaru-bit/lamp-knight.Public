@@ -1927,6 +1927,7 @@ function makeLayerPlan(layer) {
   const rest = shuffle(['combat', 'combat'].concat(specials));
   if (layer > 0 && optNpc.checked && specials.indexOf('event') < 0) rest.push('event');
   if (run.noShop) shopless(rest, 0);
+  if (th() === 18) { const rr2 = rest.filter(k => k !== 'combat'); return (layer === 0 ? ['start', 'combat'] : ['combat']).concat(rr2).concat(['boss']); } // 星座宇宙：每層只有一間大戰鬥房（多波）
   return (layer === 0 ? ['start', 'combat'] : ['combat']).concat(rest).concat(['boss']);
 }
 function scaleFor() {
@@ -1959,6 +1960,7 @@ function loadRoom() {
   if (kind === 'combat') {
     const pr = [0.25, 0.45, 0.65, 0.8][dL()];
     room.waves = (combatIdx === 0 && run.layer === 0) ? 2 : (rand() < pr ? 3 : 2); if (run.escape || run.endless) room.waves += 1; // 長戰鬥：逃離與無盡多一波
+    if (th() === 18) room.waves = Math.min(7, 5 + run.layer); // 星座宇宙：5/6/7 波
   }
   if (run.escape && (kind === 'boss' || (kind === 'combat' && !run.path))) { room.col = { x: ROOM.x - 12, v: 13 + 2 * run.layer, delay: kind === 'boss' ? 1e9 : 5 }; if (kind === 'boss') room.escT = 60; }
   if (run.guard && kind === 'combat') {
@@ -2632,16 +2634,18 @@ function damageTob(o, dmg) {
 function plant(kind, cx, cy, w, h) {
   if (tobs.length >= 6) return false;
   const x = clamp(cx - w / 2, ROOM.x + 20, ROOM.x + ROOM.w - 20 - w), y = clamp(cy - h / 2, ROOM.y + 20, ROOM.y + ROOM.h - 20 - h);
-  const o = { kind, x, y, w, h, hp: (kind === 'bud' || kind === 'ice' || kind === 'pillar' || kind === 'bubble' || kind === 'rock' || kind === 'gjar') ? 3 : 6, maxHp: (kind === 'bud' || kind === 'ice' || kind === 'pillar' || kind === 'bubble' || kind === 'rock' || kind === 'gjar') ? 3 : 6, t: 0, dur: 5, flash: 0 };
+  const o = { kind, x, y, w, h, hp: (kind === 'bud' || kind === 'ice' || kind === 'pillar' || kind === 'bubble' || kind === 'rock' || kind === 'gjar' || kind === 'crystal') ? 3 : 6, maxHp: (kind === 'bud' || kind === 'ice' || kind === 'pillar' || kind === 'bubble' || kind === 'rock' || kind === 'gjar' || kind === 'crystal') ? 3 : 6, t: 0, dur: 5, flash: 0 };
   const nx = clamp(p.x, o.x, o.x + o.w), ny = clamp(p.y, o.y, o.y + o.h);
   if (Math.hypot(p.x - nx, p.y - ny) < p.r + 26) return false;
+  if (room.cons && room.cons.pts.some(q => q.x > o.x - 44 && q.x < o.x + o.w + 44 && q.y > o.y - 44 && q.y < o.y + o.h + 44)) return false; // 不擋住星點
   tobs.push(o); burst(x + w / 2, y + h / 2, 10, ['#6fae6b', '#9ac27a', '#f2a9c4'], 120);
-  if (!run.plantToast) { run.plantToast = true; toast(th() === 5 ? '岩壁隆起了——打破它，或等它冷卻（約 5 秒）' : th() === 4 ? '水泡與珊瑚擋住了去路——戳破它，或等它自己散掉（約 5 秒）' : th() === 1 ? '冰擋住了去路——打破它，或等它融化（約 5 秒）' : th() === 3 ? '屏風擋住了去路——打破它，或等它散去（約 5 秒）' : '植物擋住了去路——打破它，或等它枯萎（約 5 秒）'); }
+  if (!run.plantToast) { run.plantToast = true; toast(th() === 18 ? '衛星與隕石在場上留下了障礙——打碎它，或等它消散（約 5 秒）' : th() === 5 ? '岩壁隆起了——打破它，或等它冷卻（約 5 秒）' : th() === 4 ? '水泡與珊瑚擋住了去路——戳破它，或等它自己散掉（約 5 秒）' : th() === 1 ? '冰擋住了去路——打破它，或等它融化（約 5 秒）' : th() === 3 ? '屏風擋住了去路——打破它，或等它散去（約 5 秒）' : '植物擋住了去路——打破它，或等它枯萎（約 5 秒）'); }
   return true;
 }
 function plantFor(e, dx, dy, d) {
   const ux = -dx / d, uy = -dy / d; // 從玩家指向敵人
   const ice = th() === 1, ink = th() === 3;
+  if (th() === 18) { if (e.type === 'satellite') plant('crystal', p.x + ux * 130, p.y + uy * 130, 44, 44); else { const horiz = Math.abs(ux) > Math.abs(uy); plant('asteroid', p.x + ux * 150, p.y + uy * 150, horiz ? 28 : 100, horiz ? 100 : 28); } return; }
   if (th() === 5) { if (e.type === 'shooter') plant('rock', p.x + ux * 130, p.y + uy * 130, 44, 44); else { const horiz = Math.abs(ux) > Math.abs(uy); plant('rockw', p.x + ux * 150, p.y + uy * 150, horiz ? 26 : 100, horiz ? 100 : 26); } return; }
   if (th() === 16) { if (e.type === 'shooter') plant('gjar', p.x + ux * 130, p.y + uy * 130, 44, 44); else { const horiz = Math.abs(ux) > Math.abs(uy); plant('gwall', p.x + ux * 150, p.y + uy * 150, horiz ? 26 : 100, horiz ? 100 : 26); } return; }
   if (th() === 4) { if (e.type === 'shooter') plant('bubble', p.x + ux * 130, p.y + uy * 130, 44, 44); else { const horiz = Math.abs(ux) > Math.abs(uy); plant('coral', p.x + ux * 150, p.y + uy * 150, horiz ? 26 : 100, horiz ? 100 : 26); } return; }
@@ -2695,6 +2699,11 @@ function drawTob(o) {
     ctx.fillStyle = o.flash > 0 ? C.paper : '#1a1410'; ctx.beginPath(); ctx.ellipse(cx, cy + 3, 18, 20, 0, 0, TAU); ctx.fill(); ctx.fillRect(cx - 7, cy - 24, 14, 9); ctx.fillStyle = o.flash > 0 ? C.paper : '#e08a4c'; ctx.fillRect(cx - 15, cy - 2, 30, 3);
   } else if (o.kind === 'gwall') {
     ctx.fillStyle = o.flash > 0 ? C.paper : '#c9bd9c'; rrect(ctx, o.x, o.y, o.w, o.h, 4); ctx.fillStyle = o.flash > 0 ? C.paper : '#1a1410'; const hz2 = o.w > o.h; for (let i = 0; i < Math.floor((hz2 ? o.w : o.h) / 18); i++) { if (hz2) ctx.fillRect(o.x + 6 + i * 18, o.y + o.h / 2 - 1.5, 9, 3); else ctx.fillRect(o.x + o.w / 2 - 1.5, o.y + 6 + i * 18, 3, 9); }
+  } else if (o.kind === 'crystal') {
+    const f = o.flash > 0; ctx.fillStyle = 'rgba(140,170,255,.3)'; circ(ctx, cx, cy, 30); ctx.fillStyle = f ? C.paper : '#02030f'; poly(ctx, [[cx, cy - 27], [cx + 22, cy], [cx, cy + 27], [cx - 22, cy]]); ctx.fillStyle = f ? C.paper : '#5a74e8'; poly(ctx, [[cx, cy - 23], [cx + 18, cy], [cx, cy + 23], [cx - 18, cy]]); ctx.fillStyle = f ? C.paper : '#e6edff'; poly(ctx, [[cx, cy - 10], [cx + 7, cy], [cx, cy + 10], [cx - 7, cy]]);
+  } else if (o.kind === 'asteroid') {
+    const f = o.flash > 0; ctx.fillStyle = f ? C.paper : '#02030f'; rrect(ctx, o.x - 2, o.y - 2, o.w + 4, o.h + 4, 12); ctx.fillStyle = f ? C.paper : '#4b4a66'; rrect(ctx, o.x, o.y, o.w, o.h, 10);
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; circ(ctx, o.x + o.w * 0.35, o.y + o.h * 0.25, Math.min(o.w, o.h) * 0.2); circ(ctx, o.x + o.w * 0.6, o.y + o.h * 0.7, Math.min(o.w, o.h) * 0.14);
   } else if (o.kind === 'bud') {
     ctx.fillStyle = o.flash > 0 ? C.paper : '#3f6b4c'; circ(ctx, cx, cy + 4, 20); ctx.fillStyle = o.flash > 0 ? C.paper : '#e58fb0'; poly(ctx, [[cx - 14, cy - 2], [cx - 6, cy - 26], [cx, cy - 6], [cx + 6, cy - 26], [cx + 14, cy - 2]]);
     ctx.fillStyle = '#f6d36b'; circ(ctx, cx, cy + 2, 5);
@@ -3127,8 +3136,8 @@ function goNext() {
     if (layerChanged && run.endless) { rec.endlessMax = Math.max(rec.endlessMax || 0, run.layer + 1); toast('無盡：第 ' + (run.layer + 1) + ' 層', 2); if (run.layer >= 5) { unlockAch('endless6'); rec.dlcWin.arcade = 1; saveRec(); } healP(1); }
     if (layerChanged) { if (run.long && !run.dl2) { rec.longMax = Math.max(rec.longMax || 0, run.layer + 1); saveRec(); } writeSave(); }
     const lines = [];
-    if (layerChanged && (!run.long || !(run.layer & 1)) && STORY.layerIntro[run.long ? run.layer >> 1 : run.layer]) lines.push(STORY.layerIntro[run.long ? run.layer >> 1 : run.layer]);
-    if (layerChanged && run.long && !run.dl2 && STORY.chapter[run.layer]) for (const l of STORY.chapter[run.layer]) lines.push(l);
+    if (layerChanged && !THEMES[th()].ownStory && (!run.long || !(run.layer & 1)) && STORY.layerIntro[run.long ? run.layer >> 1 : run.layer]) lines.push(STORY.layerIntro[run.long ? run.layer >> 1 : run.layer]);
+    if (layerChanged && !THEMES[th()].ownStory && run.long && !run.dl2 && STORY.chapter[run.layer]) for (const l of STORY.chapter[run.layer]) lines.push(l);
     if (room.kind === 'boss' && !run.practice) for (const l of bossIntroLines()) lines.push(l);
     if (lines.length) say(lines, announceRoom); else announceRoom();
   });
@@ -3288,7 +3297,7 @@ function midBossDefeated() {
   recBoss(); wickDrop();
   if (room.timed && room.timed.on) { room.timed.on = false; spawnOre(); }
   bullets = []; room.cleared = true; toast(bossDef().name + '倒下了'); clearAdds(); if (th() === 7) { if (run.poolHitL !== run.layer) unlockAch('swampWalk'); if (p.curse >= 3) unlockAch('purifier'); }
-  { const bk = bossDef().kind; if (th() === 0) { rec.gardenBoss = rec.gardenBoss || {}; rec.gardenBoss[bk] = 1; saveRec(); if (rec.gardenBoss.mid1 && rec.gardenBoss.bloom && rec.gardenBoss.hive) unlockAch('gardenAll'); } if (STORY.bossDown[bk]) later(1.6, () => say(STORY.bossDown[bk])); }
+  { const bk = bossDef().kind; if (th() === 0) { rec.gardenBoss = rec.gardenBoss || {}; rec.gardenBoss[bk] = 1; saveRec(); if (rec.gardenBoss.mid1 && rec.gardenBoss.bloom && rec.gardenBoss.hive) unlockAch('gardenAll'); } if (!THEMES[th()].ownStory && STORY.bossDown[bk]) later(1.6, () => say(STORY.bossDown[bk])); }
   if (!room.hurt) unlockAch('flawless'); if (!room.skillUsed) unlockAch('noskill');
   pickups.push({ kind: 'oil', x: ROOM.x + ROOM.w - 170, y: DOOR.y + 40, t: 0 });
 }
@@ -3915,9 +3924,10 @@ function updateWaves(dt) {
   if (enemies.length === 0) {
     room.delay -= dt;
     if (room.delay <= 0) {
+      { const W1 = THEMES[th()]; if (W1.holdWave && W1.holdWave(room)) return; }
       if (room.gb && room.wave >= 0 && (room.wave + 1) % 2 === 0 && room.wave + 1 < room.waves && !room.gb.restDone[room.wave]) { room.gb.restDone[room.wave] = 1; room.gb.rest = true; hintSig = ''; sfx('clear'); toast('休息時間：可以逛商人、等燈塔回血，準備好了走到燈塔按 F 繼續', 3.4); return; }
       room.wave++;
-      if (room.wave < room.waves) { spawnWave(); room.delay = 0.9; if (room.kind === 'combat') toast('第 ' + (room.wave + 1) + ' / ' + room.waves + ' 波'); }
+      if (room.wave < room.waves) { spawnWave(); { const W1 = THEMES[th()]; if (W1.onWave) W1.onWave(room); } room.delay = 0.9; if (room.kind === 'combat') toast('第 ' + (room.wave + 1) + ' / ' + room.waves + ' 波'); }
       else if (room.kind === 'combat') roomCleared();
     }
   }
@@ -4171,9 +4181,9 @@ function updateEnemy(e, dt) {
   const dx = tx - e.x, dy = ty - e.y, d = Math.hypot(dx, dy) || 1, nx = dx / d, ny = dy / d;
   e.x += e.kx * dt; e.y += e.ky * dt; const kd = Math.exp(-9 * dt); e.kx *= kd; e.ky *= kd;
   let mx = 0, my = 0, touch = 1;
-  if (th() !== 2 && (e.type === 'shooter' || e.type === 'brute') && state === 'play') {
+  if (th() !== 2 && (e.type === 'shooter' || e.type === 'brute' || (th() === 18 && e.type === 'satellite')) && state === 'play') {
     e.plantT = (e.plantT === undefined ? rr(3, 6) : e.plantT) - dt;
-    if (e.plantT <= 0) { e.plantT = e.type === 'shooter' ? rr(7, 9) : rr(9, 11); plantFor(e, dx, dy, d); }
+    if (e.plantT <= 0) { e.plantT = (e.type === 'shooter' || e.type === 'satellite') ? rr(7, 9) : rr(9, 11); plantFor(e, dx, dy, d); }
   }
   if (EXT_AI[e.type]) { const o = EXT_AI[e.type](e, dt, nx, ny, d, dx, dy); mx = o.mx || 0; my = o.my || 0; touch = o.touch === undefined ? 1 : o.touch; } else switch (e.type) {
     case 'crawler': case 'snowlet': {
@@ -5663,7 +5673,7 @@ function updatePlay(dt) {
       k.dead = true;
       if (k.kind === 'coin') { p.coins++; sfx('coin'); hudSig = ''; }
       else if (k.kind === 'oil') { sfx('pick'); healP(2); toast('燈油補充，燈亮了一些'); burst(k.x, k.y, 10, [C.amber, C.paper], 140, true); }
-      else { sfx('pick'); burst(k.x, k.y, 12, [C.amber, C.paper], 140, true); say([{ who: '記憶碎片', text: STORY.shards[nextShard()] }]); rec.shardN = (rec.shardN || 0) + 1; saveRec(); }
+      else { sfx('pick'); burst(k.x, k.y, 12, [C.amber, C.paper], 140, true); { const W1 = THEMES[th()]; say(W1.shards ? [{ who: '星圖碎片', text: W1.shards[(rec.shardN || 0) % W1.shards.length] }] : [{ who: '記憶碎片', text: STORY.shards[nextShard()] }]); } rec.shardN = (rec.shardN || 0) + 1; saveRec(); }
     }
   }
   pickups = pickups.filter(k => !k.dead);
