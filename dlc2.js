@@ -646,7 +646,7 @@ const XM_EVENTS = {
   }
 };
 L.registerWorld({
-  theme: 20, name: '耶誕節', pool: 'dlc', opt: '耶誕節（DLC5）', pal: PAL20, bigMap: true, ownStory: true, noDark: true, noPaper: true,
+  theme: 20, stage: 'lite', name: '耶誕節', pool: 'dlc', opt: '耶誕節（DLC5）', pal: PAL20, bigMap: true, ownStory: true, noDark: true, noPaper: true,
   amb: ['bandpass', 1500, 1.2, 0.004], ev: r => { const n = [523, 659, 784, 1047][Math.floor(r() * 4)]; L.blip(n, n * 1.004, 0.7, 'triangle', 0.008); },
   skin: { map: XM_SKIN, draw: drawXmEnemy, hue: false }, bg: xmBg, obsDraw: xmObsDraw, obs: xmObs, roomInit: xmInit, tick: xmTick, back: xmBack,
   drawItem: xmDraw, info: xmInfo, hint: xmHint, useItem: xmUse, shards: XM_SHARDS, hitMod: xmHit,
@@ -946,7 +946,7 @@ const ES_EVENTS = {
 };
 function esBossAch() { try { const k = L.bossDef().xk; if (k === 'xebunny') L.unlockAch('ezBunny'); else if (k === 'xehen') L.unlockAch('ezHen'); else if (k === 'xeegg') L.unlockAch('ezEgg'); } catch (e) { /* optional */ } }
 L.registerWorld({
-  theme: 21, name: '復活節', pool: 'dlc', opt: '復活節（DLC5）', pal: PAL21, bigMap: true, ownStory: true, noDark: true, noPaper: true,
+  theme: 21, stage: 'lite', name: '復活節', pool: 'dlc', opt: '復活節（DLC5）', pal: PAL21, bigMap: true, ownStory: true, noDark: true, noPaper: true,
   amb: ['bandpass', 1800, 1.1, 0.004], ev: r => { const n = [659, 784, 988, 1175][Math.floor(r() * 4)]; L.blip(n, n * 1.003, 0.5, 'sine', 0.008); },
   skin: { map: ES_SKIN, draw: drawEsEnemy, hue: false }, bg: esBg, obsDraw: esObsDraw, obs: esObs, roomInit: esInit, tick: esTick, back: esBack,
   drawItem: esDraw, info: esInfo, hint: esHint, useItem: esUse, shards: ES_SHARDS, hitMod: esHit,

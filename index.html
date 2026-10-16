@@ -76,6 +76,7 @@ body.mobile .bar{display:none}
 .fut .pill{background:#0b0626;color:#b9c4ff}
 .fut .pill.dim{color:#ff7ac0;font-weight:700}
 .fut .hint{background:#0b0626;color:#fff}
+.lite .toast{color:#111;background:rgba(255,255,255,.78);padding:.4cqw 1.6cqw;border-radius:1.4cqw;text-shadow:none}
 @keyframes toast{0%{opacity:0;transform:translate(-50%,.8cqw)}12%{opacity:1;transform:translate(-50%,0)}75%{opacity:1}100%{opacity:0}}
 
 .dialog{position:absolute;left:8cqw;right:8cqw;bottom:5.5cqw;background:var(--paper);color:#2a2236;padding:1.8cqw 2.6cqw 1.6cqw;box-shadow:.5cqw .7cqw 0 rgba(0,0,0,.55);cursor:pointer;transform:rotate(-.35deg)}
@@ -1928,7 +1929,7 @@ function makeLayerPlan(layer) {
   const rest = shuffle(['combat', 'combat'].concat(specials));
   if (layer > 0 && optNpc.checked && specials.indexOf('event') < 0) rest.push('event');
   if (run.noShop) shopless(rest, 0);
-  if (th() === 18) { const rr2 = rest.filter(k => k !== 'combat'); return (layer === 0 ? ['start', 'combat'] : ['combat']).concat(rr2).concat(['boss']); } // 星座宇宙：每層只有一間大戰鬥房（多波）
+  if (th() === 18 || run.endless) { const rr2 = rest.filter(k => k !== 'combat'); return (layer === 0 ? ['start', 'combat'] : ['combat']).concat(rr2).concat(['boss']); } // 星座宇宙：每層只有一間大戰鬥房（多波）
   return (layer === 0 ? ['start', 'combat'] : ['combat']).concat(rest).concat(['boss']);
 }
 function scaleFor() {
@@ -1954,13 +1955,14 @@ function loadRoom() {
   if ((run.greek || THEMES[th()].bigMap) && kind === 'combat') { ROOM.w = 2400; ROOM.h = 1500; DOOR.y = ROOM.y + ROOM.h / 2; }
   WORLD.w = big ? ROOM.w + 140 : W; WORLD.h = big ? ROOM.h + 150 : H;
   let combatIdx = 0; for (let i = 0; i < run.step; i++) if (run.plan[i] === 'combat') combatIdx++;
-  PAL = THEMES[th()].pal; for (const sc of ['candy', 'arc', 'fut']) stageEl.classList.toggle(sc, THEMES[th()].stage === sc); rec.themesSeen[th()] = 1; if (Object.keys(rec.themesSeen).length >= 4) unlockAch('tour');
+  PAL = THEMES[th()].pal; for (const sc of ['candy', 'arc', 'fut', 'lite']) stageEl.classList.toggle(sc, THEMES[th()].stage === sc); rec.themesSeen[th()] = 1; if (Object.keys(rec.themesSeen).length >= 4) unlockAch('tour');
   const special = kind === 'treasure' || kind === 'event' || kind === 'merchant' || kind === 'start';
   const kindObs = chase ? 'combat' : kind;
   room = { variant, big, expl: {}, camInit: false, kind, layer: run.layer, theme: th(), step: run.step, combatIdx, seed: Math.floor(rand() * 1e9), obs: makeObstacles(kindObs), chase: chase ? { t: 20, active: true, killed: 0, n: 0, last: null } : null, wave: -1, delay: 0.9, waves: 1, cleared: special, final: kind === 'boss' && run.layer === lastL(), bg: null, items: [] };
   if (kind === 'combat') {
     const pr = [0.25, 0.45, 0.65, 0.8][dL()];
     room.waves = (combatIdx === 0 && run.layer === 0) ? 2 : (rand() < pr ? 3 : 2); if (run.escape || run.endless) room.waves += 1; // 長戰鬥：逃離與無盡多一波
+    if (run.endless && th() !== 18) room.waves = Math.min(8, 5 + Math.floor(run.layer / 2)); // 電玩無盡：每層一間大戰鬥房
     if (th() === 18) room.waves = Math.min(7, 5 + run.layer); // 星座宇宙：5/6/7 波
   }
   if (run.escape && (kind === 'boss' || (kind === 'combat' && !run.path))) { room.col = { x: ROOM.x - 12, v: 13 + 2 * run.layer, delay: kind === 'boss' ? 1e9 : 5 }; if (kind === 'boss') room.escT = 60; }
