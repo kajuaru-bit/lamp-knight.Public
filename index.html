@@ -2204,7 +2204,7 @@ const AFF = { // 主題傾向：偏好的武器／強化（出現機率較高、
 };
 function affinity() { if (th() === 14 && run.karma) return AFF.bullet; if (th() === 16) return AFF.charge; if (th() === 15 || run.guard) return AFF.swarm; if (run.escape || run.endless) return AFF.long; return null; }
 function weaponOffer(exclude, exo) { const c = WLIST.filter(i => (exo ? !!WDEF[i].cls && WDEF[i].cls !== CLS[p.cls].id : !WDEF[i].cls) && !(WDEF[i].th !== undefined && run.themes.indexOf(WDEF[i].th) < 0) && !(WDEF[i].karma && !run.karma) && p.weapons.indexOf(i) < 0 && exclude.indexOf(i) < 0); return c.length ? pickOf(c.reduce((a, i) => a.concat(WDEF[i].th !== undefined ? [i, i, i] : (affinity() && affinity().w.indexOf(i) >= 0 ? [i, i] : [i])), [])) : null; }
-function upgradeOffer(exclude, premOnly) { const c = Object.keys(UPG).filter(i => exclude.indexOf(i) < 0 && clsOk(i) && !(i === 'wick' && p.maxHp >= 9) && !(UPG[i].max && upN(i) >= UPG[i].max) && (!premOnly || premOk(i))); return c.length ? pickOf(c.reduce((a, i) => a.concat(UPG[i].cls ? [i, i] : [i]), [])) : null; }
+function upgradeOffer(exclude, premOnly) { const c = Object.keys(UPG).filter(i => exclude.indexOf(i) < 0 && clsOk(i) && !(i === 'shade' && THEMES[th()].noDark && CLS[p.cls].id !== 'watch' && CLS[p.cls].id !== 'bellman') && !(i === 'wick' && p.maxHp >= 9) && !(UPG[i].max && upN(i) >= UPG[i].max) && (!premOnly || premOk(i))); return c.length ? pickOf(c.reduce((a, i) => a.concat(UPG[i].cls ? [i, i] : [i]), [])) : null; }
 function shelfIds(kind, avoid) { return room.items.filter(i => !i.taken && i.kind === kind).map(i => i.id).concat(avoid ? [avoid] : []); }
 // slot：這個格子的類型（heal / weapon / upgrade），商人房補貨時依格子類型補上新商品
 function premOk(id) {
