@@ -1418,6 +1418,102 @@ function zkHud() {
 }
 
 
+
+/* ================= 愛情（DLC4）：貼身糾纏＋配對羈絆 ================= */
+const PAL17 = { ink: '#3a0f2a', floor: '#f7c6d9', floor2: '#f2b5cc', wall1: '#b8244f', wall2: '#e0577f', top: '#ffe3ef', door: '#ff4d6d' };
+const LOVE_SKIN = { crawler: 'heartbug', shooter: 'rose', brute: 'bigheart', bomber: 'letter', clinger: 'clinger', twin: 'twin', rose: 'rose' };
+function heartPath(c, x, y, r) { c.beginPath(); c.moveTo(x, y + r * 0.9); c.bezierCurveTo(x - r * 1.5, y - r * 0.1, x - r * 0.9, y - r * 1.1, x, y - r * 0.4); c.bezierCurveTo(x + r * 0.9, y - r * 1.1, x + r * 1.5, y - r * 0.1, x, y + r * 0.9); c.closePath(); }
+function drawLoveEnemy(e) {
+  const c = L.ctx, r = e.r, f = e.flash > 0, sk = e.skin, ol = '#4a0f2c', tm = e.t;
+  if (sk === 'twin' && e.mate && !e.mate.dead) { // 配對連線
+    c.save(); c.strokeStyle = e.rage > 0 ? '#ff2a5c' : 'rgba(255,77,109,.7)'; c.lineWidth = 2.5; c.setLineDash([6, 5]); c.beginPath(); c.moveTo(0, 0); c.lineTo(e.mate.x - e.x, e.mate.y - e.y); c.stroke(); c.restore();
+  }
+  if (sk === 'heartbug') { c.fillStyle = ol; heartPath(c, 0, 0, r * 1.15); c.fill(); c.fillStyle = f ? C.paper : '#ff6b8f'; heartPath(c, 0, 0, r); c.fill(); c.fillStyle = C.paper; circ(c, -r * 0.3, -r * 0.1, r * 0.17); circ(c, r * 0.3, -r * 0.1, r * 0.17); c.fillStyle = ol; circ(c, -r * 0.28, -r * 0.08, r * 0.08); circ(c, r * 0.32, -r * 0.08, r * 0.08); }
+  else if (sk === 'clinger') { const w = 1 + Math.sin(tm * 8) * 0.08; c.save(); c.scale(w, 2 - w); c.fillStyle = ol; heartPath(c, 0, 0, r * 1.2); c.fill(); c.fillStyle = f ? C.paper : '#ff3d7f'; heartPath(c, 0, 0, r * 1.05); c.fill(); c.restore(); c.strokeStyle = '#ff9ec0'; c.lineWidth = 2; for (let k = -1; k <= 1; k += 2) { c.beginPath(); c.moveTo(k * r * 0.8, 0); c.quadraticCurveTo(k * r * 1.6, -r * 0.7 + Math.sin(tm * 6 + k) * 4, k * r * 1.9, r * 0.1 + Math.sin(tm * 7) * 3); c.stroke(); } c.fillStyle = C.paper; circ(c, -r * 0.3, -r * 0.05, r * 0.2); circ(c, r * 0.3, -r * 0.05, r * 0.2); c.fillStyle = ol; circ(c, -r * 0.3, 0, r * 0.1); circ(c, r * 0.3, 0, r * 0.1); }
+  else if (sk === 'twin') { const col = e.rage > 0 ? '#ff2a5c' : (e.seed > 0.5 ? '#ffb3c8' : '#c9a0ff'); c.fillStyle = ol; heartPath(c, 0, 0, r * 1.2); c.fill(); c.fillStyle = f ? C.paper : col; heartPath(c, 0, 0, r * 1.05); c.fill(); c.fillStyle = ol; c.font = '700 ' + Math.round(r) + 'px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(e.rage > 0 ? '怒' : '♥', 0, 2); }
+  else if (sk === 'rose') { c.strokeStyle = '#3f7a3a'; c.lineWidth = 3; c.beginPath(); c.moveTo(0, r * 0.2); c.lineTo(0, r * 1.4); c.stroke(); c.fillStyle = ol; circ(c, 0, -r * 0.1, r * 1.15); c.fillStyle = f ? C.paper : '#d81b4a'; circ(c, 0, -r * 0.1, r); c.strokeStyle = '#8c0f30'; c.lineWidth = 2; for (let k = 1; k <= 3; k++) { c.beginPath(); c.arc(0, -r * 0.1, r * k * 0.28, k, k + 4); c.stroke(); } if (e.tele > 0) { c.globalAlpha = 0.5; c.fillStyle = '#fff'; circ(c, 0, -r * 0.1, r * 1.5); c.globalAlpha = 1; } }
+  else if (sk === 'letter') { c.fillStyle = ol; rrect(c, -r * 1.1, -r * 0.8, r * 2.2, r * 1.6, 3); c.fillStyle = f ? C.paper : '#fff4f8'; rrect(c, -r, -r * 0.7, r * 2, r * 1.4, 2); c.strokeStyle = '#d81b4a'; c.lineWidth = 2; c.beginPath(); c.moveTo(-r, -r * 0.7); c.lineTo(0, r * 0.1); c.lineTo(r, -r * 0.7); c.stroke(); c.fillStyle = '#d81b4a'; heartPath(c, 0, r * 0.2, r * 0.35); c.fill(); if (e.tele > 0) { c.globalAlpha = 0.4 + 0.4 * Math.sin(tm * 30); c.fillStyle = '#ff0'; circ(c, 0, 0, r * 1.5); c.globalAlpha = 1; } }
+  else { c.fillStyle = ol; heartPath(c, 0, 0, r * 1.12); c.fill(); c.fillStyle = f ? C.paper : '#b8244f'; heartPath(c, 0, 0, r); c.fill(); c.fillStyle = 'rgba(255,255,255,.35)'; circ(c, -r * 0.45, -r * 0.35, r * 0.22); c.fillStyle = C.paper; circ(c, -r * 0.3, -r * 0.05, r * 0.2); circ(c, r * 0.3, -r * 0.05, r * 0.2); c.fillStyle = ol; circ(c, -r * 0.3, 0, r * 0.1); circ(c, r * 0.3, 0, r * 0.1); }
+}
+function loveBg(g, rm, rng, arR) {
+  const R = L.ROOM;
+  g.fillStyle = 'rgba(255,255,255,.18)'; for (let x = R.x; x < R.x + R.w; x += 64) for (let y = R.y; y < R.y + R.h; y += 64) if (((x - R.x) / 64 + (y - R.y) / 64) % 2 === 0) g.fillRect(x, y, 64, 64);
+  for (let i = 0; i < Math.round(26 * arR); i++) { g.fillStyle = 'rgba(' + (rng() < 0.5 ? '216,27,74' : '255,140,170') + ',' + (0.1 + rng() * 0.14) + ')'; heartPath(g, R.x + rng() * R.w, R.y + rng() * R.h, 8 + rng() * 22); g.fill(); }
+}
+function loveObs(g, o, rng) {
+  g.fillStyle = '#4a0f2c'; rrect(g, o.x - 2, o.y - 2, o.w + 4, o.h + 4, 10); g.fillStyle = '#fff0f5'; rrect(g, o.x, o.y + o.h * 0.35, o.w, o.h * 0.65, 8);
+  g.fillStyle = '#e0577f'; rrect(g, o.x + 3, o.y + o.h * 0.35, o.w - 6, o.h * 0.14, 5); g.fillStyle = '#d81b4a'; heartPath(g, o.x + o.w / 2, o.y + o.h * 0.22, Math.min(o.w, o.h) * 0.22); g.fill();
+  g.fillStyle = '#3f7a3a'; g.fillRect(o.x + o.w / 2 - 1.5, o.y + o.h * 0.22, 3, o.h * 0.2);
+}
+// 貼身：愛心黏人怪接觸後讓玩家「纏住」變慢；配對：雙胞胎同步衝刺，一隻倒下另一隻暴怒，兩隻在 1.2 秒內一起倒下有獎勵
+function clingerAi(e, dt, nx, ny, d) {
+  const P = L.p; if (d < e.r + P.r + 6) P.clingT = 1.6;
+  return { mx: nx * 86 * e.spd * (d < 70 ? 0.6 : 1), my: ny * 86 * e.spd * (d < 70 ? 0.6 : 1), touch: 1 };
+}
+function twinAi(e, dt, nx, ny, d) {
+  if (e.rage > 0) e.rage -= dt;
+  if (!e.mate && !e.alone) {
+    let m = L.enemies.find(o => o !== e && !o.dead && o.type === 'twin' && !o.mate && !o.alone);
+    if (!m) { m = L.spawnEnemy('twin', e.x + 36, e.y + 6); m.spawn = 0.5; }
+    e.mate = m; m.mate = e; e.pal = m; m.pal = e;
+  }
+  const lead = e.mate && !e.mate.dead && e.seed >= e.mate.seed, rg = e.rage > 0 ? 1.7 : 1;
+  e.st = (e.st === undefined ? rr(2, 3) : e.st) - dt;
+  if (!e.state || e.state === 'spawn') e.state = 'walk';
+  let mx = 0, my = 0, touch = 1;
+  if (e.state === 'walk') { mx = nx * 62 * e.spd * rg; my = ny * 62 * e.spd * rg; if (e.st <= 0 && (lead || !e.mate || e.mate.dead)) { e.state = 'wind'; e.st = 0.7; if (e.mate && !e.mate.dead) { e.mate.state = 'wind'; e.mate.st = 0.7; } } }
+  else if (e.state === 'wind') { e.tele = e.st; if (e.st <= 0) { e.state = 'dash'; e.st = 0.5; e.dirx = nx; e.diry = ny; e.tele = 0; } }
+  else if (e.state === 'dash') { mx = e.dirx * 380 * rg; my = e.diry * 380 * rg; touch = 2; if (e.st <= 0) { e.state = 'rest'; e.st = 0.7; } }
+  else if (e.state === 'rest') { if (e.st <= 0) { e.state = 'walk'; e.st = rr(2.2, 3.4); } }
+  return { mx, my, touch };
+}
+function roseAi(e, dt, nx, ny, d, dx, dy) {
+  e.cd = (e.cd === undefined ? rr(1, 2) : e.cd) - dt;
+  if (e.tele > 0) { e.tele -= dt; if (e.tele <= 0) { const a = Math.atan2(dy, dx); for (let i = -1; i <= 1; i++) L.enemyShot(e, a + i * 0.32, 175); e.cd = rr(2.2, 3) * e.fire; } return { mx: 0, my: 0, touch: 1 }; }
+  const want = d < 210 ? -1 : d > 320 ? 1 : 0; if (e.cd <= 0) e.tele = 0.5;
+  return { mx: nx * want * 58 * e.spd, my: ny * want * 58 * e.spd, touch: 1 };
+}
+function loveKill(e) {
+  if (L.th() !== 17 || e.type !== 'twin') return;
+  e.deadAt = L.time; const m = e.pal;
+  if (!m) return;
+  if (!m.dead) { m.rage = 5; m.mate = null; m.alone = true; m.pal = e; L.toast('落單的另一半暴怒了！', 1.4); }
+  else if (m.deadAt !== undefined && L.time - m.deadAt < 1.2) { L.dropCoins(e.x, e.y, 6); if (L.rand() < 0.5) L.pickups.push({ kind: 'oil', x: e.x, y: e.y, t: 0 }); L.toast('成雙成對！', 1.4); L.sfx('pick'); }
+}
+function loveMoves(e, phase, ang) {
+  const p = L.p, fin = e.xk === 'venus', a = pickOf(phase === 1 ? ['ring', 'arrow'] : phase === 2 ? ['ring', 'arrow', 'cling'] : ['ring', 'arrow', 'cling', 'rain']);
+  const aim = () => Math.atan2(p.y - e.y, p.x - e.x);
+  const ring = () => { const n = fin ? 16 : 12, off = rand() * TAU; for (let i = 0; i < n; i++) L.bossShot(e, e.x, e.y, off + i / n * TAU, 125, false, 8); L.later(0.7, () => { if (e.dead) return; for (let i = 0; i < n; i++) L.bossShot(e, e.x, e.y, off + (i + 0.5) / n * TAU, 150, false, 8); }); };
+  const arrow = () => { for (let w = 0; w < 3; w++) L.later(w * 0.3, () => { if (e.dead || L.state() !== 'play') return; const aa = aim(); for (let i = -1; i <= 1; i++) L.bossShot(e, e.x, e.y, aa + i * 0.22, 300, false, 6); }); };
+  const cling = () => { for (let i = 0; i < 2; i++) { const m = L.spawnEnemy('clinger', e.x + (i ? 70 : -70), e.y + 40); m.spawn = 0.6; } };
+  const rain = () => { for (let i = 0; i < 12; i++) L.later(i * 0.18, () => { if (e.dead || L.state() !== 'play') return; const R = L.ROOM; L.bossShot(e, R.x + rand() * R.w, R.y + 10, Math.PI / 2, 190, false, 8); }); };
+  if (a === 'ring') { ring(); L.toast('愛心環！', 1.2); } else if (a === 'arrow') { arrow(); L.toast('丘比特之箭！', 1.2); } else if (a === 'cling') { cling(); L.toast('黏人的來了！', 1.2); } else { rain(); L.toast('愛心雨！', 1.2); }
+}
+function drawCupid(e) {
+  const c = L.ctx, fl = e.flash > 0, t = e.t, b = Math.sin(t * 2) * 5, fin = e.xk === 'venus', ol = '#4a0f2c';
+  c.fillStyle = fl ? C.paper : '#ffe9f1'; for (const sx of [-1, 1]) { c.save(); c.scale(sx, 1); c.rotate(Math.sin(t * 5) * 0.12); c.beginPath(); c.moveTo(34, -20 + b); c.quadraticCurveTo(100, -80 + b, 96, 8 + b); c.quadraticCurveTo(70, -6 + b, 34, 10 + b); c.closePath(); c.fill(); c.restore(); }
+  c.fillStyle = ol; heartPath(c, 0, b, 62); c.fill(); c.fillStyle = fl ? C.paper : (fin ? '#ff2a7a' : '#ff5c8a'); heartPath(c, 0, b, 56); c.fill();
+  c.fillStyle = 'rgba(255,255,255,.35)'; circ(c, -24, -14 + b, 11); c.fillStyle = C.paper; circ(c, -18, -4 + b, 11); circ(c, 18, -4 + b, 11); c.fillStyle = ol; circ(c, -16, -2 + b, 5); circ(c, 20, -2 + b, 5);
+  c.strokeStyle = ol; c.lineWidth = 3; c.beginPath(); c.arc(0, 14 + b, 10, 0.2, Math.PI - 0.2); c.stroke();
+  if (fin) { c.fillStyle = '#ffd23f'; poly(c, [[-26, -58 + b], [-14, -80 + b], [0, -62 + b], [14, -80 + b], [26, -58 + b]]); }
+}
+L.registerWorld({
+  theme: 17, name: '愛情', pool: 'dlc', opt: '愛情（DLC4）', pal: PAL17, noDark: true, noPaper: true,
+  amb: ['bandpass', 1400, 2, 0.004], ev: r => { const n = [659, 784, 880, 1047][Math.floor(r() * 4)]; L.blip(n, n * 1.02, 0.25, 'sine', 0.012); },
+  skin: { map: LOVE_SKIN, draw: drawLoveEnemy, hue: false }, bg: loveBg, obsDraw: loveObs,
+  enemies: {
+    clinger: { hp: 6, r: 13, name: '黏人愛心', cost: 3, cap: 3, ai: clingerAi },
+    twin: { hp: 8, r: 14, name: '連線雙胞胎', cost: 4, cap: 4, ai: twinAi },
+    rose: { hp: 6, r: 14, name: '玫瑰射手', cost: 3, cap: 2, ai: roseAi }
+  },
+  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'clinger', 'clinger'); if (L0 > 0 || ci >= 1) types.push('twin', 'rose'); if (L0 > 0 || ci >= 2) types.push('bomber', 'twin', 'brute'); },
+  boss: fin => fin ? { kind: 'golem', name: '愛神維納斯', hp: 205, ext: true, xk: 'venus' } : { kind: 'golem', name: '丘比特', hp: 125, ext: true, xk: 'cupid' },
+  boss2: loveMoves, drawBoss: drawCupid,
+  intro: def => [{ who: '旁白', text: def.name + '從粉紅色的雲裡飛了出來，手裡的弓已經拉滿。' }],
+  outro: () => [{ who: '旁白', text: '弓弦鬆了。散落一地的愛心，一顆一顆都變得安靜。' }],
+  onKill: loveKill
+});
+
 /* ================= 主題事件（第 3 步）：事件房 25% 機率出現該主題專屬事件 ================= */
 function xProp(it, col, glyph, used) {
   const c = L.ctx; c.save(); c.translate(it.x, it.y + Math.sin(L.time * 2 + it.x) * 2);
@@ -1501,6 +1597,15 @@ const XEV = {
         else if (r < 0.65) { L.p.coins += 15; L.healP(1); L.toast('吉：燈芯 +15、燈火 +1', 2.4); }
         else { L.p.coins += 25; L.run.xOmen = 1; L.run.xOmenAt = undefined; L.toast('凶……先收下 25 燈芯，下一場戰鬥敵人變多', 3); } },
       draw: it => xProp(it, '#c0392b', '籤', it.used)
+    }
+  },
+  17: { // 月老紅線
+    thread: {
+      toast: '月老紅線：用 1 點燈火綁上紅線，兩份強化一起生效', setup: (room, cx, cy) => xAdd(room, cx, cy, 'thread'),
+      info: it => ({ name: '月老紅線', desc: it.used ? '紅線已經繫好了' : '付出 1 點燈火（血量需大於 2），一次得到一份精良強化與一份普通強化；只能一次' }),
+      hint: it => it.used ? '' : 'F 繫上紅線（−1 燈火）',
+      use(it) { if (it.used) return; if (L.p.hp <= 2) { L.toast('血量不夠'); L.sfx('tick'); return; } L.p.hp -= 1; it.used = true; const u = L.premUpgrade(), v = L.rewardUpgrade(); L.sfx('pick'); L.toast('紅線繫上了：精良「' + L.UPGN(u) + '」＋「' + L.UPGN(v) + '」', 3); },
+      draw: it => xProp(it, '#d81b4a', '緣', it.used)
     }
   },
   16: { // 神殿試煉

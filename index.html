@@ -761,7 +761,7 @@ const upN = id => p.upg[id] || 0;
 const cost = it => { const b = it.price; if (!b || (it.group !== 'shop' && it.group !== 'stall')) return b; return CLS[p.cls].id === 'shopc' ? Math.max(it.kind === 'heal' ? 2 : 1, b - 4 - (upN('c_shop') >= 1 ? 1 : 0)) : b; };
 function paid(n) { if (room.kind !== 'merchant') return; rec.spent = (rec.spent || 0) + n; saveRec(); if (rec.spent >= 50) unlockAch('bizBoom'); }
 const slpOn = () => p.sleepT > 0;
-const slpSpd = () => (slpOn() ? (upN('c_slp') >= 1 ? 0.52 : 0.4) : 1) * (inMud() ? 0.7 : 1) * (inQuick() ? 0.5 : 1) * (typeof room !== 'undefined' && room && room.tour && room.tour.slow ? 0.82 : 1) * (p.stone > 0 ? 0.3 : 1);
+const slpSpd = () => (p.clingT > 0 ? 0.6 : 1) * (slpOn() ? (upN('c_slp') >= 1 ? 0.52 : 0.4) : 1) * (inMud() ? 0.7 : 1) * (inQuick() ? 0.5 : 1) * (typeof room !== 'undefined' && room && room.tour && room.tour.slow ? 0.82 : 1) * (p.stone > 0 ? 0.3 : 1);
 const inQuick = () => !!(typeof room !== 'undefined' && room && room.sw && room.sw.some(z => z.k === 'quick' && Math.hypot(p.x - z.x, p.y - z.y) < z.r));
 const inMud = () => !!(typeof room !== 'undefined' && room && room.sw && room.sw.some(z => z.k === 'mud' && Math.hypot(p.x - z.x, p.y - z.y) < z.r));
 const shieldMax = () => (CLS[p.cls].sh || 0) + (upN('c_shield') >= 1 ? 1 : 0);
@@ -2200,9 +2200,10 @@ const AFF = { // 主題傾向：偏好的武器／強化（出現機率較高、
   bullet: { w: ['pblade', 'whip', 'pole', 'dance', 'orb', 'shears', 'blade', 'syrup', 'pillow', 'frostcane', 'beatstick', 'oar', 'fan'], u: ['shoes', 'wick'] },
   charge: { w: ['spear', 'hammer', 'frostcane', 'pole', 'syrup', 'beatstick', 'shears', 'shakujo'], u: ['reach', 'wick'] },
   swarm: { w: ['scatter', 'fan', 'lance', 'glance', 'bloat', 'bloat3', 'lyre', 'coinx', 'broom', 'bowl', 'beads', 'lure', 'bait'], u: ['pierce', 'big'] },
+  love: { w: ['frostcane', 'syrup', 'pillow', 'bloat', 'bloat3', 'bowl', 'broom', 'oar', 'beads', 'lamplet'], u: ['wick', 'big', 'skpow'] },
   long: { w: ['orb', 'oilgun', 'lamplet', 'lure', 'bait'], u: ['wick', 'oil', 'skcd'], heal: 1 }
 };
-function affinity() { if (th() === 14 && run.karma) return AFF.bullet; if (th() === 16) return AFF.charge; if (th() === 15 || run.guard) return AFF.swarm; if (run.escape || run.endless) return AFF.long; return null; }
+function affinity() { if (th() === 14 && run.karma) return AFF.bullet; if (th() === 16) return AFF.charge; if (th() === 17) return AFF.love; if (th() === 15 || run.guard) return AFF.swarm; if (run.escape || run.endless) return AFF.long; return null; }
 function weaponOffer(exclude, exo) { const c = WLIST.filter(i => (exo ? !!WDEF[i].cls && WDEF[i].cls !== CLS[p.cls].id : !WDEF[i].cls) && !(WDEF[i].th !== undefined && run.themes.indexOf(WDEF[i].th) < 0) && !(WDEF[i].karma && !run.karma) && p.weapons.indexOf(i) < 0 && exclude.indexOf(i) < 0); return c.length ? pickOf(c.reduce((a, i) => a.concat(WDEF[i].th !== undefined ? [i, i, i] : (affinity() && affinity().w.indexOf(i) >= 0 ? [i, i] : [i])), [])) : null; }
 function upgradeOffer(exclude, premOnly) { const c = Object.keys(UPG).filter(i => exclude.indexOf(i) < 0 && clsOk(i) && !(i === 'shade' && THEMES[th()].noDark && CLS[p.cls].id !== 'watch' && CLS[p.cls].id !== 'bellman') && !(i === 'wick' && p.maxHp >= 9) && !(UPG[i].max && upN(i) >= UPG[i].max) && (!premOnly || premOk(i))); return c.length ? pickOf(c.reduce((a, i) => a.concat(UPG[i].cls ? [i, i] : [i]), [])) : null; }
 function shelfIds(kind, avoid) { return room.items.filter(i => !i.taken && i.kind === kind).map(i => i.id).concat(avoid ? [avoid] : []); }
@@ -2918,6 +2919,7 @@ const DLC = [
   { id: 'japan', name: '日本・觀光維護（DLC3）', desc: '房間制景點；清垃圾、修設施，觀光滿意度影響獎勵；選到才下載', theme: 15, flag: null, pack: 'dlc.js', say: ['日本・觀光維護：妖怪在景點搗亂。走過垃圾就能清掉，靠近壞掉的設施按住 F 修復；觀光滿意度越高，通關獎勵越好', 3.8] },
   { id: 'zenKarma', name: '佛寺・渡化道場（DLC3）', desc: '累積功德才能前進；敵人會被度化，擊倒的會轉世，度化的變友軍；選到才下載', theme: 14, flag: 'karma', pack: 'dlc.js', say: ['佛寺・渡化道場：每間道場要累積功德才能前往下一間。打倒敵人、度化敵人、布施路人都能得到功德；擊倒的敵人下一間會轉世，度化的會變成友軍', 4] },
   { id: 'greek', name: '希臘神話（DLC3）', desc: '超大地圖，戰鬥房與事件結合；神祇恩賜；選到才下載', theme: 16, flag: 'greek', pack: 'dlc.js', say: ['希臘神話：一整張超大地圖，市集、祭壇與各種神話事件散在各區；最後的迷宮裡有米諾陶', 3.4] },
+  { id: 'love', name: '愛情（DLC4）', desc: '貼身糾纏＋配對羈絆；黏人愛心與連線雙胞胎；選到才下載', theme: 17, flag: null, pack: 'dlc.js', say: ['愛情：愛心怪會黏上你、雙胞胎成對衝來——一隻倒下，另一隻會暴怒；一起倒下有獎勵', 3.4] },
 ];
 const DLC_FLAGS = ['escort', 'endless', 'escape', 'guard', 'dl2', 'path', 'greek', 'karma'];
 const dlcOf = id => DLC.find(q => q.id === id);
@@ -5348,6 +5350,7 @@ for (const id of ['optAuto', 'optSound']) $(id).addEventListener('change', ev =>
 /* ---------- update ---------- */
 const P_SPEED = 215;
 function playerMove(dt) {
+  if (p.clingT > 0) p.clingT -= dt;
   if (p.dashT > 0) {
     p.dashT -= dt; p.x += p.dashV.x * dt; p.y += p.dashV.y * dt; collideWorld(p, true);
     const l = Math.hypot(p.dashV.x, p.dashV.y) || 1;
