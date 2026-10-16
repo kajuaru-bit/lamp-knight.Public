@@ -1616,19 +1616,14 @@ function cosInit(room, kind) {
   cosNewCons(room, kind);
 }
 function cosNewCons(room, kind) {
-  const r = L.run; room.items = room.items.filter(it => it.fk !== 'star');
+  const r = L.run; room.consMade = (room.consMade || 0) + 1; room.items = room.items.filter(it => it.fk !== 'star');
   const R = L.ROOM, n = 5, pts = []; for (let t = 0; t < 300 && pts.length < n; t++) { const x = R.x + 90 + rand() * (R.w - 180), y = R.y + 90 + rand() * (R.h - 180); if (pts.every(q => Math.hypot(q.x - x, q.y - y) > 160) && !(room.obs || []).some(o => x > o.x - 42 && x < o.x + o.w + 42 && y > o.y - 42 && y < o.y + o.h + 42) && !(kind === 'boss' && Math.hypot(x - (R.x + R.w / 2), y - (R.y + R.h / 2)) < 130)) pts.push({ x, y }); }
   r.cosIdx = ((r.cosIdx === undefined ? Math.floor(rand() * 12) : r.cosIdx) + 1) % 12;
   room.cons = { pts, i: 0, done: false, name: ZODIAC[r.cosIdx], kind: r.cosIdx % 3 };
   pts.forEach((q, k) => room.items.push({ kind: 'tfac', id: 'star', fk: 'star', k, x: q.x, y: q.y, group: 'prop', price: 0, taken: false }));
 }
-// 戰鬥房：一波打完後，要踩完星點領到星座祝福才會進下一波
-function cosHold(room) {
-  if (room.kind !== 'combat' || room.wave < 0 || !room.cons || room.cons.done) return false;
-  if (!room.cons.hinted) { room.cons.hinted = true; L.toast('這一波清空了——踩完亮著的星點，領取星座祝福後進入下一波', 2.6); }
-  return true;
-}
-function cosWave(room) { if (room.kind === 'combat' && room.wave >= 1) cosNewCons(room, 'combat'); }
+// 戰鬥房：星點不綁定波次；每間房最多出現 3 組星座（第 1、3、5 波開始時各一組，沒踩完就換新的）
+function cosWave(room) { if (room.kind === 'combat' && room.wave >= 1 && room.wave % 2 === 0 && (room.consMade || 1) < 3) cosNewCons(room, 'combat'); }
 function cosTick(dt) {
   const room = L.room, K = room && room.cons, P = L.p; if (!K || K.done || L.th() !== 18) return;
   const q = K.pts[K.i]; if (!q) return;
@@ -1652,7 +1647,7 @@ function cosDraw(it) {
 L.registerWorld({
   theme: 18, name: '星座宇宙', pool: 'dlc', opt: '星座宇宙（DLC4）', pal: PAL18, noDark: true, noPaper: true,
   amb: ['lowpass', 380, 0.7, 0.006], ev: r => { const n = [392, 523, 659, 784][Math.floor(r() * 4)]; L.blip(n, n * 1.5, 0.6, 'sine', 0.01); },
-  skin: { map: COS_SKIN, draw: drawCosEnemy, hue: false }, bg: cosBg, obsDraw: cosObs, obs: () => [], ownStory: true, holdWave: cosHold, onWave: cosWave, shards: COS_SHARDS,
+  skin: { map: COS_SKIN, draw: drawCosEnemy, hue: false }, bg: cosBg, obsDraw: cosObs, obs: () => [], ownStory: true, onWave: cosWave, shards: COS_SHARDS,
   enemies: {
     comet: { hp: 6, r: 13, name: '彗星', cost: 3, cap: 3, ai: cometAi },
     satellite: { hp: 6, r: 13, name: '衛星', cost: 3, cap: 3, ai: satAi },
