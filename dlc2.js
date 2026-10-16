@@ -64,8 +64,8 @@ function batAi(e, dt, nx, ny, d) {
 /* ---- 地圖：南瓜燈柱會發光，其餘是墓碑與枯樹 ---- */
 function hwMake(R) {
   const zw = R.w / 3, zh = R.h / 2, zc = z => ({ x: R.x + (z % 3 + 0.5) * zw, y: R.y + (Math.floor(z / 3) + 0.5) * zh });
-  const zs = L.shuffle([0, 3, 5]), a = zc(zs[0]), b = zc(zs[1]), al = zc(4);
-  HW = { R: { x: R.x, y: R.y, w: R.w, h: R.h }, live: false, slots: [{ fk: 'market', x: R.x + R.w - 340, y: R.y + 170 }, { fk: 'altar', x: al.x, y: al.y + 20 }, { fk: 'grave', x: a.x + rr(-90, 90), y: a.y + rr(-60, 60) }, { fk: 'patch', x: b.x + rr(-90, 90), y: b.y + rr(-60, 60) }] };
+  const zs = L.shuffle([0, 3, 5]), a = zc(zs[0]), b = zc(zs[1]), al = zc(4), cp = zc(1);
+  HW = { R: { x: R.x, y: R.y, w: R.w, h: R.h }, live: false, slots: [{ fk: 'market', x: R.x + R.w - 340, y: R.y + 170 }, { fk: 'altar', x: al.x, y: al.y + 20 }, { fk: 'grave', x: a.x + rr(-90, 90), y: a.y + rr(-60, 60) }, { fk: 'patch', x: b.x + rr(-90, 90), y: b.y + rr(-60, 60) }, { fk: 'camp', x: cp.x + rr(-120, 120), y: cp.y + rr(-60, 60) }] };
   return HW;
 }
 function hwObs(kind, R, D) {
@@ -125,16 +125,24 @@ function hwInit(room, kind) {
     if (s.fk === 'market') {
       room.items.push(L.makeItem('heal', s.x - 130, s.y, 'shop'), L.makeItem('upgrade', s.x, s.y, 'shop'), L.makeItem(rand() < 0.65 ? 'weapon' : 'upgrade', s.x + 130, s.y, 'shop'));
       room.items.push({ kind: 'refresh', id: 'refresh', slot: 'refresh', x: s.x + 250, y: s.y, price: 3, group: 'stall', taken: false });
-    } else room.items.push({ kind: 'tfac', id: 'tfac', fk: s.fk, x: s.x, y: s.y, group: 'prop', price: 0, taken: false, st: 'ready', t: rand() * 6, n: 0 });
+    } else room.items.push({ kind: 'tfac', id: 'tfac', fk: s.fk, x: s.x, y: s.y, group: 'prop', price: 0, taken: false, st: 'ready', t: s.fk === 'camp' ? 0 : rand() * 6, n: 0 });
   }
   if (!r.hwDarkTip) { r.hwDarkTip = true; L.later(4.5, () => { if (L.room === room) L.toast('萬聖節：視野有限——靠近南瓜燈，或讓你的燈亮一點', 3); }); }
 }
-const HW_NAME = { altar: '召喚祭壇', grave: '墓園夜襲', patch: '南瓜田' };
+const HW_NAME = { altar: '召喚祭壇', grave: '墓園夜襲', patch: '南瓜田', camp: '鬼故事營火' };
+function hwStoryEnd(x, y) {
+  const r = L.rand(); L.sfx('clear');
+  if (r < 0.4) { L.healP(1); L.p.coins += 8; L.toast('故事很溫暖：燈火 +1、燈芯 +8', 2.8); }
+  else if (r < 0.75) { L.p.skillCd = 0; const u = L.rewardUpgrade(); L.toast('聽完有了勇氣：技能冷卻重置、強化「' + L.UPGN(u) + '」', 3); }
+  else { for (let i = 0; i < 3; i++) { const sp = L.freeSpot(14), e = L.spawnEnemy('ghost', sp.x, sp.y); e.sleep = false; e.noRez = true; } L.dropCoins(x, y + 40, 14); L.toast('被嚇到了！鬼跳出來（先收下 14 燈芯）', 3); }
+  L.hintReset();
+}
 function hwDone(it, msg) { it.st = 'done'; const r = L.run; r.hwFac = r.hwFac || {}; r.hwFac[it.fk] = 1; if (r.hwFac.altar && r.hwFac.grave) L.unlockAch('hwFac'); if (msg) L.toast(msg, 3); L.hintReset(); }
 function hwUse(it) {
   const p = L.p, room = L.room;
   if (it.st === 'done') { L.toast('這裡已經結束了', 1.4); return; }
   if (it.st === 'busy') { L.toast('進行中……', 1.2); return; }
+  if (it.fk === 'camp') { L.toast('站在營火旁邊聽 6 秒就好', 1.6); return; }
   if (it.fk === 'altar') {
     const big = L.spawnEnemy('brute', it.x, it.y - 100); big.sleep = false; big.noRez = true; big.hp = big.maxHp = Math.round(big.maxHp * 2.6); big.r = Math.round(big.r * 1.35); big.hwElite = true;
     it.mobs = [big].concat(hwSpawn(4, it, ['crawler', 'crawler', 'shooter'])); it.st = 'busy'; L.burst(it.x, it.y, 22, [ORG, '#ffe27a', '#a46bff'], 200, true); L.sfx('kill'); L.toast('祭壇亮了——巨大的南瓜怪醒來了！', 2.8); L.hintReset();
@@ -155,6 +163,7 @@ function hwTick(dt) {
   for (const e of L.enemies) if (!e.dead && e.type === 'boss' && e.xk === 'hwwolf' && e.hp < e.maxHp && L.time - (e.hwHit || 0) > 3.2) { e.hp = Math.min(e.maxHp, e.hp + e.maxHp * 0.015 * dt); if (!e.hwTip) { e.hwTip = true; L.toast('狼人在月光下回血——別停手，持續攻擊！', 2.6); } }
   if (!HW || !HW.live || room.kind !== 'combat') return;
   for (const it of room.items) {
+    if (it.kind === 'tfac' && it.fk === 'camp' && it.st === 'ready') { if (Math.hypot(p.x - it.x, p.y - it.y) < 150) it.t += dt; else it.t = Math.max(0, it.t - dt * 2); if (it.t >= 6) { hwDone(it, ''); hwStoryEnd(it.x, it.y); } continue; }
     if (it.kind !== 'tfac' || it.st !== 'busy' || !it.mobs) continue;
     if (it.mobs.every(e => e.dead)) {
       if (it.fk === 'altar') { const u = L.premUpgrade(); L.dropCoins(it.x, it.y + 40, 10); L.sfx('clear'); hwDone(it, '祭壇平息了：精良強化「' + L.UPGN(u) + '」'); }
@@ -163,10 +172,10 @@ function hwTick(dt) {
   }
 }
 function hwInfo(it) {
-  const d = { altar: it.st === 'done' ? '祭壇已經平息' : '按 F 召喚一隻巨大的南瓜怪和 4 隻小怪；全部打倒得精良強化與燈芯', grave: it.st === 'done' ? '骷髏已經安息' : '按 F 喚醒 6 隻骷髏；全部打倒得一把武器與燈芯', patch: it.st === 'done' ? '南瓜田已收成' : '按 F 敲開一顆南瓜（最多 5 顆）：燈芯、燈油，偶爾跑出怪' };
+  const d = { altar: it.st === 'done' ? '祭壇已經平息' : '按 F 召喚一隻巨大的南瓜怪和 4 隻小怪；全部打倒得精良強化與燈芯', grave: it.st === 'done' ? '骷髏已經安息' : '按 F 喚醒 6 隻骷髏；全部打倒得一把武器與燈芯', camp: it.st === 'done' ? '故事說完了' : '站在營火旁邊（150 像素內）聽 6 秒，離開會倒退。結局：安心（回血＋燈芯）、勇氣（技能冷卻重置＋強化）、被嚇到（出現幾隻幽靈，但有大量燈芯）', patch: it.st === 'done' ? '南瓜田已收成' : '按 F 敲開一顆南瓜（最多 5 顆）：燈芯、燈油，偶爾跑出怪' };
   return { name: HW_NAME[it.fk] + (it.st === 'done' ? '（已結束）' : ''), desc: d[it.fk] || '' };
 }
-const hwHint = it => (it.st === 'ready' ? (it.fk === 'altar' ? 'F 召喚' : it.fk === 'grave' ? 'F 喚醒骷髏' : 'F 敲南瓜（' + it.n + ' / 5）') : '');
+const hwHint = it => (it.st === 'ready' ? (it.fk === 'camp' ? '靠近營火聽故事（' + Math.floor(Math.min(6, it.t)) + ' / 6）' : it.fk === 'altar' ? 'F 召喚' : it.fk === 'grave' ? 'F 喚醒骷髏' : 'F 敲南瓜（' + it.n + ' / 5）') : '');
 function hwDraw(it) {
   const c = L.ctx, tm = L.time, done = it.st === 'done'; c.save(); c.translate(it.x, it.y); if (done) c.globalAlpha = 0.5;
   c.fillStyle = 'rgba(0,0,0,.3)'; c.beginPath(); c.ellipse(0, 26, 40, 10, 0, 0, TAU); c.fill();
@@ -175,6 +184,8 @@ function hwDraw(it) {
   } else if (it.fk === 'grave') {
     c.fillStyle = '#3a2a22'; c.beginPath(); c.ellipse(0, 16, 42, 14, 0, 0, TAU); c.fill(); c.fillStyle = '#7d7890'; rrect(c, -20, -26, 40, 46, 14); c.strokeStyle = '#4a4560'; c.lineWidth = 3; c.beginPath(); c.moveTo(0, -16); c.lineTo(0, 4); c.moveTo(-8, -8); c.lineTo(8, -8); c.stroke();
     if (it.st === 'ready') { c.fillStyle = BONE; rrect(c, 22, 6 + Math.sin(tm * 3) * 2, 5, 14, 2); rrect(c, 28, 8 + Math.sin(tm * 3) * 2, 4, 12, 2); }
+  } else if (it.fk === 'camp') {
+    c.fillStyle = '#4a3220'; c.fillRect(-18, 10, 36, 6); c.fillRect(-4, -4, 8, 18); const fl = Math.sin(tm * 9) * 2; c.fillStyle = '#ff7a2a'; poly(c, [[-12, 10], [-6, -14 + fl], [0, -4], [6, -20 - fl], [12, 10]]); c.fillStyle = '#ffe27a'; poly(c, [[-5, 10], [0, -6], [5, 10]]);
   } else {
     for (const q of [[-22, 6, 20], [20, 8, 18], [0, -8, 22]]) { c.fillStyle = OL; c.beginPath(); c.ellipse(q[0], q[1], q[2] + 2, q[2] * 0.85 + 2, 0, 0, TAU); c.fill(); c.fillStyle = it.n >= 5 ? '#7a5a40' : ORG; c.beginPath(); c.ellipse(q[0], q[1], q[2], q[2] * 0.85, 0, 0, TAU); c.fill(); c.fillStyle = OL; c.fillRect(q[0] - 2, q[1] - q[2] - 3, 4, 6); }
   }
@@ -318,6 +329,7 @@ L.registerWorld({
   lights: h => {
     const room = L.room; if (!room) return; const fl = 0.92 + 0.06 * Math.sin(L.time * 7);
     for (const o of room.obs) if (o.jk === 'lamp') h(o.x + o.w / 2, o.y + o.h / 2 - 6, 125 * fl, 0.88);
+    for (const it of room.items) if (it.kind === 'tfac' && it.fk === 'camp') h(it.x, it.y, 150 * fl, 0.9);
     for (const e of L.enemies) if (!e.dead && e.type === 'boss') h(e.x, e.y, 170, 0.75);
   },
   arrows: edge => { const room = L.room; if (!room || room.kind !== 'combat' || !HW || !HW.live) return; for (const it of room.items) if (it.kind === 'tfac' && it.st === 'ready' && !it.taken) edge(it.x, it.y, '#ffb347', false); for (const s of HW.slots) if (s.fk === 'market') edge(s.x, s.y, '#c79bff', false); },
@@ -328,7 +340,7 @@ L.registerWorld({
     c.restore();
   },
   enemies: { bat: { hp: 4, r: 11, name: '蝙蝠', cost: 2, cap: 4, ai: batAi } },
-  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter', 'bat'); if (L0 > 0) types.push('ghost', 'brute', 'crawler'); if (L0 >= 2) types.push('bat', 'ghost', 'brute'); },
+  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter', 'bat'); if (L0 > 0) types.push('ghost', 'brute', 'crawler'); if (L0 >= 2) types.push('bat', 'ghost', 'brute', 'shooter'); if (L0 >= 3) types.push('brute', 'brute', 'ghost', 'shooter'); },
   extra: () => [],
   boss: fin => hwBossDef(fin), boss2: hwMoves, drawBoss: drawHwBoss,
   intro: def => (def.xk === 'hwking'
