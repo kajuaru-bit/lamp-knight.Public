@@ -736,7 +736,7 @@ const PREM = {
   skpow:  { name: '轟鳴燈罩', desc: '職業技能的範圍與傷害 +45%（占 2 層上限）', price: 19, w: 2 },
   c_echo:  { name: '雙重迴響', cls: 'knight', desc: '【提燈騎士專屬】第二道光波半徑 100%、傷害 2', price: 18, w: 2 },
   c_swarm: { name: '螢火洪流', cls: 'hunter', desc: '【螢火獵人專屬】螢火蟲群增加到 20 隻', price: 22, w: 2 },
-  c_chain: { name: '連裁・極', cls: 'cutter', desc: '【剪紙匠專屬】衝刺傷害 +30%；衝刺撞到敵人時，結束後恢復 1 燈火', price: 22, w: 2 },
+  c_chain: { name: '連裁・極', cls: 'cutter', desc: '【剪紙匠專屬】衝刺傷害 +30%；衝刺撞到敵人時，結束後恢復 1 燈火；被敵人碰撞時 50% 機率免疫', price: 22, w: 2 },
   c_sug:   { name: '糖心・極', cls: 'sugarc', desc: '糖衣多擋 1 次，且糖碎片傷害 +50%、命中的敵人被黏住（占 2 層）', price: 19, w: 2 },
   c_pix:   { name: '連線加成・極', cls: 'pixelc', desc: '乒乓砲多反彈 1 次，接球窗口加長、完美接球回 1 燈芯、讀檔冷卻 −10 秒（占 2 層）', price: 19, w: 2 },
   c_cal:   { name: '焦距調整・極', cls: 'calib', desc: '校準槍傷害衰減變慢且下限 ×0.7，座標標記可同時標記 2 個目標（占 2 層）', price: 19, w: 2 },
@@ -4534,7 +4534,7 @@ function updateEnemy(e, dt) {
     for (const sg of [-1, 1]) { const c2 = spawnEnemy('snowlet', clamp(e.x + sg * 16, ROOM.x + 20, ROOM.x + ROOM.w - 20), e.y); c2.hp = c2.maxHp = 3; c2.spawn = 0.3; c2.kx = sg * 200; }
     return;
   }
-  { const pdx = p.x - e.x, pdy = p.y - e.y, pdd = Math.hypot(pdx, pdy) || 1; if (pdd < e.r + p.r - 2 && !e.noTouch && !e.burrow && !(p.lantT > 0)) hurtFrom(e.type === 'boss' ? 'B:' + e.kind : e.type, touch, pdx / pdd, pdy / pdd, e.pol ? 1 : undefined); }
+  { const pdx = p.x - e.x, pdy = p.y - e.y, pdd = Math.hypot(pdx, pdy) || 1; if (pdd < e.r + p.r - 2 && !e.noTouch && !e.burrow && !(p.lantT > 0)) { if (CLS[p.cls].id === 'cutter' && upN('c_chain') >= 2 && p.iframes <= 0 && state === 'play' && rand() < 0.5) { p.iframes = 0.5; burst(p.x, p.y, 8, ['#fff', C.amber], 120, true); sfx('tick'); } else hurtFrom(e.type === 'boss' ? 'B:' + e.kind : e.type, touch, pdx / pdd, pdy / pdd, e.pol ? 1 : undefined); } }
   if (e.type === 'rusher' && e.state === 'dash' && Math.hypot(p.x - e.x, p.y - e.y) < e.r + p.r) { e.dead = true; burst(e.x, e.y, 16, ['#cfc4ff', '#ffffff', C.amber], 190, true); sfx('kill'); shake = Math.max(shake, 4); return; }
   for (const n of allies) if (!n.down && n.iframes <= 0 && Math.hypot(n.x - e.x, n.y - e.y) < e.r + n.r - 2) hurtNpc(n, 1);
 }
