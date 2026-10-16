@@ -1,6 +1,6 @@
 /* 《燈火騎士》DLC6「傳統節慶」：春節(22)、中秋(23)、七夕(24)。
    獨立檔案，選到「傳統節慶」才下載（需先載入 dlc.js 與 dlc2.js）；全程無視野限制。世界編號依序註冊。
-   目前已完成：春節（22）、中秋（23）。 */
+   已完成：春節（22）、中秋（23）、七夕（24）。 */
 (function () {
 'use strict';
 const L = window.LK;
@@ -51,6 +51,7 @@ function casterAi(drift) {
 function makeFest(F) {
   let S = null; const T = F.theme, BK = Object.keys(F.bosses);
   const mkLayout = R => {
+    if (F.layout) { S = { live: false, slots: F.layout(R) }; return; }
     const zw = R.w / 3, zh = R.h / 2, zc = z => ({ x: R.x + (z % 3 + 0.5) * zw, y: R.y + (Math.floor(z / 3) + 0.5) * zh });
     const zs = L.shuffle([0, 2, 3]), a = zc(zs[0]), b = zc(zs[1]), mid = zc(4), top = zc(1);
     S = { live: false, slots: [{ fk: 'market', x: R.x + R.w - 340, y: R.y + 170 }, { fk: 'pool', x: mid.x, y: mid.y + 20 }, { fk: 'work', x: a.x + rr(-90, 90), y: a.y + rr(-60, 60) }, { fk: 'nook', x: b.x + rr(-90, 90), y: b.y + rr(-60, 60) }, { fk: 'rest', x: top.x + rr(-120, 120), y: top.y + rr(-60, 60) }] };
@@ -60,7 +61,8 @@ function makeFest(F) {
     mkLayout(R);
     const keep = S.slots.map(s => s.fk === 'market' ? { x: s.x - 230, y: s.y - 100, w: 520, h: 220 } : s.fk === 'pool' ? { x: s.x - 200, y: s.y - 160, w: 400, h: 320 } : { x: s.x - 150, y: s.y - 140, w: 300, h: 280 });
     keep.push({ x: R.x, y: D.y - 100, w: 170, h: 200 }, { x: R.x + R.w - 170, y: D.y - 100, w: 170, h: 200 });
-    const out = [];
+    if (F.keepExtra) keep.push(...F.keepExtra(R));
+    const out = F.obsExtra ? F.obsExtra(R) : [];
     for (let t = 0; t < 1200 && out.length < 38; t++) {
       const k = pickOf(F.obsKinds), w = rr(k.w[0], k.w[1]), h = rr(k.h[0], k.h[1]);
       const o = { x: rr(R.x + 90, R.x + R.w - 90 - w), y: rr(R.y + 50, R.y + R.h - 50 - h), w, h, jk: k.jk };
@@ -78,7 +80,7 @@ function makeFest(F) {
     if (kind !== 'combat') { if (kind !== 'boss') S = null; else if (S) S.live = false; }
     { const sd = r['said' + T] = r['said' + T] || {}; if (kind !== 'start' && !sd[r.layer]) { sd[r.layer] = 1; const T0 = F.story[r.layer & 1]; L.later(2.0, () => { if (L.room === room && L.state() === 'play') L.say(T0); }); } }
     if (kind !== 'combat' || !S) return;
-    S.live = true; room.refreshN = 0;
+    S.live = true; room.refreshN = 0; if (F.init2) F.init2(room);
     for (const s of S.slots) {
       if (s.fk === 'market') {
         room.items.push(L.makeItem('heal', s.x - 130, s.y, 'shop'), L.makeItem('upgrade', s.x, s.y, 'shop'), L.makeItem(rand() < 0.65 ? 'weapon' : 'upgrade', s.x + 130, s.y, 'shop'));
@@ -112,6 +114,7 @@ function makeFest(F) {
   };
   const tick = dt => {
     const room = L.room, p = L.p; if (!room || L.state() !== 'play' || !S || !S.live || room.kind !== 'combat') return;
+    if (F.tick2) F.tick2(dt, room);
     for (const it of room.items) {
       if (it.kind === 'tfac' && it.fk === 'rest' && it.st === 'ready') {
         if (Math.hypot(p.x - it.x, p.y - it.y) < 150) it.t += dt; else it.t = Math.max(0, it.t - dt * 2);
@@ -145,6 +148,7 @@ function makeFest(F) {
       return;
     }
     if (!S || !S.live || room.kind !== 'combat') return;
+    if (F.back2) F.back2(c, room, tm);
     for (const s of S.slots) if (s.fk === 'market') {
       c.save(); c.translate(s.x, s.y - 52); c.fillStyle = F.marketCol[0]; c.fillRect(-250, -6, 500, 8); for (let i = 0; i < 10; i++) { c.fillStyle = F.marketCol[1 + (i % 2)]; c.beginPath(); c.moveTo(-250 + i * 50, 2); c.lineTo(-200 + i * 50, 2); c.lineTo(-225 + i * 50, 24); c.fill(); }
       c.fillStyle = F.marketCol[3]; c.font = '700 15px sans-serif'; c.textAlign = 'center'; c.fillText(F.fac.market, 0, -14); c.restore();
@@ -486,5 +490,184 @@ makeFest({
   ],
   shards: ['月餅便條：我說好今晚會來，結果月亮太亮，我迷路了。', '月餅便條：桂樹砍不倒不是因為樹太硬，是因為我捨不得它倒。', '月餅便條：兔子搗了一千年的藥，其實只是想找個人說說話。', '月餅便條：月亮每個月都會變圓一次，等的人也是。'],
   outro: [{ who: '嫦娥', text: '……我看見他了。原來他的影子，一直就在樹下。' }, { who: '吳剛', text: '她也在。原來她，一直就在月亮上面。' }, { who: '旁白', text: '你的燈光落在兩人之間，影子終於碰在了一起。庭院裡的桂花，落了一整夜。' }]
+});
+
+/* ================= 七夕（24）：全亮、銀河把大地圖切成兩半，鵲橋會聚散；紅線繃緊時線上敵人受傷並被定住 ================= */
+const PK = '#ff9ad8', VIO = '#6a4ab8', SKY = '#8fb8ff', RV = '#2a2a7a';
+function drawQxEnemy(e) {
+  const c = L.ctx, r = e.r, f = e.flash > 0, sk = e.skin, tm = e.t, fa = Math.atan2(L.p.y - e.y, L.p.x - e.x);
+  if (sk === 'magpie') {
+    const fl = Math.sin(tm * 14) * r * 0.5; c.fillStyle = OL; circ(c, 0, 0, r * 1.05); c.beginPath(); c.ellipse(-r * 0.9, 0, r * 0.8, r * 0.4 + Math.abs(fl) * 0.5, -0.4 + fl * 0.02, 0, TAU); c.ellipse(r * 0.9, 0, r * 0.8, r * 0.4 + Math.abs(fl) * 0.5, 0.4 - fl * 0.02, 0, TAU); c.fill();
+    c.fillStyle = f ? C.paper : '#1a1a2a'; circ(c, 0, 0, r); c.beginPath(); c.ellipse(-r * 0.9, 0, r * 0.72, r * 0.34 + Math.abs(fl) * 0.5, -0.4, 0, TAU); c.ellipse(r * 0.9, 0, r * 0.72, r * 0.34 + Math.abs(fl) * 0.5, 0.4, 0, TAU); c.fill(); c.fillStyle = '#fff'; circ(c, 0, r * 0.35, r * 0.55); c.fillStyle = '#ffb02e'; poly(c, [[-r * 0.15, -r * 0.1], [0, -r * 0.5], [r * 0.15, -r * 0.1]]); c.fillStyle = '#fff'; circ(c, -r * 0.3, -r * 0.25, 2.5); circ(c, r * 0.3, -r * 0.25, 2.5);
+  } else if (sk === 'loom') {
+    c.fillStyle = OL; rrect(c, -r * 1.0, -r * 1.1, r * 2.0, r * 2.2, 4); c.fillStyle = f ? C.paper : '#8a5a3a'; rrect(c, -r * 0.9, -r * 1.0, r * 1.8, r * 2.0, 3); c.strokeStyle = PK; c.lineWidth = 2; for (let k = -2; k <= 2; k++) { c.beginPath(); c.moveTo(k * r * 0.35, -r * 0.9); c.lineTo(k * r * 0.35, r * 0.6); c.stroke(); } c.fillStyle = '#ffe27a'; rrect(c, -r * 0.9, Math.sin(tm * 4) * r * 0.2, r * 1.8, r * 0.16, 2);
+    c.fillStyle = '#fff'; circ(c, -r * 0.3, -r * 0.55, 2.5); circ(c, r * 0.3, -r * 0.55, 2.5); const g = 0.6 + 0.4 * Math.sin(tm * 6); c.fillStyle = 'rgba(255,150,220,' + g + ')'; star4(c, Math.cos(fa) * r * 1.4, Math.sin(fa) * r * 1.4, r * 0.35, tm * 2);
+  } else if (sk === 'ox') {
+    c.fillStyle = OL; circ(c, 0, 0, r * 1.15); c.fillStyle = f ? C.paper : '#7a5232'; circ(c, 0, 0, r); c.strokeStyle = '#f0e8d0'; c.lineWidth = 5; c.beginPath(); c.moveTo(-r * 0.6, -r * 0.5); c.quadraticCurveTo(-r * 1.3, -r * 0.8, -r * 1.1, -r * 1.3); c.moveTo(r * 0.6, -r * 0.5); c.quadraticCurveTo(r * 1.3, -r * 0.8, r * 1.1, -r * 1.3); c.stroke();
+    c.fillStyle = '#c8a078'; c.beginPath(); c.ellipse(0, r * 0.4, r * 0.55, r * 0.4, 0, 0, TAU); c.fill(); c.fillStyle = OL; circ(c, -r * 0.2, r * 0.4, 2.5); circ(c, r * 0.2, r * 0.4, 2.5); circ(c, -r * 0.38, -r * 0.15, 3); circ(c, r * 0.38, -r * 0.15, 3); c.fillStyle = '#ffd24a'; circ(c, 0, r * 0.75, 3);
+  } else if (sk === 'star') {
+    c.fillStyle = OL; star4(c, 0, 0, r * 1.25, tm); c.fillStyle = f ? C.paper : '#ffe27a'; star4(c, 0, 0, r * 1.05, tm); c.fillStyle = '#fff'; circ(c, 0, 0, r * 0.35); c.fillStyle = OL; circ(c, -r * 0.12, 0, 2); circ(c, r * 0.12, 0, 2);
+  } else if (sk === 'calf') {
+    const a = e.ra || fa; if (e.tele > 0) { c.save(); c.globalAlpha = 0.5; c.strokeStyle = '#ff9ad8'; c.lineWidth = 4; c.beginPath(); c.moveTo(0, 0); c.lineTo(Math.cos(a) * 260, Math.sin(a) * 260); c.stroke(); c.restore(); }
+    c.fillStyle = OL; circ(c, 0, 2, r * 1.15); c.fillStyle = f ? C.paper : '#a07a52'; circ(c, 0, 2, r); c.fillStyle = '#f0e8d0'; poly(c, [[-r * 0.55, -r * 0.7], [-r * 0.4, -r * 1.2], [-r * 0.15, -r * 0.8]]); poly(c, [[r * 0.55, -r * 0.7], [r * 0.4, -r * 1.2], [r * 0.15, -r * 0.8]]); c.fillStyle = '#d8b898'; c.beginPath(); c.ellipse(0, r * 0.4, r * 0.5, r * 0.35, 0, 0, TAU); c.fill(); c.fillStyle = OL; circ(c, -r * 0.3, -r * 0.1, 2.5); circ(c, r * 0.3, -r * 0.1, 2.5); circ(c, 0, r * 0.45, 2);
+  } else { // rwater
+    const g = 0.7 + 0.3 * Math.sin(tm * 5); c.fillStyle = 'rgba(120,170,255,' + (0.22 * g) + ')'; circ(c, 0, 0, r * 1.7); c.fillStyle = OL; c.beginPath(); c.arc(0, r * 0.2, r * 1.05, 0, TAU); poly(c, [[-r * 0.8, -r * 0.1], [0, -r * 1.5], [r * 0.8, -r * 0.1]]); c.fill(); c.fillStyle = f ? C.paper : '#7ab0ff'; c.beginPath(); c.arc(0, r * 0.2, r, 0, TAU); c.fill(); poly(c, [[-r * 0.78, -r * 0.05], [0, -r * 1.4], [r * 0.78, -r * 0.05]]); c.fillStyle = 'rgba(255,255,255,.6)'; circ(c, -r * 0.3, 0, r * 0.2); c.fillStyle = OL; circ(c, -r * 0.25, r * 0.15, 2.5); circ(c, r * 0.25, r * 0.15, 2.5);
+    if (e.tele > 0) { c.fillStyle = 'rgba(160,200,255,.7)'; circ(c, Math.cos(fa) * r * 1.4, Math.sin(fa) * r * 1.4, r * 0.4); }
+  }
+}
+function qxBg(g, R, rng, arR) {
+  for (let i = 0; i < Math.round(160 * arR); i++) { g.fillStyle = 'rgba(255,230,255,' + (0.2 + rng() * 0.6) + ')'; const sz = 1.5 + rng() * 2.5; g.fillRect(R.x + rng() * R.w, R.y + rng() * R.h, sz, sz); }
+  for (let k = 0; k < Math.round(9 * arR); k++) { const x = R.x + rng() * R.w, y = R.y + rng() * R.h, gr = g.createRadialGradient(x, y, 0, x, y, 230); gr.addColorStop(0, 'rgba(255,150,220,.16)'); gr.addColorStop(1, 'rgba(255,150,220,0)'); g.fillStyle = gr; g.fillRect(x - 230, y - 230, 460, 460); }
+}
+function qxObsDraw(g, o) {
+  const cx = o.x + o.w / 2, cy = o.y + o.h / 2;
+  if (o.jk === 'water') {
+    const gr = g.createLinearGradient(o.x, 0, o.x + o.w, 0); gr.addColorStop(0, '#1a1a60'); gr.addColorStop(0.5, '#3a3aa0'); gr.addColorStop(1, '#1a1a60'); g.fillStyle = gr; g.fillRect(o.x, o.y, o.w, o.h);
+    g.fillStyle = 'rgba(200,220,255,.55)'; for (let k = 0; k < Math.floor(o.h / 18); k++) { const x = o.x + 10 + ((k * 37) % Math.max(10, o.w - 20)); g.fillRect(x, o.y + 6 + k * 18, 2, 2); g.fillRect(x - 3, o.y + 7 + k * 18, 8, 1); }
+  } else if (o.jk === 'qlant') {
+    g.fillStyle = OL; g.fillRect(cx - 2, o.y - 6, 4, 8); g.beginPath(); g.ellipse(cx, cy, o.w / 2 + 2, o.h / 2 - 2, 0, 0, TAU); g.fill(); g.fillStyle = PK; g.beginPath(); g.ellipse(cx, cy, o.w / 2, o.h / 2 - 4, 0, 0, TAU); g.fill(); g.fillStyle = '#fff'; g.fillRect(cx - o.w * 0.2, o.y + 3, o.w * 0.4, 4); g.fillRect(cx - 1, o.y + o.h - 4, 2, 10); g.fillStyle = 'rgba(255,230,250,.5)'; g.beginPath(); g.ellipse(cx, cy, o.w / 4, o.h / 2 - 5, 0, 0, TAU); g.fill();
+  } else if (o.jk === 'spool') {
+    g.fillStyle = OL; rrect(g, o.x - 2, o.y - 2, o.w + 4, o.h + 4, 5); g.fillStyle = '#d8a870'; rrect(g, o.x, o.y, o.w, 8, 3); rrect(g, o.x, o.y + o.h - 8, o.w, 8, 3); g.fillStyle = PK; rrect(g, o.x + 4, o.y + 8, o.w - 8, o.h - 16, 2); g.strokeStyle = '#fff'; g.lineWidth = 1.5; for (let k = 0; k < 4; k++) { g.beginPath(); g.moveTo(o.x + 4, o.y + 12 + k * (o.h - 24) / 3); g.lineTo(o.x + o.w - 4, o.y + 12 + k * (o.h - 24) / 3); g.stroke(); }
+  } else {
+    g.fillStyle = OL; star4(g, cx, cy, Math.max(o.w, o.h) * 0.68, 0.4); g.fillStyle = '#ffe27a'; star4(g, cx, cy, Math.max(o.w, o.h) * 0.56, 0.4); g.fillStyle = '#fff'; circ(g, cx, cy, 5);
+  }
+}
+function qxTobDraw(o, ctx, cx, cy, f) {
+  if (o.kind === 'qspool') {
+    ctx.fillStyle = f ? C.paper : OL; rrect(ctx, cx - 24, cy - 24, 48, 48, 5); ctx.fillStyle = f ? C.paper : '#d8a870'; rrect(ctx, cx - 22, cy - 22, 44, 8, 3); rrect(ctx, cx - 22, cy + 14, 44, 8, 3); ctx.fillStyle = f ? C.paper : PK; rrect(ctx, cx - 18, cy - 14, 36, 28, 2); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; for (let k = 0; k < 4; k++) { ctx.beginPath(); ctx.moveTo(cx - 18, cy - 10 + k * 7); ctx.lineTo(cx + 18, cy - 10 + k * 7); ctx.stroke(); } return true;
+  }
+  if (o.kind === 'qcloth') {
+    const hz = o.w > o.h, n = hz ? 3 : 4; for (let k = 0; k < n; k++) { const t0 = (k + 0.5) / n, tx = hz ? o.x + o.w * t0 : cx, ty = hz ? cy : o.y + o.h * t0; ctx.fillStyle = f ? C.paper : OL; star4(ctx, tx, ty, 24, 0.4 + k); ctx.fillStyle = f ? C.paper : ['#ffe27a', PK, '#bfa0ff'][k % 3]; star4(ctx, tx, ty, 19, 0.4 + k); } return true;
+  }
+  return false;
+}
+function qxPlantFor(e, p, ux, uy, plant) { if (e.type === 'shooter') plant('qspool', p.x + ux * 130, p.y + uy * 130, 46, 46); else { const horiz = Math.abs(ux) > Math.abs(uy); plant('qcloth', p.x + ux * 150, p.y + uy * 150, horiz ? 30 : 100, horiz ? 100 : 30); } }
+const QX_RW = 130, QX_BR = [0.2, 0.5, 0.8];
+function qxRiver(R) { return { x: R.x + R.w / 2 - QX_RW / 2, w: QX_RW }; }
+function qxBridgeRects(R) { const rv = qxRiver(R); return QX_BR.map(f => ({ x: rv.x, y: R.y + R.h * f - 80, w: rv.w, h: 160 })); }
+function qxObsExtra(R) {
+  const rv = qxRiver(R), br = qxBridgeRects(R), out = []; let y = R.y;
+  for (let i = 0; i <= br.length; i++) { const y2 = i < br.length ? br[i].y : R.y + R.h; if (y2 - y > 4) out.push({ x: rv.x, y, w: rv.w, h: y2 - y, jk: 'water', low: true }); if (i < br.length) { y = br[i].y + br[i].h; out.push({ x: rv.x, y: br[i].y, w: rv.w, h: br[i].h, jk: 'water', low: true, bridge: i }); } }
+  return out;
+}
+function qxLayout(R) {
+  const j = (a, b) => rr(a, b);
+  return [{ fk: 'market', x: R.x + R.w - 340, y: R.y + 170 }, { fk: 'pool', x: R.x + R.w * 0.76 + j(-40, 40), y: R.y + R.h * 0.52 + j(-40, 40) }, { fk: 'work', x: R.x + R.w * 0.2 + j(-50, 50), y: R.y + R.h * 0.28 + j(-40, 40) }, { fk: 'nook', x: R.x + R.w * 0.2 + j(-50, 50), y: R.y + R.h * 0.74 + j(-40, 40) }, { fk: 'rest', x: R.x + R.w * 0.64 + j(-40, 40), y: R.y + R.h * 0.82 + j(-30, 30) }];
+}
+function qxKeep(R) { const rv = qxRiver(R); return [{ x: rv.x - 140, y: R.y, w: rv.w + 280, h: R.h }]; }
+function qxInit(room) {
+  const R = L.ROOM; room.qx = { open: [true, true, true], t: 0, thr: [], warn: 0 };
+  room.obs = room.obs.filter(o => o.bridge === undefined);
+  for (let k = 0; k < 2; k++) { const ay = R.y + 200 + rand() * (R.h - 400), by = R.y + 200 + rand() * (R.h - 400); room.qx.thr.push({ ax: R.x + R.w * (0.18 + rand() * 0.2), ay, bx: R.x + R.w * (0.62 + rand() * 0.2), by, t: k * 4.5, snap: 0 }); }
+}
+function qxTick(dt, room) {
+  const q = room.qx; if (!q) return; q.t += dt; const R = L.ROOM, br = qxBridgeRects(R), p = L.p;
+  for (let i = 0; i < br.length; i++) {
+    const want = ((q.t + i * 3.3) % 10) < 6, b = br[i], was = q.open[i]; if (want === was) continue;
+    if (!want) { const g = L.inflate(b, 34); if (Math.hypot(0, 0) || (p.x > g.x && p.x < g.x + g.w && p.y > g.y && p.y < g.y + g.h) || L.enemies.some(e => !e.dead && e.x > g.x && e.x < g.x + g.w && e.y > g.y && e.y < g.y + g.h)) continue; room.obs.push({ x: b.x, y: b.y, w: b.w, h: b.h, jk: 'water', low: true, bridge: i }); q.open[i] = false; }
+    else { room.obs = room.obs.filter(o => o.bridge !== i); q.open[i] = true; }
+  }
+  for (const th of q.thr) {
+    th.t += dt; const ph = th.t % 9; if (ph < 7.2) { th.snap = 0; continue; }
+    if (ph >= 8.4 && !th.snap) { th.snap = 1; const dx = th.bx - th.ax, dy = th.by - th.ay, len2 = dx * dx + dy * dy; L.sfx('kill');
+      for (const e of L.enemies) { if (e.dead || e.spawn > 0 || e.type === 'boss') continue; const u = clamp(((e.x - th.ax) * dx + (e.y - th.ay) * dy) / len2, 0, 1), d = Math.hypot(e.x - (th.ax + dx * u), e.y - (th.ay + dy * u)); if (d < e.r + 30) { L.hitEnemy(e, 2.5, 0, 0, 0, false); e.stun = Math.max(e.stun || 0, 1.2); L.burst(e.x, e.y, 6, [PK, '#fff'], 120, true); } } }
+  }
+}
+function qxBack(c, room, tm) {
+  const q = room.qx; if (!q) return; const R = L.ROOM, br = qxBridgeRects(R);
+  for (let i = 0; i < br.length; i++) if (q.open[i]) {
+    const b = br[i], soon = ((q.t + i * 3.3) % 10) > 5, a = soon ? 0.55 + 0.4 * Math.sin(tm * 14) : 1; c.save(); c.globalAlpha = a; c.fillStyle = '#7a5a8a'; c.fillRect(b.x - 6, b.y + 6, b.w + 12, b.h - 12);
+    for (let k = 0; k < 9; k++) { c.fillStyle = k % 2 ? '#d8b8e8' : '#c0a0d8'; c.fillRect(b.x - 4 + k * (b.w + 8) / 9, b.y + 8, (b.w + 8) / 9 - 2, b.h - 16); }
+    for (let k = 0; k < 5; k++) { const bx = b.x + 10 + k * 26, by = b.y + 6 + Math.sin(tm * 3 + k) * 3; c.fillStyle = '#1a1a2a'; circ(c, bx, by, 7); c.fillStyle = '#fff'; circ(c, bx, by + 3, 5); c.fillStyle = '#1a1a2a'; circ(c, bx + 9 - 18 * (k % 2), b.y + b.h - 6, 6); c.fillStyle = '#fff'; circ(c, bx + 9 - 18 * (k % 2), b.y + b.h - 3, 4); }
+    c.restore();
+  }
+  for (const th of q.thr) {
+    const ph = th.t % 9, warn = ph >= 7.2 && ph < 8.4, snap = ph >= 8.4 && ph < 8.9; c.save(); c.lineCap = 'round';
+    c.strokeStyle = snap ? '#fff' : warn ? 'rgba(255,90,170,' + (0.5 + 0.5 * Math.sin(tm * 18)) + ')' : 'rgba(255,120,190,.35)'; c.lineWidth = snap ? 7 : warn ? 5 : 2; c.beginPath(); c.moveTo(th.ax, th.ay); c.lineTo(th.bx, th.by); c.stroke();
+    for (const [x, y] of [[th.ax, th.ay], [th.bx, th.by]]) { c.fillStyle = '#8a5a3a'; c.fillRect(x - 4, y - 6, 8, 26); c.fillStyle = warn || snap ? '#fff' : PK; circ(c, x, y - 8, 9 + (warn ? Math.sin(tm * 18) * 2 : 0)); c.fillStyle = '#fff'; circ(c, x - 2, y - 10, 2.5); }
+    c.restore();
+  }
+}
+function drawQxFac(c, it, tm, done) {
+  if (it.fk === 'pool') {
+    c.fillStyle = '#6a8a4a'; c.fillRect(-4, -60, 8, 84); c.fillRect(-38, -44, 6, 66); c.fillRect(32, -50, 6, 72); for (const [bx, by] of [[0, -60], [-35, -44], [35, -50]]) { c.fillStyle = '#4a7a3a'; poly(c, [[bx - 10, by + 6], [bx, by - 16], [bx + 10, by + 6]]); }
+    for (let k = 0; k < 3; k++) { const lit = done || k < it.n; c.fillStyle = lit ? '#fff' : ['#ffe27a', PK, SKY][k]; const x = -30 + k * 30, y = -26 + (k % 2) * 8 + Math.sin(tm * 2 + k) * 2; c.fillRect(x - 5, y, 10, 22); if (lit) { c.fillStyle = 'rgba(255,200,240,.5)'; circ(c, x, y + 10, 16); } }
+  } else if (it.fk === 'work') {
+    c.fillStyle = '#7a4a2a'; rrect(c, -40, -34, 80, 56, 4); c.fillStyle = '#5a3a1a'; rrect(c, -34, -28, 68, 44, 3); c.strokeStyle = PK; c.lineWidth = 2; for (let k = -3; k <= 3; k++) { c.beginPath(); c.moveTo(k * 9, -26); c.lineTo(k * 9, 12); c.stroke(); } c.fillStyle = '#ffe27a'; rrect(c, -34, -8 + Math.sin(tm * 4) * 10, 68, 7, 2);
+  } else if (it.fk === 'nook') {
+    c.fillStyle = '#8a8aaa'; rrect(c, -36, -4, 72, 26, 4); c.fillStyle = '#b4b4d4'; rrect(c, -36, -8, 72, 10, 4); c.fillStyle = '#ffe27a'; star4(c, 0, -34 + Math.sin(tm * 3) * 3, 14, tm); c.fillStyle = PK; for (let k = 0; k < 3; k++) circ(c, -18 + k * 18, -14, 5); c.fillStyle = '#fff'; c.fillRect(-1, -26, 2, 12);
+  } else {
+    c.fillStyle = 'rgba(100,120,230,.55)'; c.beginPath(); c.ellipse(0, 10, 56, 20, 0, 0, TAU); c.fill(); c.fillStyle = 'rgba(200,220,255,.7)'; for (let k = 0; k < 6; k++) circ(c, -40 + k * 16, 10 + Math.sin(tm * 3 + k) * 3, 2.5); c.fillStyle = '#7a5a8a'; rrect(c, -30, -8, 60, 8, 3); c.fillRect(-26, -2, 5, 14); c.fillRect(21, -2, 5, 14); const warm = done || it.t > 2; c.fillStyle = 'rgba(255,200,240,' + (warm ? 0.8 : 0.4) + ')'; star4(c, 0, -26, 10 + (warm ? Math.sin(tm * 4) * 2 : 0), tm);
+  }
+}
+function drawQxBoss(e) {
+  const c = L.ctx, fl = e.flash > 0, t = e.t, b = Math.sin(t * 2) * 5;
+  if (e.xk === 'qxzhi') {
+    c.fillStyle = 'rgba(255,150,220,.18)'; circ(c, 0, b - 10, 112);
+    for (let k = 0; k < 7; k++) { c.strokeStyle = ['#ff7aa8', '#ffb86a', '#fff08a', '#8affb0', '#8ac8ff', '#b88aff', '#ff8ad8'][k]; c.lineWidth = 6; const sw = Math.sin(t * 2.2 + k) * 12; c.beginPath(); c.moveTo(-26, -4 + b); c.quadraticCurveTo(-90 - k * 4, 30 + sw + b, -80 - k * 6, 100 + k * 3 + b); c.moveTo(26, -4 + b); c.quadraticCurveTo(90 + k * 4, 30 - sw + b, 80 + k * 6, 100 + k * 3 + b); c.stroke(); }
+    c.fillStyle = OL; c.beginPath(); c.moveTo(-34, -4 + b); c.lineTo(34, -4 + b); c.lineTo(52, 104 + b); c.lineTo(-52, 104 + b); c.fill(); c.fillStyle = fl ? C.paper : '#ffd0ec'; c.beginPath(); c.moveTo(-30, -2 + b); c.lineTo(30, -2 + b); c.lineTo(48, 100 + b); c.lineTo(-48, 100 + b); c.fill(); c.fillStyle = '#b88aff'; c.fillRect(-30, 28 + b, 60, 8);
+    c.fillStyle = fl ? C.paper : '#f2d8c0'; circ(c, 0, -30 + b, 27); c.fillStyle = '#1a1a2a'; c.beginPath(); c.arc(0, -35 + b, 29, Math.PI, TAU); c.fill(); circ(c, -22, -24 + b, 9); circ(c, 22, -24 + b, 9); c.fillStyle = '#ffe27a'; star4(c, 0, -64 + b, 9, t); c.fillStyle = OL; circ(c, -9, -28 + b, 3); circ(c, 9, -28 + b, 3); c.fillStyle = '#e07a8a'; circ(c, 0, -18 + b, 3);
+  } else if (e.xk === 'qxniu') {
+    const n = L.enemies.filter(q => !q.dead && q.type !== 'boss' && q.skin === 'magpie' && q.spawn <= 0).length;
+    if (n >= 4) { c.strokeStyle = 'rgba(255,200,240,' + (0.55 + 0.2 * Math.sin(t * 8)) + ')'; c.lineWidth = 6; c.beginPath(); c.arc(0, b, 100, 0, TAU); c.stroke(); }
+    c.fillStyle = OL; c.beginPath(); c.ellipse(0, 36 + b, 84, 58, 0, 0, TAU); c.fill(); circ(c, 0, -10 + b, 52); c.fillStyle = fl ? C.paper : '#7a5232'; c.beginPath(); c.ellipse(0, 36 + b, 80, 54, 0, 0, TAU); c.fill(); circ(c, 0, -10 + b, 48);
+    c.strokeStyle = '#f0e8d0'; c.lineWidth = 9; c.beginPath(); c.moveTo(-34, -34 + b); c.quadraticCurveTo(-84, -48 + b, -72, -90 + b); c.moveTo(34, -34 + b); c.quadraticCurveTo(84, -48 + b, 72, -90 + b); c.stroke(); c.fillStyle = '#c8a078'; c.beginPath(); c.ellipse(0, 6 + b, 28, 20, 0, 0, TAU); c.fill(); c.fillStyle = OL; circ(c, -10, 6 + b, 4); circ(c, 10, 6 + b, 4); circ(c, -22, -16 + b, 5); circ(c, 22, -16 + b, 5);
+    c.fillStyle = '#3a5aa0'; rrect(c, -14, -78 + b, 28, 34, 5); c.fillStyle = '#f2d8c0'; circ(c, 0, -90 + b, 13); c.fillStyle = '#1a1a2a'; c.beginPath(); c.arc(0, -93 + b, 14, Math.PI, TAU); c.fill();
+  } else {
+    const open = e.open && L.time < e.open; c.fillStyle = open ? 'rgba(255,230,255,.3)' : 'rgba(120,100,230,.18)'; circ(c, 0, b, 116);
+    c.fillStyle = OL; rrect(c, -50, -100 + b, 100, 190, 12); c.fillStyle = fl ? C.paper : '#4a4a9a'; rrect(c, -46, -96 + b, 92, 182, 10); c.fillStyle = '#3a3a80'; rrect(c, -46, -96 + b, 92, 40, 10);
+    const gr = c.createRadialGradient(0, 0 + b, 4, 0, 0 + b, 44); gr.addColorStop(0, open ? '#ffffff' : '#c8b0ff'); gr.addColorStop(1, open ? '#ff9ad8' : '#4a3a9a'); c.fillStyle = gr; circ(c, 0, 0 + b, 42);
+    c.fillStyle = 'rgba(255,255,255,.8)'; for (let k = 0; k < 10; k++) { const a = k * 2.4 + t * 0.8, d = 8 + (k * 5) % 30; circ(c, Math.cos(a) * d, b + Math.sin(a) * d, 2); }
+    c.fillStyle = OL; circ(c, -16, -72 + b, 5); circ(c, 16, -72 + b, 5); c.fillStyle = '#ffe27a'; poly(c, [[-46, -96 + b], [-30, -124 + b], [-14, -96 + b]]); poly(c, [[46, -96 + b], [30, -124 + b], [14, -96 + b]]); c.fillStyle = '#8a8aca'; rrect(c, -56, 70 + b, 112, 24, 6);
+  }
+}
+makeFest({
+  theme: 24, name: '七夕', pal: { ink: '#10082a', floor: '#241a44', floor2: '#2b2050', wall1: '#3a2a78', wall2: '#6a4ab8', top: '#ffd0f0', door: '#ffa8e0' },
+  amb: ['bandpass', 1500, 1.0, 0.004], ev: r => { const n = [587, 698, 880, 1047][Math.floor(r() * 4)]; L.blip(n, n * 1.004, 0.6, 'sine', 0.007); },
+  skinMap: { crawler: 'magpie', shooter: 'loom', brute: 'ox', bomber: 'star', calf: 'calf', rwater: 'rwater' }, drawEnemy: drawQxEnemy,
+  bgDraw: qxBg, zones: ['織女岸', '星砂灘', '織布坊', '銀河', '鵲橋市集', '牛郎岸'], zoneCol: 'rgba(255,200,240,.10)',
+  obsKinds: [{ jk: 'qlant', w: [38, 46], h: [48, 58] }, { jk: 'spool', w: [40, 48], h: [44, 52] }, { jk: 'qstar', w: [40, 50], h: [40, 50] }, { jk: 'qlant', w: [38, 46], h: [48, 58] }],
+  layout: qxLayout, keepExtra: qxKeep, obsExtra: qxObsExtra, init2: qxInit, tick2: qxTick, back2: qxBack,
+  obsDraw: qxObsDraw, bossObs: R => [[R.x + 110, R.y + 80], [R.x + R.w - 150, R.y + 80], [R.x + 110, R.y + R.h - 130], [R.x + R.w - 150, R.y + R.h - 130]].map(q => ({ x: q[0], y: q[1], w: 42, h: 52, jk: 'qlant' }))
+    .concat([{ x: R.x + R.w * 0.38, y: R.y + R.h / 2 - 150, w: 46, h: 46, jk: 'qstar' }, { x: R.x + R.w * 0.38, y: R.y + R.h / 2 + 110, w: 46, h: 46, jk: 'qstar' }, { x: R.x + R.w * 0.62, y: R.y + R.h / 2 - 40, w: 46, h: 46, jk: 'qstar' }]),
+  plantFor: qxPlantFor, plantSmall: ['qspool'], plantToast: '線軸與星布牆擋住了去路——打碎它，或等它消散（約 5 秒）', tobDraw: qxTobDraw,
+  aff: { w: ['needlesword', 'galaxycannon', 'magpiebow', 'qiaoshot', 'shuttlespear', 'flame', 'scatter', 'lance', 'firefly', 'blade', 'frostcane'], u: ['wick', 'oil', 'skpow'] },
+  fx: [PK, '#ffe27a', SKY], nookMobs: ['crawler', 'rwater'], marketCol: ['#1a1038', PK, '#d8b8ff', '#ffe0f4'],
+  fac: { market: '鵲橋市集', pool: { name: '許願竹', noun: '願籤', verb: '掛願籤', fin: '許願竹已經掛滿了' }, work: { name: '織布坊', verb: '啟動織梭', start: '織梭飛舞——巨大的牛衝出來了！', end: '織布坊安靜了：織出了一把武器', fin: '織布坊已安靜' }, nook: { name: '乞巧台', verb: '乞巧', fin: '乞巧已結束' }, rest: { name: '銀河畔', fin: '星河已靜', r1: '星光暖暖的：燈火 +1、燈芯 +8', r2: '星河洗滌心神', r3: '岸邊漂來一個小荷包：燈芯 +15' } },
+  drawFac: drawQxFac,
+  bosses: {
+    qxzhi: { name: '織女', type: 'barrage', achName: '雲錦織成', t: { fan: '梭光扇！', ring: '星河環！', spiral: '彩雲旋風！', lanes: '雲錦橫掃——看缺口！', rain: '星屑雨！' },
+      intro: [{ who: '旁白', text: '銀河的這一岸，一位披著七彩雲錦的身影正對著河面織布，梭子在她手裡飛得像一道光。' }, { who: '織女', text: '一年只有一天能見面，今年的鵲橋卻怎麼也搭不起來。是你們擋住了我的路嗎？' }] },
+    qxniu: { name: '牛郎與老牛', type: 'swarm', achName: '鵲橋再搭', t: { summon: '喜鵲列隊！', rally: '老牛長鳴——喜鵲衝鋒！', army: '喜鵲全體出動！', fan2: '扁擔彈！' },
+      intro: [{ who: '旁白', text: '河對岸，一頭大牛馱著年輕的牛郎，身後飛起一大群黑白相間的喜鵲。' }, { who: '牛郎', text: '喜鵲都在幫我搭橋，誰敢拆橋，我就讓牠們啄誰！' }, { who: '旁白', text: '只要喜鵲還圍著，牛郎與老牛就不怕傷害。' }] },
+    qxgate: { name: '銀河守門人', type: 'long', achName: '渡過銀河', t: { charge: '守門人衝來——撞完後星核大亮 3 秒是弱點，傷害 ×2！', soldiers: '星砂化成了守衛！', ring2: '星河環！', slam: '銀河重壓！' },
+      intro: [{ who: '旁白', text: '銀河的盡頭立著一尊石像般的巨人，胸口的星核像一個小小的旋渦。' }, { who: '銀河守門人', text: '渡河的人，要先過我這一關。星核亮起的時候……才是你的機會。' }, { who: '旁白', text: '星核大亮的瞬間，是最脆弱的時候。' }] }
+  },
+  swarmSkin: 'magpie', armTip: '喜鵲圍著牛郎——先清掉喜鵲，Boss 才會吃傷害', drawBoss: drawQxBoss,
+  events: [
+    { id: 'needle', name: '穿針乞巧', toast: '穿針乞巧：花 3 燈芯，試著穿針', verb: '穿針', col: '#a05ac0', glyph: '針', desc: '花 3 燈芯穿針：50% 強化、30% 燈芯 +8、20% 穿歪了（燈芯 +1）；只能一次', fin: '針已經穿過了', r1: '穿過了，手巧', r2: '穿針贏得燈芯 +8', r3: '線穿歪了……燈芯 +1' },
+    { id: 'bamboo', name: '七夕許願', toast: '七夕許願：站在許願樹旁 5 秒', desc: '站在許願樹旁（150 像素內）許願 5 秒，離開會倒退。完成：燈火 +1、燈芯 +10', fin: '願望已經許過了', done: '願望被星星聽見了：燈火 +1、燈芯 +10',
+      draw: (c, it, tm) => { c.fillStyle = '#6a8a4a'; c.fillRect(-3, -50, 6, 72); c.fillStyle = '#4a7a3a'; poly(c, [[-18, -34], [0, -62], [18, -34]]); for (let k = 0; k < 4; k++) { c.fillStyle = [PK, '#ffe27a', SKY, '#fff'][k]; const x = -20 + k * 13, y = -26 + (k % 2) * 12 + Math.sin(tm * 2 + k) * 2; c.fillRect(x - 3, y, 6, 16); } } },
+    { id: 'qiao', name: '巧果攤', toast: '巧果攤：花 6 燈芯，吃一盤巧果', verb: '買巧果', col: '#d88a4a', glyph: '果', desc: '花 6 燈芯：燈火 +2、技能冷卻重置；只能一次', fin: '巧果賣完了', done: '巧果：燈火 +2、技能冷卻重置' }
+  ],
+  weapons: {
+    needlesword: { id: 'needlesword', name: '針線劍', tag: '近戰', mode: 'tap', cd: 0.45, th: 24, col: '#ffd0f0', range: 135, half: 1.3, dmg: 3.7, kb: 340, desc: '大範圍的弧形揮砍（七夕專屬，類似提燈刃）' },
+    galaxycannon: { id: 'galaxycannon', name: '星河砲', tag: '單發', mode: 'tap', cd: 0.38, th: 24, col: '#b8a0ff', desc: '單發的星河彈，傷害高（七夕專屬，類似燈焰杖）',
+      fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang, 560, 9, 3.9 * dm, 'flame', 1.0); L.sfx('flame'); } },
+    magpiebow: { id: 'magpiebow', name: '喜鵲弓', tag: '連射', mode: 'auto', cd: 0.11, th: 24, col: '#e8e8f8', desc: '按住連射羽箭，射速快（七夕專屬，類似螢火弓）',
+      fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang + (rand() - 0.5) * 0.07, 720, 4, 1.15 * dm, 'pellet', 0.8); L.sfx('tick'); } },
+    qiaoshot: { id: 'qiaoshot', name: '七巧散彈', tag: '散射', mode: 'tap', cd: 0.62, th: 24, col: '#ff9ad8', desc: '五發七巧板散射，近距離很痛（七夕專屬，類似霰光杖）',
+      fire: (ox, oy, ang, dm) => { for (let i = -2; i <= 2; i++) L.shoot(ox, oy, ang + i * 0.16, 520, 6, 1.9 * dm, 'pellet', 0.55); L.sfx('blade'); } },
+    shuttlespear: { id: 'shuttlespear', name: '織梭矛', tag: '貫穿', mode: 'tap', cd: 0.75, th: 24, col: '#ffe27a', desc: '貫穿一整排敵人的織梭矛（七夕專屬，類似穿光矛）',
+      fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang, 700, 8, 4.6 * dm, 'lance', 0.95, true); L.sfx('blade'); } }
+  },
+  achIds: ['qxZhi', 'qxNiu', 'qxGate', 'qxFac'], facAch: ['七夕小幫手', '同一局完成許願竹與織布坊'],
+  ext: { calf: { hp: 7, r: 15, name: '小牛', cost: 3, cap: 3, ai: 'dasher' }, rwater: { hp: 9, r: 14, name: '銀河水靈', cost: 3, cap: 3, ai: 'floater' } },
+  story: [
+    [{ who: '旁白', text: '七夕的夜裡，銀河橫在天上，也橫在這座大庭園的正中間。河面閃著碎碎的星光，只有幾座喜鵲搭成的橋，一會兒出現、一會兒又散開。' }, { who: '喜鵲', text: '提燈的旅人！橋時有時無，你要抓準時間過河。另外小心那兩條紅線——繃緊的時候，線上的東西都會被定住喔。' }],
+    [{ who: '旁白', text: '夜更深，銀河的水聲更近了。對岸有人在等，這一岸也有人在等，中間只隔著一條會聚散的橋。' }, { who: '喜鵲', text: '織女與牛郎，一年只有一天能見面。今年橋搭不好，兩個人都很著急……' }]
+  ],
+  shards: ['願籤：希望下一年的七夕，橋不要再散得這麼快。', '願籤：織了一整年的布，只想換一個一起看星星的夜晚。', '願籤：老牛說，牠不是不想講話，只是怕講了就要分開。', '願籤：銀河很寬，但只要有人願意過河，它就是一條很窄的路。'],
+  outro: [{ who: '織女', text: '橋搭好了……他在對岸，我看見他了。' }, { who: '牛郎', text: '這一年，我每天都在數日子。謝謝你，旅人。' }, { who: '旁白', text: '喜鵲們一隻接一隻展開翅膀，銀河上亮起了一道長長的橋。你的燈光落在橋中央，把兩個人的影子靠在了一起。' }]
 });
 })();

@@ -2613,7 +2613,7 @@ function collideWorld(e, isPlayer) {
   for (const o of room.obs) pushOut(e, o);
   for (const o of tobs) pushOut(e, o);
 }
-const hitsObstacle = b => room.obs.some(o => { const nx = clamp(b.x, o.x, o.x + o.w), ny = clamp(b.y, o.y, o.y + o.h); return (b.x - nx) ** 2 + (b.y - ny) ** 2 < b.r * b.r; });
+const hitsObstacle = b => room.obs.some(o => { if (o.low) return false; const nx = clamp(b.x, o.x, o.x + o.w), ny = clamp(b.y, o.y, o.y + o.h); return (b.x - nx) ** 2 + (b.y - ny) ** 2 < b.r * b.r; });
 function jellyHit(b) { for (const j of jellies) { if (j.hp <= 0) continue; if (Math.hypot(b.x - j.x, b.y - j.y) < b.r + j.r) return j; } return null; }
 function updateJellies(dt) {
   for (const j of jellies) {
