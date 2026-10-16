@@ -2213,7 +2213,7 @@ const AFF = { // 主題傾向：偏好的武器／強化（出現機率較高、
   cosmos: { w: ['ringstar', 'cometblade', 'calgun', 'echobow', 'orb', 'lance', 'beam', 'bowl', 'rang'], u: ['skcd', 'skpow', 'shoes'] },
   long: { w: ['orb', 'oilgun', 'lamplet', 'lure', 'bait'], u: ['wick', 'oil', 'skcd'], heal: 1 }
 };
-function affinity() { if (th() === 14 && run.karma) return AFF.bullet; if (th() === 16) return AFF.charge; if (th() === 17) return AFF.love; if (th() === 18) return AFF.cosmos; if (th() === 19) return AFF.hallow; if (th() === 20) return AFF.xmas; if (th() === 21) return AFF.easter; if (th() === 15 || run.guard) return AFF.swarm; if (run.escape || run.endless) return AFF.long; return null; }
+function affinity() { if (THEMES[th()] && THEMES[th()].aff) return THEMES[th()].aff; if (th() === 14 && run.karma) return AFF.bullet; if (th() === 16) return AFF.charge; if (th() === 17) return AFF.love; if (th() === 18) return AFF.cosmos; if (th() === 19) return AFF.hallow; if (th() === 20) return AFF.xmas; if (th() === 21) return AFF.easter; if (th() === 15 || run.guard) return AFF.swarm; if (run.escape || run.endless) return AFF.long; return null; }
 function weaponOffer(exclude, exo) { const c = WLIST.filter(i => (exo ? !!WDEF[i].cls && WDEF[i].cls !== CLS[p.cls].id : !WDEF[i].cls) && !(WDEF[i].th !== undefined && run.themes.indexOf(WDEF[i].th) < 0) && !(WDEF[i].karma && !run.karma) && p.weapons.indexOf(i) < 0 && exclude.indexOf(i) < 0); return c.length ? pickOf(c.reduce((a, i) => a.concat(WDEF[i].th !== undefined ? [i, i, i] : (affinity() && affinity().w.indexOf(i) >= 0 ? [i, i] : [i])), [])) : null; }
 function upgradeOffer(exclude, premOnly) { const c = Object.keys(UPG).filter(i => exclude.indexOf(i) < 0 && clsOk(i) && !(i === 'shade' && THEMES[th()].noDark && CLS[p.cls].id !== 'watch' && CLS[p.cls].id !== 'bellman') && !(i === 'wick' && p.maxHp >= 9) && !(UPG[i].max && upN(i) >= UPG[i].max) && (!premOnly || premOk(i))); return c.length ? pickOf(c.reduce((a, i) => a.concat(UPG[i].cls ? [i, i] : [i]), [])) : null; }
 function shelfIds(kind, avoid) { return room.items.filter(i => !i.taken && i.kind === kind).map(i => i.id).concat(avoid ? [avoid] : []); }
@@ -2640,17 +2640,18 @@ function damageTob(o, dmg) {
 function plant(kind, cx, cy, w, h) {
   if (tobs.length >= 6) return false;
   const x = clamp(cx - w / 2, ROOM.x + 20, ROOM.x + ROOM.w - 20 - w), y = clamp(cy - h / 2, ROOM.y + 20, ROOM.y + ROOM.h - 20 - h);
-  const o = { kind, x, y, w, h, hp: (kind === 'bud' || kind === 'ice' || kind === 'pillar' || kind === 'bubble' || kind === 'rock' || kind === 'gjar' || kind === 'crystal' || kind === 'web' || kind === 'jack' || kind === 'gift' || kind === 'egg') ? 3 : 6, maxHp: (kind === 'bud' || kind === 'ice' || kind === 'pillar' || kind === 'bubble' || kind === 'rock' || kind === 'gjar' || kind === 'crystal' || kind === 'web' || kind === 'jack' || kind === 'gift' || kind === 'egg') ? 3 : 6, t: 0, dur: 5, flash: 0 };
+  const o = { kind, x, y, w, h, hp: (THEMES[th()].plantSmall && THEMES[th()].plantSmall.indexOf(kind) >= 0 || kind === 'bud' || kind === 'ice' || kind === 'pillar' || kind === 'bubble' || kind === 'rock' || kind === 'gjar' || kind === 'crystal' || kind === 'web' || kind === 'jack' || kind === 'gift' || kind === 'egg') ? 3 : 6, maxHp: (THEMES[th()].plantSmall && THEMES[th()].plantSmall.indexOf(kind) >= 0 || kind === 'bud' || kind === 'ice' || kind === 'pillar' || kind === 'bubble' || kind === 'rock' || kind === 'gjar' || kind === 'crystal' || kind === 'web' || kind === 'jack' || kind === 'gift' || kind === 'egg') ? 3 : 6, t: 0, dur: 5, flash: 0 };
   const nx = clamp(p.x, o.x, o.x + o.w), ny = clamp(p.y, o.y, o.y + o.h);
   if (Math.hypot(p.x - nx, p.y - ny) < p.r + 26) return false;
   if (room.cons && room.cons.pts.some(q => q.x > o.x - 44 && q.x < o.x + o.w + 44 && q.y > o.y - 44 && q.y < o.y + o.h + 44)) return false; // 不擋住星點
   tobs.push(o); burst(x + w / 2, y + h / 2, 10, ['#6fae6b', '#9ac27a', '#f2a9c4'], 120);
-  if (!run.plantToast) { run.plantToast = true; toast(th() === 21 ? '彩蛋與灌木牆擋住了去路——打碎它，或等它消散（約 5 秒）' : th() === 20 ? '禮物盒與聖誕樹牆擋住了去路——打碎它，或等它消散（約 5 秒）' : th() === 19 ? '蜘蛛網與南瓜燈擋住了去路——打碎它，或等它消散（約 5 秒）；南瓜燈會發光' : th() === 18 ? '衛星與隕石在場上留下了障礙——打碎它，或等它消散（約 5 秒）' : th() === 5 ? '岩壁隆起了——打破它，或等它冷卻（約 5 秒）' : th() === 4 ? '水泡與珊瑚擋住了去路——戳破它，或等它自己散掉（約 5 秒）' : th() === 1 ? '冰擋住了去路——打破它，或等它融化（約 5 秒）' : th() === 3 ? '屏風擋住了去路——打破它，或等它散去（約 5 秒）' : '植物擋住了去路——打破它，或等它枯萎（約 5 秒）'); }
+  if (!run.plantToast) { run.plantToast = true; toast(THEMES[th()].plantToast ? THEMES[th()].plantToast : th() === 21 ? '彩蛋與灌木牆擋住了去路——打碎它，或等它消散（約 5 秒）' : th() === 20 ? '禮物盒與聖誕樹牆擋住了去路——打碎它，或等它消散（約 5 秒）' : th() === 19 ? '蜘蛛網與南瓜燈擋住了去路——打碎它，或等它消散（約 5 秒）；南瓜燈會發光' : th() === 18 ? '衛星與隕石在場上留下了障礙——打碎它，或等它消散（約 5 秒）' : th() === 5 ? '岩壁隆起了——打破它，或等它冷卻（約 5 秒）' : th() === 4 ? '水泡與珊瑚擋住了去路——戳破它，或等它自己散掉（約 5 秒）' : th() === 1 ? '冰擋住了去路——打破它，或等它融化（約 5 秒）' : th() === 3 ? '屏風擋住了去路——打破它，或等它散去（約 5 秒）' : '植物擋住了去路——打破它，或等它枯萎（約 5 秒）'); }
   return true;
 }
 function plantFor(e, dx, dy, d) {
   const ux = -dx / d, uy = -dy / d; // 從玩家指向敵人
   const ice = th() === 1, ink = th() === 3;
+  { const W9 = THEMES[th()]; if (W9.plantFor) { W9.plantFor(e, p, ux, uy, plant); return; } }
   if (th() === 21) { if (e.type === 'shooter') plant('egg', p.x + ux * 130, p.y + uy * 130, 44, 44); else { const horiz = Math.abs(ux) > Math.abs(uy); plant('hedge', p.x + ux * 150, p.y + uy * 150, horiz ? 30 : 100, horiz ? 100 : 30); } return; }
   if (th() === 20) { if (e.type === 'shooter') plant('gift', p.x + ux * 130, p.y + uy * 130, 44, 44); else { const horiz = Math.abs(ux) > Math.abs(uy); plant('xtree', p.x + ux * 150, p.y + uy * 150, horiz ? 30 : 100, horiz ? 100 : 30); } return; }
   if (th() === 19) { if (e.type === 'shooter') plant('web', p.x + ux * 130, p.y + uy * 130, 44, 44); else plant('jack', p.x + ux * 140, p.y + uy * 140, 46, 46); return; }
@@ -2715,6 +2716,7 @@ function drawTob(o) {
     const f = o.flash > 0; ctx.fillStyle = f ? C.paper : '#3a2a4a'; ctx.beginPath(); ctx.ellipse(cx, cy, 21, 25, 0, 0, TAU); ctx.fill(); ctx.fillStyle = f ? C.paper : '#f2a0c8'; ctx.beginPath(); ctx.ellipse(cx, cy, 18, 22, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#7ad0f0'; ctx.fillRect(cx - 17, cy - 6, 34, 6); ctx.fillStyle = '#ffe27a'; for (let k = -1; k <= 1; k++) circ(ctx, cx + k * 9, cy + 9, 3);
   } else if (o.kind === 'hedge') {
     const f = o.flash > 0, hz = o.w > o.h, n = hz ? 3 : 4; for (let k = 0; k < n; k++) { const t0 = (k + 0.5) / n, tx = hz ? o.x + o.w * t0 : cx, ty = hz ? cy : o.y + o.h * t0; ctx.fillStyle = f ? C.paper : '#2a6a2a'; circ(ctx, tx, ty, 19); ctx.fillStyle = f ? C.paper : '#4aa84a'; circ(ctx, tx - 2, ty - 2, 15); ctx.fillStyle = ['#ff8ac0', '#ffe27a', '#fff'][k % 3]; circ(ctx, tx + 5, ty - 5, 3.5); }
+  } else if (THEMES[th()].tobDraw && THEMES[th()].tobDraw(o, ctx, cx, cy, o.flash > 0)) {
   } else if (o.kind === 'xtree') {
     const f = o.flash > 0, hz = o.w > o.h, n = hz ? 3 : 4; for (let k = 0; k < n; k++) { const t0 = (k + 0.5) / n, tx = hz ? o.x + o.w * t0 : cx, ty = hz ? cy : o.y + o.h * t0; ctx.fillStyle = f ? C.paper : '#0f4a2a'; poly(ctx, [[tx - 17, ty + 16], [tx, ty - 22], [tx + 17, ty + 16]]); ctx.fillStyle = f ? C.paper : '#1f7a44'; poly(ctx, [[tx - 12, ty + 12], [tx, ty - 14], [tx + 12, ty + 12]]); ctx.fillStyle = '#ffe27a'; circ(ctx, tx, ty - 6, 3); }
   } else if (o.kind === 'web') {
@@ -2956,10 +2958,11 @@ const DLC = [
   { id: 'zenKarma', name: '佛寺・渡化道場（DLC3）', desc: '累積功德才能前進；敵人會被度化，擊倒的會轉世，度化的變友軍；選到才下載', theme: 14, flag: 'karma', pack: 'dlc.js', say: ['佛寺・渡化道場：每間道場要累積功德才能前往下一間。打倒敵人、度化敵人、布施路人都能得到功德；擊倒的敵人下一間會轉世，度化的會變成友軍', 4] },
   { id: 'greek', name: '希臘神話（DLC3）', desc: '超大地圖，戰鬥房與事件結合；神祇恩賜；選到才下載', theme: 16, flag: 'greek', pack: 'dlc.js', say: ['希臘神話：一整張超大地圖，市集、祭壇與各種神話事件散在各區；最後的迷宮裡有米諾陶', 3.4] },
   { id: 'love', name: '愛情（DLC4）', desc: '貼身糾纏＋配對羈絆；黏人愛心與連線雙胞胎；選到才下載', theme: 17, flag: null, pack: 'dlc.js', say: ['愛情：愛心怪會黏上你、雙胞胎成對衝來——一隻倒下，另一隻會暴怒；一起倒下有獎勵', 3.4] },
-  { id: 'season', name: '季節慶典（DLC5）', desc: '萬聖節・耶誕節・復活節三選二，每個主題兩層超大地圖；選到才下載', theme: 19, flag: 'season', pack: 'dlc2.js', pre: 'dlc.js', preTheme: 18, say: ['季節慶典：這一局從三個節日裡抽兩個，每個節日兩層超大地圖', 3.4] },
+  { id: 'season', name: '季節慶典（DLC5）', desc: '萬聖節・耶誕節・復活節三選二，每個主題兩層超大地圖；選到才下載', theme: 19, flag: 'season', themes: [19, 20, 21], pack: 'dlc2.js', pre: 'dlc.js', preTheme: 18, say: ['季節慶典：這一局從三個節日裡抽兩個，每個節日兩層超大地圖', 3.4] },
+  { id: 'fest2', name: '傳統節慶（DLC6）', desc: '春節・中秋・七夕三選二，每個主題兩層超大地圖；選到才下載', theme: 22, themes: [22, 23, 24], flag: 'fest2', pack: 'dlc3.js', pres: [['dlc.js', 18], ['dlc2.js', 21]], say: ['傳統節慶：這一局從三個節日裡抽兩個，每個節日兩層超大地圖', 3.4] },
   { id: 'cosmos', name: '星座宇宙（DLC4）', desc: '踩星點連星座、黑洞與彗星；選到才下載', theme: 18, flag: null, pack: 'dlc.js', say: ['星座宇宙：地上散著星點，依序踩過去連成星座；小心被黑洞拉走', 3.4] },
 ];
-const DLC_FLAGS = ['escort', 'endless', 'escape', 'guard', 'dl2', 'path', 'greek', 'karma', 'season'];
+const DLC_FLAGS = ['fest2', 'escort', 'endless', 'escape', 'guard', 'dl2', 'path', 'greek', 'karma', 'season'];
 const dlcOf = id => DLC.find(q => q.id === id);
 const DLC_MENU = DLC.map(q => ({ id: q.id, name: q.name, desc: q.desc })).concat([{ id: 'random', name: 'DLC 隨機', desc: '從以上全部隨機抽一種' }]);
 $('dlcList').innerHTML = DLC_MENU.map((q, i) => '<button class="btn" id="btnDlc' + i + '" type="button"></button>').join('') + '<button class="btn alt" id="btnDlc' + DLC_MENU.length + '" type="button"></button>';
@@ -3083,7 +3086,7 @@ function updateSaveUi() {
 }
 function applySave(d) {
   if (!d || d.v !== 1 || !d.p || !d.run || !CLS[d.cls]) { toast('存檔檔案不正確'); return false; }
-  { const need = (d.run.themes || []).map(t => DLC.find(q => q.theme === t && q.pack)).filter(q => q && !THEMES[q.theme]); if (need.length) { toast('載入擴充內容中……', 4); loadPackFor(need[0], ok => { if (ok) applySave(d); else toast('存檔需要 ' + need[0].pack + '，載入失敗', 4); }); return true; } }
+  { const need = (d.run.themes || []).map(t => DLC.find(q => (q.theme === t || (q.themes && q.themes.indexOf(t) >= 0)) && q.pack)).filter(q => q && !THEMES[q.themes ? q.themes[0] : q.theme]); if (need.length) { toast('載入擴充內容中……', 4); loadPackFor(need[0], ok => { if (ok) applySave(d); else toast('存檔需要 ' + need[0].pack + '，載入失敗', 4); }); return true; } }
   chosen = d.cls; audio(); newRun(); show('menu', false); show('hud', true);
   Object.assign(run, d.run); run.ended = false; run.won = false;
   Object.assign(p, d.p); Object.assign(p, { near: null, target: null, decoy: null, flowers: [], lanterns: [], dashHit: [], iframes: 2, skillCd: 2, sleepT: 0, dashT: 0, lantT: 0, frozenT: 0 });
@@ -3182,13 +3185,13 @@ function setDlc(k) {
   if (!k) { rebuildPlan(); toast('取消 DLC，回到一般模式', 1.6); return; }
   const d = dlcOf(k); if (!d) return;
   run.dlc = k; run.dlcPrev = { themes: run.themes.slice(), base: (run.themeBase || run.themes).slice(), long: run.long, pick: run.themePick }; run.long = !!d.long; run.themePick = -1;
-  run.themes = d.flag === 'dl2' ? [12, 13, 13] : d.flag === 'season' ? seasonPick() : [d.theme, d.theme, d.theme]; if (d.flag) run[d.flag] = true; if (d.flag === 'escape') run.path = true;
+  run.themes = d.flag === 'dl2' ? [12, 13, 13] : d.flag === 'season' ? seasonPick([19, 20, 21]) : d.flag === 'fest2' ? seasonPick([22, 23, 24]) : [d.theme, d.theme, d.theme]; if (d.flag) run[d.flag] = true; if (d.flag === 'fest2') run.season = true; if (d.flag === 'escape') run.path = true;
   if (d.ally && !allies.some(a => a.id === d.ally)) addAlly(d.ally, p.x - 40, p.y);
   toast(d.say[0], d.say[1]);
   run.themeBase = run.themes.slice(); rebuildPlan();
 }
-function seasonPick() { // 季節主題固定順序：萬聖節(19) → 耶誕節(20) → 復活節(21)，已載入的裡面隨機抽兩個
-  const have = [19, 20, 21].filter(t => THEMES[t]), pick = have.length >= 2 ? shuffle(have.slice()).slice(0, 2).sort((a, b) => a - b) : [have[0], have[0]];
+function seasonPick(list) { // 季節主題固定順序：萬聖節(19) → 耶誕節(20) → 復活節(21)，已載入的裡面隨機抽兩個
+  const have = (list || [19, 20, 21]).filter(t => THEMES[t]), pick = have.length >= 2 ? shuffle(have.slice()).slice(0, 2).sort((a, b) => a - b) : [have[0], have[0]];
   return [pick[0], pick[1], pick[1]];
 }
 function rebuildPlan() { if (run.layer === 0 && run.step === 0) run.plan = makeLayerPlan(0); }
@@ -3242,7 +3245,7 @@ function die() {
 function fmtT(t) { t = Math.round(t); return Math.floor(t / 60) + ':' + ('0' + (t % 60)).slice(-2); }
 function sumCards(win) {
   const c = CLS[p.cls], up = Object.keys(p.upg).reduce((a, k) => a + (p.upg[k] || 0), 0);
-  const items = [['職業', c.name], ['模式', run.season ? '季節慶典' : run.dl2 ? 'DLC2 長線' : run.guard ? '未來守燈' : run.escape ? '電玩逃離' : run.endless ? '電玩無盡' : run.escort ? '糖果護送' : run.long ? (run.ext ? '長線＋追加' : '長線作戰') : '一般'], [win ? '結果' : '倒在', win ? '通關' : '第 ' + (run.layer + 1) + ' 層・' + (KIND_NAME[room.kind] || '')], ['用時', fmtT(run.t)], ['擊敗', run.kills + ' 隻'], ['總傷害', Math.round(run.dmgOut || 0)], ['紙片', '＋' + (run.paperGiven || 0) + '（共 ' + (rec.paper || 0) + '）'], ['受傷', (run.hurtN || 0) + ' 次（−' + Math.round((run.dmgIn || 0) * 10) / 10 + '）'], ['燈芯', '＋' + (run.cIn || 0) + '／－' + (run.cOut || 0)], ['強化', up + ' 個'], ['武器', p.weapons.map(id => WDEF[id].name).join('、')]];
+  const items = [['職業', c.name], ['模式', run.fest2 ? '傳統節慶' : run.season ? '季節慶典' : run.dl2 ? 'DLC2 長線' : run.guard ? '未來守燈' : run.escape ? '電玩逃離' : run.endless ? '電玩無盡' : run.escort ? '糖果護送' : run.long ? (run.ext ? '長線＋追加' : '長線作戰') : '一般'], [win ? '結果' : '倒在', win ? '通關' : '第 ' + (run.layer + 1) + ' 層・' + (KIND_NAME[room.kind] || '')], ['用時', fmtT(run.t)], ['擊敗', run.kills + ' 隻'], ['總傷害', Math.round(run.dmgOut || 0)], ['紙片', '＋' + (run.paperGiven || 0) + '（共 ' + (rec.paper || 0) + '）'], ['受傷', (run.hurtN || 0) + ' 次（−' + Math.round((run.dmgIn || 0) * 10) / 10 + '）'], ['燈芯', '＋' + (run.cIn || 0) + '／－' + (run.cOut || 0)], ['強化', up + ' 個'], ['武器', p.weapons.map(id => WDEF[id].name).join('、')]];
   if (!win && run.deathBy) items.push(['死因', enameOf(run.deathBy)]);
   return items.map(a => '<span><small>' + a[0] + '</small><b>' + a[1] + '</b></span>').join('');
 }
@@ -6542,7 +6545,7 @@ updateHud();
 renderClasses(); applyMobile(); updateSaveUi();
 requestAnimationFrame(frame);
 /* ---------- 世界擴充介面（所有 DLC 世界放在獨立檔案 dlc.js，選到才載入） ---------- */
-function loadPackFor(q, cb) { if (q.pre && !THEMES[q.preTheme]) loadPack(q.pre, ok => { if (ok) loadPack(q.pack, cb); else cb(false); }); else loadPack(q.pack, cb); }
+function loadPackFor(q, cb) { const ch = (q.pres || (q.pre ? [[q.pre, q.preTheme]] : [])).filter(x => !THEMES[x[1]]); const step = i => { if (i >= ch.length) { loadPack(q.pack, cb); return; } loadPack(ch[i][0], ok => { if (ok) step(i + 1); else cb(false); }); }; step(0); }
 function loadPack(file, cb) {
   if (PACKS[file] === 'ok') { cb(true); return; }
   if (PACKS[file] && PACKS[file].wait) { PACKS[file].wait.push(cb); return; }
