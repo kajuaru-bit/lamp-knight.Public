@@ -146,7 +146,7 @@ function makeFest(F) {
   const info = it => {
     const N = F.fac, d = it.st === 'done' ? N[it.fk].fin : {
       pool: '每個' + N.pool.noun + ' 4 燈芯（共 3 個）：燈芯、燈油或強化；滿 3 個得燈火 +1 與精良強化。已用 ' + it.n + ' / 3',
-      work: '按 F 開始：巨大的舞獅（精英）與 4 隻小怪出現；全部打倒得一把武器與燈芯',
+      work: N.work.desc || '按 F 開始：巨大的舞獅（精英）與 4 隻小怪出現；全部打倒得一把武器與燈芯',
       nook: '按 F 獻一份供品（最多 5 份）：燈芯、燈油，偶爾驚動怪物',
       rest: '站在旁邊（150 像素內）等 6 秒，離開會倒退。結局：回血加燈芯／技能冷卻重置加強化／燈芯 +15'
     }[it.fk];
@@ -217,7 +217,7 @@ function makeFest(F) {
     use(it) { if (it.used) return; if (L.p.coins < 6) { L.toast('燈芯不夠'); L.sfx('tick'); return; } L.p.coins -= 6; it.used = true; L.healP(2); L.p.skillCd = 0; L.sfx('buy'); L.toast(EV[2].done, 2.6); },
     draw: it => xProp(it, EV[2].col, EV[2].glyph, it.used) };
   const bossAch = () => { try { const i = BK.indexOf(L.bossDef().xk); if (i >= 0) L.unlockAch(F.achIds[i]); } catch (e) { /* optional */ } };
-  const ext = {}; for (const k in F.ext) { const q = F.ext[k]; ext[k] = { hp: q.hp, r: q.r, name: q.name, cost: q.cost, cap: q.cap, ai: q.ai === 'dasher' ? dasherAi(F.fx) : q.ai === 'kamikaze' ? kamikazeAi : q.ai === 'orbiter' ? orbiterAi : q.ai === 'sniper' ? sniperAi : casterAi(q.ai === 'floater') }; }
+  const ext = {}; for (const k in F.ext) { const q = F.ext[k]; ext[k] = { hp: q.hp, r: q.r, name: q.name, cost: q.cost, cap: q.cap, ai: typeof q.ai === 'function' ? q.ai : q.ai === 'dasher' ? dasherAi(F.fx) : q.ai === 'kamikaze' ? kamikazeAi : q.ai === 'orbiter' ? orbiterAi : q.ai === 'sniper' ? sniperAi : casterAi(q.ai === 'floater') }; }
   const extKeys = Object.keys(F.ext);
   L.registerWorld({
     theme: T, name: F.name, pool: 'dlc', opt: F.name + '（DLC6）', pal: F.pal, bigMap: true, ownStory: true, noDark: true, noPaper: true, stage: F.stage,
@@ -243,6 +243,7 @@ function makeFest(F) {
   });
   F.swarmKey = BK.find(k => F.bosses[k].type === 'swarm'); F.longKey = BK.find(k => F.bosses[k].type === 'long');
 }
+L.festLib = { makeFest, spawnNear, xProp, xAdd, swarmBleed, BASEHP };
 
 /* ================= 春節（22）：全亮、廟會大街、三隻 Boss（彈幕／大群／長戰） ================= */
 const RED9 = '#d6332b', GOLD = '#ffd24a', DRED = '#7a1a18', OL = '#2a1810';
