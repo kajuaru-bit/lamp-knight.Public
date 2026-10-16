@@ -328,6 +328,10 @@ body.port .stat{font-size:13px;gap:12px;flex-wrap:wrap}
 
 /* mobile: screens scroll instead of clipping (landscape pause/menu) */
 body.mobile .screen{align-items:flex-start;overflow-y:auto}
+body.mobile .screen.center{background:#0e0b18;z-index:3;padding-block:8px}
+body.mobile .card.wide{max-width:100%}
+body.mobile .subbody{max-height:none}
+body.mobile canvas.prev.big{width:22cqw;height:22cqw}
 body.mobile .card{margin:auto 0}
 body.mobile #btnResume{position:sticky;top:0;z-index:2}
 body.mobile .pcol p.quiet:last-child{display:none}
@@ -1241,7 +1245,8 @@ const ACH_CAT_LIST = ['all', '基本', '職業', '主題', '事件'];
 function cosRows() { const cid = CLS[state === 'menu' || state === 'sub' ? chosen : p.cls].id; const clsSet = {}; CLS.forEach((c, i) => { if (clsUnlocked(i)) clsSet[i] = { name: c.name }; }); return [{ key: '__cls', name: '職業', set: clsSet }, { key: 'lamp', name: '提燈樣式', set: LAMPS }, { key: 'cape', name: '披風顏色', set: CAPES }, { key: 'head', name: '頭飾', set: slotSet('head') }, { key: 'body', name: '身衣', set: slotSet('body') }, { key: 'lampx', name: '燈飾', set: slotSet('lampx') }, { key: 'charm', name: '小飾品', set: slotSet('charm') }, { key: 'c_' + cid, name: CLS.find(c => c.id === cid).name + '・' + CLSCOS[cid].name, set: CLSCOS[cid].opts }]; }
 function clsCos(cid) { const o = CLSCOS[cid].opts, v = rec.cos['c_' + cid]; return o[v] && cosOk(o, v) ? v : Object.keys(o)[0]; }
 function cosOk(set, id) { const o = set[id]; if (o.gc) return gOwned(o); if (o.cl) return (o.alt && !!rec.ach[o.alt]) || (!o.clears || ((rec.byCls[o.cl] || {}).clears || 0) >= o.clears) && (!o.req || !!rec.ach[o.req]); return !o.req || !!rec.ach[o.req] || !!(o.own && rec.cosOwn && rec.cosOwn[o.own]); }
-function cosLockText(o) { return o.cl && o.req ? ACH_BY[o.req].name : o.cl ? '用' + CLS.find(c => c.id === o.cl).name + '通關 ' + o.clears + ' 次' : ACH_BY[o.req].name; }
+const achNm = id => (ACH_BY[id] || { name: 'DLC 成就（要先載入該 DLC）' }).name; // DLC 成就在套件還沒載入時查不到
+function cosLockText(o) { return o.cl && o.req ? achNm(o.req) : o.cl ? '用' + CLS.find(c => c.id === o.cl).name + '通關 ' + o.clears + ' 次' : achNm(o.req); }
 function lampCol() { return LAMPS[rec.cos.lamp] || LAMPS.warm; }
 function capeCol() { return (CAPES[rec.cos.cape] || CAPES.red).c; }
 try { cleared = localStorage.getItem('lampknight.cleared') === '1'; } catch (e) { cleared = false; }
@@ -1919,7 +1924,7 @@ function shopless(arr, from) {
 function makeLayerPlan(layer) {
   if (run.karma) return (layer === 0 ? ['start'] : []).concat(layer >= 1 ? ['combat', 'event', 'combat', 'combat', 'boss'] : ['combat', 'combat', 'combat', 'boss']); // 第 2 層起多一間主題事件房（供燈）
   if (run.season && THEMES[th()].bigMap) return (layer === 0 ? ['start'] : []).concat(layer >= 1 ? ['combat', 'event', 'boss'] : ['combat', 'boss']); // 季節慶典：超大地圖＋Boss（第 2 層起多一間事件房）
-  if (run.kitchen) return (layer === 0 ? ['start'] : []).concat(layer >= 1 ? ['combat', 'event', 'boss'] : ['combat', 'boss']); // 食材廚房：一般大小的戰鬥房（含大廚、市集、設施）＋事件房（上鎖的箱子）＋Boss
+  if (run.kitchen) return (layer === 0 ? ['start'] : []).concat(['combat', 'event', 'boss']); // 食材廚房：廚房（大廚＋設施）→ 第二間（戰鬥＋商人＋上鎖的箱子，門不鎖）→ Boss；兩間都是特殊房大小
   if (run.greek && layer >= 1) return ['combat', 'event', 'boss']; // 希臘第 2 層起多一間主題事件房（神殿試煉）
   if (run.guard || run.path || run.greek) return (layer === 0 ? ['start'] : []).concat(['combat', 'boss']);
   // 第 1 層：商人＋寶箱；第 2 層：商人＋事件；第 3 層：商人。第 2、3 層有 1/3 機率多 1 間特殊房，
@@ -1954,7 +1959,7 @@ function loadRoom() {
     else { const W = [['chase', 3], ['mimic', 2], ['well', 2], ['grand', 1], ['normal', 2]].concat(run.noShop ? [] : [['fake', 2]]).concat(run.layer >= 1 ? [['rush', 2]] : []); let r0 = rand() * W.reduce((a0, q) => a0 + q[1], 0); for (const q of W) { r0 -= q[1]; if (r0 <= 0) { variant = q[0]; break; } } variant = variant || 'normal'; { const xe = THEMES[th()].events; if (xe && (rand() < 0.25 || run.karma || run.greek || run.season || run.kitchen)) variant = 'x:' + pickOf(Object.keys(xe)); } }
   }
   const chase = variant === 'chase', rush = variant === 'rush';
-  const small = (th() === 17 && kind === 'combat') || (th() === 15 && kind === 'boss'); // 愛情戰鬥房、日本 Boss 房：特殊房大小
+  const small = (run.kitchen && kind === 'combat') || (th() === 17 && kind === 'combat') || (th() === 15 && kind === 'boss'); // 愛情戰鬥房、日本 Boss 房：特殊房大小
   const big = !small && (kind === 'combat' || kind === 'boss' || chase || rush), SZ = kind === 'boss' ? BOSSR : BIG;
   ROOM.w = big ? SZ.w : 820; ROOM.h = big ? SZ.h : 450; DOOR.y = ROOM.y + ROOM.h / 2;
   if (run.path && kind === 'combat') { if (port) { ROOM.w = 450; ROOM.h = PATH_LEN; DOOR.y = ROOM.y + 110; } else { ROOM.w = PATH_LEN; ROOM.h = 450; DOOR.y = ROOM.y + ROOM.h / 2; } }
@@ -3287,7 +3292,7 @@ function endRun(win) {
   const bc = rec.byCls[cl.id] = rec.byCls[cl.id] || { runs: 0, clears: 0 }; bc.runs++;
   if (win) {
     if (cleared) rollMates();
-    rec.clears++; bc.clears++; if (!rec.best || run.t < rec.best) rec.best = Math.round(run.t);
+    rec.clears++; bc.clears++; if (!(run.themes || []).some(t => t >= 9) && !DLC_FLAGS.some(f => run[f]) && (!rec.best || run.t < rec.best)) rec.best = Math.round(run.t); // 最快通關不含 DLC
     unlockAch('clear');
     if (['knight', 'hunter', 'cutter', 'mage'].every(id => (rec.byCls[id] || {}).clears > 0)) unlockAch('clearAll');
     if (p.hp === 1) unlockAch('last1');

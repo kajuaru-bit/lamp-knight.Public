@@ -247,11 +247,10 @@ const F = {
   amb: ['lowpass', 1400, 0.8, 0.004], ev: r => { const n = [330, 392, 494, 587][Math.floor(r() * 4)]; L.blip(n, n * 1.003, 0.35, 'triangle', 0.007); },
   skinMap: { crawler: 'minichef', shooter: 'pepper', brute: 'pot', bomber: 'egg', sausage: 'sausage', kettle: 'kettle', popcorn: 'popcorn', thiefrog: 'thiefrog', glutton: 'glutton', foodbit: 'foodbit' }, drawEnemy: drawKitEnemy,
   layout: R => [
-    { fk: 'chef', x: R.x + R.w / 2, y: R.y + R.h / 2 - 20 },
-    { fk: 'market', x: R.x + R.w - 340, y: R.y + 150 },
-    { fk: 'pool', x: R.x + 240, y: R.y + 190 },
-    { fk: 'work', x: R.x + 260, y: R.y + R.h - 190 },
-    { fk: 'nook', x: R.x + R.w - 260, y: R.y + R.h - 190 }
+    { fk: 'chef', x: R.x + R.w / 2, y: R.y + R.h / 2 },
+    { fk: 'pool', x: R.x + 130, y: R.y + 100 },
+    { fk: 'work', x: R.x + 130, y: R.y + R.h - 95 },
+    { fk: 'nook', x: R.x + R.w - 130, y: R.y + R.h - 95 }
   ],
   bgDraw: kitBg, zones: ['', '', '', '', '', ''], zoneCol: 'rgba(0,0,0,0)',
   obsKinds: [{ jk: 'x', w: [30, 32], h: [30, 32] }], obsDraw: () => { },
@@ -320,6 +319,18 @@ cap.events = { kchest: chest };
   cap.useItem = it => it.fk === 'chef' ? chefUse(it) : use0(it);
   cap.drawItem = it => it.fk === 'chef' ? (() => { const c = L.ctx; c.save(); c.translate(it.x, it.y); c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(0, 30, 56, 10, 0, 0, TAU); c.fill(); drawKitFac(c, it, L.time, false); c.restore(); })() : draw0(it);
 }
+// 第二間（事件房）：戰鬥＋商人＋上鎖的箱子，門不鎖
+{
+  const ri0 = cap.roomInit;
+  cap.roomInit = (room, kind) => {
+    ri0(room, kind); if (kind !== 'event' || L.th() !== 25) return;
+    const R = L.ROOM, gy = R.y + 85, cx = R.x + R.w / 2;
+    room.items.push(L.makeItem('heal', cx - 130, gy, 'shop'), L.makeItem('upgrade', cx, gy, 'shop'), L.makeItem(rand() < 0.65 ? 'weapon' : 'upgrade', cx + 130, gy, 'shop'));
+    room.refreshN = 0; room.items.push({ kind: 'refresh', id: 'refresh', slot: 'refresh', x: cx + 250, y: gy, price: 3, group: 'stall', taken: false });
+    const pool = ['crawler', 'shooter', 'sausage', 'kettle', 'thiefrog', 'glutton'];
+    room.kcPool = pool; // 敵人在進房後的第一個 tick 生成（進房流程會清空敵人列表）
+  };
+}
 // 敵人種類：新敵人加進池子
 {
   const t0 = cap.types;
@@ -365,6 +376,7 @@ cap.events = { kchest: chest };
   const tk0 = cap.tick, p = () => L.p;
   cap.tick = dt => {
     tk0(dt); const room = L.room; if (!room || L.th() !== 25 || L.state() !== 'play') return;
+    if (room.kind === 'event' && room.kcPool && !room.kcDone) { room.kcDone = true; const R = L.ROOM; for (let i = 0; i < 4; i++) { const e = L.spawnEnemy(pickOf(room.kcPool), R.x + rr(80, R.w - 80), R.y + R.h - rr(60, 130)); e.noRez = true; } }
     if (room.kf) for (let i = room.kf.length - 1; i >= 0; i--) {
       const f = room.kf[i]; f.age += dt;
       if (Math.hypot(p().x - f.x, p().y - f.y) < 36) { room.kf.splice(i, 1); bagAdd(f.id); L.burst(f.x, f.y, 6, [ING[f.id].col, '#fff'], 100, true); }
