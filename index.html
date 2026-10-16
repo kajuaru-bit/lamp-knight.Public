@@ -2205,12 +2205,13 @@ const AFF = { // 主題傾向：偏好的武器／強化（出現機率較高、
   charge: { w: ['spear', 'hammer', 'frostcane', 'pole', 'syrup', 'beatstick', 'shears', 'shakujo'], u: ['reach', 'wick'] },
   swarm: { w: ['scatter', 'fan', 'lance', 'glance', 'bloat', 'bloat3', 'lyre', 'coinx', 'broom', 'bowl', 'beads', 'lure', 'bait'], u: ['pierce', 'big'] },
   love: { w: ['linkchain', 'thorn', 'frostcane', 'syrup', 'pillow', 'bloat', 'bloat3', 'bowl', 'broom', 'oar', 'beads', 'lamplet'], u: ['wick', 'big', 'skpow'] },
+  easter: { w: ['carrotblade', 'eggcannon', 'petalbow', 'bloomshot', 'carrotspear', 'flame', 'scatter', 'lance', 'firefly', 'blade', 'frostcane'], u: ['wick', 'oil', 'skpow'] },
   xmas: { w: ['candycane', 'snowcannon', 'jinglebow', 'holly', 'icicle', 'flame', 'scatter', 'lance', 'firefly', 'blade', 'frostcane'], u: ['wick', 'oil', 'skpow'] },
   hallow: { w: ['jackstaff', 'batbow', 'scythe', 'ghostgun', 'bonespear', 'flame', 'scatter', 'lance', 'firefly', 'blade', 'dance'], u: ['wick', 'shoes', 'big'] },
   cosmos: { w: ['ringstar', 'cometblade', 'calgun', 'echobow', 'orb', 'lance', 'beam', 'bowl', 'rang'], u: ['skcd', 'skpow', 'shoes'] },
   long: { w: ['orb', 'oilgun', 'lamplet', 'lure', 'bait'], u: ['wick', 'oil', 'skcd'], heal: 1 }
 };
-function affinity() { if (th() === 14 && run.karma) return AFF.bullet; if (th() === 16) return AFF.charge; if (th() === 17) return AFF.love; if (th() === 18) return AFF.cosmos; if (th() === 19) return AFF.hallow; if (th() === 20) return AFF.xmas; if (th() === 15 || run.guard) return AFF.swarm; if (run.escape || run.endless) return AFF.long; return null; }
+function affinity() { if (th() === 14 && run.karma) return AFF.bullet; if (th() === 16) return AFF.charge; if (th() === 17) return AFF.love; if (th() === 18) return AFF.cosmos; if (th() === 19) return AFF.hallow; if (th() === 20) return AFF.xmas; if (th() === 21) return AFF.easter; if (th() === 15 || run.guard) return AFF.swarm; if (run.escape || run.endless) return AFF.long; return null; }
 function weaponOffer(exclude, exo) { const c = WLIST.filter(i => (exo ? !!WDEF[i].cls && WDEF[i].cls !== CLS[p.cls].id : !WDEF[i].cls) && !(WDEF[i].th !== undefined && run.themes.indexOf(WDEF[i].th) < 0) && !(WDEF[i].karma && !run.karma) && p.weapons.indexOf(i) < 0 && exclude.indexOf(i) < 0); return c.length ? pickOf(c.reduce((a, i) => a.concat(WDEF[i].th !== undefined ? [i, i, i] : (affinity() && affinity().w.indexOf(i) >= 0 ? [i, i] : [i])), [])) : null; }
 function upgradeOffer(exclude, premOnly) { const c = Object.keys(UPG).filter(i => exclude.indexOf(i) < 0 && clsOk(i) && !(i === 'shade' && THEMES[th()].noDark && CLS[p.cls].id !== 'watch' && CLS[p.cls].id !== 'bellman') && !(i === 'wick' && p.maxHp >= 9) && !(UPG[i].max && upN(i) >= UPG[i].max) && (!premOnly || premOk(i))); return c.length ? pickOf(c.reduce((a, i) => a.concat(UPG[i].cls ? [i, i] : [i]), [])) : null; }
 function shelfIds(kind, avoid) { return room.items.filter(i => !i.taken && i.kind === kind).map(i => i.id).concat(avoid ? [avoid] : []); }
@@ -2637,17 +2638,18 @@ function damageTob(o, dmg) {
 function plant(kind, cx, cy, w, h) {
   if (tobs.length >= 6) return false;
   const x = clamp(cx - w / 2, ROOM.x + 20, ROOM.x + ROOM.w - 20 - w), y = clamp(cy - h / 2, ROOM.y + 20, ROOM.y + ROOM.h - 20 - h);
-  const o = { kind, x, y, w, h, hp: (kind === 'bud' || kind === 'ice' || kind === 'pillar' || kind === 'bubble' || kind === 'rock' || kind === 'gjar' || kind === 'crystal' || kind === 'web' || kind === 'jack' || kind === 'gift') ? 3 : 6, maxHp: (kind === 'bud' || kind === 'ice' || kind === 'pillar' || kind === 'bubble' || kind === 'rock' || kind === 'gjar' || kind === 'crystal' || kind === 'web' || kind === 'jack' || kind === 'gift') ? 3 : 6, t: 0, dur: 5, flash: 0 };
+  const o = { kind, x, y, w, h, hp: (kind === 'bud' || kind === 'ice' || kind === 'pillar' || kind === 'bubble' || kind === 'rock' || kind === 'gjar' || kind === 'crystal' || kind === 'web' || kind === 'jack' || kind === 'gift' || kind === 'egg') ? 3 : 6, maxHp: (kind === 'bud' || kind === 'ice' || kind === 'pillar' || kind === 'bubble' || kind === 'rock' || kind === 'gjar' || kind === 'crystal' || kind === 'web' || kind === 'jack' || kind === 'gift' || kind === 'egg') ? 3 : 6, t: 0, dur: 5, flash: 0 };
   const nx = clamp(p.x, o.x, o.x + o.w), ny = clamp(p.y, o.y, o.y + o.h);
   if (Math.hypot(p.x - nx, p.y - ny) < p.r + 26) return false;
   if (room.cons && room.cons.pts.some(q => q.x > o.x - 44 && q.x < o.x + o.w + 44 && q.y > o.y - 44 && q.y < o.y + o.h + 44)) return false; // 不擋住星點
   tobs.push(o); burst(x + w / 2, y + h / 2, 10, ['#6fae6b', '#9ac27a', '#f2a9c4'], 120);
-  if (!run.plantToast) { run.plantToast = true; toast(th() === 20 ? '禮物盒與聖誕樹牆擋住了去路——打碎它，或等它消散（約 5 秒）' : th() === 19 ? '蜘蛛網與南瓜燈擋住了去路——打碎它，或等它消散（約 5 秒）；南瓜燈會發光' : th() === 18 ? '衛星與隕石在場上留下了障礙——打碎它，或等它消散（約 5 秒）' : th() === 5 ? '岩壁隆起了——打破它，或等它冷卻（約 5 秒）' : th() === 4 ? '水泡與珊瑚擋住了去路——戳破它，或等它自己散掉（約 5 秒）' : th() === 1 ? '冰擋住了去路——打破它，或等它融化（約 5 秒）' : th() === 3 ? '屏風擋住了去路——打破它，或等它散去（約 5 秒）' : '植物擋住了去路——打破它，或等它枯萎（約 5 秒）'); }
+  if (!run.plantToast) { run.plantToast = true; toast(th() === 21 ? '彩蛋與灌木牆擋住了去路——打碎它，或等它消散（約 5 秒）' : th() === 20 ? '禮物盒與聖誕樹牆擋住了去路——打碎它，或等它消散（約 5 秒）' : th() === 19 ? '蜘蛛網與南瓜燈擋住了去路——打碎它，或等它消散（約 5 秒）；南瓜燈會發光' : th() === 18 ? '衛星與隕石在場上留下了障礙——打碎它，或等它消散（約 5 秒）' : th() === 5 ? '岩壁隆起了——打破它，或等它冷卻（約 5 秒）' : th() === 4 ? '水泡與珊瑚擋住了去路——戳破它，或等它自己散掉（約 5 秒）' : th() === 1 ? '冰擋住了去路——打破它，或等它融化（約 5 秒）' : th() === 3 ? '屏風擋住了去路——打破它，或等它散去（約 5 秒）' : '植物擋住了去路——打破它，或等它枯萎（約 5 秒）'); }
   return true;
 }
 function plantFor(e, dx, dy, d) {
   const ux = -dx / d, uy = -dy / d; // 從玩家指向敵人
   const ice = th() === 1, ink = th() === 3;
+  if (th() === 21) { if (e.type === 'shooter') plant('egg', p.x + ux * 130, p.y + uy * 130, 44, 44); else { const horiz = Math.abs(ux) > Math.abs(uy); plant('hedge', p.x + ux * 150, p.y + uy * 150, horiz ? 30 : 100, horiz ? 100 : 30); } return; }
   if (th() === 20) { if (e.type === 'shooter') plant('gift', p.x + ux * 130, p.y + uy * 130, 44, 44); else { const horiz = Math.abs(ux) > Math.abs(uy); plant('xtree', p.x + ux * 150, p.y + uy * 150, horiz ? 30 : 100, horiz ? 100 : 30); } return; }
   if (th() === 19) { if (e.type === 'shooter') plant('web', p.x + ux * 130, p.y + uy * 130, 44, 44); else plant('jack', p.x + ux * 140, p.y + uy * 140, 46, 46); return; }
   if (th() === 18) { if (e.type === 'satellite') plant('crystal', p.x + ux * 130, p.y + uy * 130, 44, 44); else { const horiz = Math.abs(ux) > Math.abs(uy); plant('asteroid', p.x + ux * 150, p.y + uy * 150, horiz ? 28 : 100, horiz ? 100 : 28); } return; }
@@ -2707,6 +2709,10 @@ function drawTob(o) {
   } else if (o.kind === 'gift') {
     const f = o.flash > 0; ctx.fillStyle = f ? C.paper : '#1a3a28'; rrect(ctx, cx - 23, cy - 21, 46, 44, 5); ctx.fillStyle = f ? C.paper : '#d63a3a'; rrect(ctx, cx - 20, cy - 18, 40, 38, 4); ctx.fillStyle = '#ffe27a'; ctx.fillRect(cx - 4, cy - 18, 8, 38); ctx.fillRect(cx - 20, cy - 3, 40, 8);
     ctx.beginPath(); ctx.ellipse(cx - 8, cy - 24, 8, 5, -0.5, 0, TAU); ctx.ellipse(cx + 8, cy - 24, 8, 5, 0.5, 0, TAU); ctx.fill();
+  } else if (o.kind === 'egg') {
+    const f = o.flash > 0; ctx.fillStyle = f ? C.paper : '#3a2a4a'; ctx.beginPath(); ctx.ellipse(cx, cy, 21, 25, 0, 0, TAU); ctx.fill(); ctx.fillStyle = f ? C.paper : '#f2a0c8'; ctx.beginPath(); ctx.ellipse(cx, cy, 18, 22, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#7ad0f0'; ctx.fillRect(cx - 17, cy - 6, 34, 6); ctx.fillStyle = '#ffe27a'; for (let k = -1; k <= 1; k++) circ(ctx, cx + k * 9, cy + 9, 3);
+  } else if (o.kind === 'hedge') {
+    const f = o.flash > 0, hz = o.w > o.h, n = hz ? 3 : 4; for (let k = 0; k < n; k++) { const t0 = (k + 0.5) / n, tx = hz ? o.x + o.w * t0 : cx, ty = hz ? cy : o.y + o.h * t0; ctx.fillStyle = f ? C.paper : '#2a6a2a'; circ(ctx, tx, ty, 19); ctx.fillStyle = f ? C.paper : '#4aa84a'; circ(ctx, tx - 2, ty - 2, 15); ctx.fillStyle = ['#ff8ac0', '#ffe27a', '#fff'][k % 3]; circ(ctx, tx + 5, ty - 5, 3.5); }
   } else if (o.kind === 'xtree') {
     const f = o.flash > 0, hz = o.w > o.h, n = hz ? 3 : 4; for (let k = 0; k < n; k++) { const t0 = (k + 0.5) / n, tx = hz ? o.x + o.w * t0 : cx, ty = hz ? cy : o.y + o.h * t0; ctx.fillStyle = f ? C.paper : '#0f4a2a'; poly(ctx, [[tx - 17, ty + 16], [tx, ty - 22], [tx + 17, ty + 16]]); ctx.fillStyle = f ? C.paper : '#1f7a44'; poly(ctx, [[tx - 12, ty + 12], [tx, ty - 14], [tx + 12, ty + 12]]); ctx.fillStyle = '#ffe27a'; circ(ctx, tx, ty - 6, 3); }
   } else if (o.kind === 'web') {

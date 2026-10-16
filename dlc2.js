@@ -685,4 +685,300 @@ L.registerWorld({
   outro: () => [{ who: '聖誕老人', text: '謝謝你替我接住了那些禮物。今年，終於有人拆開它們。' }, { who: '旁白', text: '雪地上的燈一盞一盞地熄了，只剩下你的那一盞，安靜地亮到天亮。' }]
 });
 function xmBossAch() { try { const k = L.bossDef().xk; if (k === 'xmsanta') L.unlockAch('xmSanta'); else if (k === 'xmfact') L.unlockAch('xmFact'); else if (k === 'xmnut') L.unlockAch('xmNut'); } catch (e) { /* optional */ } }
+
+/* ================= 復活節（21）：全亮、超大地圖、三隻 Boss（彈幕／大群／長戰） ================= */
+const PAL21 = { ink: '#1f3a2a', floor: '#e6f2dc', floor2: '#d8eccb', wall1: '#4a9a4a', wall2: '#7acb6a', top: '#fff7e8', door: '#e86aa8' };
+const ES_SKIN = { crawler: 'chick', shooter: 'bunny', brute: 'lamb', bomber: 'egg', butterfly: 'bfly', hen: 'hen' };
+const ES_STORY = [
+  [{ who: '旁白', text: '雪化了，草地從泥土裡探出頭。風裡有花香，也有一點點巧克力的味道。' }, { who: '小兔', text: '旅人！彩蛋全被藏起來了，連蛋殼都在亂跑——幫我找回春天好嗎？' }],
+  [{ who: '旁白', text: '花開得太用力，連空氣都是粉紅色的。籃子翻倒在草叢，蛋滾得到處都是。' }, { who: '小兔', text: '最大的那顆蛋……還沒有孵出來。牠一直在等一個敲門的人。' }]
+];
+const ES_SHARDS = ['彩蛋便條：我把最漂亮的那顆藏在最顯眼的地方，結果大家都沒找到。', '彩蛋便條：小雞說，破殼的那一刻不是結束，是第一次看見天空。', '彩蛋便條：兔子洞很深，但盡頭有一盞跟你一樣的燈。', '彩蛋便條：春天不是被找到的，是被一起種出來的。'];
+const ES_ZONE = ['花田', '溪邊草地', '彩蛋工坊', '兔子洞', '彩蛋市集', '野餐山丘'];
+const PNK = '#f2a0c8', YEL = '#ffe27a', GRN2 = '#4aa84a';
+let ES = null;
+function drawEsEnemy(e) {
+  const c = L.ctx, r = e.r, f = e.flash > 0, sk = e.skin, tm = e.t, fa = Math.atan2(L.p.y - e.y, L.p.x - e.x), ol = '#2a1810', wh = f ? C.paper : null;
+  if (sk === 'chick') {
+    const sw = Math.sin(tm * 10) * 2; c.fillStyle = ol; circ(c, 0, 0, r * 1.1); c.fillStyle = wh || YEL; circ(c, 0, 0, r); c.fillStyle = '#ff9a3a'; poly(c, [[r * 0.5, -r * 0.1], [r * 1.0, r * 0.1], [r * 0.5, r * 0.3]]); c.fillRect(-r * 0.4, r * 0.9, 3, 5 + sw); c.fillRect(r * 0.2, r * 0.9, 3, 5 - sw); c.fillStyle = ol; circ(c, r * 0.2, -r * 0.3, 2.5);
+  } else if (sk === 'bunny') {
+    c.fillStyle = ol; rrect(c, -r * 0.4, -r * 2.0, r * 0.35, r * 1.3, 3); rrect(c, r * 0.05, -r * 2.0, r * 0.35, r * 1.3, 3); circ(c, 0, 0, r * 1.05);
+    c.fillStyle = wh || '#f4f0f4'; rrect(c, -r * 0.36, -r * 1.96, r * 0.27, r * 1.25, 3); rrect(c, r * 0.09, -r * 1.96, r * 0.27, r * 1.25, 3); circ(c, 0, 0, r); c.fillStyle = PNK; rrect(c, -r * 0.3, -r * 1.8, r * 0.15, r * 0.9, 2); rrect(c, r * 0.15, -r * 1.8, r * 0.15, r * 0.9, 2);
+    c.fillStyle = ol; circ(c, -r * 0.3, -r * 0.1, 2.5); circ(c, r * 0.3, -r * 0.1, 2.5); c.fillStyle = PNK; circ(c, 0, r * 0.15, 3); const g = 0.6 + 0.4 * Math.sin(tm * 6); c.fillStyle = 'rgba(255,140,200,' + g + ')'; circ(c, Math.cos(fa) * r * 1.3, Math.sin(fa) * r * 1.3, r * 0.3);
+  } else if (sk === 'lamb') {
+    c.fillStyle = ol; for (let k = 0; k < 6; k++) circ(c, Math.cos(k) * r * 0.8, Math.sin(k) * r * 0.8, r * 0.55); circ(c, 0, 0, r * 0.9);
+    c.fillStyle = wh || '#fbf4ea'; for (let k = 0; k < 6; k++) circ(c, Math.cos(k) * r * 0.8, Math.sin(k) * r * 0.8, r * 0.5); circ(c, 0, 0, r * 0.85); c.fillStyle = wh || '#6a5a52'; circ(c, Math.cos(fa) * r * 0.6, Math.sin(fa) * r * 0.6, r * 0.45); c.fillStyle = '#fff'; circ(c, Math.cos(fa) * r * 0.7 - 3, Math.sin(fa) * r * 0.7 - 3, 2); circ(c, Math.cos(fa) * r * 0.7 + 4, Math.sin(fa) * r * 0.7 - 3, 2);
+  } else if (sk === 'egg') {
+    c.fillStyle = ol; c.beginPath(); c.ellipse(0, 2, r * 0.95, r * 1.15, 0, 0, TAU); c.fill(); c.fillStyle = wh || PNK; c.beginPath(); c.ellipse(0, 2, r * 0.85, r * 1.05, 0, 0, TAU); c.fill(); c.fillStyle = '#7ad0f0'; c.fillRect(-r * 0.8, -r * 0.1, r * 1.6, r * 0.28); c.fillStyle = YEL; for (let k = -1; k <= 1; k++) circ(c, k * r * 0.4, r * 0.6, 2.5);
+  } else if (sk === 'bfly') {
+    const fl = Math.sin(tm * 14) * 0.5 + 0.5; c.fillStyle = ol; c.beginPath(); c.ellipse(-r * 0.8, 0, r * 0.9, r * (0.5 + 0.5 * fl), -0.3, 0, TAU); c.ellipse(r * 0.8, 0, r * 0.9, r * (0.5 + 0.5 * fl), 0.3, 0, TAU); c.fill();
+    c.fillStyle = wh || '#c88aff'; c.beginPath(); c.ellipse(-r * 0.8, 0, r * 0.8, r * (0.42 + 0.5 * fl), -0.3, 0, TAU); c.ellipse(r * 0.8, 0, r * 0.8, r * (0.42 + 0.5 * fl), 0.3, 0, TAU); c.fill(); c.fillStyle = '#fff'; circ(c, -r * 0.8, -2, 3); circ(c, r * 0.8, -2, 3); c.fillStyle = ol; rrect(c, -3, -r * 0.8, 6, r * 1.6, 3);
+    if (e.tele > 0) { c.fillStyle = 'rgba(255,90,160,.55)'; circ(c, Math.cos(fa) * r * 1.3, Math.sin(fa) * r * 1.3, r * 0.4); }
+  } else { // hen
+    const a = e.ra || fa; if (e.tele > 0) { c.save(); c.globalAlpha = 0.5; c.strokeStyle = '#ff6a3a'; c.lineWidth = 4; c.beginPath(); c.moveTo(0, 0); c.lineTo(Math.cos(a) * 260, Math.sin(a) * 260); c.stroke(); c.restore(); }
+    c.fillStyle = ol; c.beginPath(); c.ellipse(0, 2, r * 1.2, r * 1.0, 0, 0, TAU); c.fill(); c.fillStyle = wh || '#fff4e0'; c.beginPath(); c.ellipse(0, 2, r * 1.1, r * 0.9, 0, 0, TAU); c.fill(); c.fillStyle = '#e03a3a'; circ(c, -r * 0.2, -r * 0.95, r * 0.28); circ(c, r * 0.1, -r * 1.0, r * 0.25); c.fillStyle = '#ff9a3a'; poly(c, [[r * 0.6, -r * 0.2], [r * 1.2, 0], [r * 0.6, r * 0.2]]); c.fillStyle = ol; circ(c, r * 0.35, -r * 0.3, 2.5);
+  }
+}
+function henAi(e, dt, nx, ny, d) {
+  e.st = (e.st === undefined ? rr(1, 2) : e.st) - dt; if (!e.state || e.state === 'spawn') e.state = 'walk';
+  let mx = 0, my = 0, touch = 1;
+  if (e.state === 'walk') { mx = nx * 46 * e.spd; my = ny * 46 * e.spd; if (e.st <= 0) { e.state = 'wind'; e.st = 0.75; e.ra = Math.atan2(L.p.y - e.y, L.p.x - e.x); } }
+  else if (e.state === 'wind') { e.tele = e.st; e.ra = Math.atan2(L.p.y - e.y, L.p.x - e.x); if (e.st <= 0) { e.state = 'dash'; e.st = 0.8; e.tele = 0; } }
+  else if (e.state === 'dash') { mx = Math.cos(e.ra) * 430 * e.spd; my = Math.sin(e.ra) * 430 * e.spd; touch = 2; if (e.st <= 0) { e.state = 'rest'; e.st = 1.1; L.burst(e.x, e.y, 8, ['#fff4e0', YEL], 140, true); } }
+  else if (e.st <= 0) { e.state = 'walk'; e.st = rr(1.6, 2.6); }
+  return { mx, my, touch };
+}
+function bflyAi(e, dt, nx, ny, d) {
+  e.cd = (e.cd === undefined ? rr(1.4, 2.4) : e.cd) - dt; e.w = (e.w || rand() * TAU) + dt * 2.2;
+  if (e.tele > 0) { e.tele -= dt; if (e.tele <= 0) { const a = Math.atan2(L.p.y - e.y, L.p.x - e.x); for (let i = -1; i <= 1; i++) L.enemyShot(e, a + i * 0.3, 180); e.cd = rr(2.2, 3.0) * e.fire; } return { mx: 0, my: 0, touch: 1 }; }
+  if (e.cd <= 0 && d < 540) e.tele = 0.45;
+  const k = d > 260 ? 1 : d < 160 ? -0.8 : 0; return { mx: (nx * k + Math.cos(e.w) * 0.9) * 70 * e.spd, my: (ny * k + Math.sin(e.w) * 0.9) * 70 * e.spd, touch: 1 };
+}
+function esMake(R) {
+  const zw = R.w / 3, zh = R.h / 2, zc = z => ({ x: R.x + (z % 3 + 0.5) * zw, y: R.y + (Math.floor(z / 3) + 0.5) * zh });
+  const zs = L.shuffle([0, 2, 3]), a = zc(zs[0]), b = zc(zs[1]), cc = zc(zs[2]), mid = zc(4), top = zc(1);
+  ES = { R: { x: R.x, y: R.y, w: R.w, h: R.h }, live: false, slots: [{ fk: 'market', x: R.x + R.w - 340, y: R.y + 170 }, { fk: 'basket', x: mid.x, y: mid.y + 20 }, { fk: 'paint', x: a.x + rr(-90, 90), y: a.y + rr(-60, 60) }, { fk: 'burrow', x: b.x + rr(-90, 90), y: b.y + rr(-60, 60) }, { fk: 'garden', x: top.x + rr(-120, 120), y: top.y + rr(-60, 60) }] };
+  return ES;
+}
+function esObs(kind, R, D) {
+  if (kind === 'boss') {
+    return [[R.x + 110, R.y + 80], [R.x + R.w - 150, R.y + 80], [R.x + 110, R.y + R.h - 130], [R.x + R.w - 150, R.y + R.h - 130]].map(q => ({ x: q[0], y: q[1], w: 44, h: 44, jk: 'bush' }))
+      .concat([{ x: R.x + R.w * 0.38, y: R.y + R.h / 2 - 150, w: 36, h: 44, jk: 'egg' }, { x: R.x + R.w * 0.38, y: R.y + R.h / 2 + 110, w: 36, h: 44, jk: 'egg' }, { x: R.x + R.w * 0.62, y: R.y + R.h / 2 - 40, w: 36, h: 44, jk: 'egg' }]);
+  }
+  esMake(R); const sl = ES.slots;
+  const keep = sl.map(s => s.fk === 'market' ? { x: s.x - 230, y: s.y - 100, w: 520, h: 220 } : s.fk === 'basket' ? { x: s.x - 200, y: s.y - 160, w: 400, h: 320 } : { x: s.x - 150, y: s.y - 140, w: 300, h: 280 });
+  keep.push({ x: R.x, y: D.y - 100, w: 170, h: 200 }, { x: R.x + R.w - 170, y: D.y - 100, w: 170, h: 200 });
+  const obs = [], total = 38, ks = ['bush', 'bush', 'bush', 'egg', 'egg', 'rock'];
+  for (let t = 0; t < 1200 && obs.length < total; t++) {
+    const jk = pickOf(ks), w = jk === 'bush' ? rr(44, 58) : jk === 'rock' ? rr(36, 50) : 36, h = jk === 'bush' ? rr(40, 52) : jk === 'rock' ? rr(34, 44) : 44;
+    const o = { x: rr(R.x + 90, R.x + R.w - 90 - w), y: rr(R.y + 50, R.y + R.h - 50 - h), w, h, jk };
+    if (keep.some(k => L.overlap(k, o)) || obs.some(q => L.overlap(L.inflate(q, 80), o))) continue;
+    obs.push(o);
+  }
+  return obs;
+}
+function esObsDraw(g, o) {
+  const cx = o.x + o.w / 2, cy = o.y + o.h / 2;
+  if (o.jk === 'bush') {
+    g.fillStyle = '#245a24'; circ(g, cx - o.w * 0.22, cy + 2, o.h * 0.55); circ(g, cx + o.w * 0.22, cy + 2, o.h * 0.55); circ(g, cx, cy - o.h * 0.15, o.h * 0.6); g.fillStyle = GRN2; circ(g, cx - o.w * 0.22, cy, o.h * 0.48); circ(g, cx + o.w * 0.22, cy, o.h * 0.48); circ(g, cx, cy - o.h * 0.18, o.h * 0.52);
+    g.fillStyle = '#ff8ac0'; circ(g, cx - 8, cy - 6, 3.5); g.fillStyle = YEL; circ(g, cx + 9, cy - 2, 3.5); g.fillStyle = '#fff'; circ(g, cx + 1, cy + 8, 3.5);
+  } else if (o.jk === 'egg') {
+    g.fillStyle = '#3a2a4a'; g.beginPath(); g.ellipse(cx, cy, o.w / 2 + 2, o.h / 2 + 2, 0, 0, TAU); g.fill(); g.fillStyle = PNK; g.beginPath(); g.ellipse(cx, cy, o.w / 2, o.h / 2, 0, 0, TAU); g.fill(); g.fillStyle = '#7ad0f0'; g.fillRect(cx - o.w / 2 + 2, cy - 5, o.w - 4, 6); g.fillStyle = YEL; for (let k = -1; k <= 1; k++) circ(g, cx + k * 8, cy + 10, 2.5);
+  } else {
+    g.fillStyle = '#5a6a5a'; rrect(g, o.x - 2, o.y - 2, o.w + 4, o.h + 4, 9); g.fillStyle = '#b8c8b0'; rrect(g, o.x, o.y, o.w, o.h, 8); g.fillStyle = '#7ab070'; circ(g, o.x + 8, o.y + o.h - 5, 7); circ(g, o.x + o.w - 10, o.y + o.h - 4, 6);
+  }
+}
+function esBg(g, rm, rng, arR) {
+  const R = L.ROOM; const cols = ['#ff9ac8', '#ffe27a', '#ffffff', '#c8a0ff', '#8ad0ff'];
+  for (let i = 0; i < Math.round(120 * arR); i++) { const x = R.x + rng() * R.w, y = R.y + rng() * R.h; g.fillStyle = '#5aa84a'; g.fillRect(x, y, 2, 7); g.fillStyle = cols[Math.floor(rng() * cols.length)]; circ(g, x + 1, y - 1, 2.5 + rng() * 1.5); }
+  for (let k = 0; k < Math.round(8 * arR); k++) { const x = R.x + rng() * R.w, y = R.y + rng() * R.h, gr = g.createRadialGradient(x, y, 0, x, y, 220); gr.addColorStop(0, 'rgba(255,200,230,.28)'); gr.addColorStop(1, 'rgba(255,200,230,0)'); g.fillStyle = gr; g.fillRect(x - 220, y - 220, 440, 440); }
+  if (rm.kind === 'combat' && R.w > 2000) { g.font = '700 34px sans-serif'; g.textAlign = 'center'; g.fillStyle = 'rgba(80,130,70,.16)'; for (let z = 0; z < 6; z++) g.fillText(ES_ZONE[z], R.x + (z % 3 + 0.5) * R.w / 3, R.y + (Math.floor(z / 3) + 0.5) * R.h / 2 - 110); }
+}
+function esInit(room, kind) {
+  const r = L.run; if (L.th() !== 21) return;
+  if (kind !== 'combat') { ES = kind === 'boss' ? ES : null; if (ES) ES.live = false; }
+  { const sd = r.esSaid = r.esSaid || {}; if (kind !== 'start' && !sd[r.layer]) { sd[r.layer] = 1; const T0 = ES_STORY[r.layer & 1]; L.later(2.0, () => { if (L.room === room && L.state() === 'play') L.say(T0); }); } }
+  if (kind !== 'combat' || !ES) return;
+  ES.live = true; room.refreshN = 0;
+  for (const s of ES.slots) {
+    if (s.fk === 'market') {
+      room.items.push(L.makeItem('heal', s.x - 130, s.y, 'shop'), L.makeItem('upgrade', s.x, s.y, 'shop'), L.makeItem(rand() < 0.65 ? 'weapon' : 'upgrade', s.x + 130, s.y, 'shop'));
+      room.items.push({ kind: 'refresh', id: 'refresh', slot: 'refresh', x: s.x + 250, y: s.y, price: 3, group: 'stall', taken: false });
+    } else room.items.push({ kind: 'tfac', id: 'tfac', fk: s.fk, x: s.x, y: s.y, group: 'prop', price: 0, taken: false, st: 'ready', t: 0, n: 0 });
+  }
+}
+const ES_NAME = { basket: '彩蛋籃', paint: '彩繪工坊', burrow: '兔子洞', garden: '春日花園' };
+function esDone(it, msg) { it.st = 'done'; const r = L.run; r.esFac = r.esFac || {}; r.esFac[it.fk] = 1; if (r.esFac.basket && r.esFac.paint) L.unlockAch('ezFac'); if (msg) L.toast(msg, 3); L.hintReset(); }
+function esUse(it) {
+  const p = L.p;
+  if (it.st === 'done') { L.toast('這裡已經結束了', 1.4); return; }
+  if (it.st === 'busy') { L.toast('進行中……', 1.2); return; }
+  if (it.fk === 'garden') { L.toast('站在花園裡等 6 秒，花就會開', 1.6); return; }
+  if (it.fk === 'basket') {
+    if (p.coins < 4) { L.toast('燈芯不夠（每顆蛋 4 燈芯）', 1.6); L.sfx('tick'); return; } p.coins -= 4; it.n++; L.sfx('buy'); L.burst(it.x, it.y - 20, 14, [PNK, YEL, '#7ad0f0'], 150, true); const x = rand();
+    if (it.n >= 3) { L.healP(1); const u = L.premUpgrade(); esDone(it, '籃子裡的蛋全孵開了：燈火 +1、精良強化「' + L.UPGN(u) + '」'); return; }
+    if (x < 0.4) { p.coins += 8; L.toast('蛋裡滾出了燈芯 +8', 2); } else if (x < 0.75) { L.pickups.push({ kind: 'oil', x: it.x + 30, y: it.y + 40, t: 0 }); L.toast('蛋裡有一小瓶燈油', 2); } else { const u = L.rewardUpgrade(); L.toast('蛋殼發光了：強化「' + L.UPGN(u) + '」', 2.6); }
+    L.hintReset();
+  } else if (it.fk === 'paint') {
+    const big = L.spawnEnemy('brute', it.x, it.y - 100); big.sleep = false; big.noRez = true; big.hp = big.maxHp = Math.round(big.maxHp * 2.6); big.r = Math.round(big.r * 1.3);
+    it.mobs = [big].concat(hwSpawn(4, it, ['crawler', 'crawler', 'shooter'])); it.st = 'busy'; L.burst(it.x, it.y, 22, [PNK, YEL, '#7ad0f0'], 200, true); L.sfx('kill'); L.toast('顏料桶翻倒了——巨大的彩繪羊跑出來！', 2.8); L.hintReset();
+  } else if (it.fk === 'burrow') {
+    it.n++; L.sfx('hit'); L.burst(it.x, it.y - 10, 12, ['#8a6a4a', '#fff'], 150, true); const x = rand();
+    if (x < 0.45) { L.dropCoins(it.x, it.y + 30, 3 + Math.floor(rand() * 3)); L.toast('洞裡滾出了彩蛋：燈芯', 1.4); }
+    else if (x < 0.65) { L.pickups.push({ kind: 'oil', x: it.x + 30, y: it.y + 30, t: 0 }); L.toast('洞裡有一小瓶燈油', 1.4); }
+    else if (x < 0.82) { hwSpawn(2, it, ['hen', 'butterfly']); L.toast('洞裡跳出了東西！', 1.6); }
+    else L.toast('洞裡只有一根胡蘿蔔……', 1.2);
+    if (it.n >= 5) esDone(it, '兔子洞掏空了');
+    L.hintReset();
+  }
+}
+function esTick(dt) {
+  const room = L.room, p = L.p; if (!room || L.state() !== 'play' || !ES || !ES.live || room.kind !== 'combat') return;
+  for (const it of room.items) {
+    if (it.kind === 'tfac' && it.fk === 'garden' && it.st === 'ready') {
+      if (Math.hypot(p.x - it.x, p.y - it.y) < 150) it.t += dt; else it.t = Math.max(0, it.t - dt * 2);
+      if (it.t >= 6) { esDone(it, ''); const r = L.rand(); L.sfx('clear'); if (r < 0.4) { L.healP(1); p.coins += 8; L.toast('花開了：燈火 +1、燈芯 +8', 2.8); } else if (r < 0.8) { p.skillCd = 0; const u = L.rewardUpgrade(); L.toast('春風吹過：技能冷卻重置、強化「' + L.UPGN(u) + '」', 3); } else { p.coins += 15; L.toast('花叢下藏著彩蛋：燈芯 +15', 2.4); } L.hintReset(); }
+      continue;
+    }
+    if (it.kind !== 'tfac' || it.st !== 'busy' || !it.mobs) continue;
+    if (it.mobs.every(e => e.dead)) { const w = L.makeItem('weapon', it.x, it.y + 60, 'prop'); room.items.push(w); L.dropCoins(it.x, it.y + 20, 10); L.sfx('clear'); esDone(it, '顏料乾了：工坊裡留下一把武器'); }
+  }
+}
+function esInfo(it) {
+  const d = { basket: it.st === 'done' ? '彩蛋已全部孵開' : '每顆蛋 4 燈芯（共 3 顆）：燈芯、燈油或強化；孵滿 3 顆得燈火 +1 與精良強化。已孵 ' + it.n + ' / 3', paint: it.st === 'done' ? '工坊已安靜' : '按 F 打翻顏料：巨大的彩繪羊與 4 隻小怪出現；全部打倒得一把武器與燈芯', burrow: it.st === 'done' ? '兔子洞已掏空' : '按 F 往洞裡伸手（最多 5 次）：燈芯、燈油，偶爾跑出怪', garden: it.st === 'done' ? '花已經開了' : '站在花園旁（150 像素內）等 6 秒，離開會倒退。結局：回血加燈芯／技能冷卻重置加強化／燈芯 +15' };
+  return { name: ES_NAME[it.fk] + (it.st === 'done' ? '（已結束）' : ''), desc: d[it.fk] || '' };
+}
+const esHint = it => (it.st === 'ready' ? (it.fk === 'garden' ? '站進花園（' + Math.floor(Math.min(6, it.t)) + ' / 6）' : it.fk === 'basket' ? 'F 孵蛋（4 燈芯，' + it.n + ' / 3）' : it.fk === 'paint' ? 'F 打翻顏料' : 'F 伸手進洞（' + it.n + ' / 5）') : '');
+function esDraw(it) {
+  const c = L.ctx, tm = L.time, done = it.st === 'done'; c.save(); c.translate(it.x, it.y); if (done) c.globalAlpha = 0.55;
+  c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(0, 26, 44, 10, 0, 0, TAU); c.fill();
+  if (it.fk === 'basket') {
+    c.fillStyle = '#8a5a2a'; c.beginPath(); c.ellipse(0, 12, 46, 22, 0, 0, TAU); c.fill(); c.fillStyle = '#a8743a'; c.beginPath(); c.ellipse(0, 8, 42, 18, 0, 0, TAU); c.fill(); const cols = [PNK, YEL, '#7ad0f0'];
+    for (let k = 0; k < 3; k++) { const open = done || k < it.n; c.fillStyle = cols[k]; c.beginPath(); c.ellipse(-22 + k * 22, -6 - (open ? 8 : 0), 11, 14, 0, 0, TAU); c.fill(); if (open) { c.fillStyle = '#fff'; star4(c, -22 + k * 22, -34 + Math.sin(tm * 4) * 2, 6, tm); } }
+  } else if (it.fk === 'paint') {
+    c.fillStyle = '#7a4a2a'; rrect(c, -34, -10, 68, 36, 4); for (let k = 0; k < 3; k++) { c.fillStyle = [PNK, YEL, '#7ad0f0'][k]; rrect(c, -30 + k * 22, -22, 16, 16, 3); } c.fillStyle = '#fff'; c.beginPath(); c.ellipse(0, -40, 14, 18, 0, 0, TAU); c.fill(); c.fillStyle = PNK; c.fillRect(-14, -44, 28, 6);
+  } else if (it.fk === 'burrow') {
+    c.fillStyle = '#5aa84a'; c.beginPath(); c.ellipse(0, 6, 54, 30, 0, Math.PI, TAU); c.fill(); c.fillStyle = '#2a1a10'; c.beginPath(); c.ellipse(0, 12, 30, 20, 0, 0, TAU); c.fill(); c.fillStyle = '#ff9a3a'; poly(c, [[34, 4], [46, -16], [52, 6]]); c.fillStyle = '#4aa84a'; c.fillRect(42, -24, 3, 10); c.fillRect(47, -22, 3, 8);
+  } else {
+    for (let k = 0; k < 7; k++) { const x = -42 + k * 14, y = 8 + Math.sin(k * 2) * 8; c.fillStyle = '#4aa84a'; c.fillRect(x, y, 3, 22); c.fillStyle = [PNK, YEL, '#fff', '#c8a0ff'][k % 4]; const bl = done || it.t > 2 ? 9 : 5; circ(c, x + 1, y - 2 + Math.sin(tm * 3 + k) * 1.5, bl); }
+  }
+  c.restore();
+}
+function esBack() {
+  const room = L.room, c = L.ctx, tm = L.time; if (!room) return;
+  if (room.kind === 'boss') {
+    const w = L.enemies.find(q => q.type === 'boss' && !q.dead && q.xk === 'xeegg');
+    if (w && w.tl && w.tl.act === 'charge') { const p = L.p; c.save(); c.strokeStyle = 'rgba(255,90,160,' + (0.35 + 0.3 * Math.sin(tm * 16)) + ')'; c.lineWidth = 8; c.setLineDash([14, 10]); c.beginPath(); c.moveTo(w.x, w.y); c.lineTo(p.x, p.y); c.stroke(); c.restore(); }
+    return;
+  }
+  if (!ES || !ES.live || room.kind !== 'combat') return;
+  for (const s of ES.slots) if (s.fk === 'market') {
+    c.save(); c.translate(s.x, s.y - 52); c.fillStyle = '#5a3a1a'; c.fillRect(-250, -6, 500, 8); for (let i = 0; i < 10; i++) { c.fillStyle = [PNK, YEL, '#7ad0f0', '#c8a0ff'][i % 4]; c.beginPath(); c.moveTo(-250 + i * 50, 2); c.lineTo(-200 + i * 50, 2); c.lineTo(-225 + i * 50, 24); c.fill(); }
+    c.fillStyle = '#a02a6a'; c.font = '700 15px sans-serif'; c.textAlign = 'center'; c.fillText('彩蛋市集', 0, -14); c.restore();
+  }
+}
+const ES_BOSS = { xebunny: { name: '彩蛋兔', hp: 285 }, xehen: { name: '雞媽媽', hp: 255 }, xeegg: { name: '巨型彩蛋', hp: 360 } };
+function esBossDef(fin) {
+  const r = L.run, t = L.th(); r.hwOrd = r.hwOrd || {}; const ord = r.hwOrd[t] = r.hwOrd[t] || L.shuffle(['xebunny', 'xehen', 'xeegg']);
+  const same = r.themes[0] === r.themes[1], k = ord[same ? r.layer % 3 : (r.layer & 1)], B = ES_BOSS[k]; return { kind: 'golem', name: B.name, hp: Math.round(B.hp * (fin ? 1.3 : 1)), ext: true, xk: k };
+}
+function esHit(e, dmg) {
+  if (e.type !== 'boss') return dmg;
+  if (e.xk === 'xehen') { const n = L.enemies.filter(q => !q.dead && q.type !== 'boss' && q.skin === 'chick' && q.spawn <= 0).length; if (n >= 4) { if (L.time - (e.armTip || -99) > 8) { e.armTip = L.time; L.toast('小雞們圍著媽媽——先清掉小雞，Boss 才會吃傷害', 2.2); } return dmg * 0.3; } }
+  if (e.xk === 'xeegg') { if (e.open && L.time < e.open) return dmg * 2; return dmg * 0.55; }
+  return dmg;
+}
+function esMoves(e, phase, ang) {
+  const p = L.p, aim = () => Math.atan2(p.y - e.y, p.x - e.x), alive = L.enemies.filter(q => !q.dead && q.type !== 'boss').length;
+  const pools = {
+    xebunny: phase === 1 ? ['eggs', 'ring', 'carrot'] : phase === 2 ? ['eggs', 'ring', 'carrot', 'hop'] : ['eggs', 'carrot', 'hop', 'petal', 'ring'],
+    xehen: phase === 1 ? ['hatch', 'peck'] : phase === 2 ? ['hatch', 'cluck', 'peck'] : ['hatch', 'cluck', 'flock', 'peck'],
+    xeegg: phase === 1 ? ['roll', 'chicks'] : phase === 2 ? ['roll', 'chicks', 'shards'] : ['roll', 'chicks', 'shards', 'quake']
+  };
+  const a = pickOf(pools[e.xk] || pools.xebunny), R = L.ROOM;
+  const mk = (n, ty) => { if (alive < 11) for (let i = 0; i < n; i++) { const sp = L.freeSpot(13), m = L.spawnEnemy(ty || 'crawler', sp.x, sp.y); m.sleep = false; m.noRez = true; m.spawn = 0.8; } };
+  if (a === 'eggs') { for (let w = 0; w < 3; w++) L.later(w * 0.45, () => { if (e.dead || L.state() !== 'play') return; const aa = aim(); for (let i = -2; i <= 2; i++) L.bossShot(e, e.x, e.y, aa + i * 0.22, 180, false, 9); L.sfx('hit'); }); L.toast('彩蛋扇！', 1.1); }
+  else if (a === 'ring') { const n = 14, off = rand() * TAU; for (let i = 0; i < n; i++) L.bossShot(e, e.x, e.y, off + i / n * TAU, 135, false, 8); L.later(0.8, () => { if (e.dead) return; for (let i = 0; i < n; i++) L.bossShot(e, e.x, e.y, off + (i + 0.5) / n * TAU, 160, false, 8); }); L.toast('花圈！', 1.2); }
+  else if (a === 'carrot') { const off = rand() * TAU; for (let i = 0; i < 30; i++) L.later(i * 0.09, () => { if (e.dead || L.state() !== 'play') return; L.bossShot(e, e.x, e.y, off + i * 0.42, 185, false, 7); }); L.toast('胡蘿蔔旋風！', 1.2); }
+  else if (a === 'hop') { L.toast('大跳躍——看缺口！', 1.8); const gap = R.y + 80 + rand() * (R.h - 160); for (let i = 0; i < 16; i++) { const yy = R.y + 20 + i * ((R.h - 40) / 15); if (Math.abs(yy - gap) < 70) continue; L.later(0.5, () => { if (e.dead || L.state() !== 'play') return; L.bossShot(e, R.x + 10, yy, 0, 240, false, 8); }); } }
+  else if (a === 'petal') { L.toast('花瓣雨！', 1.2); for (let i = 0; i < 14; i++) L.later(i * 0.16, () => { if (e.dead || L.state() !== 'play') return; L.bossShot(e, R.x + rand() * R.w, R.y + 10, Math.PI / 2 + (rand() - 0.5) * 0.3, 200, false, 8); }); }
+  else if (a === 'hatch') { mk(phase === 3 ? 5 : 4); L.toast('蛋孵開了！小雞列隊！', 1.4); }
+  else if (a === 'cluck') { L.toast('咕咕叫——小雞衝鋒！', 1.8); for (const q of L.enemies) if (!q.dead && q.type !== 'boss' && !q.rally) { q.rally = true; q.spd *= 1.5; L.later(3.2, () => { q.spd /= 1.5; q.rally = false; }); } }
+  else if (a === 'flock') { if (alive < 14) for (let i = 0; i < 8; i++) { const sp = L.freeSpot(13), m = L.spawnEnemy('crawler', sp.x, sp.y); m.sleep = false; m.noRez = true; m.spawn = 0.8; } L.toast('整窩出動！', 1.6); }
+  else if (a === 'peck') { for (let w = 0; w < 2; w++) L.later(w * 0.5, () => { if (e.dead || L.state() !== 'play') return; const aa = aim(); for (let i = -2; i <= 2; i++) L.bossShot(e, e.x, e.y, aa + i * 0.2, 205, false, 7); }); L.toast('啄米彈！', 1.1); }
+  else if (a === 'roll') { e.tl = { t: 0.9, act: 'charge', ang: aim() }; e.open = L.time + 4.2; e.openOff = false; L.toast('彩蛋滾動——撞完後蛋殼裂開 3 秒是弱點，傷害 ×2！', 2.6); }
+  else if (a === 'chicks') { mk(3); L.toast('小雞破殼！', 1.4); }
+  else if (a === 'shards') { for (let w = 0; w < 2; w++) L.later(w * 0.6, () => { if (e.dead || L.state() !== 'play') return; const n = 16, off = rand() * TAU; for (let i = 0; i < n; i++) L.bossShot(e, e.x, e.y, off + i / n * TAU, 150, false, 8); }); L.toast('蛋殼碎片！', 1.2); }
+  else { L.toast('巨蛋重壓！', 1.4); e.open = L.time + 3.4; e.openOff = false; for (let k = 0; k < 7; k++) { const aa = k / 7 * TAU, d = 130 + (k % 2) * 90; L.markStrike(e, e.x + Math.cos(aa) * d, e.y + Math.sin(aa) * d, 56, 1.1, {}); } }
+}
+function drawEsBoss(e) {
+  const c = L.ctx, fl = e.flash > 0, t = e.t, b = Math.sin(t * 2) * 4, ol = '#2a1810', W = '#f4f0f4';
+  if (e.xk === 'xebunny') {
+    c.fillStyle = 'rgba(242,160,200,.16)'; circ(c, 0, b, 105); c.fillStyle = ol; rrect(c, -36, -118 + b, 26, 74, 12); rrect(c, 10, -118 + b, 26, 74, 12); circ(c, 0, 20 + b, 66); c.fillStyle = fl ? C.paper : W; rrect(c, -33, -114 + b, 20, 68, 10); rrect(c, 13, -114 + b, 20, 68, 10); circ(c, 0, 20 + b, 61);
+    c.fillStyle = PNK; rrect(c, -29, -104 + b, 12, 48, 6); rrect(c, 17, -104 + b, 12, 48, 6); c.fillStyle = ol; circ(c, -20, 8 + b, 5); circ(c, 20, 8 + b, 5); c.fillStyle = PNK; circ(c, 0, 22 + b, 6); c.strokeStyle = ol; c.lineWidth = 3; c.beginPath(); c.arc(-9, 30 + b, 9, 0.1, Math.PI - 0.1); c.arc(9, 30 + b, 9, 0.1, Math.PI - 0.1); c.stroke();
+    c.fillStyle = '#7ad0f0'; c.beginPath(); c.ellipse(0, 70 + b, 24, 18, 0, 0, TAU); c.fill(); c.fillStyle = YEL; c.fillRect(-22, 66 + b, 44, 5);
+  } else if (e.xk === 'xehen') {
+    const n = L.enemies.filter(q => !q.dead && q.type !== 'boss' && q.skin === 'chick' && q.spawn <= 0).length;
+    if (n >= 4) { c.strokeStyle = 'rgba(255,230,120,' + (0.55 + 0.2 * Math.sin(t * 8)) + ')'; c.lineWidth = 6; c.beginPath(); c.arc(0, b, 92, 0, TAU); c.stroke(); }
+    c.fillStyle = ol; c.beginPath(); c.ellipse(0, 20 + b, 78, 66, 0, 0, TAU); c.fill(); circ(c, 28, -40 + b, 36); c.fillStyle = fl ? C.paper : '#fff4e0'; c.beginPath(); c.ellipse(0, 20 + b, 73, 61, 0, 0, TAU); c.fill(); circ(c, 28, -40 + b, 32);
+    c.fillStyle = '#e03a3a'; circ(c, 14, -76 + b, 12); circ(c, 32, -80 + b, 12); circ(c, 50, -74 + b, 10); c.fillStyle = '#ff9a3a'; poly(c, [[56, -44 + b], [86, -36 + b], [56, -28 + b]]); c.fillStyle = ol; circ(c, 38, -48 + b, 4);
+    c.strokeStyle = 'rgba(214,170,110,.9)'; c.lineWidth = 4; c.beginPath(); c.arc(-14, 28 + b, 34, 0.2, Math.PI - 0.2); c.stroke(); c.fillStyle = YEL; for (let k = 0; k < 3; k++) circ(c, -34 + k * 20, 56 + b, 8);
+  } else {
+    const open = e.open && L.time < e.open; c.fillStyle = open ? 'rgba(255,230,120,.22)' : 'rgba(242,160,200,.14)'; circ(c, 0, b, 112);
+    c.fillStyle = ol; c.beginPath(); c.ellipse(0, 0 + b, 74, 92, 0, 0, TAU); c.fill(); c.fillStyle = fl ? C.paper : PNK; c.beginPath(); c.ellipse(0, 0 + b, 70, 88, 0, 0, TAU); c.fill();
+    c.fillStyle = '#7ad0f0'; c.fillRect(-66, -24 + b, 132, 18); c.fillStyle = YEL; for (let k = -2; k <= 2; k++) circ(c, k * 24, 34 + b, 7); c.fillStyle = '#c8a0ff'; for (let k = -1; k <= 1; k++) poly(c, [[k * 30 - 8, -60 + b], [k * 30, -74 + b], [k * 30 + 8, -60 + b]]);
+    c.strokeStyle = ol; c.lineWidth = open ? 5 : 3; c.beginPath(); c.moveTo(-70, 8 + b); for (let k = 0; k < 8; k++) c.lineTo(-70 + (k + 1) * 17.5, 8 + b + (k % 2 ? -12 : 12)); c.stroke(); if (open) { c.fillStyle = YEL; circ(c, 0, 0 + b, 24); c.fillStyle = ol; circ(c, -8, -4 + b, 3); circ(c, 8, -4 + b, 3); }
+  }
+}
+const ES_EVENTS = {
+  hunt: {
+    toast: '尋蛋：花 3 燈芯，翻開一個草叢', setup: (room, cx, cy) => xAdd(room, cx, cy, 'hunt'),
+    info: it => ({ name: '草叢尋蛋', desc: it.used ? '草叢翻過了' : '花 3 燈芯翻開草叢：50% 強化、30% 燈芯 +8、20% 只有一朵花（燈芯 +1）；只能一次' }),
+    hint: it => it.used ? '' : 'F 翻草叢（3 燈芯）',
+    use(it) { if (it.used) return; if (L.p.coins < 3) { L.toast('燈芯不夠'); L.sfx('tick'); return; } L.p.coins -= 3; it.used = true; const r = L.rand(); L.sfx('buy'); if (r < 0.5) { const u = L.rewardUpgrade(); L.toast('找到彩蛋：強化「' + L.UPGN(u) + '」', 2.8); } else if (r < 0.8) { L.p.coins += 8; L.toast('草叢裡有燈芯 +8', 2.2); } else { L.p.coins += 1; L.toast('只有一朵小花……燈芯 +1', 2.2); } },
+    draw: it => xProp(it, '#3a8a3a', '蛋', it.used)
+  },
+  bloom: {
+    toast: '春之花環：站在花環旁等 5 秒', setup: (room, cx, cy) => xAdd(room, cx, cy, 'bloom', { t: 0 }),
+    info: it => ({ name: '春之花環', desc: it.used ? '花已經開過了' : '站在花環旁邊（150 像素內）等 5 秒，離開會倒退。完成：燈火 +1、燈芯 +10' }),
+    hint: it => it.used ? '' : '靠近花環（' + Math.floor(Math.min(5, it.t)) + ' / 5）',
+    use() { },
+    tick(dt, room) { const it = room.items.find(q => q.kind === 'xev' && q.id === 'bloom'); if (!it || it.used) return; const p = L.p; if (Math.hypot(p.x - it.x, p.y - it.y) < 150) it.t += dt; else it.t = Math.max(0, it.t - dt * 2); if (it.t >= 5) { it.used = true; L.healP(1); p.coins += 10; L.sfx('clear'); L.toast('花香暖暖的：燈火 +1、燈芯 +10', 2.8); L.hintReset(); } },
+    draw: it => { const c = L.ctx; c.save(); c.translate(it.x, it.y); if (it.used) c.globalAlpha = 0.5; c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(0, 22, 40, 9, 0, 0, TAU); c.fill(); c.strokeStyle = '#4aa84a'; c.lineWidth = 6; c.beginPath(); c.arc(0, 0, 26, 0, TAU); c.stroke(); for (let k = 0; k < 8; k++) { const a = k / 8 * TAU; c.fillStyle = [PNK, YEL, '#fff', '#c8a0ff'][k % 4]; circ(c, Math.cos(a) * 26, Math.sin(a) * 26, 6 + Math.sin(L.time * 3 + k) * 1.2); } c.restore(); }
+  },
+  picnic: {
+    toast: '野餐墊：花 6 燈芯，吃一頓點心', setup: (room, cx, cy) => xAdd(room, cx, cy, 'picnic'),
+    info: it => ({ name: '野餐墊', desc: it.used ? '點心吃完了' : '花 6 燈芯：燈火 +2、技能冷卻重置；只能一次' }),
+    hint: it => it.used ? '' : 'F 野餐（6 燈芯）',
+    use(it) { if (it.used) return; if (L.p.coins < 6) { L.toast('燈芯不夠'); L.sfx('tick'); return; } L.p.coins -= 6; it.used = true; L.healP(2); L.p.skillCd = 0; L.sfx('buy'); L.toast('野餐：燈火 +2、技能冷卻重置', 2.6); },
+    draw: it => xProp(it, '#c8508a', '餐', it.used)
+  }
+};
+function esBossAch() { try { const k = L.bossDef().xk; if (k === 'xebunny') L.unlockAch('ezBunny'); else if (k === 'xehen') L.unlockAch('ezHen'); else if (k === 'xeegg') L.unlockAch('ezEgg'); } catch (e) { /* optional */ } }
+L.registerWorld({
+  theme: 21, name: '復活節', pool: 'dlc', opt: '復活節（DLC5）', pal: PAL21, bigMap: true, ownStory: true, noDark: true, noPaper: true,
+  amb: ['bandpass', 1800, 1.1, 0.004], ev: r => { const n = [659, 784, 988, 1175][Math.floor(r() * 4)]; L.blip(n, n * 1.003, 0.5, 'sine', 0.008); },
+  skin: { map: ES_SKIN, draw: drawEsEnemy, hue: false }, bg: esBg, obsDraw: esObsDraw, obs: esObs, roomInit: esInit, tick: esTick, back: esBack,
+  drawItem: esDraw, info: esInfo, hint: esHint, useItem: esUse, shards: ES_SHARDS, hitMod: esHit,
+  arrows: edge => { const room = L.room; if (!room || room.kind !== 'combat' || !ES || !ES.live) return; for (const it of room.items) if (it.kind === 'tfac' && it.st === 'ready' && !it.taken) edge(it.x, it.y, '#ff9ac8', false); for (const s of ES.slots) if (s.fk === 'market') edge(s.x, s.y, '#ffe27a', false); },
+  mini: (mx, my, sc) => {
+    const room = L.room, c = L.ctx, R = L.ROOM; if (!room || room.kind !== 'combat' || !ES || !ES.live) return; c.save(); c.textAlign = 'center'; c.font = '700 9px sans-serif';
+    for (const s of ES.slots) { const x = mx + (s.x - R.x) * sc, y = my + (s.y - R.y) * sc; if (s.fk === 'market') { c.fillStyle = '#ffe27a'; c.fillText('市', x, y + 3); } }
+    for (const it of room.items) if (it.kind === 'tfac') { const x = mx + (it.x - R.x) * sc, y = my + (it.y - R.y) * sc; c.fillStyle = it.st === 'done' ? 'rgba(180,180,180,.6)' : '#ff9ac8'; c.beginPath(); c.moveTo(x, y - 4); c.lineTo(x + 3.5, y); c.lineTo(x, y + 4); c.lineTo(x - 3.5, y); c.fill(); }
+    c.restore();
+  },
+  enemies: { hen: { hp: 7, r: 15, name: '母雞', cost: 3, cap: 3, ai: henAi }, butterfly: { hp: 8, r: 14, name: '蝴蝶', cost: 3, cap: 3, ai: bflyAi } },
+  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter', 'hen'); if (L0 > 0) types.push('butterfly', 'brute', 'crawler', 'bomber'); if (L0 >= 2) types.push('hen', 'butterfly', 'shooter', 'brute'); if (L0 >= 3) types.push('brute', 'brute', 'butterfly', 'shooter', 'bomber'); },
+  extra: () => [],
+  boss: fin => esBossDef(fin), boss2: esMoves, drawBoss: drawEsBoss,
+  intro: def => (def.xk === 'xebunny'
+    ? [{ who: '旁白', text: '花叢裡一對長耳朵緩緩升起，後面是比樹還高的白色身影。' }, { who: '彩蛋兔', text: '我把春天藏好了……你找得到，就拿去吧！' }]
+    : def.xk === 'xehen'
+      ? [{ who: '旁白', text: '稻草窩裡，一隻巨大的母雞站了起來，腳邊擠滿了毛茸茸的小雞。' }, { who: '雞媽媽', text: '咕咕！誰都不准碰我的孩子！' }, { who: '旁白', text: '只要小雞還圍著，雞媽媽就不怕傷害。' }]
+      : [{ who: '旁白', text: '草地中央，一顆粉紅色的巨蛋靜靜立著，蛋殼上有一道細細的裂痕。' }, { who: '巨型彩蛋', text: '咚……咚……裡面的人，等了好久，好久。' }, { who: '旁白', text: '蛋殼裂開的瞬間，是最脆弱的時候。' }]),
+  onKill: e => {
+    if (e.skin === 'chick' && L.enemies.some(q => !q.dead && q.type === 'boss' && q.xk === 'xehen')) { const o = L.rand() * TAU; for (let i = 0; i < 4; i++) L.enemyShot(e, o + i * TAU / 4, 120); }
+  },
+  events: ES_EVENTS,
+  weapons: {
+    carrotblade: { id: 'carrotblade', name: '胡蘿蔔劍', tag: '近戰', mode: 'tap', cd: 0.45, th: 21, col: '#ff9a3a', range: 135, half: 1.3, dmg: 3.7, kb: 340, desc: '大範圍的弧形揮砍（復活節專屬，類似提燈刃）' },
+    eggcannon: { id: 'eggcannon', name: '彩蛋砲', tag: '單發', mode: 'tap', cd: 0.38, th: 21, col: PNK, desc: '單發的彩蛋，傷害高（復活節專屬，類似燈焰杖）',
+      fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang, 560, 9, 3.9 * dm, 'flame', 1.0); L.sfx('flame'); } },
+    petalbow: { id: 'petalbow', name: '花瓣弓', tag: '連射', mode: 'auto', cd: 0.11, th: 21, col: '#ff8ac0', desc: '按住連射花瓣，射速快（復活節專屬，類似螢火弓）',
+      fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang + (rand() - 0.5) * 0.07, 720, 4, 1.15 * dm, 'pellet', 0.8); L.sfx('tick'); } },
+    bloomshot: { id: 'bloomshot', name: '花束散彈', tag: '散射', mode: 'tap', cd: 0.62, th: 21, col: '#c8a0ff', desc: '五發花朵散射，近距離很痛（復活節專屬，類似霰光杖）',
+      fire: (ox, oy, ang, dm) => { for (let i = -2; i <= 2; i++) L.shoot(ox, oy, ang + i * 0.16, 520, 6, 1.9 * dm, 'pellet', 0.55); L.sfx('blade'); } },
+    carrotspear: { id: 'carrotspear', name: '蘿蔔長矛', tag: '貫穿', mode: 'tap', cd: 0.75, th: 21, col: '#ff9a3a', desc: '貫穿一整排敵人的長矛（復活節專屬，類似穿光矛）',
+      fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang, 700, 8, 4.6 * dm, 'lance', 0.95, true); L.sfx('blade'); } }
+  },
+  ach: [
+    { id: 'ezBunny', name: '找到春天', desc: '復活節：擊敗彩蛋兔' },
+    { id: 'ezHen', name: '護子心切', desc: '復活節：擊敗雞媽媽' },
+    { id: 'ezEgg', name: '敲開蛋殼', desc: '復活節：擊敗巨型彩蛋' },
+    { id: 'ezFac', name: '春日小幫手', desc: '復活節：同一局完成彩蛋籃與彩繪工坊' }
+  ],
+  onMid: () => { if (L.th() === 21) esBossAch(); },
+  onFinal: () => { if (L.th() === 21) esBossAch(); },
+  outro: () => [{ who: '彩蛋兔', text: '你找到了所有的蛋，也找到了春天。' }, { who: '旁白', text: '風停了，花在你的燈光裡輕輕搖，天亮得比平常更早一些。' }]
+});
 })();
