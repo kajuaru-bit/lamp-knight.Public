@@ -1422,6 +1422,11 @@ function zkHud() {
 /* ================= 愛情（DLC4）：貼身糾纏＋配對羈絆 ================= */
 const PAL17 = { ink: '#3a0f2a', floor: '#f7c6d9', floor2: '#f2b5cc', wall1: '#b8244f', wall2: '#e0577f', top: '#ffe3ef', door: '#ff4d6d' };
 const LOVE_SKIN = { crawler: 'heartbug', shooter: 'rose', brute: 'bigheart', bomber: 'letter', clinger: 'clinger', twin: 'twin', rose: 'rose' };
+const LOVE_STORY = [
+  [{ who: '旁白', text: '這座城的燈一盞一盞暗了下來——不是沒有油，而是已經很久沒有人，為了誰點燈。' }, { who: '紅線小童', text: '欸，提燈的！你看見地上那些紅線了嗎？每一條，都綁著兩個人。可是它們現在都纏在一起、打成死結了。' }, { who: '紅線小童', text: '黏人的愛心會纏住你，別怕，揮開就好。雙胞胎要「一起」解決才算數——這是規矩。' }],
+  [{ who: '紅線小童', text: '第二層了。你有沒有發現，有些愛心怪看起來好像在哭？它們不是想傷害你，它們只是不想被丟下。' }, { who: '旁白', text: '落單的那一隻，眼睛是紅的。連線斷掉的時候，沒有任何東西比它更生氣，也沒有任何東西比它更難過。' }, { who: '紅線小童', text: '丘比特以前不是這樣的。他的箭本來只負責「牽」，後來他發現，牽起來的線，沒有人想去解。' }],
+  [{ who: '紅線小童', text: '最後一層。愛神維納斯就在前面。她其實沒有怪你，她只是太久沒有被人好好說過一聲「謝謝」。' }, { who: '旁白', text: '粉紅色的雲裡，傳來一句很輕的話：「如果我把所有的線都剪了，就不會再有人受傷了。」' }, { who: '紅線小童', text: '但那樣，也就不會有人，為誰點燈了。去吧，提燈的。把你的燈，借她一點。' }]
+];
 function heartPath(c, x, y, r) { c.beginPath(); c.moveTo(x, y + r * 0.9); c.bezierCurveTo(x - r * 1.5, y - r * 0.1, x - r * 0.9, y - r * 1.1, x, y - r * 0.4); c.bezierCurveTo(x + r * 0.9, y - r * 1.1, x + r * 1.5, y - r * 0.1, x, y + r * 0.9); c.closePath(); }
 function drawLoveEnemy(e) {
   const c = L.ctx, r = e.r, f = e.flash > 0, sk = e.skin, ol = '#4a0f2c', tm = e.t;
@@ -1509,8 +1514,9 @@ L.registerWorld({
   types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'clinger', 'clinger'); if (L0 > 0 || ci >= 1) types.push('twin', 'rose'); if (L0 > 0 || ci >= 2) types.push('bomber', 'twin', 'brute'); },
   boss: fin => fin ? { kind: 'golem', name: '愛神維納斯', hp: 205, ext: true, xk: 'venus' } : { kind: 'golem', name: '丘比特', hp: 125, ext: true, xk: 'cupid' },
   boss2: loveMoves, drawBoss: drawCupid,
+  roomInit: (room, kind) => { const r = L.run; if (L.th() !== 17 || kind === 'start') return; const sd = r.loveSaid = r.loveSaid || {}; if (sd[r.layer]) return; sd[r.layer] = 1; const T0 = LOVE_STORY[Math.min(2, r.layer)]; L.later(1.6, () => { if (L.room === room && L.state() === 'play') L.say(T0); }); },
   intro: def => [{ who: '旁白', text: def.name + '從粉紅色的雲裡飛了出來，手裡的弓已經拉滿。' }],
-  outro: () => [{ who: '旁白', text: '弓弦鬆了。散落一地的愛心，一顆一顆都變得安靜。' }],
+  outro: () => [{ who: '愛神維納斯', text: '原來，被一盞燈照著的感覺，是這樣的啊。' }, { who: '旁白', text: '弓弦鬆了。散落一地的愛心，一顆一顆都變得安靜。斷掉的紅線，慢慢地，慢慢地重新打了結。' }, { who: '紅線小童', text: '燈亮了。這一次，是大家一起亮的。' }],
   weapons: {
     linkchain: { id: 'linkchain', name: '連線鏈條', tag: '連線', mode: 'tap', cd: 0.62, th: 17, col: '#ff6b8f', desc: '朝瞄準方向鎖定最近的敵人，再連到它旁邊最近的另一隻：兩隻都受傷，連線上的敵人也受傷；連線雙胞胎的另一半傷害 ×2（愛情專屬）',
       fire: (ox, oy, ang, dm) => {
@@ -1532,8 +1538,129 @@ L.registerWorld({
     { id: 'pairs10', name: '成雙成對', desc: '愛情：一局內觸發 10 次「成雙成對」（兩隻雙胞胎在 1.2 秒內一起倒下）' }
   ],
   onFinal: () => { if (L.th() === 17) L.unlockAch('loveBoss'); },
-  onMid: () => { if (L.th() === 17) L.unlockAch('loveMid'); },
+  onMid: () => { if (L.th() !== 17) return; L.unlockAch('loveMid'); L.later(1.2, () => L.say([{ who: '丘比特', text: '……你的燈，比我的箭暖。' }, { who: '紅線小童', text: '他認輸了！可是後面，還有維納斯。' }])); },
   onKill: loveKill
+});
+
+
+/* ================= 星座宇宙（DLC4）：軌道、重力與星座連線 ================= */
+const PAL18 = { ink: '#05061a', floor: '#12163f', floor2: '#171c4e', wall1: '#0b0d2e', wall2: '#2a2f7a', top: '#9ab0ff', door: '#ffd23f' };
+const COS_SKIN = { crawler: 'stardust', shooter: 'satellite', brute: 'asteroid', comet: 'comet', satellite: 'satellite', blackhole: 'blackhole', bomber: 'asteroid' };
+const ZODIAC = ['牡羊座', '金牛座', '雙子座', '巨蟹座', '獅子座', '處女座', '天秤座', '天蠍座', '射手座', '摩羯座', '水瓶座', '雙魚座'];
+const COS_STORY = [
+  [{ who: '旁白', text: '天空被撕開了一道口子。星星一顆一顆掉出來，散在黑色的地板上，連不成任何圖案。' }, { who: '星圖守護者', text: '提燈的旅人，你的燈，是這片宇宙裡唯一還在「自己發光」的東西。其他的，都只是在反射。' }, { who: '星圖守護者', text: '踩過地上的星點，依序連起來，就能讓星座重新亮起。黑洞會把你往它那裡拉，記得保持距離。' }],
+  [{ who: '星圖守護者', text: '第二層。你有沒有覺得，星星之間的距離變遠了？那不是錯覺，宇宙一直在長大。' }, { who: '旁白', text: '彗星拖著長長的尾巴掠過，每一顆都在趕赴一個沒人記得的約定。' }, { who: '星圖守護者', text: '古人把星星連成圖，是因為他們害怕夜晚太空。他們需要在黑暗裡，找到一個看得懂的形狀。' }],
+  [{ who: '星圖守護者', text: '最後一層了。宇宙的中心有顆「核心」，它吞了太多光，變得什麼也看不見。' }, { who: '旁白', text: '遠處有一點很小很小的光，在輕輕地呼吸。那是你的燈，也是所有星座想回去的地方。' }, { who: '星圖守護者', text: '去吧。不是去打敗它，是去讓它想起來——黑暗的另一個名字，叫做還沒被點亮的地方。' }]
+];
+function starPath(c, x, y, r, n) { c.beginPath(); for (let i = 0; i < n * 2; i++) { const a = -Math.PI / 2 + i * Math.PI / n, rr2 = i % 2 ? r * 0.45 : r; c.lineTo(x + Math.cos(a) * rr2, y + Math.sin(a) * rr2); } c.closePath(); }
+function drawCosEnemy(e) {
+  const c = L.ctx, r = e.r, f = e.flash > 0, sk = e.skin, tm = e.t, ol = '#02030f';
+  if (sk === 'stardust') { c.fillStyle = ol; starPath(c, 0, 0, r * 1.2, 5); c.fill(); c.fillStyle = f ? C.paper : '#ffe27a'; starPath(c, 0, 0, r, 5); c.fill(); c.fillStyle = ol; circ(c, -r * 0.25, -r * 0.05, r * 0.12); circ(c, r * 0.25, -r * 0.05, r * 0.12); }
+  else if (sk === 'comet') { const a = e.ra || 0; if (e.tele > 0) { c.save(); c.globalAlpha = 0.5; c.strokeStyle = '#9fe8ff'; c.lineWidth = 4; c.beginPath(); c.moveTo(0, 0); c.lineTo(Math.cos(a) * 260, Math.sin(a) * 260); c.stroke(); c.restore(); } c.fillStyle = 'rgba(140,220,255,.35)'; c.beginPath(); c.moveTo(Math.cos(a + Math.PI) * r * 3.2, Math.sin(a + Math.PI) * r * 3.2); c.lineTo(Math.cos(a + 1.5) * r, Math.sin(a + 1.5) * r); c.lineTo(Math.cos(a - 1.5) * r, Math.sin(a - 1.5) * r); c.closePath(); c.fill(); c.fillStyle = ol; circ(c, 0, 0, r * 1.15); c.fillStyle = f ? C.paper : '#9fe8ff'; circ(c, 0, 0, r); c.fillStyle = '#fff'; circ(c, -r * 0.3, -r * 0.3, r * 0.3); }
+  else if (sk === 'satellite') { c.fillStyle = ol; rrect(c, -r * 1.7, -r * 0.35, r * 3.4, r * 0.7, 2); c.fillStyle = '#3a6fd8'; rrect(c, -r * 1.6, -r * 0.25, r * 1.1, r * 0.5, 2); rrect(c, r * 0.5, -r * 0.25, r * 1.1, r * 0.5, 2); c.fillStyle = ol; circ(c, 0, 0, r * 1.05); c.fillStyle = f ? C.paper : '#c9d4ff'; circ(c, 0, 0, r * 0.9); c.fillStyle = e.tele > 0 ? '#ff4d6d' : '#7df9ff'; circ(c, 0, 0, r * 0.35); }
+  else if (sk === 'blackhole') { const g = c.createRadialGradient(0, 0, r * 0.2, 0, 0, r * 2.4); g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(0.45, 'rgba(60,20,120,.7)'); g.addColorStop(1, 'rgba(60,20,120,0)'); c.fillStyle = g; circ(c, 0, 0, r * 2.4); c.strokeStyle = 'rgba(255,200,120,.8)'; c.lineWidth = 3; c.beginPath(); c.ellipse(0, 0, r * 1.6, r * 0.55, tm * 1.4, 0, TAU); c.stroke(); c.fillStyle = '#000'; circ(c, 0, 0, r); if (f) { c.fillStyle = 'rgba(255,255,255,.5)'; circ(c, 0, 0, r); } }
+  else { c.fillStyle = ol; circ(c, 0, 0, r * 1.12); c.fillStyle = f ? C.paper : '#6d6a85'; circ(c, 0, 0, r); c.fillStyle = 'rgba(0,0,0,.35)'; circ(c, -r * 0.3, -r * 0.2, r * 0.28); circ(c, r * 0.35, r * 0.3, r * 0.2); c.fillStyle = C.paper; circ(c, -r * 0.3, -r * 0.45, r * 0.12); circ(c, r * 0.2, -r * 0.45, r * 0.12); }
+}
+function cosBg(g, rm, rng, arR) {
+  const R = L.ROOM;
+  for (let i = 0; i < Math.round(160 * arR); i++) { const a = 0.25 + rng() * 0.6; g.fillStyle = 'rgba(' + (rng() < 0.3 ? '255,226,122' : '200,215,255') + ',' + a + ')'; const sz = 1 + rng() * 2.2; g.fillRect(R.x + rng() * R.w, R.y + rng() * R.h, sz, sz); }
+  for (let k = 0; k < 2; k++) { const gr = g.createRadialGradient(R.x + rng() * R.w, R.y + rng() * R.h, 0, R.x + rng() * R.w, R.y + rng() * R.h, 260); gr.addColorStop(0, 'rgba(120,70,200,.16)'); gr.addColorStop(1, 'rgba(120,70,200,0)'); g.fillStyle = gr; g.fillRect(R.x, R.y, R.w, R.h); }
+}
+function cosObs(g, o, rng) {
+  g.fillStyle = '#02030f'; rrect(g, o.x - 2, o.y - 2, o.w + 4, o.h + 4, Math.min(o.w, o.h) * 0.4); g.fillStyle = '#4b4a66'; rrect(g, o.x, o.y, o.w, o.h, Math.min(o.w, o.h) * 0.4);
+  g.fillStyle = 'rgba(0,0,0,.35)'; circ(g, o.x + o.w * 0.3, o.y + o.h * 0.35, Math.min(o.w, o.h) * 0.16); circ(g, o.x + o.w * 0.65, o.y + o.h * 0.65, Math.min(o.w, o.h) * 0.11);
+}
+function satAi(e, dt, nx, ny, d, dx, dy) {
+  const P = L.p; e.oa = (e.oa === undefined ? rand() * TAU : e.oa) + dt * 0.7; e.cd = (e.cd === undefined ? rr(1.2, 2.2) : e.cd) - dt;
+  const tx = P.x + Math.cos(e.oa) * 230 - e.x, ty = P.y + Math.sin(e.oa) * 230 - e.y, l = Math.hypot(tx, ty) || 1;
+  if (e.tele > 0) { e.tele -= dt; if (e.tele <= 0) { L.enemyShot(e, Math.atan2(dy, dx), 205); e.cd = rr(2.2, 3) * e.fire; } return { mx: 0, my: 0, touch: 1 }; }
+  if (e.cd <= 0) e.tele = 0.45;
+  const v = Math.min(120 * e.spd, l * 2.2); return { mx: tx / l * v, my: ty / l * v, touch: 1 };
+}
+function cometAi(e, dt, nx, ny, d) {
+  e.st = (e.st === undefined ? rr(1, 2) : e.st) - dt; if (!e.state || e.state === 'spawn') e.state = 'walk';
+  let mx = 0, my = 0, touch = 1;
+  if (e.state === 'walk') { mx = nx * 40 * e.spd; my = ny * 40 * e.spd; if (e.st <= 0) { e.state = 'wind'; e.st = 0.8; e.ra = Math.atan2(L.p.y - e.y, L.p.x - e.x); } }
+  else if (e.state === 'wind') { e.tele = e.st; e.ra = Math.atan2(L.p.y - e.y, L.p.x - e.x); if (e.st <= 0) { e.state = 'dash'; e.st = 0.9; e.tele = 0; } }
+  else if (e.state === 'dash') { mx = Math.cos(e.ra) * 430 * e.spd; my = Math.sin(e.ra) * 430 * e.spd; touch = 2; const R = L.ROOM; if (e.st <= 0 || e.x < R.x + e.r + 8 || e.x > R.x + R.w - e.r - 8 || e.y < R.y + e.r + 8 || e.y > R.y + R.h - e.r - 8) { e.state = 'rest'; e.st = 1; L.burst(e.x, e.y, 8, ['#9fe8ff', '#fff'], 140, true); } }
+  else { if (e.st <= 0) { e.state = 'walk'; e.st = rr(1.8, 2.8); } }
+  return { mx, my, touch };
+}
+function pullPlayer(x, y, dt, k) { const P = L.p, dx = x - P.x, dy = y - P.y, d = Math.hypot(dx, dy) || 1; P.kx = (P.kx || 0) + dx / d * dt * k; P.ky = (P.ky || 0) + dy / d * dt * k; const m = Math.hypot(P.kx, P.ky); if (m > 170) { P.kx *= 170 / m; P.ky *= 170 / m; } }
+function holeAi(e, dt, nx, ny, d) { if (d < 300) pullPlayer(e.x, e.y, dt, 620); return { mx: nx * 26 * e.spd, my: ny * 26 * e.spd, touch: 1 }; }
+function cosMoves(e, phase, ang) {
+  const p = L.p, fin = e.xk === 'core', a = pickOf(phase === 1 ? ['fan', 'ring'] : phase === 2 ? ['fan', 'ring', 'dust'] : fin ? ['fan', 'ring', 'dust', 'pull', 'rain'] : ['fan', 'ring', 'dust', 'rain']);
+  const aim = () => Math.atan2(p.y - e.y, p.x - e.x);
+  if (a === 'fan') { for (let w = 0; w < 3; w++) L.later(w * 0.32, () => { if (e.dead || L.state() !== 'play') return; const aa = aim(); for (let i = -2; i <= 2; i++) L.bossShot(e, e.x, e.y, aa + i * 0.2, 290, false, 6); }); L.toast('星束！', 1.2); }
+  else if (a === 'ring') { const n = fin ? 18 : 14, off = rand() * TAU; for (let i = 0; i < n; i++) L.bossShot(e, e.x, e.y, off + i / n * TAU, 130, false, 8); L.later(0.8, () => { if (e.dead) return; for (let i = 0; i < n; i++) L.bossShot(e, e.x, e.y, off + (i + 0.5) / n * TAU, 160, false, 8); }); L.toast('星環！', 1.2); }
+  else if (a === 'dust') { for (let i = 0; i < 3; i++) { const m = L.spawnEnemy('crawler', e.x + (i - 1) * 60, e.y + 50); m.spawn = 0.6; } L.toast('星屑湧出！', 1.2); }
+  else if (a === 'pull') { L.toast('重力坍縮——被拉過去了！', 1.8); for (let i = 0; i < 24; i++) L.later(i * 0.1, () => { if (!e.dead && L.state() === 'play') pullPlayer(e.x, e.y, 0.1, 900); }); L.later(2.6, () => { if (e.dead) return; for (let i = 0; i < 16; i++) L.bossShot(e, e.x, e.y, i / 16 * TAU, 210, false, 8); }); }
+  else { L.toast('流星雨！', 1.2); for (let i = 0; i < 14; i++) L.later(i * 0.16, () => { if (e.dead || L.state() !== 'play') return; const R = L.ROOM; L.bossShot(e, R.x + rand() * R.w, R.y + 10, Math.PI / 2 + (rand() - 0.5) * 0.3, 210, false, 8); }); }
+}
+function drawCosBoss(e) {
+  const c = L.ctx, fl = e.flash > 0, t = e.t, b = Math.sin(t * 2) * 4, fin = e.xk === 'core', ol = '#02030f';
+  c.strokeStyle = fin ? 'rgba(255,200,120,.8)' : 'rgba(160,190,255,.7)'; c.lineWidth = 4; for (let k = 0; k < (fin ? 3 : 2); k++) { c.beginPath(); c.ellipse(0, b, 96 + k * 14, 28 + k * 8, t * (0.6 + k * 0.3), 0, TAU); c.stroke(); }
+  c.fillStyle = ol; circ(c, 0, b, 70); c.fillStyle = fl ? C.paper : (fin ? '#1a0b3a' : '#2a3a8a'); circ(c, 0, b, 64);
+  if (fin) { const g = c.createRadialGradient(0, b, 8, 0, b, 64); g.addColorStop(0, 'rgba(255,230,160,.95)'); g.addColorStop(1, 'rgba(120,60,200,.1)'); c.fillStyle = g; circ(c, 0, b, 64); } else { c.fillStyle = '#ffe27a'; for (let i = 0; i < 7; i++) { const a = i / 7 * TAU + t * 0.4; starPath(c, Math.cos(a) * 36, b + Math.sin(a) * 36, 7, 4); c.fill(); } }
+  c.fillStyle = C.paper; circ(c, -20, -6 + b, 10); circ(c, 20, -6 + b, 10); c.fillStyle = ol; circ(c, -18, -4 + b, 5); circ(c, 22, -4 + b, 5);
+}
+// 星座連線：每間戰鬥房有一組星點，依序踩過連成星座，完成後觸發星座祝福
+function cosInit(room, kind) {
+  const r = L.run; if (L.th() !== 18 || kind === 'start') return;
+  { const sd = r.cosSaid = r.cosSaid || {}; if (!sd[r.layer]) { sd[r.layer] = 1; const T0 = COS_STORY[Math.min(2, r.layer)]; L.later(1.6, () => { if (L.room === room && L.state() === 'play') L.say(T0); }); } }
+  if (kind !== 'combat') return;
+  const R = L.ROOM, n = 5, pts = []; for (let t = 0; t < 200 && pts.length < n; t++) { const x = R.x + 90 + rand() * (R.w - 180), y = R.y + 90 + rand() * (R.h - 180); if (pts.every(q => Math.hypot(q.x - x, q.y - y) > 160)) pts.push({ x, y }); }
+  r.cosIdx = ((r.cosIdx === undefined ? Math.floor(rand() * 12) : r.cosIdx) + 1) % 12;
+  room.cons = { pts, i: 0, done: false, name: ZODIAC[r.cosIdx], kind: r.cosIdx % 3 };
+  pts.forEach((q, k) => room.items.push({ kind: 'tfac', id: 'star', fk: 'star', k, x: q.x, y: q.y, group: 'prop', price: 0, taken: false }));
+}
+function cosTick(dt) {
+  const room = L.room, K = room && room.cons, P = L.p; if (!K || K.done || L.th() !== 18) return;
+  const q = K.pts[K.i]; if (!q) return;
+  if (Math.hypot(P.x - q.x, P.y - q.y) < 38) {
+    K.i++; L.sfx('pick'); L.burst(q.x, q.y, 10, ['#ffe27a', '#fff'], 120, true);
+    if (K.i >= K.pts.length) {
+      K.done = true; const r = L.run; r.consN = (r.consN || 0) + 1; if (r.consN >= 10) L.unlockAch('constel10');
+      if (K.kind === 0) { L.healP(1); L.toast(K.name + '完成：星光治癒（燈火 +1）', 2.4); }
+      else if (K.kind === 1) { for (const b of L.bullets) if (b.own === 'e') b.dead = true; for (const e of L.enemies) if (!e.dead && e.spawn <= 0 && e.type !== 'boss') L.hitEnemy(e, 6, 0, 0, 0, false); L.shake(8); L.toast(K.name + '完成：星光爆發！', 2.4); }
+      else { P.skillCd = 0; P.coins += 8; L.toast(K.name + '完成：技能冷卻重置、燈芯 +8', 2.4); }
+      L.hintReset();
+    } else L.toast(K.name + ' ' + K.i + ' / ' + K.pts.length, 0.9);
+  }
+}
+function cosDraw(it) {
+  const c = L.ctx, room = L.room, K = room && room.cons; if (!K) return; const on = it.k < K.i, nxt = it.k === K.i && !K.done, tm = L.time;
+  if (it.k > 0) { const a = K.pts[it.k - 1]; c.save(); c.strokeStyle = on ? 'rgba(255,226,122,.85)' : 'rgba(150,170,255,.2)'; c.lineWidth = on ? 3 : 1.5; c.setLineDash(on ? [] : [5, 6]); c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(it.x, it.y); c.stroke(); c.restore(); }
+  c.save(); c.translate(it.x, it.y); c.globalAlpha = on || nxt ? 1 : 0.6; if (nxt) { c.fillStyle = 'rgba(255,226,122,.25)'; circ(c, 0, 0, 22 + Math.sin(tm * 6) * 4); }
+  c.fillStyle = on ? '#ffe27a' : nxt ? '#fff7c9' : '#8fa4ff'; starPath(c, 0, 0, nxt ? 15 : 11, 5); c.fill(); c.restore();
+}
+L.registerWorld({
+  theme: 18, name: '星座宇宙', pool: 'dlc', opt: '星座宇宙（DLC4）', pal: PAL18, noDark: true, noPaper: true,
+  amb: ['lowpass', 380, 0.7, 0.006], ev: r => { const n = [392, 523, 659, 784][Math.floor(r() * 4)]; L.blip(n, n * 1.5, 0.6, 'sine', 0.01); },
+  skin: { map: COS_SKIN, draw: drawCosEnemy, hue: false }, bg: cosBg, obsDraw: cosObs,
+  enemies: {
+    comet: { hp: 6, r: 13, name: '彗星', cost: 3, cap: 3, ai: cometAi },
+    satellite: { hp: 6, r: 13, name: '衛星', cost: 3, cap: 3, ai: satAi },
+    blackhole: { hp: 16, r: 17, name: '黑洞', cost: 5, cap: 1, ai: holeAi }
+  },
+  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'comet'); if (L0 > 0 || ci >= 1) types.push('satellite', 'satellite'); if (L0 > 0 || ci >= 2) types.push('blackhole', 'brute'); if (L0 > 0) types.push('comet'); },
+  boss: fin => fin ? { kind: 'golem', name: '宇宙核心', hp: 205, ext: true, xk: 'core' } : { kind: 'golem', name: '天蠍座', hp: 125, ext: true, xk: 'scorpio' },
+  boss2: cosMoves, drawBoss: drawCosBoss, roomInit: cosInit, tick: cosTick, drawItem: cosDraw,
+  info: it => ({ name: '星點', desc: '依序踩過亮著的星點，連成星座，完成後得到星座祝福' }), hint: it => '', useItem: it => { },
+  weapons: {
+    ringstar: { id: 'ringstar', name: '星環', tag: '環射', mode: 'tap', cd: 1.05, th: 18, col: '#ffe27a', desc: '朝四面八方射出一圈可貫穿的星光（星座宇宙專屬）',
+      fire: (ox, oy, ang, dm) => { for (let i = 0; i < 10; i++) L.shoot(ox, oy, ang + i / 10 * TAU, 300, 7, 2.2 * dm, 'wind', 1.0, true); L.sfx('blade'); } },
+    cometblade: { id: 'cometblade', name: '彗星刃', tag: '近戰', mode: 'tap', cd: 0.34, th: 18, col: '#9fe8ff', range: 115, half: 1.1, dmg: 3.4, kb: 300, desc: '揮得很快的近戰刃，適合貼身周旋（星座宇宙專屬）' }
+  },
+  ach: [
+    { id: 'cosMid', name: '蠍尾落下', desc: '星座宇宙：擊敗天蠍座' },
+    { id: 'cosBoss', name: '重新點亮的核心', desc: '星座宇宙：擊敗宇宙核心' },
+    { id: 'constel10', name: '連線大師', desc: '星座宇宙：一局內完成 10 個星座' }
+  ],
+  intro: def => [{ who: '星圖守護者', text: def.name + '從星圖的另一端轉了過來，周圍的星星全都安靜了。' }],
+  outro: () => [{ who: '宇宙核心', text: '……原來，我吞下去的，不是光，是想被看見的心情。' }, { who: '旁白', text: '黑暗慢慢裂開。星星一顆一顆飄回天上，連成了你從來沒見過的圖案——一盞提燈。' }, { who: '星圖守護者', text: '這是新的星座。就叫它「燈火」吧。' }],
+  onFinal: () => { if (L.th() === 18) L.unlockAch('cosBoss'); },
+  onMid: () => { if (L.th() !== 18) return; L.unlockAch('cosMid'); L.later(1.2, () => L.say([{ who: '天蠍座', text: '你的燈……不是用來照亮前面的，是用來讓別人看見自己的。' }, { who: '星圖守護者', text: '還剩最後一個。宇宙的中心，在等你。' }])); }
 });
 
 /* ================= 主題事件（第 3 步）：事件房 25% 機率出現該主題專屬事件 ================= */
@@ -1619,6 +1746,24 @@ const XEV = {
         else if (r < 0.65) { L.p.coins += 15; L.healP(1); L.toast('吉：燈芯 +15、燈火 +1', 2.4); }
         else { L.p.coins += 25; L.run.xOmen = 1; L.run.xOmenAt = undefined; L.toast('凶……先收下 25 燈芯，下一場戰鬥敵人變多', 3); } },
       draw: it => xProp(it, '#c0392b', '籤', it.used)
+    }
+  },
+  18: { // 許願流星／占星盤
+    wish: {
+      toast: '許願流星：花 3 燈芯許一個願', setup: (room, cx, cy) => xAdd(room, cx, cy, 'wish', { n: 0 }),
+      info: it => ({ name: '許願流星', desc: '每次 3 燈芯（最多 3 次）：25% 精良強化、45% 燈芯 +10、30% 什麼也沒有；第 3 次保底燈芯。已許 ' + it.n + ' / 3' }),
+      hint: it => it.n >= 3 ? '流星已經飛走了' : 'F 許願（3 燈芯）',
+      use(it) { if (it.n >= 3) return; if (L.p.coins < 3) { L.toast('燈芯不夠'); L.sfx('tick'); return; } L.p.coins -= 3; it.n++; L.sfx('buy'); const r = L.rand();
+        if (r < 0.25) { const u = L.premUpgrade(); L.toast('願望成真：精良強化「' + L.UPGN(u) + '」', 2.8); } else if (r < 0.7 || it.n >= 3) { L.p.coins += 10; L.toast('流星留下了燈芯 +10', 2.2); } else L.toast('流星悄悄地飛過去了……', 1.8); },
+      draw: it => xProp(it, '#3a4fb0', '願', it.n >= 3)
+    },
+    astro: {
+      toast: '占星盤：轉動一次，看看今天的星象', setup: (room, cx, cy) => xAdd(room, cx, cy, 'astro'),
+      info: it => ({ name: '占星盤', desc: it.used ? '星象已經轉完了' : '轉動一次：燈火 +2／技能冷卻重置並燈芯 +10／一份普通強化（隨機）；只能一次' }),
+      hint: it => it.used ? '' : 'F 轉動占星盤',
+      use(it) { if (it.used) return; it.used = true; const r = L.rand(); L.sfx('pick');
+        if (r < 0.34) { L.healP(2); L.toast('星象吉：燈火 +2', 2.4); } else if (r < 0.67) { L.p.skillCd = 0; L.p.coins += 10; L.toast('星象動：技能冷卻重置、燈芯 +10', 2.6); } else { const u = L.rewardUpgrade(); L.toast('星象啟示：強化「' + L.UPGN(u) + '」', 2.6); } },
+      draw: it => xProp(it, '#6b3fb0', '星', it.used)
     }
   },
   17: { // 月老紅線／情書／姻緣樹
