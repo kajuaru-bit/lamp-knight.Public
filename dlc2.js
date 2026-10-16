@@ -9,7 +9,7 @@ const { C, TAU, circ, rrect, poly, star4, rand, rr, pickOf, clamp } = L;
 
 /* ================= 萬聖節（19）：視野有限、超大地圖、三隻 Boss（彈幕／大群／長戰） ================= */
 const PAL19 = { ink: '#0d0614', floor: '#2a1c3c', floor2: '#33234a', wall1: '#3b1f5a', wall2: '#5a2f8a', top: '#ffb347', door: '#ff8c1a' };
-const HW_SKIN = { crawler: 'skel', shooter: 'wiz', brute: 'pumpk', ghost: 'sheet', bat: 'bat', bomber: 'pumpk' };
+const HW_SKIN = { cat: 'cat', crawler: 'skel', shooter: 'wiz', brute: 'pumpk', ghost: 'sheet', bat: 'bat', bomber: 'pumpk' };
 const OL = '#0d0614', ORG = '#f08a1c', BONE = '#ece6d4';
 const HW_STORY = [
   [{ who: '旁白', text: '十月的最後一個夜晚，墓園的門自己開了。南瓜燈一盞一盞地亮起來，卻沒有一盞，是為了照路。' }, { who: '南瓜燈', text: '提燈的旅人……今晚，連鬼也怕黑。你的燈，借我們靠一靠好嗎？' }, { who: '旁白', text: '小心：這裡看不遠。靠近南瓜燈，或讓你的燈亮一點。' }],
@@ -21,6 +21,7 @@ let HW = null;
 
 /* ---- 敵人繪製 ---- */
 function drawHwEnemy(e) {
+  if (e.skin === 'cat') { drawCat(e); return; }
   const c = L.ctx, r = e.r, f = e.flash > 0, sk = e.skin, tm = e.t, fa = Math.atan2(L.p.y - e.y, L.p.x - e.x);
   if (sk === 'skel' || sk === 'kid') {
     if (sk === 'kid') { c.fillStyle = OL; circ(c, 0, 0, r * 1.1); c.fillStyle = f ? C.paper : ORG; circ(c, 0, 0, r); c.fillStyle = OL; poly(c, [[-r * 0.5, -r * 0.1], [-r * 0.15, -r * 0.1], [-r * 0.32, -r * 0.5]]); poly(c, [[r * 0.5, -r * 0.1], [r * 0.15, -r * 0.1], [r * 0.32, -r * 0.5]]); c.fillRect(-r * 0.45, r * 0.25, r * 0.9, 3); return; }
@@ -49,6 +50,52 @@ function drawHwEnemy(e) {
     for (let k = 0; k < 4; k++) c.lineTo(r - (k + 0.5) * r * 0.5, r * 0.5 + (k % 2) * 6 + b); c.closePath(); c.fill();
     c.fillStyle = OL; circ(c, -r * 0.35, -r * 0.35 + b, r * 0.2); circ(c, r * 0.35, -r * 0.35 + b, r * 0.2); c.beginPath(); c.ellipse(0, r * 0.1 + b, r * 0.18, r * 0.26, 0, 0, TAU); c.fill(); c.restore();
   }
+}
+
+/* ---------- 新增敵人行為：黑貓（瞬移）、玩具盒（召喚）、跳跳兔（跳躍） ---------- */
+function catAi(e, dt, nx, ny, d) {
+  e.st = (e.st === undefined ? rr(1.5, 2.5) : e.st) - dt; if (!e.state || e.state === 'spawn') e.state = 'walk';
+  let mx = 0, my = 0;
+  if (e.state === 'walk') { e.burrow = false; mx = nx * 62 * e.spd; my = ny * 62 * e.spd; if (e.st <= 0) { e.state = 'vanish'; e.st = 0.45; e.burrow = true; L.burst(e.x, e.y, 10, ['#b58cff', '#ffffff'], 130, true); } }
+  else if (e.state === 'vanish') { e.burrow = true; if (e.st <= 0) { const a = rand() * TAU, R = L.ROOM; e.x = clamp(L.p.x + Math.cos(a) * 150, R.x + 40, R.x + R.w - 40); e.y = clamp(L.p.y + Math.sin(a) * 150, R.y + 40, R.y + R.h - 40); e.burrow = false; e.state = 'claw'; e.st = 0.55; e.tele = 0.55; L.burst(e.x, e.y, 10, ['#ffe27a', '#ffffff'], 130, true); } }
+  else if (e.state === 'claw') { e.tele = Math.max(0, e.st); if (e.st <= 0) { const o = Math.atan2(L.p.y - e.y, L.p.x - e.x); for (let i = 0; i < 6; i++) L.enemyShot(e, o + (i - 2.5) * 0.3, 175); e.tele = 0; e.state = 'rest'; e.st = 1.2; } }
+  else if (e.st <= 0) { e.state = 'walk'; e.st = rr(2.2, 3.2); }
+  return { mx, my, touch: 1 };
+}
+function jackboxAi(e, dt, nx, ny, d) {
+  e.cd = (e.cd === undefined ? 2.5 : e.cd) - dt; if (e.cd < 0 && !e.tele) { const mine = L.enemies.filter(q => !q.dead && q.owner === e).length; if (mine < 4) e.tele = 0.7; else e.cd = 2; }
+  if (e.tele > 0) { e.tele -= dt; if (e.tele <= 0) { e.tele = 0; for (let i = 0; i < 2; i++) { const m = L.spawnEnemy('crawler', e.x + (i ? 26 : -26), e.y + 14); m.sleep = false; m.noRez = true; m.owner = e; m.spawn = 0.6; } L.burst(e.x, e.y - 20, 12, ['#ff6aa8', '#ffe27a', '#7ad0f0'], 150, true); e.cd = rr(6, 7.5) * e.fire; } return { mx: 0, my: 0, touch: 1 }; }
+  const k = d < 280 ? -1 : d > 420 ? 0.6 : 0; return { mx: nx * k * 52 * e.spd, my: ny * k * 52 * e.spd, touch: 1 };
+}
+function hopAi(e, dt, nx, ny, d) {
+  e.st = (e.st === undefined ? rr(0.4, 1) : e.st) - dt; if (!e.state || e.state === 'spawn') e.state = 'sit';
+  let mx = 0, my = 0;
+  if (e.state === 'sit') { if (e.st <= 0) { e.state = 'hop'; e.st = 0.38; e.ha = Math.atan2(L.p.y - e.y, L.p.x - e.x) + (rand() - 0.5) * 1.0; } }
+  else { mx = Math.cos(e.ha) * 360 * e.spd; my = Math.sin(e.ha) * 360 * e.spd; if (e.st <= 0) { e.state = 'sit'; e.st = rr(0.45, 0.8); const o = rand() * TAU; for (let i = 0; i < 4; i++) L.enemyShot(e, o + i * TAU / 4, 140); L.burst(e.x, e.y, 6, ['#ffffff', '#f2a0c8'], 100, true); } }
+  e.hy = e.state === 'hop' ? -Math.sin(Math.PI * clamp(1 - e.st / 0.38, 0, 1)) * 16 : 0;
+  return { mx, my, touch: 1 };
+}
+function drawCat(e) {
+  const c = L.ctx, r = e.r, f = e.flash > 0, tm = e.t, fa = Math.atan2(L.p.y - e.y, L.p.x - e.x), ol = '#0d0614';
+  c.fillStyle = ol; circ(c, 0, 0, r * 1.1); poly(c, [[-r * 0.9, -r * 0.4], [-r * 0.6, -r * 1.4], [-r * 0.1, -r * 0.8]]); poly(c, [[r * 0.9, -r * 0.4], [r * 0.6, -r * 1.4], [r * 0.1, -r * 0.8]]);
+  c.fillStyle = f ? C.paper : '#2a2236'; circ(c, 0, 0, r); poly(c, [[-r * 0.8, -r * 0.4], [-r * 0.6, -r * 1.25], [-r * 0.2, -r * 0.75]]); poly(c, [[r * 0.8, -r * 0.4], [r * 0.6, -r * 1.25], [r * 0.2, -r * 0.75]]);
+  c.strokeStyle = '#2a2236'; c.lineWidth = 4; c.beginPath(); c.moveTo(-r * 0.9, r * 0.5); c.quadraticCurveTo(-r * 1.8, r * 0.2 + Math.sin(tm * 4) * 5, -r * 1.5, -r * 0.6); c.stroke();
+  const claw = e.tele > 0; c.fillStyle = claw ? '#ff4a4a' : '#ffe27a'; circ(c, -r * 0.35, -r * 0.1, 4); circ(c, r * 0.35, -r * 0.1, 4); c.fillStyle = ol; c.fillRect(-r * 0.35 - 1, -r * 0.1 - 3, 2, 6); c.fillRect(r * 0.35 - 1, -r * 0.1 - 3, 2, 6);
+  c.strokeStyle = '#ddd'; c.lineWidth = 1; for (const s of [-1, 1]) for (let k = -1; k <= 1; k++) { c.beginPath(); c.moveTo(s * r * 0.2, r * 0.25); c.lineTo(s * r * 0.9, r * 0.2 + k * 4); c.stroke(); }
+  if (claw) { c.fillStyle = 'rgba(255,90,90,.5)'; circ(c, Math.cos(fa) * r * 1.5, Math.sin(fa) * r * 1.5, r * 0.45); }
+}
+function drawJackbox(e) {
+  const c = L.ctx, r = e.r, f = e.flash > 0, tm = e.t, ol = '#2a1810', up = e.tele > 0 ? 1 : 0.4 + 0.3 * Math.sin(tm * 3);
+  c.fillStyle = ol; rrect(c, -r * 0.95, r * 0.0, r * 1.9, r * 1.1, 4); c.fillStyle = f ? C.paper : '#3a5fc0'; rrect(c, -r * 0.85, r * 0.1, r * 1.7, r * 0.9, 3); c.fillStyle = '#ffd24a'; c.fillRect(-r * 0.85, r * 0.45, r * 1.7, 4);
+  c.strokeStyle = '#aaa'; c.lineWidth = 3; c.beginPath(); for (let k = 0; k <= 6; k++) c.lineTo((k % 2 ? 6 : -6), -k * r * 0.2 * up + r * 0.1); c.stroke();
+  const hy = -r * 1.35 * up; c.fillStyle = ol; circ(c, 0, hy, r * 0.62); c.fillStyle = f ? C.paper : '#f6e6d0'; circ(c, 0, hy, r * 0.55); c.fillStyle = '#d63a3a'; circ(c, 0, hy + r * 0.1, r * 0.14); poly(c, [[-r * 0.5, hy - r * 0.35], [0, hy - r * 1.1], [r * 0.5, hy - r * 0.35]]); c.fillStyle = '#ffd24a'; circ(c, 0, hy - r * 1.1, 4); c.fillStyle = ol; circ(c, -r * 0.2, hy - r * 0.05, 2.5); circ(c, r * 0.2, hy - r * 0.05, 2.5);
+}
+function drawHopbun(e) {
+  const c = L.ctx, r = e.r, f = e.flash > 0, ol = '#2a1810', dy = e.hy || 0; c.save(); c.translate(0, dy);
+  c.fillStyle = 'rgba(0,0,0,.2)'; c.beginPath(); c.ellipse(0, r * 1.0 - dy, r * 0.9, r * 0.25, 0, 0, TAU); c.fill();
+  c.fillStyle = ol; rrect(c, -r * 0.55, -r * 1.8, r * 0.35, r * 1.2, 3); rrect(c, r * 0.2, -r * 1.8, r * 0.35, r * 1.2, 3); circ(c, 0, 0, r * 1.05);
+  c.fillStyle = f ? C.paper : '#c8a078'; rrect(c, -r * 0.5, -r * 1.75, r * 0.27, r * 1.1, 3); rrect(c, r * 0.23, -r * 1.75, r * 0.27, r * 1.1, 3); circ(c, 0, 0, r); c.fillStyle = f ? C.paper : '#e8d0b0'; c.beginPath(); c.ellipse(0, r * 0.35, r * 0.55, r * 0.4, 0, 0, TAU); c.fill();
+  c.fillStyle = ol; circ(c, -r * 0.3, -r * 0.15, 2.5); circ(c, r * 0.3, -r * 0.15, 2.5); c.fillStyle = '#f2a0c8'; circ(c, 0, r * 0.15, 2.5); c.fillStyle = '#c8a078'; c.beginPath(); c.ellipse(-r * 0.5, r * 0.95, r * 0.35, r * 0.18, 0, 0, TAU); c.ellipse(r * 0.5, r * 0.95, r * 0.35, r * 0.18, 0, 0, TAU); c.fill(); c.restore();
 }
 function batAi(e, dt, nx, ny, d) {
   e.st = (e.st === undefined ? rr(1, 2) : e.st) - dt; if (!e.state || e.state === 'spawn' || e.state === 'walk') { e.state = 'orbit'; e.oa = rand() * TAU; }
@@ -340,8 +387,8 @@ L.registerWorld({
     for (const it of room.items) if (it.kind === 'tfac') { const x = mx + (it.x - R.x) * sc, y = my + (it.y - R.y) * sc; c.fillStyle = it.st === 'done' ? 'rgba(180,180,180,.6)' : '#ffb347'; c.beginPath(); c.moveTo(x, y - 4); c.lineTo(x + 3.5, y); c.lineTo(x, y + 4); c.lineTo(x - 3.5, y); c.fill(); }
     c.restore();
   },
-  enemies: { bat: { hp: 4, r: 11, name: '蝙蝠', cost: 2, cap: 4, ai: batAi } },
-  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter', 'bat'); if (L0 > 0) types.push('ghost', 'brute', 'crawler'); if (L0 >= 2) types.push('bat', 'ghost', 'brute', 'shooter'); if (L0 >= 3) types.push('brute', 'brute', 'ghost', 'shooter'); },
+  enemies: { bat: { hp: 4, r: 11, name: '蝙蝠', cost: 2, cap: 4, ai: batAi }, cat: { hp: 6, r: 13, name: '黑貓', cost: 3, cap: 3, ai: catAi } },
+  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter', 'bat'); if (L0 > 0) types.push('ghost', 'brute', 'crawler', 'cat'); if (L0 >= 2) types.push('cat'); if (L0 >= 2) types.push('bat', 'ghost', 'brute', 'shooter'); if (L0 >= 3) types.push('brute', 'brute', 'ghost', 'shooter'); },
   extra: () => [],
   boss: fin => hwBossDef(fin), boss2: hwMoves, drawBoss: drawHwBoss,
   intro: def => (def.xk === 'hwking'
@@ -387,7 +434,7 @@ function swarmBleed(m, xk, skin) {
   b.bleedNow = true; L.hitEnemy(b, 1, 0, 0, 0, false); b.bleedNow = false; L.burst(b.x, b.y, 5, ['#ffffff'], 90, true);
 }
 const PAL20 = { ink: '#14301f', floor: '#e4eef6', floor2: '#d6e4f0', wall1: '#1f6b3f', wall2: '#2f9a58', top: '#fff7e0', door: '#d63a3a' };
-const XM_SKIN = { crawler: 'ginger', shooter: 'elf', brute: 'nutcracker', bomber: 'orn', reindeer: 'reindeer', snowman: 'snowman' };
+const XM_SKIN = { jackbox: 'jackbox', crawler: 'ginger', shooter: 'elf', brute: 'nutcracker', bomber: 'orn', reindeer: 'reindeer', snowman: 'snowman' };
 const XM_STORY = [
   [{ who: '旁白', text: '雪從傍晚下到現在，整座山谷安靜得像被棉被蓋住。遠處，聖誕樹上的燈一串一串地亮了。' }, { who: '精靈', text: '提燈的旅人！北極工坊的玩具全跑出來了——幫我們收拾一下好嗎？' }],
   [{ who: '旁白', text: '第二個雪夜，鈴聲變得有點走調。煙囪冒著煙，卻沒有人在家。' }, { who: '精靈', text: '最大的那一位在雪橇旁邊等你。他沒有生氣，只是……今年沒有人拆他的禮物。' }]
@@ -397,6 +444,7 @@ const XM_ZONE = ['雪原', '冷杉林', '玩具工坊', '結冰湖', '聖誕市�
 const GRN = '#1f7a44', RED = '#d63a3a', SNOW = '#f4f8fc';
 let XM = null;
 function drawXmEnemy(e) {
+  if (e.skin === 'jackbox') { drawJackbox(e); return; }
   const c = L.ctx, r = e.r, f = e.flash > 0, sk = e.skin, tm = e.t, fa = Math.atan2(L.p.y - e.y, L.p.x - e.x), ol = '#2a1810';
   if (sk === 'ginger') {
     const sw = Math.sin(tm * 8) * 2; c.fillStyle = ol; circ(c, 0, -r * 0.75, r * 0.78); rrect(c, -r * 0.95, -r * 0.2, r * 1.9, r * 1.0, 4); rrect(c, -r * 0.65, r * 0.6, r * 0.5, r * 0.7 + sw, 3); rrect(c, r * 0.15, r * 0.6, r * 0.5, r * 0.7 - sw, 3);
@@ -657,8 +705,8 @@ L.registerWorld({
     for (const it of room.items) if (it.kind === 'tfac') { const x = mx + (it.x - R.x) * sc, y = my + (it.y - R.y) * sc; c.fillStyle = it.st === 'done' ? 'rgba(180,180,180,.6)' : '#ffd24a'; c.beginPath(); c.moveTo(x, y - 4); c.lineTo(x + 3.5, y); c.lineTo(x, y + 4); c.lineTo(x - 3.5, y); c.fill(); }
     c.restore();
   },
-  enemies: { reindeer: { hp: 7, r: 15, name: '馴鹿', cost: 3, cap: 3, ai: reindeerAi }, snowman: { hp: 14, r: 18, name: '雪人', cost: 4, cap: 2, ai: snowmanAi } },
-  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter', 'reindeer'); if (L0 > 0) types.push('snowman', 'brute', 'crawler', 'bomber'); if (L0 >= 2) types.push('reindeer', 'snowman', 'shooter', 'brute'); if (L0 >= 3) types.push('brute', 'brute', 'snowman', 'shooter', 'bomber'); },
+  enemies: { reindeer: { hp: 7, r: 15, name: '馴鹿', cost: 3, cap: 3, ai: reindeerAi }, snowman: { hp: 14, r: 18, name: '雪人', cost: 4, cap: 2, ai: snowmanAi }, jackbox: { hp: 12, r: 15, name: '發條玩具盒', cost: 4, cap: 2, ai: jackboxAi } },
+  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter', 'reindeer'); if (L0 > 0) types.push('snowman', 'brute', 'crawler', 'bomber', 'jackbox'); if (L0 >= 2) types.push('reindeer', 'snowman', 'shooter', 'brute'); if (L0 >= 3) types.push('brute', 'brute', 'snowman', 'shooter', 'bomber'); },
   extra: () => [],
   boss: fin => xmBossDef(fin), boss2: xmMoves, drawBoss: drawXmBoss,
   intro: def => (def.xk === 'xmsanta'
@@ -697,7 +745,7 @@ function xmBossAch() { try { const k = L.bossDef().xk; if (k === 'xmsanta') L.un
 
 /* ================= 復活節（21）：全亮、超大地圖、三隻 Boss（彈幕／大群／長戰） ================= */
 const PAL21 = { ink: '#1f3a2a', floor: '#e6f2dc', floor2: '#d8eccb', wall1: '#4a9a4a', wall2: '#7acb6a', top: '#fff7e8', door: '#e86aa8' };
-const ES_SKIN = { crawler: 'chick', shooter: 'bunny', brute: 'lamb', bomber: 'egg', butterfly: 'bfly', hen: 'hen' };
+const ES_SKIN = { hopbun: 'hopbun', crawler: 'chick', shooter: 'bunny', brute: 'lamb', bomber: 'egg', butterfly: 'bfly', hen: 'hen' };
 const ES_STORY = [
   [{ who: '旁白', text: '雪化了，草地從泥土裡探出頭。風裡有花香，也有一點點巧克力的味道。' }, { who: '小兔', text: '旅人！彩蛋全被藏起來了，連蛋殼都在亂跑——幫我找回春天好嗎？' }],
   [{ who: '旁白', text: '花開得太用力，連空氣都是粉紅色的。籃子翻倒在草叢，蛋滾得到處都是。' }, { who: '小兔', text: '最大的那顆蛋……還沒有孵出來。牠一直在等一個敲門的人。' }]
@@ -707,6 +755,7 @@ const ES_ZONE = ['花田', '溪邊草地', '彩蛋工坊', '兔子洞', '彩蛋�
 const PNK = '#f2a0c8', YEL = '#ffe27a', GRN2 = '#4aa84a';
 let ES = null;
 function drawEsEnemy(e) {
+  if (e.skin === 'hopbun') { drawHopbun(e); return; }
   const c = L.ctx, r = e.r, f = e.flash > 0, sk = e.skin, tm = e.t, fa = Math.atan2(L.p.y - e.y, L.p.x - e.x), ol = '#2a1810', wh = f ? C.paper : null;
   if (sk === 'chick') {
     const sw = Math.sin(tm * 10) * 2; c.fillStyle = ol; circ(c, 0, 0, r * 1.1); c.fillStyle = wh || YEL; circ(c, 0, 0, r); c.fillStyle = '#ff9a3a'; poly(c, [[r * 0.5, -r * 0.1], [r * 1.0, r * 0.1], [r * 0.5, r * 0.3]]); c.fillRect(-r * 0.4, r * 0.9, 3, 5 + sw); c.fillRect(r * 0.2, r * 0.9, 3, 5 - sw); c.fillStyle = ol; circ(c, r * 0.2, -r * 0.3, 2.5);
@@ -957,8 +1006,8 @@ L.registerWorld({
     for (const it of room.items) if (it.kind === 'tfac') { const x = mx + (it.x - R.x) * sc, y = my + (it.y - R.y) * sc; c.fillStyle = it.st === 'done' ? 'rgba(180,180,180,.6)' : '#ff9ac8'; c.beginPath(); c.moveTo(x, y - 4); c.lineTo(x + 3.5, y); c.lineTo(x, y + 4); c.lineTo(x - 3.5, y); c.fill(); }
     c.restore();
   },
-  enemies: { hen: { hp: 7, r: 15, name: '母雞', cost: 3, cap: 3, ai: henAi }, butterfly: { hp: 8, r: 14, name: '蝴蝶', cost: 3, cap: 3, ai: bflyAi } },
-  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter', 'hen'); if (L0 > 0) types.push('butterfly', 'brute', 'crawler', 'bomber'); if (L0 >= 2) types.push('hen', 'butterfly', 'shooter', 'brute'); if (L0 >= 3) types.push('brute', 'brute', 'butterfly', 'shooter', 'bomber'); },
+  enemies: { hen: { hp: 7, r: 15, name: '母雞', cost: 3, cap: 3, ai: henAi }, butterfly: { hp: 8, r: 14, name: '蝴蝶', cost: 3, cap: 3, ai: bflyAi }, hopbun: { hp: 6, r: 13, name: '跳跳兔', cost: 3, cap: 3, ai: hopAi } },
+  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter', 'hen'); if (L0 > 0) types.push('butterfly', 'brute', 'crawler', 'bomber', 'hopbun'); if (L0 >= 2) types.push('hopbun'); if (L0 >= 2) types.push('hen', 'butterfly', 'shooter', 'brute'); if (L0 >= 3) types.push('brute', 'brute', 'butterfly', 'shooter', 'bomber'); },
   extra: () => [],
   boss: fin => esBossDef(fin), boss2: esMoves, drawBoss: drawEsBoss,
   intro: def => (def.xk === 'xebunny'

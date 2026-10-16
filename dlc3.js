@@ -48,6 +48,24 @@ function casterAi(drift) {
   };
 }
 
+
+function kamikazeAi(e, dt, nx, ny, d) {
+  if (e.fz === undefined && d < 190) e.fz = 1.5;
+  if (e.fz !== undefined) { e.fz -= dt; if (e.fz <= 0 && !e.boom) { e.boom = true; const o = rand() * TAU; for (let i = 0; i < 8; i++) L.enemyShot(e, o + i * TAU / 8, 150); L.burst(e.x, e.y, 18, ['#ffe27a', '#ff6a3a', '#ffffff'], 220, true); L.sfx('kill'); L.hitEnemy(e, 9999, 0, 0, 0, false); } }
+  const k = e.fz !== undefined ? 1.5 : 1; return { mx: nx * 105 * k * e.spd, my: ny * 105 * k * e.spd, touch: 1 };
+}
+function orbiterAi(e, dt, nx, ny, d) {
+  e.cd = (e.cd === undefined ? rr(1, 2) : e.cd) - dt; e.dir = e.dir || (rand() < 0.5 ? 1 : -1);
+  if (e.cd <= 0) { const a = Math.atan2(L.p.y - e.y, L.p.x - e.x); for (const o of [-0.12, 0.12]) L.enemyShot(e, a + o, 200); e.cd = rr(1.9, 2.6) * e.fire; }
+  const rad = (d - 230) * 0.9, tx = -ny * e.dir, ty = nx * e.dir; return { mx: (tx * 95 + nx * rad) * e.spd, my: (ty * 95 + ny * rad) * e.spd, touch: 1 };
+}
+function sniperAi(e, dt, nx, ny, d) {
+  e.cd = (e.cd === undefined ? rr(1.5, 2.5) : e.cd) - dt;
+  if (e.tele > 0) { e.tele -= dt; if (e.tele > 0.25) e.ra = Math.atan2(L.p.y - e.y, L.p.x - e.x); if (e.tele <= 0) { e.tele = 0; L.enemyShot(e, e.ra, 380); L.sfx('hit'); e.cd = rr(3.2, 4.2) * e.fire; } return { mx: 0, my: 0, touch: 1 }; }
+  if (e.cd <= 0 && d < 640) { e.tele = 1.0; e.ra = Math.atan2(L.p.y - e.y, L.p.x - e.x); }
+  const k = d < 330 ? -1 : d > 480 ? 0.8 : 0; return { mx: nx * k * 60 * e.spd, my: ny * k * 60 * e.spd, touch: 1 };
+}
+
 function makeFest(F) {
   let S = null; const T = F.theme, BK = Object.keys(F.bosses);
   const mkLayout = R => {
@@ -199,7 +217,7 @@ function makeFest(F) {
     use(it) { if (it.used) return; if (L.p.coins < 6) { L.toast('燈芯不夠'); L.sfx('tick'); return; } L.p.coins -= 6; it.used = true; L.healP(2); L.p.skillCd = 0; L.sfx('buy'); L.toast(EV[2].done, 2.6); },
     draw: it => xProp(it, EV[2].col, EV[2].glyph, it.used) };
   const bossAch = () => { try { const i = BK.indexOf(L.bossDef().xk); if (i >= 0) L.unlockAch(F.achIds[i]); } catch (e) { /* optional */ } };
-  const ext = {}; for (const k in F.ext) { const q = F.ext[k]; ext[k] = { hp: q.hp, r: q.r, name: q.name, cost: q.cost, cap: q.cap, ai: q.ai === 'dasher' ? dasherAi(F.fx) : casterAi(q.ai === 'floater') }; }
+  const ext = {}; for (const k in F.ext) { const q = F.ext[k]; ext[k] = { hp: q.hp, r: q.r, name: q.name, cost: q.cost, cap: q.cap, ai: q.ai === 'dasher' ? dasherAi(F.fx) : q.ai === 'kamikaze' ? kamikazeAi : q.ai === 'orbiter' ? orbiterAi : q.ai === 'sniper' ? sniperAi : casterAi(q.ai === 'floater') }; }
   const extKeys = Object.keys(F.ext);
   L.registerWorld({
     theme: T, name: F.name, pool: 'dlc', opt: F.name + '（DLC6）', pal: F.pal, bigMap: true, ownStory: true, noDark: true, noPaper: true, stage: F.stage,
@@ -213,7 +231,7 @@ function makeFest(F) {
       c.restore();
     },
     enemies: ext,
-    types: (types, L0) => { types.length = 0; types.push('crawler', 'crawler', 'shooter', extKeys[0]); if (L0 > 0) types.push(extKeys[1], 'brute', 'crawler', 'bomber'); if (L0 >= 2) types.push(extKeys[0], extKeys[1], 'shooter', 'brute'); if (L0 >= 3) types.push('brute', 'brute', extKeys[1], 'shooter', 'bomber'); },
+    types: (types, L0) => { types.length = 0; types.push('crawler', 'crawler', 'shooter', extKeys[0]); if (L0 > 0) types.push(extKeys[1], 'brute', 'crawler', 'bomber', extKeys[2]); if (L0 >= 2) types.push(extKeys[0], extKeys[1], extKeys[2], 'shooter', 'brute'); if (L0 >= 3) types.push('brute', 'brute', extKeys[1], 'shooter', 'bomber'); },
     extra: () => [], boss: bossDef, boss2: moves, drawBoss: F.drawBoss, intro: def => F.bosses[def.xk].intro,
     onKill: e => {
       swarmBleed(e, F.swarmSkin, F.swarmKey);
@@ -229,6 +247,7 @@ function makeFest(F) {
 /* ================= 春節（22）：全亮、廟會大街、三隻 Boss（彈幕／大群／長戰） ================= */
 const RED9 = '#d6332b', GOLD = '#ffd24a', DRED = '#7a1a18', OL = '#2a1810';
 function drawCnyEnemy(e) {
+  if (e.skin === 'poppop') { drawPoppop(e); return; }
   const c = L.ctx, r = e.r, f = e.flash > 0, sk = e.skin, tm = e.t, fa = Math.atan2(L.p.y - e.y, L.p.x - e.x);
   if (sk === 'cracker') {
     c.fillStyle = OL; rrect(c, -r * 0.65, -r * 1.1, r * 1.3, r * 2.2, 4); c.fillStyle = f ? C.paper : RED9; rrect(c, -r * 0.55, -r * 1.0, r * 1.1, r * 2.0, 3); c.fillStyle = GOLD; c.fillRect(-r * 0.55, -r * 0.4, r * 1.1, 4); c.fillRect(-r * 0.55, r * 0.4, r * 1.1, 4);
@@ -313,10 +332,26 @@ function drawCnyBoss(e) {
     c.fillStyle = OL; c.font = '700 70px serif'; c.textAlign = 'center'; c.fillText('財', 0, 24 + b); if (open) { c.fillStyle = 'rgba(255,240,160,.85)'; circ(c, 0, b - 4, 26); c.fillStyle = OL; c.fillText('財', 0, 24 + b); }
   }
 }
+
+function drawPoppop(e) {
+  const c = L.ctx, r = e.r, f = e.flash > 0, tm = e.t, lit = e.fz !== undefined, fl = lit && Math.sin(tm * 30) > 0;
+  for (let k = -1; k <= 1; k++) { c.fillStyle = OL; rrect(c, k * r * 0.8 - r * 0.4, -r * 0.8, r * 0.8, r * 1.8, 3); c.fillStyle = f || fl ? C.paper : (k % 2 ? '#e84a3a' : RED9); rrect(c, k * r * 0.8 - r * 0.33, -r * 0.72, r * 0.66, r * 1.64, 2); c.fillStyle = GOLD; c.fillRect(k * r * 0.8 - r * 0.33, -r * 0.1, r * 0.66, 3); }
+  c.strokeStyle = '#5a3a20'; c.lineWidth = 2; c.beginPath(); c.moveTo(0, -r * 0.8); c.quadraticCurveTo(r * 0.4, -r * 1.3, r * 0.1, -r * 1.5); c.stroke(); c.fillStyle = Math.sin(tm * 25) > 0 ? '#ffe27a' : '#ff7a2a'; circ(c, r * 0.1, -r * 1.55, lit ? 6 : 3.5); c.fillStyle = '#fff'; circ(c, -r * 0.25, r * 0.2, 2.5); circ(c, r * 0.25, r * 0.2, 2.5);
+}
+function drawEclipse(e) {
+  const c = L.ctx, r = e.r, f = e.flash > 0, tm = e.t, g = 0.7 + 0.3 * Math.sin(tm * 4); c.fillStyle = 'rgba(246,230,168,' + (0.25 * g) + ')'; circ(c, 0, 0, r * 1.8); c.fillStyle = OL; circ(c, 0, 0, r * 1.1); c.fillStyle = f ? C.paper : MN; circ(c, 0, 0, r); c.fillStyle = f ? C.paper : '#1a2040'; circ(c, r * 0.35, -r * 0.1, r * 0.82);
+  c.fillStyle = '#ff6a6a'; circ(c, -r * 0.1, -r * 0.1, 3); c.strokeStyle = 'rgba(246,230,168,.5)'; c.lineWidth = 2; c.setLineDash([4, 6]); c.beginPath(); c.arc(0, 0, r * 1.5, tm, tm + 4); c.stroke(); c.setLineDash([]);
+}
+function drawStargazer(e) {
+  const c = L.ctx, r = e.r, f = e.flash > 0, tm = e.t;
+  if (e.tele > 0) { c.save(); c.globalAlpha = 0.35 + 0.4 * (1 - e.tele); c.strokeStyle = '#ff9ad8'; c.lineWidth = e.tele < 0.25 ? 4 : 2; c.beginPath(); c.moveTo(0, 0); c.lineTo(Math.cos(e.ra) * 620, Math.sin(e.ra) * 620); c.stroke(); c.restore(); }
+  c.fillStyle = 'rgba(180,160,255,.25)'; circ(c, 0, 0, r * 1.6); c.fillStyle = OL; star4(c, 0, 0, r * 1.25, tm * 0.5); c.fillStyle = f ? C.paper : '#c8b0ff'; star4(c, 0, 0, r * 1.05, tm * 0.5);
+  const a = e.ra !== undefined && e.tele > 0 ? e.ra : Math.atan2(L.p.y - e.y, L.p.x - e.x); c.save(); c.rotate(a); c.fillStyle = '#8a8aca'; rrect(c, r * 0.2, -r * 0.2, r * 1.4, r * 0.4, 3); c.fillStyle = '#ffe27a'; circ(c, r * 1.6, 0, r * 0.28); c.restore(); c.fillStyle = '#fff'; circ(c, 0, 0, r * 0.4); c.fillStyle = OL; circ(c, Math.cos(a) * 3, Math.sin(a) * 3, r * 0.2);
+}
 makeFest({
   theme: 22, name: '春節', pal: { ink: '#2a0e0e', floor: '#4a2624', floor2: '#552e2a', wall1: '#8a1f1a', wall2: '#c0322a', top: '#ffd24a', door: '#ffb02e' },
   amb: ['bandpass', 1300, 1.2, 0.004], ev: r => { const n = [392, 523, 659, 784][Math.floor(r() * 4)]; L.blip(n, n * 1.005, 0.4, 'triangle', 0.008); },
-  skinMap: { crawler: 'cracker', shooter: 'redenv', brute: 'lion', bomber: 'cake', nianling: 'nianling', firework: 'firework' }, drawEnemy: drawCnyEnemy,
+  skinMap: { poppop: 'poppop', crawler: 'cracker', shooter: 'redenv', brute: 'lion', bomber: 'cake', nianling: 'nianling', firework: 'firework' }, drawEnemy: drawCnyEnemy,
   bgDraw: cnyBg, zones: ['廟會街', '燈籠巷', '鞭炮坊', '舞台', '廟會市集', '團圓廣場'], zoneCol: 'rgba(255,210,120,.12)',
   obsKinds: [{ jk: 'lant', w: [36, 44], h: [48, 58] }, { jk: 'lant', w: [36, 44], h: [48, 58] }, { jk: 'drum', w: [44, 54], h: [44, 54] }, { jk: 'pole', w: [34, 44], h: [52, 66] }, { jk: 'pole', w: [34, 44], h: [52, 66] }],
   obsDraw: cnyObsDraw, bossObs: R => [[R.x + 110, R.y + 80], [R.x + R.w - 150, R.y + 80], [R.x + 110, R.y + R.h - 130], [R.x + R.w - 150, R.y + R.h - 130]].map(q => ({ x: q[0], y: q[1], w: 40, h: 54, jk: 'lant' }))
@@ -353,7 +388,7 @@ makeFest({
       fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang, 700, 8, 4.6 * dm, 'lance', 0.95, true); L.sfx('blade'); } }
   },
   achIds: ['cnNian', 'cnDrag', 'cnLant', 'cnFac'], facAch: ['新年好幫手', '同一局完成紅包池與鞭炮坊'],
-  ext: { nianling: { hp: 7, r: 15, name: '小年獸', cost: 3, cap: 3, ai: 'dasher' }, firework: { hp: 9, r: 15, name: '煙火筒', cost: 3, cap: 3, ai: 'caster' } },
+  ext: { nianling: { hp: 7, r: 15, name: '小年獸', cost: 3, cap: 3, ai: 'dasher' }, firework: { hp: 9, r: 15, name: '煙火筒', cost: 3, cap: 3, ai: 'caster' }, poppop: { hp: 5, r: 13, name: '爆竹串', cost: 3, cap: 3, ai: 'kamikaze' } },
   story: [
     [{ who: '旁白', text: '除夕的黃昏，整條街掛滿了紅燈籠。鑼鼓聲從遠處傳來，空氣裡有鞭炮與糖炒栗子的味道。' }, { who: '攤販', text: '提燈的旅人！爆竹自己跑出去了，年貨攤都被攪得亂七八糟——幫忙收拾一下吧！' }],
     [{ who: '旁白', text: '夜越深，燈籠越亮，街上的人影卻越來越少。有些聲音，好像在等著什麼人回家。' }, { who: '攤販', text: '最大的那一盞燈籠，從傍晚就一直亮著。大家都說，那是在等一個沒回來的人。' }]
@@ -365,6 +400,7 @@ makeFest({
 /* ================= 中秋（23）：全亮、月下庭院、三隻 Boss（彈幕／大群／長戰）；月光只是裝飾 ================= */
 const MN = '#f6e6a8', NAVY = '#1c2644';
 function drawMidEnemy(e) {
+  if (e.skin === 'eclipse') { drawEclipse(e); return; }
   const c = L.ctx, r = e.r, f = e.flash > 0, sk = e.skin, tm = e.t, fa = Math.atan2(L.p.y - e.y, L.p.x - e.x);
   if (sk === 'rabbit') {
     const sw = Math.sin(tm * 10) * 2; c.fillStyle = OL; rrect(c, -r * 0.6, -r * 1.9, r * 0.4, r * 1.2, 3); rrect(c, r * 0.2, -r * 1.9, r * 0.4, r * 1.2, 3); circ(c, 0, 0, r * 1.08); c.fillStyle = f ? C.paper : '#f6f2ee'; rrect(c, -r * 0.55, -r * 1.85, r * 0.3, r * 1.1, 3); rrect(c, r * 0.25, -r * 1.85, r * 0.3, r * 1.1, 3); circ(c, 0, 0, r);
@@ -446,7 +482,7 @@ function drawMidBoss(e) {
 makeFest({
   theme: 23, name: '中秋', pal: { ink: '#0e1428', floor: '#1e2a44', floor2: '#25324e', wall1: '#2a3a66', wall2: '#4a5a98', top: '#f6e6a8', door: '#ffd98a' },
   amb: ['bandpass', 1100, 1.0, 0.004], ev: r => { const n = [440, 554, 659, 880][Math.floor(r() * 4)]; L.blip(n, n * 1.003, 0.8, 'sine', 0.007); },
-  skinMap: { crawler: 'rabbit', shooter: 'osmanthus', brute: 'hound', bomber: 'mooncake', toad: 'toad', spirit: 'spirit' }, drawEnemy: drawMidEnemy,
+  skinMap: { eclipse: 'eclipse', crawler: 'rabbit', shooter: 'osmanthus', brute: 'hound', bomber: 'mooncake', toad: 'toad', spirit: 'spirit' }, drawEnemy: drawMidEnemy,
   bgDraw: midBg, zones: ['桂花林', '月下池塘', '搗藥坊', '涼亭', '月餅市集', '賞月廣場'], zoneCol: 'rgba(246,230,168,.10)',
   obsKinds: [{ jk: 'rlant', w: [38, 46], h: [48, 58] }, { jk: 'table', w: [46, 56], h: [40, 48] }, { jk: 'cass', w: [44, 58], h: [40, 52] }, { jk: 'cass', w: [44, 58], h: [40, 52] }, { jk: 'rlant', w: [38, 46], h: [48, 58] }],
   obsDraw: midObsDraw, bossObs: R => [[R.x + 110, R.y + 80], [R.x + R.w - 150, R.y + 80], [R.x + 110, R.y + R.h - 130], [R.x + R.w - 150, R.y + R.h - 130]].map(q => ({ x: q[0], y: q[1], w: 42, h: 52, jk: 'rlant' }))
@@ -483,7 +519,7 @@ makeFest({
       fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang, 700, 8, 4.6 * dm, 'lance', 0.95, true); L.sfx('blade'); } }
   },
   achIds: ['cmChang', 'cmArmy', 'cmWu', 'cmFac'], facAch: ['中秋小幫手', '同一局完成拜月台與搗藥坊'],
-  ext: { toad: { hp: 7, r: 15, name: '蟾蜍', cost: 3, cap: 3, ai: 'dasher' }, spirit: { hp: 8, r: 14, name: '月影', cost: 3, cap: 3, ai: 'floater' } },
+  ext: { toad: { hp: 7, r: 15, name: '蟾蜍', cost: 3, cap: 3, ai: 'dasher' }, spirit: { hp: 8, r: 14, name: '月影', cost: 3, cap: 3, ai: 'floater' }, eclipse: { hp: 9, r: 14, name: '月蝕輪', cost: 3, cap: 3, ai: 'orbiter' } },
   story: [
     [{ who: '旁白', text: '中秋夜，月亮大得像要掉進庭院裡。桂花的香味一陣一陣飄過來，遠處有人在烤肉、有人在猜燈謎。' }, { who: '玉兔', text: '提燈的旅人！月餅和藥草全被打翻了，有些東西在庭院裡亂跑，請你幫忙收拾！' }],
     [{ who: '旁白', text: '月越升越高，庭院的影子越拉越長。有兩個影子，一個在天的這一頭，一個在那一頭，怎麼也碰不到一起。' }, { who: '玉兔', text: '嫦娥大人和吳剛大人，每年今天都在等彼此，可是每年都剛好錯過……今年他們都氣壞了。' }]
@@ -495,6 +531,7 @@ makeFest({
 /* ================= 七夕（24）：全亮、銀河把大地圖切成兩半，鵲橋會聚散；紅線繃緊時線上敵人受傷並被定住 ================= */
 const PK = '#ff9ad8', VIO = '#6a4ab8', SKY = '#8fb8ff', RV = '#2a2a7a';
 function drawQxEnemy(e) {
+  if (e.skin === 'stargazer') { drawStargazer(e); return; }
   const c = L.ctx, r = e.r, f = e.flash > 0, sk = e.skin, tm = e.t, fa = Math.atan2(L.p.y - e.y, L.p.x - e.x);
   if (sk === 'magpie') {
     const fl = Math.sin(tm * 14) * r * 0.5; c.fillStyle = OL; circ(c, 0, 0, r * 1.05); c.beginPath(); c.ellipse(-r * 0.9, 0, r * 0.8, r * 0.4 + Math.abs(fl) * 0.5, -0.4 + fl * 0.02, 0, TAU); c.ellipse(r * 0.9, 0, r * 0.8, r * 0.4 + Math.abs(fl) * 0.5, 0.4 - fl * 0.02, 0, TAU); c.fill();
@@ -624,7 +661,7 @@ function drawQxBoss(e) {
 makeFest({
   theme: 24, name: '七夕', pal: { ink: '#10082a', floor: '#241a44', floor2: '#2b2050', wall1: '#3a2a78', wall2: '#6a4ab8', top: '#ffd0f0', door: '#ffa8e0' },
   amb: ['bandpass', 1500, 1.0, 0.004], ev: r => { const n = [587, 698, 880, 1047][Math.floor(r() * 4)]; L.blip(n, n * 1.004, 0.6, 'sine', 0.007); },
-  skinMap: { crawler: 'magpie', shooter: 'loom', brute: 'ox', bomber: 'star', calf: 'calf', rwater: 'rwater' }, drawEnemy: drawQxEnemy,
+  skinMap: { stargazer: 'stargazer', crawler: 'magpie', shooter: 'loom', brute: 'ox', bomber: 'star', calf: 'calf', rwater: 'rwater' }, drawEnemy: drawQxEnemy,
   bgDraw: qxBg, zones: ['織女岸', '星砂灘', '織布坊', '銀河', '鵲橋市集', '牛郎岸'], zoneCol: 'rgba(255,200,240,.10)',
   obsKinds: [{ jk: 'qlant', w: [38, 46], h: [48, 58] }, { jk: 'spool', w: [40, 48], h: [44, 52] }, { jk: 'qstar', w: [40, 50], h: [40, 50] }, { jk: 'qlant', w: [38, 46], h: [48, 58] }],
   layout: qxLayout, keepExtra: qxKeep, obsExtra: qxObsExtra, init2: qxInit, tick2: qxTick, back2: qxBack,
@@ -662,7 +699,7 @@ makeFest({
       fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang, 700, 8, 4.6 * dm, 'lance', 0.95, true); L.sfx('blade'); } }
   },
   achIds: ['qxZhi', 'qxNiu', 'qxGate', 'qxFac'], facAch: ['七夕小幫手', '同一局完成許願竹與織布坊'],
-  ext: { calf: { hp: 7, r: 15, name: '小牛', cost: 3, cap: 3, ai: 'dasher' }, rwater: { hp: 9, r: 14, name: '銀河水靈', cost: 3, cap: 3, ai: 'floater' } },
+  ext: { calf: { hp: 7, r: 15, name: '小牛', cost: 3, cap: 3, ai: 'dasher' }, rwater: { hp: 9, r: 14, name: '銀河水靈', cost: 3, cap: 3, ai: 'floater' }, stargazer: { hp: 8, r: 14, name: '觀星射手', cost: 4, cap: 2, ai: 'sniper' } },
   story: [
     [{ who: '旁白', text: '七夕的夜裡，銀河橫在天上，也橫在這座大庭園的正中間。河面閃著碎碎的星光，只有幾座喜鵲搭成的橋，一會兒出現、一會兒又散開。' }, { who: '喜鵲', text: '提燈的旅人！橋時有時無，你要抓準時間過河。另外小心那兩條紅線——繃緊的時候，線上的東西都會被定住喔。' }],
     [{ who: '旁白', text: '夜更深，銀河的水聲更近了。對岸有人在等，這一岸也有人在等，中間只隔著一條會聚散的橋。' }, { who: '喜鵲', text: '織女與牛郎，一年只有一天能見面。今年橋搭不好，兩個人都很著急……' }]
