@@ -219,6 +219,7 @@ function hwBossDef(fin) { const k = hwBossKind(fin), B = HW_BOSS[k]; return { ki
 function hwHit(e, dmg) {
   if (e.type !== 'boss') return dmg;
   if (e.xk === 'hwwolf') e.hwHit = L.time;
+  if (e.bleedNow) return dmg;
   if (e.xk === 'hwcap') { const n = L.enemies.filter(q => !q.dead && q.type !== 'boss' && q.skin === 'skel' && q.spawn <= 0).length; if (n >= 4) { if (L.time - (e.armTip || -99) > 8) { e.armTip = L.time; L.toast('軍團護體——先清掉骷髏，Boss 才會吃傷害', 2.2); } return dmg * 0.3; } }
   return dmg;
 }
@@ -349,7 +350,7 @@ L.registerWorld({
       ? [{ who: '旁白', text: '墓地的地面隆起，一排排骷髏從土裡站起，整齊地轉向你。' }, { who: '骷髏軍團長', text: '全軍聽令——今晚，沒有人可以過這座橋！' }, { who: '旁白', text: '只要骷髏還站著，軍團長就不怕任何攻擊。' }]
       : [{ who: '旁白', text: '雲被風推開，滿月露了出來。山丘上，有什麼東西慢慢站起身。' }, { who: '狼人', text: '月亮……真亮。你的燈，也很亮。可惜，我今晚不想被照著。' }, { who: '旁白', text: '牠在月光下會回血——不要給牠喘息的機會。' }]),
   onKill: e => {
-    const r = L.run;
+    const r = L.run; swarmBleed(e, 'hwcap', 'skel');
     if (e.skin === 'skel' && !e.rez && !e.noRez && L.rand() < 0.5) { const m = L.spawnEnemy('crawler', e.x, e.y); m.rez = true; m.noRez = true; m.sleep = false; m.spawn = 1.3; m.hp = m.maxHp = Math.max(2, Math.round(m.maxHp * 0.5)); L.burst(e.x, e.y, 10, [BONE, '#9a8f78'], 130, true); if (!r.hwRezTip) { r.hwRezTip = true; L.toast('骷髏會重組一次——再補一刀', 2.2); } }
     else if (e.skin === 'pumpk' && !e.hwElite) { for (let i = 0; i < 2; i++) { const m = L.spawnEnemy('crawler', e.x + (i ? 18 : -18), e.y); m.skin = 'kid'; m.r = Math.round(m.r * 0.8); m.hp = m.maxHp = 2; m.noRez = true; m.sleep = false; } L.burst(e.x, e.y, 12, [ORG, '#ffe27a'], 150, true); }
   },
@@ -378,6 +379,13 @@ L.registerWorld({
 function hwBossAch() { try { const k = L.bossDef().xk; if (k === 'hwking') L.unlockAch('hwKing'); else if (k === 'hwcap') L.unlockAch('hwCap'); else if (k === 'hwwolf') L.unlockAch('hwWolf'); } catch (e) { /* optional */ } }
 
 /* ================= 耶誕節（20）：全亮、超大地圖、三隻 Boss（彈幕／大群／長戰） ================= */
+
+/* 大群 Boss：小怪被打倒時，Boss 有 50% 機率受到 1 點傷害 */
+function swarmBleed(m, xk, skin) {
+  if (m.skin !== skin || m.bleedDone) return; m.bleedDone = true;
+  const b = L.enemies.find(q => !q.dead && q.type === 'boss' && q.xk === xk); if (!b || L.rand() >= 0.5) return;
+  b.bleedNow = true; L.hitEnemy(b, 1, 0, 0, 0, false); b.bleedNow = false; L.burst(b.x, b.y, 5, ['#ffffff'], 90, true);
+}
 const PAL20 = { ink: '#14301f', floor: '#e4eef6', floor2: '#d6e4f0', wall1: '#1f6b3f', wall2: '#2f9a58', top: '#fff7e0', door: '#d63a3a' };
 const XM_SKIN = { crawler: 'ginger', shooter: 'elf', brute: 'nutcracker', bomber: 'orn', reindeer: 'reindeer', snowman: 'snowman' };
 const XM_STORY = [
@@ -565,6 +573,7 @@ function xmBossDef(fin) {
 }
 function xmHit(e, dmg) {
   if (e.type !== 'boss') return dmg;
+  if (e.bleedNow) return dmg;
   if (e.xk === 'xmfact') { const n = L.enemies.filter(q => !q.dead && q.type !== 'boss' && q.skin === 'ginger' && q.spawn <= 0).length; if (n >= 4) { if (L.time - (e.armTip || -99) > 8) { e.armTip = L.time; L.toast('糖霜護體——先清掉薑餅人，Boss 才會吃傷害', 2.2); } return dmg * 0.3; } }
   if (e.xk === 'xmnut') { if (e.open && L.time < e.open) return dmg * 2; return dmg * 0.55; }
   return dmg;
@@ -658,7 +667,7 @@ L.registerWorld({
       ? [{ who: '旁白', text: '工廠的烤箱門一扇扇打開，熱氣裡走出整排薑餅人。' }, { who: '薑餅工廠長', text: '訂單沒做完，誰都別想走！出爐——' }, { who: '旁白', text: '只要薑餅人還站著，工廠長就有糖霜護體。' }]
       : [{ who: '旁白', text: '玩具堆裡，一個比房子還高的木頭士兵慢慢轉過頭，發條咔啦咔啦地響。' }, { who: '巨型胡桃鉗', text: '咔、咔——想要我的心，就得先撬開我的嘴。' }, { who: '旁白', text: '牠張開嘴巴的瞬間，是最脆弱的時候。' }]),
   onKill: e => {
-    const r = L.run;
+    const r = L.run; swarmBleed(e, 'xmfact', 'ginger');
     if (e.skin === 'ginger' && L.enemies.some(q => !q.dead && q.type === 'boss' && q.xk === 'xmfact')) { const o = L.rand() * TAU; for (let i = 0; i < 4; i++) L.enemyShot(e, o + i * TAU / 4, 120); }
     else if (e.skin === 'ginger') { r.xmGinger = (r.xmGinger || 0) + 1; }
   },
@@ -864,6 +873,7 @@ function esBossDef(fin) {
 }
 function esHit(e, dmg) {
   if (e.type !== 'boss') return dmg;
+  if (e.bleedNow) return dmg;
   if (e.xk === 'xehen') { const n = L.enemies.filter(q => !q.dead && q.type !== 'boss' && q.skin === 'chick' && q.spawn <= 0).length; if (n >= 4) { if (L.time - (e.armTip || -99) > 8) { e.armTip = L.time; L.toast('小雞們圍著媽媽——先清掉小雞，Boss 才會吃傷害', 2.2); } return dmg * 0.3; } }
   if (e.xk === 'xeegg') { if (e.open && L.time < e.open) return dmg * 2; return dmg * 0.55; }
   return dmg;
@@ -957,6 +967,7 @@ L.registerWorld({
       ? [{ who: '旁白', text: '稻草窩裡，一隻巨大的母雞站了起來，腳邊擠滿了毛茸茸的小雞。' }, { who: '雞媽媽', text: '咕咕！誰都不准碰我的孩子！' }, { who: '旁白', text: '只要小雞還圍著，雞媽媽就不怕傷害。' }]
       : [{ who: '旁白', text: '草地中央，一顆粉紅色的巨蛋靜靜立著，蛋殼上有一道細細的裂痕。' }, { who: '巨型彩蛋', text: '咚……咚……裡面的人，等了好久，好久。' }, { who: '旁白', text: '蛋殼裂開的瞬間，是最脆弱的時候。' }]),
   onKill: e => {
+    swarmBleed(e, 'xehen', 'chick');
     if (e.skin === 'chick' && L.enemies.some(q => !q.dead && q.type === 'boss' && q.xk === 'xehen')) { const o = L.rand() * TAU; for (let i = 0; i < 4; i++) L.enemyShot(e, o + i * TAU / 4, 120); }
   },
   events: ES_EVENTS,

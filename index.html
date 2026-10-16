@@ -3633,6 +3633,7 @@ function hitEnemy(e, dmg, dx, dy, kb, melee) {
     if (e.eaten >= 4) { e.eaten = 0; e.full = 3; }
     return true;
   }
+  if (p.skillCd > 0 && CLS[p.cls].id === 'beater' && !(p.beatN > 0)) { p.skillCd = Math.max(0, p.skillCd - Math.min(dmg, 12)); hudSig = ''; } // 擊節者能量：護盾擋下／分層敵人也要計入
   const wasSleep = !!e.sleep;
   if (e.sleep) wakeGroup(e.grp);
   if ((e.type === 'shield' || e.type === 'shield2') && e.shield > 0) {
@@ -3652,7 +3653,7 @@ function hitEnemy(e, dmg, dx, dy, kb, melee) {
   if (p.shadowBuf > 0 && CLS[p.cls].id === 'inkhunter') { dmg *= 1.5; p.shadowBuf = 0; burst(e.x, e.y - e.r * 0.4, 8, ['#a89ad8', C.paper], 150, true); }
   if (CLS[p.cls].id === 'watch' && Math.hypot(e.x - p.x, e.y - p.y) < lightR()) dmg *= (p.skillLight > 0 ? 1.45 : 1.3) + (upN('c_watch') >= 1 ? 0.1 : 0);
   if (p.crit > 0 && rand() < p.crit) { dmg *= 1.8; burst(e.x, e.y - e.r * 0.4, 8, ['#fff2a8', C.amber], 170, true); }
-  run.dmgOut = (run.dmgOut || 0) + Math.min(dmg, Math.max(0, e.hp)); e.hp -= dmg; e.flash = 0.08; if (p.skillCd > 0 && CLS[p.cls].id === 'beater' && !(p.beatN > 0)) { p.skillCd = Math.max(0, p.skillCd - Math.min(dmg, 12)); hudSig = ''; }
+  run.dmgOut = (run.dmgOut || 0) + Math.min(dmg, Math.max(0, e.hp)); e.hp -= dmg; e.flash = 0.08;
   if (e.type === 'deepworm' && e.hp > 0 && !e.split && (e.state === 'wind' || e.hp < e.maxHp * 0.6)) wormSplit(e);
   if (e.garden && !e.healed && !(e.healT > 0) && e.hp > 0 && e.hp <= e.maxHp * 0.5) e.healT = 0.8;
   if (e.type !== 'boss') { e.kx += dx * kb; e.ky += dy * kb; }
