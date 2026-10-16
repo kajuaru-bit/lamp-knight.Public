@@ -1478,7 +1478,7 @@ function loveKill(e) {
   e.deadAt = L.time; const m = e.pal;
   if (!m) return;
   if (!m.dead) { m.rage = 5; m.mate = null; m.alone = true; m.pal = e; L.toast('落單的另一半暴怒了！', 1.4); }
-  else if (m.deadAt !== undefined && L.time - m.deadAt < 1.2) { L.dropCoins(e.x, e.y, 6); if (L.rand() < 0.5) L.pickups.push({ kind: 'oil', x: e.x, y: e.y, t: 0 }); L.toast('成雙成對！', 1.4); L.sfx('pick'); }
+  else if (m.deadAt !== undefined && L.time - m.deadAt < 1.2) { L.dropCoins(e.x, e.y, 6); if (L.rand() < 0.5) L.pickups.push({ kind: 'oil', x: e.x, y: e.y, t: 0 }); L.toast('成雙成對！', 1.4); L.sfx('pick'); const r = L.run; r.pairN = (r.pairN || 0) + 1; if (r.pairN >= 10) L.unlockAch('pairs10'); }
 }
 function loveMoves(e, phase, ang) {
   const p = L.p, fin = e.xk === 'venus', a = pickOf(phase === 1 ? ['ring', 'arrow'] : phase === 2 ? ['ring', 'arrow', 'cling'] : ['ring', 'arrow', 'cling', 'rain']);
@@ -1511,6 +1511,28 @@ L.registerWorld({
   boss2: loveMoves, drawBoss: drawCupid,
   intro: def => [{ who: '旁白', text: def.name + '從粉紅色的雲裡飛了出來，手裡的弓已經拉滿。' }],
   outro: () => [{ who: '旁白', text: '弓弦鬆了。散落一地的愛心，一顆一顆都變得安靜。' }],
+  weapons: {
+    linkchain: { id: 'linkchain', name: '連線鏈條', tag: '連線', mode: 'tap', cd: 0.62, th: 17, col: '#ff6b8f', desc: '朝瞄準方向鎖定最近的敵人，再連到它旁邊最近的另一隻：兩隻都受傷，連線上的敵人也受傷；連線雙胞胎的另一半傷害 ×2（愛情專屬）',
+      fire: (ox, oy, ang, dm) => {
+        const P = L.p, en = L.enemies.filter(e => !e.dead && e.spawn <= 0 && e.type !== 'boss' && Math.hypot(e.x - P.x, e.y - P.y) < 460);
+        let t1 = null, bs = 1e9; for (const e of en) { const a = Math.atan2(e.y - P.y, e.x - P.x); let da = Math.abs(a - ang); if (da > Math.PI) da = TAU - da; const sc = da * 300 + Math.hypot(e.x - P.x, e.y - P.y) * 0.4; if (da < 0.6 && sc < bs) { bs = sc; t1 = e; } }
+        L.sfx('tick'); if (!t1) { L.shoot(ox, oy, ang, 520, 6, 2 * dm, 'pellet', 0.6); return; }
+        let t2 = null, bd = 280; for (const e of en) if (e !== t1) { const d = Math.hypot(e.x - t1.x, e.y - t1.y); if (d < bd) { bd = d; t2 = e; } }
+        const hit = (e, k) => L.hitEnemy(e, 2.6 * dm * k, Math.cos(ang), Math.sin(ang), 120, false);
+        hit(t1, 1); if (t1.type === 'twin' && t1.pal && !t1.pal.dead) hit(t1.pal, 2);
+        if (t2) { hit(t2, 1); for (const e of en) if (e !== t1 && e !== t2) { const vx = t2.x - t1.x, vy = t2.y - t1.y, l2 = vx * vx + vy * vy || 1; let u = ((e.x - t1.x) * vx + (e.y - t1.y) * vy) / l2; u = Math.max(0, Math.min(1, u)); if (Math.hypot(e.x - (t1.x + vx * u), e.y - (t1.y + vy * u)) < e.r + 10) hit(e, 0.7); } }
+        const seg = (a, b) => { for (let i = 0; i <= 8; i++) { const u = i / 8; L.burst(a.x + (b.x - a.x) * u, a.y + (b.y - a.y) * u, 1, ['#ff6b8f', '#ffd0dc'], 40, true); } };
+        seg({ x: P.x, y: P.y }, t1); if (t2) seg(t1, t2);
+      } },
+    thorn: { id: 'thorn', name: '荊棘鞭', tag: '近戰', mode: 'tap', cd: 0.5, th: 17, col: '#d81b4a', range: 125, half: 1.2, dmg: 4, kb: 700, desc: '寬廣的一鞭，擊退強，適合甩開黏人愛心（愛情專屬）' }
+  },
+  ach: [
+    { id: 'loveMid', name: '箭下留情', desc: '愛情：擊敗丘比特' },
+    { id: 'loveBoss', name: '愛的終點', desc: '愛情：擊敗愛神維納斯' },
+    { id: 'pairs10', name: '成雙成對', desc: '愛情：一局內觸發 10 次「成雙成對」（兩隻雙胞胎在 1.2 秒內一起倒下）' }
+  ],
+  onFinal: () => { if (L.th() === 17) L.unlockAch('loveBoss'); },
+  onMid: () => { if (L.th() === 17) L.unlockAch('loveMid'); },
   onKill: loveKill
 });
 
@@ -1599,7 +1621,25 @@ const XEV = {
       draw: it => xProp(it, '#c0392b', '籤', it.used)
     }
   },
-  17: { // 月老紅線
+  17: { // 月老紅線／情書／姻緣樹
+    letter: {
+      toast: '情書：拆開看看，可能是好消息，也可能是惡作劇', setup: (room, cx, cy) => xAdd(room, cx, cy, 'letter'),
+      info: it => ({ name: '情書', desc: it.used ? '信已經拆開了' : '拆開：45% 回信（燈芯 +20）、30% 告白（精良強化）、25% 惡作劇（出現 3 隻黏人愛心）；只能一次' }),
+      hint: it => it.used ? '' : 'F 拆開情書',
+      use(it) { if (it.used) return; it.used = true; const r = L.rand(); L.sfx('pick');
+        if (r < 0.45) { L.p.coins += 20; L.toast('回信：燈芯 +20', 2.4); }
+        else if (r < 0.75) { const u = L.premUpgrade(); L.toast('告白！精良強化「' + L.UPGN(u) + '」', 2.8); }
+        else { for (let i = 0; i < 3; i++) { const sp = L.freeSpot(14); const m = L.spawnEnemy('clinger', sp.x, sp.y); m.spawn = 0.6; } L.toast('惡作劇！黏人愛心跑出來了', 2.6); } },
+      draw: it => xProp(it, '#ff8fb0', '信', it.used)
+    },
+    tree: {
+      toast: '姻緣樹：每次掛一條 5 燈芯的紅絲帶，有機會補血（最多 3 次）', setup: (room, cx, cy) => xAdd(room, cx, cy, 'tree', { n: 0 }),
+      info: it => ({ name: '姻緣樹', desc: '每次 5 燈芯：55% 燈火 +1，第 3 次保底。已掛 ' + it.n + ' / 3' }),
+      hint: it => it.n >= 3 ? '樹上掛滿了' : 'F 掛紅絲帶（5 燈芯）',
+      use(it) { if (it.n >= 3) return; if (L.p.coins < 5) { L.toast('燈芯不夠'); L.sfx('tick'); return; } L.p.coins -= 5; it.n++; L.sfx('buy'); L.burst(it.x, it.y - 20, 8, ['#ff4d6d', '#ffd0dc'], 100, true);
+        if (L.rand() < 0.55 || it.n >= 3) { L.healP(1); L.toast('紅絲帶飄起來：燈火 +1', 2); } else L.toast('絲帶掛上了，沒有動靜……', 1.8); },
+      draw: it => xProp(it, '#5a9a3a', '樹', it.n >= 3)
+    },
     thread: {
       toast: '月老紅線：用 1 點燈火綁上紅線，兩份強化一起生效', setup: (room, cx, cy) => xAdd(room, cx, cy, 'thread'),
       info: it => ({ name: '月老紅線', desc: it.used ? '紅線已經繫好了' : '付出 1 點燈火（血量需大於 2），一次得到一份精良強化與一份普通強化；只能一次' }),

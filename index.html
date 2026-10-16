@@ -1945,7 +1945,8 @@ function loadRoom() {
     else { const W = [['chase', 3], ['mimic', 2], ['well', 2], ['grand', 1], ['normal', 2]].concat(run.noShop ? [] : [['fake', 2]]).concat(run.layer >= 1 ? [['rush', 2]] : []); let r0 = rand() * W.reduce((a0, q) => a0 + q[1], 0); for (const q of W) { r0 -= q[1]; if (r0 <= 0) { variant = q[0]; break; } } variant = variant || 'normal'; { const xe = THEMES[th()].events; if (xe && (rand() < 0.25 || run.karma || run.greek)) variant = 'x:' + pickOf(Object.keys(xe)); } }
   }
   const chase = variant === 'chase', rush = variant === 'rush';
-  const big = kind === 'combat' || kind === 'boss' || chase || rush, SZ = kind === 'boss' ? BOSSR : BIG;
+  const small = (th() === 17 && kind === 'combat') || (th() === 15 && kind === 'boss'); // 愛情戰鬥房、日本 Boss 房：特殊房大小
+  const big = !small && (kind === 'combat' || kind === 'boss' || chase || rush), SZ = kind === 'boss' ? BOSSR : BIG;
   ROOM.w = big ? SZ.w : 820; ROOM.h = big ? SZ.h : 450; DOOR.y = ROOM.y + ROOM.h / 2;
   if (run.path && kind === 'combat') { if (port) { ROOM.w = 450; ROOM.h = PATH_LEN; DOOR.y = ROOM.y + 110; } else { ROOM.w = PATH_LEN; ROOM.h = 450; DOOR.y = ROOM.y + ROOM.h / 2; } }
   if (run.greek && kind === 'combat') { ROOM.w = 2400; ROOM.h = 1500; DOOR.y = ROOM.y + ROOM.h / 2; }
@@ -2200,7 +2201,7 @@ const AFF = { // 主題傾向：偏好的武器／強化（出現機率較高、
   bullet: { w: ['pblade', 'whip', 'pole', 'dance', 'orb', 'shears', 'blade', 'syrup', 'pillow', 'frostcane', 'beatstick', 'oar', 'fan'], u: ['shoes', 'wick'] },
   charge: { w: ['spear', 'hammer', 'frostcane', 'pole', 'syrup', 'beatstick', 'shears', 'shakujo'], u: ['reach', 'wick'] },
   swarm: { w: ['scatter', 'fan', 'lance', 'glance', 'bloat', 'bloat3', 'lyre', 'coinx', 'broom', 'bowl', 'beads', 'lure', 'bait'], u: ['pierce', 'big'] },
-  love: { w: ['frostcane', 'syrup', 'pillow', 'bloat', 'bloat3', 'bowl', 'broom', 'oar', 'beads', 'lamplet'], u: ['wick', 'big', 'skpow'] },
+  love: { w: ['linkchain', 'thorn', 'frostcane', 'syrup', 'pillow', 'bloat', 'bloat3', 'bowl', 'broom', 'oar', 'beads', 'lamplet'], u: ['wick', 'big', 'skpow'] },
   long: { w: ['orb', 'oilgun', 'lamplet', 'lure', 'bait'], u: ['wick', 'oil', 'skcd'], heal: 1 }
 };
 function affinity() { if (th() === 14 && run.karma) return AFF.bullet; if (th() === 16) return AFF.charge; if (th() === 17) return AFF.love; if (th() === 15 || run.guard) return AFF.swarm; if (run.escape || run.endless) return AFF.long; return null; }
@@ -6506,7 +6507,7 @@ function loadPack(file, cb) {
 function registerWorld(w) {
   THEMES[w.theme] = w; TNAMES[w.theme] = w.name;
   for (const t in (w.enemies || {})) { const q = w.enemies[t]; ENEMY[t] = { hp: q.hp, r: q.r }; ENAME[t] = q.name; if (q.cost) EXT_COST[t] = q.cost; if (q.cap) EXT_CAP[t] = q.cap; if (q.ai) EXT_AI[t] = q.ai; }
-  for (const id in (w.weapons || {})) { WDEF[id] = w.weapons[id]; if (WLIST.indexOf(id) < 0) WLIST.push(id); }
+  for (const id in (w.weapons || {})) { WDEF[id] = w.weapons[id]; if (WDEF[id].col) WCOL[id] = WDEF[id].col; if (WLIST.indexOf(id) < 0) WLIST.push(id); }
   for (const a of (w.ach || [])) { if (!ACH.some(x => x.id === a.id)) { ACH.push(a); ACH_BY[a.id] = a; ACH_CATS['主題'].push(a.id); } }
   optTheme.innerHTML += '<option value="' + w.theme + '">' + w.opt + '</option>'; $('lblDlcPool').hidden = false;
 }
