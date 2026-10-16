@@ -718,6 +718,8 @@ const UPG = {
   c_cal:   { name: '焦距調整', cls: 'calib', desc: '【校準員專屬】第 1 層：校準槍的傷害衰減變慢 35％；第 2 層：傷害下限 ×0.7，且座標標記可同時標記 2 個目標', max: 2, price: 11 },
   c_fer:   { name: '渡口深處', cls: 'ferry', desc: '【擺渡人專屬】第 1 層：燈火隊員 +1 名、存在 +4 秒；第 2 層：隊員消失時留下 4 秒的「渡口」（站上去回血），射速 +30％', max: 2, price: 11 },
   c_beat:  { name: '強勁節拍', cls: 'beater', desc: '【擊節者專屬】第 1 層：起拍的加成次數 5 → 7 次；第 2 層：加成攻擊會震開附近敵人並清除範圍內的敵方子彈', max: 2, price: 11 },
+  c_star:  { name: '星河回響', cls: 'starc', desc: '【星圖師專屬】第 1 層：星障存在 5 → 8 秒且寬度 +30%；第 2 層：衝擊波使敵人暈眩 0.8 秒（Boss 0.3 秒），且每次充能所需能量 −20%（120 → 96）', max: 2, price: 11 },
+  c_cour:  { name: '疾風火痕', cls: 'courier', desc: '【提燈信使專屬】第 1 層：衝刺後的火光時間 2 → 3 秒，火光存在 1.8 → 3 秒；第 2 層：火光傷害 1.3 → 2，且疾送所需移動距離 −25%', max: 2, price: 11 },
   c_resn:  { name: '餘音繞樑', cls: 'echoer', desc: '【回響手專屬】第 1 層：共鳴持續 6 → 9 秒；第 2 層：清彈改為全向範圍，追加的遠距離彈傷害 ×1.5', max: 2, price: 11 },
   c_wall:  { name: '雙層屏障', cls: 'mage', desc: '【折紙術士專屬】同時立起兩道前後相隔的紙牆；紙牆也能擋住敵人（敵人無法穿過）', max: 2, price: 10 },
   c_warm:  { name: '濃縮暖光', cls: 'oiler', desc: '【燈油師專屬】第 1 層：暖光恢復量 +1；第 2 層：暖光冷卻 −20%', max: 2, price: 13 },
@@ -753,6 +755,8 @@ const PREM = {
   c_cal:   { name: '焦距調整・極', cls: 'calib', desc: '校準槍傷害衰減變慢且下限 ×0.7，座標標記可同時標記 2 個目標（占 2 層）', price: 19, w: 2 },
   c_fer:   { name: '渡口深處・極', cls: 'ferry', desc: '燈火隊員 +1 名、存在 +4 秒，消失時留下回血的渡口，射速 +30％（占 2 層）', price: 19, w: 2 },
   c_beat:  { name: '強勁節拍・極', cls: 'beater', desc: '起拍加成 7 次，加成攻擊震開敵人並清除範圍內子彈（占 2 層）', price: 19, w: 2 },
+  c_star:  { name: '星河回響・極', cls: 'starc', desc: '星障 8 秒且更寬、衝擊波暈眩敵人、充能所需能量 −20%（占 2 層）', price: 19, w: 2 },
+  c_cour:  { name: '疾風火痕・極', cls: 'courier', desc: '火光與軌跡時間 3 秒、火光傷害 2、疾送距離需求 −25%（占 2 層）', price: 19, w: 2 },
   c_resn:  { name: '餘音繞樑・極', cls: 'echoer', desc: '共鳴持續 9 秒、清彈全向、追加遠距離彈傷害 ×1.5（占 2 層）', price: 19, w: 2 },
   c_wall:  { name: '分立屏障', cls: 'mage', desc: '【折紙術士專屬】兩道紙牆改成可以分開立起：施放後 6 秒內可以再立一道；紙牆也能擋住敵人', price: 18, w: 2 },
   c_warm:  { name: '暖光・極', cls: 'oiler', desc: '【燈油師專屬】暖光恢復量 +1 且冷卻 −20%（占 2 層）', price: 22, w: 2 },
@@ -992,8 +996,8 @@ const CLS = [
   { id: 'calib', name: '校準員', role: '遠程精準', weapon: 'calgun', hp: 5, spd: 1, dlcReq: [['future', 'futEscape']], need: '未來世界：守燈＋逃離各通關一次', skill: '座標標記', sdesc: '標記最近的敵人（優先 Boss），3 秒後引爆；施放與引爆都會清除附近的敵方子彈', cd: 14, detail: '座標標記：對最近的敵人（有 Boss 時優先）打上標記，3 秒後在標記處引爆（半徑 130、傷害 8）；施放時清除身邊 170 像素的敵方子彈，引爆時清除標記處 150 像素的敵方子彈。專屬武器校準槍：可穿透的子彈，傷害隨距離遞減（100 像素內 ×1.3、300 ×1.0、500 ×0.7、700 ×0.4）。' },
   { id: 'ferry', name: '擺渡人', role: '召喚輔助', weapon: 'pole', hp: 6, spd: 0.95, dlcReq: [['letters', 'shore'], ['dl2long']], need: 'DLC2：字母書房＋彼岸各通關一次，或 DLC2 長線通關一次', skill: '渡燈', sdesc: '召喚 2 名自發光的燈火隊員，14 秒；會自動射擊，消失時震開敵方子彈', cd: 22, detail: '渡燈：在身邊召喚 2 名燈火隊員（血量 2，各自發出一圈光），存在 14 秒，會自動朝最近的敵人射擊（傷害 1.2、每 0.9 秒）；消失時迸出光圈，清掉附近的敵方子彈；再次施放會取代舊的。專屬武器擺渡篙：向前戳刺，射程長、貫穿一整列，戳中的敵人被推開。' },
   { id: 'beater', name: '擊節者', role: '近戰・能量爆發', weapon: 'beatstick', hp: 6, spd: 1, dlcReq: [['zen', 'zenKarma']], need: '佛寺：修行路＋渡化道場各通關一次', skill: '起拍', sdesc: '接下來 5 次攻擊都有加成（傷害 ×1.8）；冷卻改用「能量」：造成傷害與受到傷害都會累積', cd: 60, detail: '起拍：接下來 5 次攻擊傷害 ×1.8。技能冷卻不看時間，而是累積能量（需要 60）：每造成 1 點傷害 +1，每損失 1 點燈火 +8（每間房最多靠受傷充能 2 次）。強化二：加成攻擊會震開附近敵人並清除範圍內的敵方子彈。專屬武器節拍棒：快速短棒，揮擊範圍內的敵方子彈會被打掉。' },
-  { id: 'starc', name: '星圖師', role: '控場・能量衝擊', weapon: 'astrolabe', hp: 5, spd: 1, dlcReq: [['cosmos', 'kitchen']], need: '星座宇宙＋食材廚房各通關一次', skill: '星陣', sdesc: '施放衝擊波，並在面前立起存在 5 秒的星障；最多累積 3 次，每次需要 120 能量', cd: 120, detail: '星陣：以自己為中心放出衝擊波（半徑 200、傷害 3.4、擊退，並清除敵方子彈），同時在面前立起一道存在 5 秒的星障：擋住敵方子彈，也把靠近的敵人（Boss 除外）推開並灼傷。技能最多累積 3 次，一開始有 1 次；每一次充能需要 120 能量：每造成 1 點傷害 +1（單次最多 12），每損失 1 點燈火 +8（每間房最多靠受傷充能 2 次）。專屬武器星盤：單發的星光彈。' },
-  { id: 'courier', name: '提燈信使', role: '高機動・火光軌跡', weapon: 'courierknife', hp: 4, spd: 1.3, dlcReq: [['kitchen', 'escape']], need: '食材廚房＋電玩逃離各通關一次', skill: '疾送', sdesc: '向前猛衝並撞傷敵人；之後 2 秒內只要移動就會留下火光灼傷敵人；冷卻改用「移動距離」', cd: 14, detail: '疾送：向前衝刺約 260 像素（途中無敵、撞到的敵人受 2.5 傷害）；衝刺後 2 秒內，只要在移動，就會在身後留下火光（每走約 26 像素一團，存在 1.8 秒），敵人碰到火光每 0.35 秒受 1.3 傷害。冷卻不看時間，而是累積移動距離（需要 1400 像素），衝刺也算。被動：移動速度 ×1.3、燈火只有 4。專屬武器信使短刃：快速短揮。' },
+  { id: 'starc', name: '星圖師', role: '控場・能量衝擊', weapon: 'astrolabe', hp: 5, spd: 1, dlcReq: [['love', 'cosmos']], need: '愛情＋星座宇宙各通關一次', skill: '星陣', sdesc: '施放衝擊波，並在面前立起存在 5 秒的星障；最多累積 3 次，每次需要 120 能量', cd: 120, detail: '星陣：以自己為中心放出衝擊波（半徑 200、傷害 3.4、擊退，並清除敵方子彈），同時在面前立起一道存在 5 秒的星障：擋住敵方子彈，也把靠近的敵人（Boss 除外）推開並灼傷。技能最多累積 3 次，一開始有 1 次；每一次充能需要 120 能量：每造成 1 點傷害 +1（單次最多 12），每損失 1 點燈火 +8（每間房最多靠受傷充能 2 次）。專屬武器星盤：單發的星光彈。' },
+  { id: 'courier', name: '提燈信使', role: '高機動・火光軌跡', weapon: 'courierknife', hp: 4, spd: 1.3, dlcReq: [['fest2', 'season']], need: '傳統節慶＋季節慶典各通關一次', skill: '疾送', sdesc: '向前猛衝並撞傷敵人；之後 2 秒內只要移動就會留下火光灼傷敵人；冷卻改用「移動距離」', cd: 14, detail: '疾送：向前衝刺約 260 像素（途中無敵、撞到的敵人受 2.5 傷害）；衝刺後 2 秒內，只要在移動，就會在身後留下火光（每走約 26 像素一團，存在 1.8 秒），敵人碰到火光每 0.35 秒受 1.3 傷害。冷卻不看時間，而是累積移動距離（需要 1400 像素），衝刺也算。被動：移動速度 ×1.3、燈火只有 4。專屬武器信使短刃：快速短揮。' },
   { id: 'echoer', name: '回響手', role: '遠程・清彈', weapon: 'echobow', hp: 5, spd: 1.05, dlcReq: [['greek', 'japan']], need: '希臘神話＋日本觀光維護各通關一次', skill: '共鳴', sdesc: '6 秒內：武器本來無法清子彈的，攻擊時可清除前方子彈；本來就能清子彈的（近戰類），每次攻擊額外射出遠距離子彈', cd: 14, detail: '共鳴：持續 6 秒。手上武器是遠程（無法清子彈）時，每次攻擊會清除前方 230 像素內的敵方子彈；手上武器是近戰或戳刺（本來就能清子彈）時，每次攻擊額外射出一發遠距離貫穿彈（傷害 2.4）。專屬武器迴響弓：快速的遠程單發。' },
 ];
 let trailFires = [], fireRoom = null;
@@ -3453,18 +3457,19 @@ WDEF.pole.fire = (ox, oy, ang, dm) => {
     if (Math.abs(dx * a.y - dy * a.x) <= wd / 2 + e.r) { hitEnemy(e, 4.2 * dm, a.x, a.y, 760, true); if (!e.dead && e.type !== 'boss' && !e.elite) e.stun = Math.max(e.stun || 0, 0.3); }
   }
 };
+const starNeed = () => 120 * p.cdMul * (upN('c_star') >= 2 ? 0.8 : 1);
 function castStar() {
   const a = p.aim, rm = reachMul() * p.skillPow, dm = p.dmgMul * p.skillPow, R = 200 * rm;
   rings.push({ x: p.x, y: p.y, R, t: 0.45, dur: 0.45 }); burst(p.x, p.y, 18, ['#bfe0ff', '#fff6c0', C.paper], 200, true); sfx('clear'); shake = Math.max(shake, 4);
-  for (const e of enemies) { if (e.dead || e.spawn > 0) continue; const dx = e.x - p.x, dy = e.y - p.y, d = Math.hypot(dx, dy) || 1; if (d < R + e.r) hitEnemy(e, 3.4 * dm, dx / d, dy / d, 520, true); }
+  for (const e of enemies) { if (e.dead || e.spawn > 0) continue; const dx = e.x - p.x, dy = e.y - p.y, d = Math.hypot(dx, dy) || 1; if (d < R + e.r) { hitEnemy(e, 3.4 * dm, dx / d, dy / d, 520, true); if (!e.dead && upN('c_star') >= 2) e.stun = Math.max(e.stun || 0, e.type === 'boss' ? 0.3 : 0.8); } }
   for (const b of bullets) if (b.own === 'e' && Math.hypot(b.x - p.x, b.y - p.y) < R + 20) { b.dead = true; burst(b.x, b.y, 4, ['#bfe0ff', C.paper], 100, true); }
-  walls.push({ x: clamp(p.x + a.x * 95, ROOM.x + 20, ROOM.x + ROOM.w - 20), y: clamp(p.y + a.y * 95, ROOM.y + 20, ROOM.y + ROOM.h - 20), nx: -a.y, ny: a.x, half: 80 * rm, t: 5, dur: 5, star: true });
+  walls.push({ x: clamp(p.x + a.x * 95, ROOM.x + 20, ROOM.x + ROOM.w - 20), y: clamp(p.y + a.y * 95, ROOM.y + 20, ROOM.y + ROOM.h - 20), nx: -a.y, ny: a.x, half: 80 * rm * (upN('c_star') >= 1 ? 1.3 : 1), t: upN('c_star') >= 1 ? 8 : 5, dur: upN('c_star') >= 1 ? 8 : 5, star: true });
   toast('星陣！衝擊波與 5 秒星障（還剩 ' + p.starN + ' 次）', 1.8);
 }
 function newSkill(c) {
   const id = c.id;
   if (id === 'courier') {
-    const a = p.aim; p.dashT = 0.24; p.dashV = { x: a.x * 1100, y: a.y * 1100 }; p.dashHit = []; p.iframes = Math.max(p.iframes, 0.5); p.dashDmg = 2.5; p.dashStun = 0; p.trailT = 0.24 + 2; p.trailAcc = 0; sfx('blade');
+    const a = p.aim; p.dashT = 0.24; p.dashV = { x: a.x * 1100, y: a.y * 1100 }; p.dashHit = []; p.iframes = Math.max(p.iframes, 0.5); p.dashDmg = 2.5; p.dashStun = 0; p.trailT = 0.24 + (upN('c_cour') >= 1 ? 3 : 2); p.trailAcc = 0; p.skillCd = Math.max(2, c.cd * p.cdMul * (upN('c_cour') >= 2 ? 0.75 : 1)); sfx('blade');
     burst(p.x, p.y, 12, ['#ffb36a', '#ff6a3a', C.paper], 170, true); toast('疾送！2 秒內移動會留下火光', 1.8); hudSig = ''; return;
   }
   if (id === 'sugarc') {
@@ -3494,16 +3499,16 @@ function newSkill(c) {
 function updateNewCls(dt) {
   if (state !== 'play') return;
   if (fireRoom !== room) { trailFires = []; fireRoom = room; }
-  if (CLS[p.cls].id === 'starc' && p.starN < 3 && p.skillCd <= 0) { p.starN++; p.skillCd = p.starN < 3 ? 120 * p.cdMul : 0; hudSig = ''; sfx('clear'); burst(p.x, p.y, 10, ['#bfe0ff', '#fff6c0'], 150, true); toast('星圖充能：' + p.starN + ' / 3', 1.4); }
+  if (CLS[p.cls].id === 'starc' && p.starN < 3 && p.skillCd <= 0) { p.starN++; p.skillCd = p.starN < 3 ? starNeed() : 0; hudSig = ''; sfx('clear'); burst(p.x, p.y, 10, ['#bfe0ff', '#fff6c0'], 150, true); toast('星圖充能：' + p.starN + ' / 3', 1.4); }
   if (CLS[p.cls].id === 'courier') {
     if (p._lx === undefined) { p._lx = p.x; p._ly = p.y; }
     const mv = Math.min(Math.hypot(p.x - p._lx, p.y - p._ly), 1100 * dt + 2); p._lx = p.x; p._ly = p.y;
     if (p.skillCd > 0) { p.skillCd = Math.max(0, p.skillCd - mv / 100); if (p.skillCd <= 0) hudSig = ''; }
-    if (p.trailT > 0) { p.trailT -= dt; p.trailAcc = (p.trailAcc || 0) + mv; while (p.trailAcc >= 26) { p.trailAcc -= 26; if (trailFires.length < 90) trailFires.push({ x: p.x, y: p.y, t: 1.8, T: 1.8 }); } }
+    if (p.trailT > 0) { p.trailT -= dt; p.trailAcc = (p.trailAcc || 0) + mv; while (p.trailAcc >= 26) { p.trailAcc -= 26; if (trailFires.length < 90) { const life = upN('c_cour') >= 1 ? 3 : 1.8; trailFires.push({ x: p.x, y: p.y, t: life, T: life }); } } }
   }
   if (trailFires.length) {
     for (const f of trailFires) f.t -= dt; trailFires = trailFires.filter(f => f.t > 0);
-    for (const e of enemies) { if (e.dead || e.spawn > 0) continue; if (run.t - (e.fireAt || -9) < 0.35) continue; if (trailFires.some(f => Math.hypot(e.x - f.x, e.y - f.y) < e.r + 22)) { e.fireAt = run.t; hitEnemy(e, 1.3 * p.dmgMul * p.skillPow, 0, 0, 0, true); } }
+    for (const e of enemies) { if (e.dead || e.spawn > 0) continue; if (run.t - (e.fireAt || -9) < 0.35) continue; if (trailFires.some(f => Math.hypot(e.x - f.x, e.y - f.y) < e.r + 22)) { e.fireAt = run.t; hitEnemy(e, (upN('c_cour') >= 2 ? 2 : 1.3) * p.dmgMul * p.skillPow, 0, 0, 0, true); } }
   }
   p.pongReload = Math.max(0, (p.pongReload || 0) - dt); if (p.echoT > 0) { p.echoT = Math.max(0, p.echoT - dt); if (p.echoT <= 0) { hudSig = ''; toast('共鳴結束', 1); } }
   if (p.sugar > 0) { p.sugarT -= dt; if (p.sugarT <= 0) { p.sugar = 0; toast('糖衣融化了', 1.2); hudSig = ''; } }
@@ -5209,7 +5214,7 @@ function useSkill() {
   if (c.id === 'starc') {
     if (state !== 'play') return;
     if (!(p.starN > 0)) { toast('星圖還在充能（還要 ' + Math.ceil(p.skillCd) + ' 能量）', 1.2); sfx('tick'); return; }
-    p.starN--; if (p.skillCd <= 0) p.skillCd = 120 * p.cdMul; room.skillUsed = true; hudSig = ''; castStar(); return;
+    p.starN--; if (p.skillCd <= 0) p.skillCd = starNeed(); room.skillUsed = true; hudSig = ''; castStar(); return;
   }
   const chaining = p.chainLeft > 0 && p.chainT > 0 && p.skillCd > 0 && ((c.id === 'cutter' && upN('c_chain') >= 1) || (c.id === 'mage' && upN('c_wall') >= 2));
   if (state !== 'play' || (p.skillCd > 0 && !chaining)) return;
@@ -5452,7 +5457,7 @@ btn('btnDark', () => { if (state === 'choice') pickEnding(1); });
 for (const id of ['optAuto', 'optSound']) $(id).addEventListener('change', ev => { if (ev.target && ev.target.blur) ev.target.blur(); });
 
 /* ---------- update ---------- */
-const P_SPEED = 215;
+const P_SPEED = 215, P_MAX = 340; // P_MAX：所有職業相同的實際最高移動速度（像素／秒），不管靴子或職業倍率
 function playerMove(dt) {
   if (p.clingT > 0) p.clingT -= dt;
   if (p.dashT > 0) {
@@ -5480,6 +5485,7 @@ function playerMove(dt) {
     const dx = mouse.x + cam.x - p.x, dy = mouse.y + cam.y - p.y, d = Math.hypot(dx, dy);
     if (d > 8) { const sp = P_SPEED * p.speedMul * (p.danceFast ? 0.85 : 1) * slpSpd() * Math.min(1, (d - 8) / 70); tx = dx / d * sp; ty = dy / d * sp; }
   }
+  { const m0 = Math.hypot(tx, ty); if (m0 > P_MAX) { tx *= P_MAX / m0; ty *= P_MAX / m0; } }
   if (p.rootT > 0) { p.rootT -= dt; tx = 0; ty = 0; }
   if (p.frozenT > 0) { p.frozenT -= dt; tx = 0; ty = 0; }
   if (frosts.some(f => Math.hypot(p.x - f.x, p.y - f.y) < f.r)) { tx *= 0.7; ty *= 0.7; }

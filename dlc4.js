@@ -334,7 +334,7 @@ cap.events = { kchest: chest };
 // 第 3 層：三間非 DLC Boss 來用餐；第 4 層是最後一隻廚房 Boss（Boss 順序依「廚房層」計：第 1、2、4 層）
 {
   const b0 = cap.boss, i0 = cap.intro;
-  const dine = () => { const r = L.run; r.dine = r.dine || L.shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8]).slice(0, 3); return L.THEMES[r.dine[Math.max(0, Math.min(2, r.step | 0))]].boss(false); };
+  const dine = () => { const r = L.run; r.dine = r.dine || L.shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8]).slice(0, 3); return L.THEMES[r.dine[Math.max(0, Math.min(2, r.step | 0))]].boss(true); };
   cap.boss = fin => { const r = L.run; if (r.layer === 2) return dine(); const sv = r.layer; if (sv === 3) r.layer = 2; try { return b0(fin); } finally { r.layer = sv; } };
   cap.intro = def => def.xk ? i0(def) : [{ who: '旁白', text: def.name + '大搖大擺地走進廚房，在長桌前坐了下來。' }, { who: def.name, text: '聽說這裡開飯了？先上菜，再談打不打。' }, { who: '大廚', text: '客人點的菜……就是你啊，旅人！' }];
 }
