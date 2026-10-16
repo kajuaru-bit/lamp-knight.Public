@@ -1,6 +1,6 @@
 /* 《燈火騎士》DLC6「傳統節慶」：春節(22)、中秋(23)、七夕(24)。
    獨立檔案，選到「傳統節慶」才下載（需先載入 dlc.js 與 dlc2.js）；全程無視野限制。世界編號依序註冊。
-   目前已完成：春節（22）。 */
+   目前已完成：春節（22）、中秋（23）。 */
 (function () {
 'use strict';
 const L = window.LK;
@@ -356,5 +356,135 @@ makeFest({
   ],
   shards: ['紅包便條：我把壓歲錢藏在枕頭下，結果過年那天，枕頭不見了。', '紅包便條：年獸其實不怕鞭炮，只是想有人陪牠守歲。', '紅包便條：舞獅的頭很重，但抬頭的人說，那是全年最輕的一天。', '紅包便條：燈籠不是為了照路，是為了讓遠方的人看見家。'],
   outro: [{ who: '攤販', text: '天亮了，燈籠一盞一盞熄了。新年好，旅人。' }, { who: '旁白', text: '街上的鞭炮碎屑像一地紅色的花瓣，你的燈在其中，安靜地亮著。' }]
+});
+
+/* ================= 中秋（23）：全亮、月下庭院、三隻 Boss（彈幕／大群／長戰）；月光只是裝飾 ================= */
+const MN = '#f6e6a8', NAVY = '#1c2644';
+function drawMidEnemy(e) {
+  const c = L.ctx, r = e.r, f = e.flash > 0, sk = e.skin, tm = e.t, fa = Math.atan2(L.p.y - e.y, L.p.x - e.x);
+  if (sk === 'rabbit') {
+    const sw = Math.sin(tm * 10) * 2; c.fillStyle = OL; rrect(c, -r * 0.6, -r * 1.9, r * 0.4, r * 1.2, 3); rrect(c, r * 0.2, -r * 1.9, r * 0.4, r * 1.2, 3); circ(c, 0, 0, r * 1.08); c.fillStyle = f ? C.paper : '#f6f2ee'; rrect(c, -r * 0.55, -r * 1.85, r * 0.3, r * 1.1, 3); rrect(c, r * 0.25, -r * 1.85, r * 0.3, r * 1.1, 3); circ(c, 0, 0, r);
+    c.fillStyle = '#f4a8b8'; rrect(c, -r * 0.5, -r * 1.6, r * 0.18, r * 0.8, 2); rrect(c, r * 0.32, -r * 1.6, r * 0.18, r * 0.8, 2); c.fillStyle = '#e03a3a'; circ(c, -r * 0.3, -r * 0.1, 3); circ(c, r * 0.3, -r * 0.1, 3); c.fillStyle = '#f4a8b8'; circ(c, 0, r * 0.2, 2.5); c.fillStyle = '#d8c8a8'; c.fillRect(r * 0.5 + sw, r * 0.4, 3, r * 0.9); c.fillStyle = '#b89868'; circ(c, r * 0.5 + 1.5 + sw, r * 1.35, 4);
+  } else if (sk === 'osmanthus') {
+    c.fillStyle = OL; circ(c, 0, r * 0.1, r * 1.1); c.fillStyle = f ? C.paper : '#4a8a3a'; circ(c, 0, r * 0.1, r); for (let k = 0; k < 8; k++) { const a = k / 8 * TAU + tm; c.fillStyle = f ? C.paper : '#ffc83a'; circ(c, Math.cos(a) * r * 0.75, r * 0.1 + Math.sin(a) * r * 0.75, r * 0.26); }
+    c.fillStyle = '#ffe27a'; circ(c, 0, r * 0.1, r * 0.5); c.fillStyle = OL; circ(c, -r * 0.18, 0, 2.2); circ(c, r * 0.18, 0, 2.2); const g = 0.6 + 0.4 * Math.sin(tm * 6); c.fillStyle = 'rgba(255,220,90,' + g + ')'; star4(c, Math.cos(fa) * r * 1.35, Math.sin(fa) * r * 1.35, r * 0.35, tm * 2);
+  } else if (sk === 'hound') {
+    c.fillStyle = OL; circ(c, 0, 0, r * 1.12); poly(c, [[-r * 0.8, -r * 0.5], [-r * 0.5, -r * 1.3], [-r * 0.15, -r * 0.7]]); poly(c, [[r * 0.8, -r * 0.5], [r * 0.5, -r * 1.3], [r * 0.15, -r * 0.7]]); c.fillStyle = f ? C.paper : '#3a3a5a'; circ(c, 0, 0, r); poly(c, [[-r * 0.72, -r * 0.5], [-r * 0.5, -r * 1.15], [-r * 0.2, -r * 0.7]]); poly(c, [[r * 0.72, -r * 0.5], [r * 0.5, -r * 1.15], [r * 0.2, -r * 0.7]]);
+    c.fillStyle = MN; c.beginPath(); c.arc(0, -r * 0.1, r * 0.5, 0.6, TAU - 0.6); c.fill(); c.fillStyle = '#ff6a6a'; circ(c, -r * 0.35, -r * 0.2, 3.5); circ(c, r * 0.35, -r * 0.2, 3.5); c.fillStyle = '#fff'; for (let k = 0; k < 4; k++) c.fillRect(-r * 0.4 + k * r * 0.26, r * 0.4, 3, 6);
+  } else if (sk === 'mooncake') {
+    c.fillStyle = OL; circ(c, 0, 2, r * 1.1); c.fillStyle = f ? C.paper : '#c8873a'; circ(c, 0, 2, r); c.fillStyle = '#e8b062'; circ(c, 0, 2, r * 0.75); c.fillStyle = '#9a5a1a'; c.font = '700 ' + Math.round(r) + 'px serif'; c.textAlign = 'center'; c.fillText('月', 0, r * 0.4); c.strokeStyle = '#9a5a1a'; c.lineWidth = 2; for (let k = 0; k < 8; k++) { const a = k / 8 * TAU; c.beginPath(); c.moveTo(Math.cos(a) * r * 0.85, 2 + Math.sin(a) * r * 0.85); c.lineTo(Math.cos(a) * r * 0.98, 2 + Math.sin(a) * r * 0.98); c.stroke(); }
+  } else if (sk === 'toad') {
+    const a = e.ra || fa; if (e.tele > 0) { c.save(); c.globalAlpha = 0.5; c.strokeStyle = '#9fffb0'; c.lineWidth = 4; c.beginPath(); c.moveTo(0, 0); c.lineTo(Math.cos(a) * 260, Math.sin(a) * 260); c.stroke(); c.restore(); }
+    c.fillStyle = OL; c.beginPath(); c.ellipse(0, 4, r * 1.25, r * 0.95, 0, 0, TAU); c.fill(); c.fillStyle = f ? C.paper : '#5a9a4a'; c.beginPath(); c.ellipse(0, 4, r * 1.15, r * 0.85, 0, 0, TAU); c.fill(); c.fillStyle = '#7ab86a'; circ(c, -r * 0.45, -r * 0.55, r * 0.35); circ(c, r * 0.45, -r * 0.55, r * 0.35); c.fillStyle = '#ffe27a'; circ(c, -r * 0.45, -r * 0.6, r * 0.2); circ(c, r * 0.45, -r * 0.6, r * 0.2); c.fillStyle = OL; circ(c, -r * 0.45, -r * 0.6, 2.5); circ(c, r * 0.45, -r * 0.6, 2.5); c.fillStyle = '#3a6a30'; for (let k = 0; k < 5; k++) circ(c, -r * 0.6 + k * r * 0.3, r * 0.3 + (k % 2) * 4, 3);
+  } else { // spirit
+    const g = 0.7 + 0.3 * Math.sin(tm * 5); c.fillStyle = 'rgba(160,190,255,' + (0.25 * g) + ')'; circ(c, 0, 0, r * 1.7); c.fillStyle = OL; circ(c, 0, 0, r * 1.05); c.fillStyle = f ? C.paper : '#dce6ff'; circ(c, 0, 0, r); c.fillStyle = f ? C.paper : NAVY; c.beginPath(); c.arc(r * 0.3, -r * 0.05, r * 0.8, 0, TAU); c.fill(); c.fillStyle = f ? C.paper : '#dce6ff'; c.beginPath(); c.arc(-r * 0.05, 0, r * 0.85, 0.9, TAU - 0.9); c.fill(); c.fillStyle = OL; circ(c, -r * 0.3, -r * 0.1, 2.5);
+    if (e.tele > 0) { c.fillStyle = 'rgba(160,190,255,.7)'; circ(c, Math.cos(fa) * r * 1.4, Math.sin(fa) * r * 1.4, r * 0.4); }
+  }
+}
+function midBg(g, R, rng, arR) {
+  for (let i = 0; i < Math.round(120 * arR); i++) { g.fillStyle = 'rgba(255,245,200,' + (0.2 + rng() * 0.5) + ')'; const sz = 1.5 + rng() * 2.5; g.fillRect(R.x + rng() * R.w, R.y + rng() * R.h, sz, sz); }
+  for (let k = 0; k < Math.round(9 * arR); k++) { const x = R.x + rng() * R.w, y = R.y + rng() * R.h, gr = g.createRadialGradient(x, y, 0, x, y, 240); gr.addColorStop(0, 'rgba(246,230,168,.22)'); gr.addColorStop(1, 'rgba(246,230,168,0)'); g.fillStyle = gr; g.fillRect(x - 240, y - 240, 480, 480); }
+  for (let i = 0; i < Math.round(50 * arR); i++) { const x = R.x + rng() * R.w, y = R.y + rng() * R.h; g.fillStyle = 'rgba(255,200,60,.4)'; circ(g, x, y, 2.5); circ(g, x + 4, y + 2, 2); circ(g, x - 3, y + 3, 2); }
+}
+function midObsDraw(g, o) {
+  const cx = o.x + o.w / 2, cy = o.y + o.h / 2;
+  if (o.jk === 'rlant') {
+    g.fillStyle = OL; g.fillRect(cx - 2, o.y - 6, 4, 8); circ(g, cx, cy + 4, o.w / 2 + 2); g.fillStyle = '#f6f2ee'; circ(g, cx, cy + 4, o.w / 2 - 1); g.fillStyle = '#e8d8a8'; circ(g, cx, cy + 4, o.w / 2 - 6); g.fillStyle = OL; g.fillRect(cx - o.w * 0.28, o.y - 8, 5, 18); g.fillRect(cx + o.w * 0.2, o.y - 8, 5, 18); g.fillStyle = '#f4a8b8'; g.fillRect(cx - o.w * 0.27, o.y - 6, 3, 12); g.fillRect(cx + o.w * 0.21, o.y - 6, 3, 12);
+    g.fillStyle = 'rgba(255,230,140,.3)'; circ(g, cx, cy + 4, o.w / 2 + 10);
+  } else if (o.jk === 'table') {
+    g.fillStyle = OL; g.beginPath(); g.ellipse(cx, cy, o.w / 2 + 2, o.h / 2 + 2, 0, 0, TAU); g.fill(); g.fillStyle = '#8a8a9a'; g.beginPath(); g.ellipse(cx, cy, o.w / 2, o.h / 2, 0, 0, TAU); g.fill(); g.fillStyle = '#b4b4c4'; g.beginPath(); g.ellipse(cx, cy - 3, o.w / 2 - 4, o.h / 2 - 6, 0, 0, TAU); g.fill(); g.fillStyle = '#e8b062'; circ(g, cx - 8, cy - 4, 6); circ(g, cx + 6, cy - 1, 6);
+  } else {
+    g.fillStyle = '#1e4a2a'; circ(g, cx - o.w * 0.2, cy + 2, o.h * 0.5); circ(g, cx + o.w * 0.2, cy + 2, o.h * 0.5); circ(g, cx, cy - o.h * 0.15, o.h * 0.55); g.fillStyle = '#3a7a3a'; circ(g, cx - o.w * 0.2, cy, o.h * 0.43); circ(g, cx + o.w * 0.2, cy, o.h * 0.43); circ(g, cx, cy - o.h * 0.18, o.h * 0.47); g.fillStyle = '#ffc83a'; for (let k = 0; k < 7; k++) circ(g, cx + Math.sin(k * 2.1) * o.w * 0.3, cy + Math.cos(k * 1.7) * o.h * 0.25, 2.6);
+  }
+}
+function midTobDraw(o, ctx, cx, cy, f) {
+  if (o.kind === 'mlant') {
+    ctx.fillStyle = f ? C.paper : OL; circ(ctx, cx, cy, 25); ctx.fillStyle = f ? C.paper : '#f6f2ee'; circ(ctx, cx, cy, 22); ctx.fillStyle = f ? C.paper : '#f4a8b8'; ctx.fillRect(cx - 14, cy - 36, 7, 18); ctx.fillRect(cx + 7, cy - 36, 7, 18); ctx.fillStyle = 'rgba(255,230,140,.4)'; circ(ctx, cx, cy, 15); ctx.fillStyle = '#e03a3a'; circ(ctx, cx - 7, cy - 3, 2.5); circ(ctx, cx + 7, cy - 3, 2.5); return true;
+  }
+  if (o.kind === 'mcass') {
+    const hz = o.w > o.h, n = hz ? 3 : 4; for (let k = 0; k < n; k++) { const t0 = (k + 0.5) / n, tx = hz ? o.x + o.w * t0 : cx, ty = hz ? cy : o.y + o.h * t0; ctx.fillStyle = f ? C.paper : '#1e4a2a'; circ(ctx, tx, ty, 19); ctx.fillStyle = f ? C.paper : '#3a7a3a'; circ(ctx, tx - 2, ty - 2, 15); ctx.fillStyle = '#ffc83a'; circ(ctx, tx + 5, ty - 5, 3.5); circ(ctx, tx - 6, ty + 4, 3); } return true;
+  }
+  return false;
+}
+function midPlantFor(e, p, ux, uy, plant) { if (e.type === 'shooter') plant('mlant', p.x + ux * 130, p.y + uy * 130, 46, 46); else { const horiz = Math.abs(ux) > Math.abs(uy); plant('mcass', p.x + ux * 150, p.y + uy * 150, horiz ? 30 : 100, horiz ? 100 : 30); } }
+function drawMidFac(c, it, tm, done) {
+  if (it.fk === 'pool') {
+    c.fillStyle = '#6a6a7a'; rrect(c, -46, -4, 92, 26, 4); c.fillStyle = '#9a9aaa'; rrect(c, -46, -8, 92, 10, 4); const items = ['#e8b062', '#f6f2ee', '#ff9a3a'];
+    for (let k = 0; k < 3; k++) { const lit = done || k < it.n; c.fillStyle = lit ? MN : items[k]; circ(c, -26 + k * 26, -18, 11); if (lit) { c.fillStyle = 'rgba(255,240,170,.5)'; circ(c, -26 + k * 26, -18, 18 + Math.sin(tm * 4 + k) * 2); c.fillStyle = '#fff'; star4(c, -26 + k * 26, -42 + Math.sin(tm * 4) * 2, 6, tm); } }
+  } else if (it.fk === 'work') {
+    c.fillStyle = '#6a5a4a'; c.beginPath(); c.moveTo(-34, -12); c.lineTo(34, -12); c.lineTo(26, 24); c.lineTo(-26, 24); c.fill(); c.fillStyle = '#8a7a6a'; c.beginPath(); c.ellipse(0, -12, 34, 10, 0, 0, TAU); c.fill(); c.fillStyle = '#3a8a4a'; c.beginPath(); c.ellipse(0, -13, 26, 6, 0, 0, TAU); c.fill(); c.fillStyle = '#d8c8a8'; c.save(); c.translate(14, -26); c.rotate(-0.4 + Math.sin(tm * 3) * 0.15); c.fillRect(-4, -30, 8, 44); c.fillStyle = '#b89868'; circ(c, 0, 14, 8); c.restore();
+  } else if (it.fk === 'nook') {
+    c.fillStyle = '#7a4a2a'; c.beginPath(); c.ellipse(0, 4, 32, 30, 0, 0, TAU); c.fill(); c.fillStyle = '#9a6a3a'; c.beginPath(); c.ellipse(0, 2, 28, 26, 0, 0, TAU); c.fill(); c.fillStyle = '#c8302a'; rrect(c, -14, -12, 28, 22, 3); c.fillStyle = GOLD; c.font = '700 14px serif'; c.textAlign = 'center'; c.fillText('桂', 0, 5); c.fillStyle = '#5a3a1a'; rrect(c, -12, -32, 24, 10, 3); c.fillStyle = '#ffc83a'; for (let k = 0; k < 3; k++) circ(c, -8 + k * 8, -36 - Math.sin(tm * 3 + k) * 2, 2.5);
+  } else {
+    c.fillStyle = '#6a3a2a'; for (const sx of [-34, 34]) c.fillRect(sx - 3, -20, 6, 44); c.fillStyle = '#c8302a'; poly(c, [[-46, -18], [0, -48], [46, -18]]); c.fillStyle = GOLD; c.fillRect(-46, -20, 92, 4); c.fillStyle = '#b89868'; rrect(c, -30, 6, 60, 12, 3); const warm = done || it.t > 2; c.fillStyle = 'rgba(246,230,168,' + (warm ? 0.8 : 0.4) + ')'; circ(c, 0, -26, 10 + (warm ? Math.sin(tm * 4) * 1.5 : 0));
+  }
+}
+function drawMidBoss(e) {
+  const c = L.ctx, fl = e.flash > 0, t = e.t, b = Math.sin(t * 2) * 5;
+  if (e.xk === 'cmchang') {
+    c.fillStyle = 'rgba(246,230,168,.2)'; circ(c, 0, b - 10, 112); c.strokeStyle = 'rgba(246,230,168,.7)'; c.lineWidth = 4; c.beginPath(); c.arc(0, b - 10, 100, 0, TAU); c.stroke();
+    c.fillStyle = OL; c.beginPath(); c.moveTo(-34, -6 + b); c.quadraticCurveTo(-110, 40 + b, -70, 100 + b); c.lineTo(70, 100 + b); c.quadraticCurveTo(110, 40 + b, 34, -6 + b); c.fill();
+    c.fillStyle = fl ? C.paper : '#e8f0ff'; c.beginPath(); c.moveTo(-30, -4 + b); c.quadraticCurveTo(-104, 40 + b, -64, 96 + b); c.lineTo(64, 96 + b); c.quadraticCurveTo(104, 40 + b, 30, -4 + b); c.fill(); c.fillStyle = fl ? C.paper : '#f4a8c8'; c.beginPath(); c.moveTo(-18, 0 + b); c.lineTo(18, 0 + b); c.lineTo(34, 96 + b); c.lineTo(-34, 96 + b); c.fill();
+    c.fillStyle = fl ? C.paper : '#f2d8c0'; circ(c, 0, -30 + b, 28); c.fillStyle = '#1a1a2a'; c.beginPath(); c.arc(0, -36 + b, 30, Math.PI, TAU); c.fill(); circ(c, -24, -26 + b, 10); circ(c, 24, -26 + b, 10); c.fillStyle = GOLD; for (let k = -1; k <= 1; k++) circ(c, k * 12, -62 + b, 4); c.fillStyle = OL; circ(c, -9, -28 + b, 3); circ(c, 9, -28 + b, 3); c.fillStyle = '#e07a8a'; circ(c, 0, -18 + b, 3);
+  } else if (e.xk === 'cmrabbit') {
+    const n = L.enemies.filter(q => !q.dead && q.type !== 'boss' && q.skin === 'rabbit' && q.spawn <= 0).length;
+    if (n >= 4) { c.strokeStyle = 'rgba(255,240,170,' + (0.55 + 0.2 * Math.sin(t * 8)) + ')'; c.lineWidth = 6; c.beginPath(); c.arc(0, b, 96, 0, TAU); c.stroke(); }
+    c.fillStyle = OL; rrect(c, -44, -128 + b, 30, 84, 14); rrect(c, 14, -128 + b, 30, 84, 14); circ(c, 0, 14 + b, 70); c.fillStyle = fl ? C.paper : '#f6f2ee'; rrect(c, -41, -124 + b, 24, 78, 12); rrect(c, 17, -124 + b, 24, 78, 12); circ(c, 0, 14 + b, 65); c.fillStyle = '#f4a8b8'; rrect(c, -36, -112 + b, 14, 56, 7); rrect(c, 22, -112 + b, 14, 56, 7);
+    c.fillStyle = '#e03a3a'; circ(c, -22, 4 + b, 6); circ(c, 22, 4 + b, 6); c.fillStyle = '#f4a8b8'; circ(c, 0, 18 + b, 6); c.fillStyle = '#7a6a5a'; c.beginPath(); c.moveTo(-40, 50 + b); c.lineTo(40, 50 + b); c.lineTo(30, 92 + b); c.lineTo(-30, 92 + b); c.fill(); c.fillStyle = '#3a8a4a'; c.beginPath(); c.ellipse(0, 50 + b, 40, 9, 0, 0, TAU); c.fill(); c.save(); c.translate(48, 40 + b); c.rotate(-0.5 + Math.sin(t * 4) * 0.25); c.fillStyle = '#d8c8a8'; c.fillRect(-5, -52, 10, 74); c.fillStyle = '#b89868'; circ(c, 0, 22, 11); c.restore();
+  } else {
+    const open = e.open && L.time < e.open; c.fillStyle = open ? 'rgba(255,230,120,.28)' : 'rgba(246,230,168,.14)'; circ(c, 0, b, 115);
+    c.fillStyle = OL; rrect(c, -30, -20 + b, 60, 120, 8); c.fillStyle = fl ? C.paper : '#7a5a3a'; rrect(c, -26, -16 + b, 52, 112, 6); c.fillStyle = '#5a3a1a'; for (let k = 0; k < 5; k++) c.fillRect(-26, -4 + k * 22 + b, 52, 3);
+    for (const [x, y, rad] of [[-52, -52, 56], [52, -56, 54], [0, -92, 62], [-30, -26, 42], [34, -22, 44]]) { c.fillStyle = OL; circ(c, x, y + b, rad + 3); } for (const [x, y, rad] of [[-52, -52, 56], [52, -56, 54], [0, -92, 62], [-30, -26, 42], [34, -22, 44]]) { c.fillStyle = fl ? C.paper : (open ? '#7ac85a' : '#3a7a3a'); circ(c, x, y + b, rad); }
+    c.fillStyle = open ? '#fff2a0' : '#ffc83a'; for (let k = 0; k < 14; k++) circ(c, Math.sin(k * 2.3) * 70, -50 + Math.cos(k * 1.9) * 50 + b, open ? 5 : 3.2);
+    c.fillStyle = OL; circ(c, -10, 20 + b, 4); circ(c, 10, 20 + b, 4); c.fillRect(-9, 34 + b, 18, 4); c.save(); c.translate(36, 52 + b); c.rotate(0.6); c.fillStyle = '#8a8a9a'; c.fillRect(-3, -38, 6, 52); c.fillStyle = '#c8c8d8'; poly(c, [[-3, -38], [-26, -30], [-26, -14], [-3, -10]]); c.restore();
+  }
+}
+makeFest({
+  theme: 23, name: '中秋', pal: { ink: '#0e1428', floor: '#1e2a44', floor2: '#25324e', wall1: '#2a3a66', wall2: '#4a5a98', top: '#f6e6a8', door: '#ffd98a' },
+  amb: ['bandpass', 1100, 1.0, 0.004], ev: r => { const n = [440, 554, 659, 880][Math.floor(r() * 4)]; L.blip(n, n * 1.003, 0.8, 'sine', 0.007); },
+  skinMap: { crawler: 'rabbit', shooter: 'osmanthus', brute: 'hound', bomber: 'mooncake', toad: 'toad', spirit: 'spirit' }, drawEnemy: drawMidEnemy,
+  bgDraw: midBg, zones: ['桂花林', '月下池塘', '搗藥坊', '涼亭', '月餅市集', '賞月廣場'], zoneCol: 'rgba(246,230,168,.10)',
+  obsKinds: [{ jk: 'rlant', w: [38, 46], h: [48, 58] }, { jk: 'table', w: [46, 56], h: [40, 48] }, { jk: 'cass', w: [44, 58], h: [40, 52] }, { jk: 'cass', w: [44, 58], h: [40, 52] }, { jk: 'rlant', w: [38, 46], h: [48, 58] }],
+  obsDraw: midObsDraw, bossObs: R => [[R.x + 110, R.y + 80], [R.x + R.w - 150, R.y + 80], [R.x + 110, R.y + R.h - 130], [R.x + R.w - 150, R.y + R.h - 130]].map(q => ({ x: q[0], y: q[1], w: 42, h: 52, jk: 'rlant' }))
+    .concat([{ x: R.x + R.w * 0.38, y: R.y + R.h / 2 - 150, w: 50, h: 44, jk: 'table' }, { x: R.x + R.w * 0.38, y: R.y + R.h / 2 + 110, w: 50, h: 44, jk: 'table' }, { x: R.x + R.w * 0.62, y: R.y + R.h / 2 - 40, w: 50, h: 44, jk: 'table' }]),
+  plantFor: midPlantFor, plantSmall: ['mlant'], plantToast: '兔子燈與桂樹牆擋住了去路——打碎它，或等它消散（約 5 秒）', tobDraw: midTobDraw,
+  aff: { w: ['pestle', 'mooncakegun', 'osmbow', 'rabbitshot', 'cassiaspear', 'flame', 'scatter', 'lance', 'firefly', 'blade', 'frostcane'], u: ['wick', 'oil', 'skpow'] },
+  fx: [MN, '#c8a050', '#9fb8ff'], nookMobs: ['crawler', 'spirit'], marketCol: ['#1a2240', '#c8a050', '#f0d890', '#ffe9a0'],
+  fac: { market: '月餅市集', pool: { name: '拜月台', noun: '供品', verb: '上供', fin: '拜月台已經供滿了' }, work: { name: '搗藥坊', verb: '敲響藥臼', start: '藥臼震動——巨大的月影衝出來了！', end: '搗藥坊安靜了：留下一把武器', fin: '搗藥坊已安靜' }, nook: { name: '桂花釀甕', verb: '舀一杯', fin: '酒甕已經空了' }, rest: { name: '賞月涼亭', fin: '月已西斜', r1: '月光暖暖的：燈火 +1、燈芯 +8', r2: '賞月暢懷', r3: '亭下掉了一盒月餅：燈芯 +15' } },
+  drawFac: drawMidFac,
+  bosses: {
+    cmchang: { name: '嫦娥', type: 'barrage', achName: '月下相見', t: { fan: '月華扇！', ring: '月暈環！', spiral: '桂花旋風！', lanes: '廣袖橫掃——看缺口！', rain: '月光雨！' },
+      intro: [{ who: '旁白', text: '月光忽然變得很亮。庭院中央，一位白衣的身影懸在半空，袖子在無風的夜裡輕輕飄動。' }, { who: '嫦娥', text: '他說好中秋要上來看我。我等了一整晚，連他的影子都沒見到！' }, { who: '嫦娥', text: '……你替他來的嗎？那就先接我這一招吧！' }] },
+    cmrabbit: { name: '玉兔搗藥軍', type: 'swarm', achName: '停下藥杵', t: { summon: '月兔列隊！', rally: '藥杵加速——月兔衝鋒！', army: '全員出動！', fan2: '藥丸彈！' },
+      intro: [{ who: '旁白', text: '搗藥坊裡，巨大的玉兔高舉藥杵，身後跟著整排圓滾滾的小月兔。' }, { who: '玉兔', text: '兩位大人都在生氣，藥搗不好，我們也不敢停……你快走開！' }, { who: '旁白', text: '只要月兔還圍著，玉兔就不怕傷害。' }] },
+    cmwu: { name: '吳剛的桂樹', type: 'long', achName: '砍倒桂樹', t: { charge: '桂樹壓來——撞完後桂花紛落 3 秒是弱點，傷害 ×2！', soldiers: '桂花精冒出來了！', ring2: '落花環！', slam: '桂樹重壓！' },
+      intro: [{ who: '旁白', text: '月光下，一棵高得看不見頂的桂樹，樹幹上插著一把生鏽的斧頭。' }, { who: '吳剛', text: '她說今晚會下來看這棵樹。我砍了一輩子，就是為了等這一刻——人呢？她沒來！' }, { who: '旁白', text: '桂花紛紛落下的瞬間，是最脆弱的時候。' }] }
+  },
+  swarmSkin: 'rabbit', armTip: '月兔們圍著玉兔——先清掉月兔，Boss 才會吃傷害', drawBoss: drawMidBoss,
+  events: [
+    { id: 'herb', name: '玉兔換藥', toast: '玉兔換藥：花 3 燈芯，換一包藥草', verb: '換藥', col: '#4a7a4a', glyph: '藥', desc: '花 3 燈芯換一包藥草：50% 強化、30% 燈芯 +8、20% 只是普通桂花（燈芯 +1）；只能一次', fin: '藥草已經換過了', r1: '藥草有效', r2: '藥草裡藏著燈芯 +8', r3: '只是普通桂花……燈芯 +1' },
+    { id: 'view', name: '賞月石凳', toast: '賞月石凳：坐在旁邊賞月 5 秒', desc: '站在石凳旁（150 像素內）賞月 5 秒，離開會倒退。完成：燈火 +1、燈芯 +10', fin: '月已經賞過了', done: '月色真美：燈火 +1、燈芯 +10',
+      draw: (c, it, tm) => { c.fillStyle = '#8a8a9a'; rrect(c, -26, 4, 52, 14, 4); c.fillStyle = '#6a6a7a'; c.fillRect(-20, 16, 8, 10); c.fillRect(12, 16, 8, 10); c.fillStyle = 'rgba(246,230,168,.5)'; circ(c, 0, -22, 20 + Math.sin(tm * 3) * 2); c.fillStyle = MN; circ(c, 0, -22, 14); c.fillStyle = '#e8d890'; circ(c, -4, -24, 3); circ(c, 4, -18, 2.5); } },
+    { id: 'cake', name: '月餅攤', toast: '月餅攤：花 6 燈芯，吃一塊月餅', verb: '買月餅', col: '#c8873a', glyph: '餅', desc: '花 6 燈芯：燈火 +2、技能冷卻重置；只能一次', fin: '月餅賣完了', done: '月餅：燈火 +2、技能冷卻重置' }
+  ],
+  weapons: {
+    pestle: { id: 'pestle', name: '搗藥杵', tag: '近戰', mode: 'tap', cd: 0.45, th: 23, col: '#d8c8a8', range: 135, half: 1.3, dmg: 3.7, kb: 340, desc: '大範圍的弧形揮砍（中秋專屬，類似提燈刃）' },
+    mooncakegun: { id: 'mooncakegun', name: '月餅砲', tag: '單發', mode: 'tap', cd: 0.38, th: 23, col: '#e8b062', desc: '單發的月餅，傷害高（中秋專屬，類似燈焰杖）',
+      fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang, 560, 9, 3.9 * dm, 'flame', 1.0); L.sfx('flame'); } },
+    osmbow: { id: 'osmbow', name: '桂花弓', tag: '連射', mode: 'auto', cd: 0.11, th: 23, col: '#ffc83a', desc: '按住連射桂花，射速快（中秋專屬，類似螢火弓）',
+      fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang + (rand() - 0.5) * 0.07, 720, 4, 1.15 * dm, 'pellet', 0.8); L.sfx('tick'); } },
+    rabbitshot: { id: 'rabbitshot', name: '玉兔散彈', tag: '散射', mode: 'tap', cd: 0.62, th: 23, col: '#f6f2ee', desc: '五發月光散射，近距離很痛（中秋專屬，類似霰光杖）',
+      fire: (ox, oy, ang, dm) => { for (let i = -2; i <= 2; i++) L.shoot(ox, oy, ang + i * 0.16, 520, 6, 1.9 * dm, 'pellet', 0.55); L.sfx('blade'); } },
+    cassiaspear: { id: 'cassiaspear', name: '桂枝長矛', tag: '貫穿', mode: 'tap', cd: 0.75, th: 23, col: '#9fe0a0', desc: '貫穿一整排敵人的桂枝長矛（中秋專屬，類似穿光矛）',
+      fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang, 700, 8, 4.6 * dm, 'lance', 0.95, true); L.sfx('blade'); } }
+  },
+  achIds: ['cmChang', 'cmArmy', 'cmWu', 'cmFac'], facAch: ['中秋小幫手', '同一局完成拜月台與搗藥坊'],
+  ext: { toad: { hp: 7, r: 15, name: '蟾蜍', cost: 3, cap: 3, ai: 'dasher' }, spirit: { hp: 8, r: 14, name: '月影', cost: 3, cap: 3, ai: 'floater' } },
+  story: [
+    [{ who: '旁白', text: '中秋夜，月亮大得像要掉進庭院裡。桂花的香味一陣一陣飄過來，遠處有人在烤肉、有人在猜燈謎。' }, { who: '玉兔', text: '提燈的旅人！月餅和藥草全被打翻了，有些東西在庭院裡亂跑，請你幫忙收拾！' }],
+    [{ who: '旁白', text: '月越升越高，庭院的影子越拉越長。有兩個影子，一個在天的這一頭，一個在那一頭，怎麼也碰不到一起。' }, { who: '玉兔', text: '嫦娥大人和吳剛大人，每年今天都在等彼此，可是每年都剛好錯過……今年他們都氣壞了。' }]
+  ],
+  shards: ['月餅便條：我說好今晚會來，結果月亮太亮，我迷路了。', '月餅便條：桂樹砍不倒不是因為樹太硬，是因為我捨不得它倒。', '月餅便條：兔子搗了一千年的藥，其實只是想找個人說說話。', '月餅便條：月亮每個月都會變圓一次，等的人也是。'],
+  outro: [{ who: '嫦娥', text: '……我看見他了。原來他的影子，一直就在樹下。' }, { who: '吳剛', text: '她也在。原來她，一直就在月亮上面。' }, { who: '旁白', text: '你的燈光落在兩人之間，影子終於碰在了一起。庭院裡的桂花，落了一整夜。' }]
 });
 })();
