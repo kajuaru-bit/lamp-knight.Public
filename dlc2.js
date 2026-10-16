@@ -207,9 +207,9 @@ function hwBack() {
 
 /* ---- Boss：彈幕型（南瓜燈幽靈王）、大群小怪型（骷髏軍團長）、長戰鬥型（狼人） ---- */
 const HW_BOSS = {
-  hwking: { name: '南瓜燈幽靈王', hp: 190 },
-  hwcap: { name: '骷髏軍團長', hp: 170 },
-  hwwolf: { name: '狼人', hp: 240 }
+  hwking: { name: '南瓜燈幽靈王', hp: 285 },
+  hwcap: { name: '骷髏軍團長', hp: 255 },
+  hwwolf: { name: '狼人', hp: 360 }
 };
 function hwBossKind(fin) {
   const r = L.run, t = L.th(); r.hwOrd = r.hwOrd || {}; const ord = r.hwOrd[t] = r.hwOrd[t] || L.shuffle(['hwking', 'hwcap', 'hwwolf']);
@@ -376,4 +376,313 @@ L.registerWorld({
   outro: () => [{ who: '南瓜燈', text: '今年的萬聖節，是第一次，有人陪我們到天亮。' }, { who: '旁白', text: '所有的南瓜燈同時暗了下去，天邊露出一點魚肚白。你的燈，還亮著。' }]
 });
 function hwBossAch() { try { const k = L.bossDef().xk; if (k === 'hwking') L.unlockAch('hwKing'); else if (k === 'hwcap') L.unlockAch('hwCap'); else if (k === 'hwwolf') L.unlockAch('hwWolf'); } catch (e) { /* optional */ } }
+
+/* ================= 耶誕節（20）：全亮、超大地圖、三隻 Boss（彈幕／大群／長戰） ================= */
+const PAL20 = { ink: '#14301f', floor: '#e4eef6', floor2: '#d6e4f0', wall1: '#1f6b3f', wall2: '#2f9a58', top: '#fff7e0', door: '#d63a3a' };
+const XM_SKIN = { crawler: 'ginger', shooter: 'elf', brute: 'nutcracker', bomber: 'orn', reindeer: 'reindeer', snowman: 'snowman' };
+const XM_STORY = [
+  [{ who: '旁白', text: '雪從傍晚下到現在，整座山谷安靜得像被棉被蓋住。遠處，聖誕樹上的燈一串一串地亮了。' }, { who: '精靈', text: '提燈的旅人！北極工坊的玩具全跑出來了——幫我們收拾一下好嗎？' }],
+  [{ who: '旁白', text: '第二個雪夜，鈴聲變得有點走調。煙囪冒著煙，卻沒有人在家。' }, { who: '精靈', text: '最大的那一位在雪橇旁邊等你。他沒有生氣，只是……今年沒有人拆他的禮物。' }]
+];
+const XM_SHARDS = ['聖誕卡片：親愛的老人，我今年不要玩具，只想要有人陪我拆禮物。', '聖誕卡片：薑餅人說，他不怕烤箱，只怕被咬掉頭的那一瞬間。', '聖誕卡片：胡桃鉗的嘴巴會張開，不是要咬人，是想說一句話。', '聖誕卡片：最亮的那顆星星，其實是別人替你留的燈。'];
+const XM_ZONE = ['雪原', '冷杉林', '玩具工坊', '結冰湖', '聖誕市集', '雪橇停靠站'];
+const GRN = '#1f7a44', RED = '#d63a3a', SNOW = '#f4f8fc';
+let XM = null;
+function drawXmEnemy(e) {
+  const c = L.ctx, r = e.r, f = e.flash > 0, sk = e.skin, tm = e.t, fa = Math.atan2(L.p.y - e.y, L.p.x - e.x), ol = '#2a1810';
+  if (sk === 'ginger') {
+    const sw = Math.sin(tm * 8) * 2; c.fillStyle = ol; circ(c, 0, -r * 0.75, r * 0.78); rrect(c, -r * 0.95, -r * 0.2, r * 1.9, r * 1.0, 4); rrect(c, -r * 0.65, r * 0.6, r * 0.5, r * 0.7 + sw, 3); rrect(c, r * 0.15, r * 0.6, r * 0.5, r * 0.7 - sw, 3);
+    c.fillStyle = f ? C.paper : '#b9702e'; circ(c, 0, -r * 0.75, r * 0.7); rrect(c, -r * 0.88, -r * 0.13, r * 1.76, r * 0.86, 3); rrect(c, -r * 0.58, r * 0.65, r * 0.38, r * 0.6 + sw, 2); rrect(c, r * 0.2, r * 0.65, r * 0.38, r * 0.6 - sw, 2);
+    c.fillStyle = '#fff'; circ(c, -r * 0.22, -r * 0.8, r * 0.1); circ(c, r * 0.22, -r * 0.8, r * 0.1); c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.arc(0, -r * 0.62, r * 0.28, 0.2, Math.PI - 0.2); c.stroke(); c.fillStyle = RED; circ(c, 0, r * 0.1, r * 0.1); circ(c, 0, r * 0.38, r * 0.1);
+  } else if (sk === 'elf') {
+    c.fillStyle = ol; poly(c, [[-r * 1.0, r], [0, -r * 0.2], [r * 1.0, r]]); c.fillStyle = f ? C.paper : GRN; poly(c, [[-r * 0.88, r * 0.92], [0, -r * 0.1], [r * 0.88, r * 0.92]]);
+    c.fillStyle = f ? C.paper : '#f2c9a0'; circ(c, 0, -r * 0.45, r * 0.55); poly(c, [[-r * 0.5, -r * 0.5], [-r * 1.05, -r * 0.8], [-r * 0.45, -r * 0.2]]); poly(c, [[r * 0.5, -r * 0.5], [r * 1.05, -r * 0.8], [r * 0.45, -r * 0.2]]);
+    c.fillStyle = RED; poly(c, [[-r * 0.6, -r * 0.75], [r * 0.2, -r * 1.75], [r * 0.6, -r * 0.75]]); c.fillStyle = '#fff'; c.fillRect(-r * 0.62, -r * 0.82, r * 1.24, 4); circ(c, r * 0.2, -r * 1.75, 3.5); c.fillStyle = ol; circ(c, -r * 0.18, -r * 0.45, 2); circ(c, r * 0.18, -r * 0.45, 2);
+    const g = 0.6 + 0.4 * Math.sin(tm * 6); c.fillStyle = 'rgba(255,220,90,' + g + ')'; star4(c, Math.cos(fa) * r * 1.3, Math.sin(fa) * r * 1.3, r * 0.35, tm * 2);
+  } else if (sk === 'nutcracker') {
+    c.fillStyle = ol; rrect(c, -r * 0.85, -r * 0.3, r * 1.7, r * 1.5, 5); c.fillStyle = f ? C.paper : RED; rrect(c, -r * 0.75, -r * 0.2, r * 1.5, r * 1.3, 4); c.fillStyle = '#ffd24a'; c.fillRect(-r * 0.6, r * 0.1, r * 1.2, 3); c.fillRect(-r * 0.6, r * 0.45, r * 1.2, 3);
+    c.fillStyle = ol; rrect(c, -r * 0.5, -r * 1.35, r * 1.0, r * 1.1, 4); c.fillStyle = f ? C.paper : '#f2c9a0'; rrect(c, -r * 0.42, -r * 1.2, r * 0.84, r * 0.9, 3); c.fillStyle = '#1a1a2a'; rrect(c, -r * 0.55, -r * 1.75, r * 1.1, r * 0.6, 3); c.fillStyle = '#ffd24a'; c.fillRect(-r * 0.55, -r * 1.3, r * 1.1, 3);
+    c.fillStyle = '#fff'; c.fillRect(-r * 0.4, -r * 0.45, r * 0.8, r * 0.18); c.fillStyle = ol; circ(c, -r * 0.18, -r * 0.85, 2.5); circ(c, r * 0.18, -r * 0.85, 2.5);
+  } else if (sk === 'orn') {
+    c.fillStyle = ol; circ(c, 0, 2, r * 1.1); c.fillStyle = f ? C.paper : RED; circ(c, 0, 2, r); c.fillStyle = 'rgba(255,255,255,.55)'; circ(c, -r * 0.35, -r * 0.2, r * 0.25); c.fillStyle = '#ffd24a'; rrect(c, -r * 0.3, -r * 1.2, r * 0.6, r * 0.35, 2); c.strokeStyle = '#ffd24a'; c.lineWidth = 2; c.beginPath(); c.arc(0, -r * 1.35, r * 0.2, 0, TAU); c.stroke();
+  } else if (sk === 'snowman') {
+    c.fillStyle = ol; circ(c, 0, r * 0.45, r * 1.08); circ(c, 0, -r * 0.65, r * 0.78); c.fillStyle = f ? C.paper : SNOW; circ(c, 0, r * 0.45, r); circ(c, 0, -r * 0.65, r * 0.7);
+    c.fillStyle = '#1a1a2a'; rrect(c, -r * 0.55, -r * 1.55, r * 1.1, r * 0.35, 2); rrect(c, -r * 0.35, -r * 1.95, r * 0.7, r * 0.5, 2); c.fillStyle = '#ff8a2a'; poly(c, [[0, -r * 0.7], [r * 0.9, -r * 0.55], [0, -r * 0.45]]);
+    c.fillStyle = ol; circ(c, -r * 0.25, -r * 0.85, 2.5); circ(c, r * 0.25, -r * 0.85, 2.5); circ(c, 0, r * 0.2, 3); circ(c, 0, r * 0.6, 3);
+    if (e.tele > 0) { c.fillStyle = 'rgba(255,90,60,.55)'; circ(c, Math.cos(fa) * r * 1.4, Math.sin(fa) * r * 1.4, r * 0.4); }
+  } else { // reindeer
+    const hot = e.state === 'wind' || e.state === 'dash', a = e.ra || fa; if (e.tele > 0) { c.save(); c.globalAlpha = 0.5; c.strokeStyle = '#ff6a3a'; c.lineWidth = 4; c.beginPath(); c.moveTo(0, 0); c.lineTo(Math.cos(a) * 260, Math.sin(a) * 260); c.stroke(); c.restore(); }
+    c.fillStyle = ol; c.beginPath(); c.ellipse(0, 2, r * 1.2, r * 0.9, 0, 0, TAU); c.fill(); c.fillStyle = f ? C.paper : '#8a5a34'; c.beginPath(); c.ellipse(0, 2, r * 1.1, r * 0.8, 0, 0, TAU); c.fill();
+    c.strokeStyle = '#5a3a20'; c.lineWidth = 3; for (const s of [-1, 1]) { c.beginPath(); c.moveTo(s * r * 0.4, -r * 0.6); c.lineTo(s * r * 0.9, -r * 1.3); c.lineTo(s * r * 0.5, -r * 1.2); c.moveTo(s * r * 0.9, -r * 1.3); c.lineTo(s * r * 1.3, -r * 1.1); c.stroke(); }
+    c.fillStyle = ol; circ(c, -r * 0.3, -r * 0.1, 2.5); circ(c, r * 0.3, -r * 0.1, 2.5); c.fillStyle = hot ? '#ff3a3a' : '#ff6a6a'; circ(c, 0, r * 0.3, r * 0.22);
+  }
+}
+function reindeerAi(e, dt, nx, ny, d) {
+  e.st = (e.st === undefined ? rr(1, 2) : e.st) - dt; if (!e.state || e.state === 'spawn') e.state = 'walk';
+  let mx = 0, my = 0, touch = 1;
+  if (e.state === 'walk') { mx = nx * 46 * e.spd; my = ny * 46 * e.spd; if (e.st <= 0) { e.state = 'wind'; e.st = 0.75; e.ra = Math.atan2(L.p.y - e.y, L.p.x - e.x); } }
+  else if (e.state === 'wind') { e.tele = e.st; e.ra = Math.atan2(L.p.y - e.y, L.p.x - e.x); if (e.st <= 0) { e.state = 'dash'; e.st = 0.8; e.tele = 0; } }
+  else if (e.state === 'dash') { mx = Math.cos(e.ra) * 440 * e.spd; my = Math.sin(e.ra) * 440 * e.spd; touch = 2; if (e.st <= 0) { e.state = 'rest'; e.st = 1.1; L.burst(e.x, e.y, 8, [SNOW, '#bcd8ee'], 140, true); } }
+  else if (e.st <= 0) { e.state = 'walk'; e.st = rr(1.6, 2.6); }
+  return { mx, my, touch };
+}
+function snowmanAi(e, dt, nx, ny, d) {
+  e.cd = (e.cd === undefined ? rr(1.4, 2.4) : e.cd) - dt;
+  if (e.tele > 0) { e.tele -= dt; if (e.tele <= 0) { const a = Math.atan2(L.p.y - e.y, L.p.x - e.x); for (let i = -1; i <= 1; i++) L.enemyShot(e, a + i * 0.28, 190); e.cd = rr(2.4, 3.2) * e.fire; } return { mx: 0, my: 0, touch: 1 }; }
+  if (e.cd <= 0 && d < 520) e.tele = 0.5;
+  return { mx: nx * 30 * e.spd, my: ny * 30 * e.spd, touch: 1 };
+}
+function xmMake(R) {
+  const zw = R.w / 3, zh = R.h / 2, zc = z => ({ x: R.x + (z % 3 + 0.5) * zw, y: R.y + (Math.floor(z / 3) + 0.5) * zh });
+  const zs = L.shuffle([0, 2, 3]), a = zc(zs[0]), b = zc(zs[1]), cc = zc(zs[2]), mid = zc(4), top = zc(1);
+  XM = { R: { x: R.x, y: R.y, w: R.w, h: R.h }, live: false, slots: [{ fk: 'market', x: R.x + R.w - 340, y: R.y + 170 }, { fk: 'tree', x: mid.x, y: mid.y + 20 }, { fk: 'workshop', x: a.x + rr(-90, 90), y: a.y + rr(-60, 60) }, { fk: 'chimney', x: b.x + rr(-90, 90), y: b.y + rr(-60, 60) }, { fk: 'hearth', x: top.x + rr(-120, 120), y: top.y + rr(-60, 60) }] };
+  return XM;
+}
+function xmObs(kind, R, D) {
+  if (kind === 'boss') {
+    return [[R.x + 110, R.y + 80], [R.x + R.w - 150, R.y + 80], [R.x + 110, R.y + R.h - 130], [R.x + R.w - 150, R.y + R.h - 130]].map(q => ({ x: q[0], y: q[1], w: 40, h: 56, jk: 'fir' }))
+      .concat([{ x: R.x + R.w * 0.38, y: R.y + R.h / 2 - 150, w: 38, h: 38, jk: 'gift' }, { x: R.x + R.w * 0.38, y: R.y + R.h / 2 + 110, w: 38, h: 38, jk: 'gift' }, { x: R.x + R.w * 0.62, y: R.y + R.h / 2 - 40, w: 38, h: 38, jk: 'gift' }]);
+  }
+  xmMake(R); const sl = XM.slots;
+  const keep = sl.map(s => s.fk === 'market' ? { x: s.x - 230, y: s.y - 100, w: 520, h: 220 } : s.fk === 'tree' ? { x: s.x - 200, y: s.y - 160, w: 400, h: 320 } : { x: s.x - 150, y: s.y - 140, w: 300, h: 280 });
+  keep.push({ x: R.x, y: D.y - 100, w: 170, h: 200 }, { x: R.x + R.w - 170, y: D.y - 100, w: 170, h: 200 });
+  const obs = [], total = 38, ks = ['fir', 'fir', 'fir', 'gift', 'gift', 'ice'];
+  for (let t = 0; t < 1200 && obs.length < total; t++) {
+    const jk = pickOf(ks), w = jk === 'fir' ? rr(38, 50) : jk === 'ice' ? rr(36, 50) : 38, h = jk === 'fir' ? rr(54, 70) : jk === 'ice' ? rr(36, 48) : 38;
+    const o = { x: rr(R.x + 90, R.x + R.w - 90 - w), y: rr(R.y + 50, R.y + R.h - 50 - h), w, h, jk };
+    if (keep.some(k => L.overlap(k, o)) || obs.some(q => L.overlap(L.inflate(q, 80), o))) continue;
+    obs.push(o);
+  }
+  return obs;
+}
+function xmObsDraw(g, o) {
+  const cx = o.x + o.w / 2, cy = o.y + o.h / 2;
+  if (o.jk === 'fir') {
+    g.fillStyle = '#4a3220'; g.fillRect(cx - 4, o.y + o.h - 12, 8, 12);
+    for (let k = 0; k < 3; k++) { const y = o.y + k * o.h * 0.26, w = o.w * (0.55 + k * 0.22); g.fillStyle = '#0f4a2a'; poly(g, [[cx - w / 2 - 2, y + o.h * 0.42], [cx, y - 2], [cx + w / 2 + 2, y + o.h * 0.42]]); g.fillStyle = '#1f7a44'; poly(g, [[cx - w / 2 + 2, y + o.h * 0.4], [cx, y + 3], [cx + w / 2 - 2, y + o.h * 0.4]]); }
+    g.fillStyle = SNOW; poly(g, [[cx - 6, o.y + o.h * 0.14], [cx, o.y + 2], [cx + 6, o.y + o.h * 0.14]]);
+  } else if (o.jk === 'gift') {
+    g.fillStyle = '#1a3a28'; rrect(g, o.x - 2, o.y - 2, o.w + 4, o.h + 4, 5); g.fillStyle = RED; rrect(g, o.x, o.y, o.w, o.h, 4); g.fillStyle = '#ffe27a'; g.fillRect(cx - 4, o.y, 8, o.h); g.fillRect(o.x, cy - 4, o.w, 8); g.beginPath(); g.ellipse(cx - 7, o.y - 3, 7, 4, -0.5, 0, TAU); g.ellipse(cx + 7, o.y - 3, 7, 4, 0.5, 0, TAU); g.fill();
+  } else {
+    g.fillStyle = '#5a86a8'; rrect(g, o.x - 2, o.y - 2, o.w + 4, o.h + 4, 8); g.fillStyle = '#bfe3f5'; rrect(g, o.x, o.y, o.w, o.h, 7); g.fillStyle = 'rgba(255,255,255,.7)'; poly(g, [[o.x + 5, o.y + o.h - 6], [o.x + o.w * 0.4, o.y + 5], [o.x + o.w * 0.55, o.y + o.h - 6]]);
+  }
+}
+function xmBg(g, rm, rng, arR) {
+  const R = L.ROOM;
+  for (let i = 0; i < Math.round(110 * arR); i++) { g.fillStyle = 'rgba(255,255,255,' + (0.5 + rng() * 0.5) + ')'; const sz = 1.5 + rng() * 3; g.fillRect(R.x + rng() * R.w, R.y + rng() * R.h, sz, sz); }
+  for (let k = 0; k < Math.round(8 * arR); k++) { const x = R.x + rng() * R.w, y = R.y + rng() * R.h, gr = g.createRadialGradient(x, y, 0, x, y, 200); gr.addColorStop(0, 'rgba(180,215,245,.35)'); gr.addColorStop(1, 'rgba(180,215,245,0)'); g.fillStyle = gr; g.fillRect(x - 200, y - 200, 400, 400); }
+  if (rm.kind === 'combat' && R.w > 2000) { g.font = '700 34px sans-serif'; g.textAlign = 'center'; g.fillStyle = 'rgba(60,100,130,.14)'; for (let z = 0; z < 6; z++) g.fillText(XM_ZONE[z], R.x + (z % 3 + 0.5) * R.w / 3, R.y + (Math.floor(z / 3) + 0.5) * R.h / 2 - 110); }
+}
+function xmInit(room, kind) {
+  const r = L.run; if (L.th() !== 20) return;
+  if (kind !== 'combat') { XM = kind === 'boss' ? XM : null; if (XM) XM.live = false; }
+  { const sd = r.xmSaid = r.xmSaid || {}; if (kind !== 'start' && !sd[r.layer]) { sd[r.layer] = 1; const T0 = XM_STORY[r.layer & 1]; L.later(2.0, () => { if (L.room === room && L.state() === 'play') L.say(T0); }); } }
+  if (kind !== 'combat' || !XM) return;
+  XM.live = true; room.refreshN = 0;
+  for (const s of XM.slots) {
+    if (s.fk === 'market') {
+      room.items.push(L.makeItem('heal', s.x - 130, s.y, 'shop'), L.makeItem('upgrade', s.x, s.y, 'shop'), L.makeItem(rand() < 0.65 ? 'weapon' : 'upgrade', s.x + 130, s.y, 'shop'));
+      room.items.push({ kind: 'refresh', id: 'refresh', slot: 'refresh', x: s.x + 250, y: s.y, price: 3, group: 'stall', taken: false });
+    } else room.items.push({ kind: 'tfac', id: 'tfac', fk: s.fk, x: s.x, y: s.y, group: 'prop', price: 0, taken: false, st: 'ready', t: 0, n: 0 });
+  }
+}
+const XM_NAME = { tree: '許願聖誕樹', workshop: '精靈工坊', chimney: '煙囪送禮', hearth: '壁爐' };
+function xmDone(it, msg) { it.st = 'done'; const r = L.run; r.xmFac = r.xmFac || {}; r.xmFac[it.fk] = 1; if (r.xmFac.tree && r.xmFac.workshop) L.unlockAch('xmFac'); if (msg) L.toast(msg, 3); L.hintReset(); }
+function xmUse(it) {
+  const p = L.p, room = L.room;
+  if (it.st === 'done') { L.toast('這裡已經結束了', 1.4); return; }
+  if (it.st === 'busy') { L.toast('進行中……', 1.2); return; }
+  if (it.fk === 'hearth') { L.toast('站在壁爐旁邊暖身 6 秒就好', 1.6); return; }
+  if (it.fk === 'tree') {
+    if (p.coins < 4) { L.toast('燈芯不夠（每個裝飾 4 燈芯）', 1.6); L.sfx('tick'); return; } p.coins -= 4; it.n++; L.sfx('buy'); L.burst(it.x, it.y - 30, 14, ['#ffd24a', RED, '#7df9ff'], 150, true); const x = rand();
+    if (it.n >= 3) { L.healP(1); const u = L.premUpgrade(); xmDone(it, '聖誕樹亮起來了：燈火 +1、精良強化「' + L.UPGN(u) + '」'); return; }
+    if (x < 0.4) { p.coins += 8; L.toast('樹上掛的裝飾掉出了燈芯 +8', 2); } else if (x < 0.75) { L.pickups.push({ kind: 'oil', x: it.x + 30, y: it.y + 40, t: 0 }); L.toast('樹下出現了一小瓶燈油', 2); } else { const u = L.rewardUpgrade(); L.toast('裝飾發光了：強化「' + L.UPGN(u) + '」', 2.6); }
+    L.hintReset();
+  } else if (it.fk === 'workshop') {
+    const big = L.spawnEnemy('brute', it.x, it.y - 100); big.sleep = false; big.noRez = true; big.hp = big.maxHp = Math.round(big.maxHp * 2.6); big.r = Math.round(big.r * 1.3);
+    it.mobs = [big].concat(hwSpawn(4, it, ['crawler', 'crawler', 'shooter'])); it.st = 'busy'; L.burst(it.x, it.y, 22, [RED, '#ffd24a', GRN], 200, true); L.sfx('kill'); L.toast('發條啟動——巨大的胡桃鉗醒來了！', 2.8); L.hintReset();
+  } else if (it.fk === 'chimney') {
+    it.n++; L.sfx('hit'); L.burst(it.x, it.y - 20, 12, ['#7a7a8a', SNOW], 150, true); const x = rand();
+    if (x < 0.45) { L.dropCoins(it.x, it.y + 30, 3 + Math.floor(rand() * 3)); L.toast('煙囪滾出了禮物：燈芯', 1.4); }
+    else if (x < 0.65) { L.pickups.push({ kind: 'oil', x: it.x + 30, y: it.y + 30, t: 0 }); L.toast('禮物裡有一小瓶燈油', 1.4); }
+    else if (x < 0.82) { hwSpawn(2, it, ['reindeer', 'snowman']); L.toast('煙囪裡跳出了東西！', 1.6); }
+    else L.toast('這份禮物是空盒子……', 1.2);
+    if (it.n >= 5) xmDone(it, '煙囪的禮物送完了');
+    L.hintReset();
+  }
+}
+function xmTick(dt) {
+  const room = L.room, p = L.p; if (!room || L.state() !== 'play') return;
+  for (const e of L.enemies) if (!e.dead && e.type === 'boss' && e.xk === 'xmnut' && e.open && L.time > e.open && !e.openOff) { e.openOff = true; }
+  if (!XM || !XM.live || room.kind !== 'combat') return;
+  for (const it of room.items) {
+    if (it.kind === 'tfac' && it.fk === 'hearth' && it.st === 'ready') {
+      if (Math.hypot(p.x - it.x, p.y - it.y) < 150) it.t += dt; else it.t = Math.max(0, it.t - dt * 2);
+      if (it.t >= 6) { xmDone(it, ''); const r = L.rand(); L.sfx('clear'); if (r < 0.4) { L.healP(1); p.coins += 8; L.toast('壁爐暖暖的：燈火 +1、燈芯 +8', 2.8); } else if (r < 0.8) { p.skillCd = 0; const u = L.rewardUpgrade(); L.toast('暖身完畢：技能冷卻重置、強化「' + L.UPGN(u) + '」', 3); } else { p.coins += 15; L.toast('壁爐裡掉出了襪子：燈芯 +15', 2.4); } L.hintReset(); }
+      continue;
+    }
+    if (it.kind !== 'tfac' || it.st !== 'busy' || !it.mobs) continue;
+    if (it.mobs.every(e => e.dead)) { const w = L.makeItem('weapon', it.x, it.y + 60, 'prop'); room.items.push(w); L.dropCoins(it.x, it.y + 20, 10); L.sfx('clear'); xmDone(it, '玩具們安靜了：工坊裡留下一把武器'); }
+  }
+}
+function xmInfo(it) {
+  const d = { tree: it.st === 'done' ? '聖誕樹已經亮了' : '每個裝飾 4 燈芯（共 3 個）：燈芯、燈油或強化；掛滿 3 個得燈火 +1 與精良強化。已掛 ' + it.n + ' / 3', workshop: it.st === 'done' ? '工坊已安靜' : '按 F 啟動發條：巨大的胡桃鉗與 4 隻小怪出現；全部打倒得一把武器與燈芯', chimney: it.st === 'done' ? '禮物已送完' : '按 F 丟一份禮物（最多 5 份）：燈芯、燈油，偶爾跑出怪', hearth: it.st === 'done' ? '已經暖和了' : '站在壁爐旁邊（150 像素內）聽 6 秒，離開會倒退。結局：回血加燈芯／技能冷卻重置加強化／燈芯 +15' };
+  return { name: XM_NAME[it.fk] + (it.st === 'done' ? '（已結束）' : ''), desc: d[it.fk] || '' };
+}
+const xmHint = it => (it.st === 'ready' ? (it.fk === 'hearth' ? '靠近壁爐暖身（' + Math.floor(Math.min(6, it.t)) + ' / 6）' : it.fk === 'tree' ? 'F 掛裝飾（4 燈芯，' + it.n + ' / 3）' : it.fk === 'workshop' ? 'F 啟動發條' : 'F 丟禮物（' + it.n + ' / 5）') : '');
+function xmDraw(it) {
+  const c = L.ctx, tm = L.time, done = it.st === 'done'; c.save(); c.translate(it.x, it.y); if (done) c.globalAlpha = 0.55;
+  c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(0, 26, 44, 10, 0, 0, TAU); c.fill();
+  if (it.fk === 'tree') {
+    c.fillStyle = '#4a3220'; c.fillRect(-8, 10, 16, 16); for (let k = 0; k < 3; k++) { const w = 54 - k * 14, y = 0 - k * 28; c.fillStyle = '#0f4a2a'; poly(c, [[-w - 2, y + 18], [0, y - 22], [w + 2, y + 18]]); c.fillStyle = GRN; poly(c, [[-w + 2, y + 15], [0, y - 17], [w - 2, y + 15]]); }
+    const lit = done || it.n >= 1; c.fillStyle = lit ? '#ffd24a' : '#8a7a4a'; star4(c, 0, -92, 13 + (lit ? Math.sin(tm * 4) * 2 : 0), tm); for (let k = 0; k < it.n + (done ? 3 : 0); k++) { c.fillStyle = [RED, '#7df9ff', '#ffd24a'][k % 3]; circ(c, -22 + k * 22, -8 - (k % 2) * 28, 5); }
+  } else if (it.fk === 'workshop') {
+    c.fillStyle = '#7a4a2a'; rrect(c, -34, -22, 68, 46, 4); c.fillStyle = RED; poly(c, [[-40, -20], [0, -50], [40, -20]]); c.fillStyle = '#ffe27a'; rrect(c, -8, -4, 16, 28, 2); c.fillStyle = '#ffd24a'; circ(c, 20, -2, 8); c.strokeStyle = '#1a1a2a'; c.lineWidth = 2; c.beginPath(); c.moveTo(20, -10); c.lineTo(20, 6); c.moveTo(12, -2); c.lineTo(28, -2); c.stroke();
+  } else if (it.fk === 'chimney') {
+    c.fillStyle = '#8a3a2a'; rrect(c, -18, -34, 36, 58, 3); c.fillStyle = '#6a2a1e'; for (let k = 0; k < 4; k++) c.fillRect(-18, -26 + k * 14, 36, 2); c.fillStyle = '#c8c8d6'; c.fillRect(-22, -40, 44, 8); c.fillStyle = 'rgba(220,220,235,.6)'; circ(c, Math.sin(tm * 2) * 5, -54 - (tm * 20 % 20), 8);
+  } else {
+    c.fillStyle = '#7a4a2a'; rrect(c, -34, -16, 68, 40, 4); c.fillStyle = '#1a0e08'; rrect(c, -22, -4, 44, 28, 3); const fl = Math.sin(tm * 9) * 2; c.fillStyle = '#ff7a2a'; poly(c, [[-14, 22], [-8, -2 + fl], [0, 10], [8, -6 - fl], [14, 22]]); c.fillStyle = '#ffe27a'; poly(c, [[-6, 22], [0, 6], [6, 22]]); c.fillStyle = RED; c.fillRect(-30, -22, 14, 8); c.fillStyle = SNOW; c.fillRect(-30, -24, 14, 3);
+  }
+  c.restore();
+}
+function xmBack() {
+  const room = L.room, c = L.ctx, tm = L.time; if (!room) return;
+  if (room.kind === 'boss') {
+    const w = L.enemies.find(q => q.type === 'boss' && !q.dead && q.xk === 'xmnut');
+    if (w && w.tl && w.tl.act === 'charge') { const p = L.p; c.save(); c.strokeStyle = 'rgba(255,90,60,' + (0.35 + 0.3 * Math.sin(tm * 16)) + ')'; c.lineWidth = 8; c.setLineDash([14, 10]); c.beginPath(); c.moveTo(w.x, w.y); c.lineTo(p.x, p.y); c.stroke(); c.restore(); }
+    return;
+  }
+  if (!XM || !XM.live || room.kind !== 'combat') return;
+  for (const s of XM.slots) if (s.fk === 'market') {
+    c.save(); c.translate(s.x, s.y - 52); c.fillStyle = '#2a1810'; c.fillRect(-250, -6, 500, 8); for (let i = 0; i < 10; i++) { c.fillStyle = i % 2 ? RED : SNOW; c.beginPath(); c.moveTo(-250 + i * 50, 2); c.lineTo(-200 + i * 50, 2); c.lineTo(-225 + i * 50, 24); c.fill(); }
+    c.fillStyle = '#7a1a1a'; c.font = '700 15px sans-serif'; c.textAlign = 'center'; c.fillText('聖誕市集', 0, -14); c.restore();
+  }
+}
+const XM_BOSS = { xmsanta: { name: '聖誕老人', hp: 285 }, xmfact: { name: '薑餅工廠長', hp: 255 }, xmnut: { name: '巨型胡桃鉗', hp: 360 } };
+function xmBossDef(fin) {
+  const r = L.run, t = L.th(); r.hwOrd = r.hwOrd || {}; const ord = r.hwOrd[t] = r.hwOrd[t] || L.shuffle(['xmsanta', 'xmfact', 'xmnut']);
+  const same = r.themes[0] === r.themes[1], k = ord[same ? r.layer % 3 : (r.layer & 1)], B = XM_BOSS[k]; return { kind: 'golem', name: B.name, hp: Math.round(B.hp * (fin ? 1.3 : 1)), ext: true, xk: k };
+}
+function xmHit(e, dmg) {
+  if (e.type !== 'boss') return dmg;
+  if (e.xk === 'xmfact') { const n = L.enemies.filter(q => !q.dead && q.type !== 'boss' && q.skin === 'ginger' && q.spawn <= 0).length; if (n >= 4) { if (L.time - (e.armTip || -99) > 8) { e.armTip = L.time; L.toast('糖霜護體——先清掉薑餅人，Boss 才會吃傷害', 2.2); } return dmg * 0.3; } }
+  if (e.xk === 'xmnut') { if (e.open && L.time < e.open) return dmg * 2; return dmg * 0.55; }
+  return dmg;
+}
+function xmMoves(e, phase, ang) {
+  const p = L.p, aim = () => Math.atan2(p.y - e.y, p.x - e.x), alive = L.enemies.filter(q => !q.dead && q.type !== 'boss').length;
+  const pools = {
+    xmsanta: phase === 1 ? ['gifts', 'bells', 'cane'] : phase === 2 ? ['gifts', 'bells', 'cane', 'sleigh'] : ['gifts', 'cane', 'sleigh', 'rain', 'bells'],
+    xmfact: phase === 1 ? ['bake', 'sugar'] : phase === 2 ? ['bake', 'rally', 'sugar'] : ['bake', 'rally', 'army', 'sugar'],
+    xmnut: phase === 1 ? ['crack', 'soldiers'] : phase === 2 ? ['crack', 'soldiers', 'nuts'] : ['crack', 'soldiers', 'nuts', 'slam']
+  };
+  const a = pickOf(pools[e.xk] || pools.xmsanta), R = L.ROOM;
+  if (a === 'gifts') { for (let w = 0; w < 3; w++) L.later(w * 0.45, () => { if (e.dead || L.state() !== 'play') return; const aa = aim(); for (let i = -2; i <= 2; i++) L.bossShot(e, e.x, e.y, aa + i * 0.22, 180, false, 9); L.sfx('hit'); }); L.toast('禮物砸過來！', 1.1); }
+  else if (a === 'bells') { const n = 14, off = rand() * TAU; for (let i = 0; i < n; i++) L.bossShot(e, e.x, e.y, off + i / n * TAU, 135, false, 8); L.later(0.8, () => { if (e.dead) return; for (let i = 0; i < n; i++) L.bossShot(e, e.x, e.y, off + (i + 0.5) / n * TAU, 160, false, 8); }); L.toast('鈴鐺環！', 1.2); }
+  else if (a === 'cane') { const off = rand() * TAU; for (let i = 0; i < 30; i++) L.later(i * 0.09, () => { if (e.dead || L.state() !== 'play') return; L.bossShot(e, e.x, e.y, off + i * 0.42, 185, false, 7); }); L.toast('拐杖糖旋風！', 1.2); }
+  else if (a === 'sleigh') { L.toast('雪橇衝過來——看缺口！', 1.8); const gap = R.y + 80 + rand() * (R.h - 160); for (let i = 0; i < 16; i++) { const yy = R.y + 20 + i * ((R.h - 40) / 15); if (Math.abs(yy - gap) < 70) continue; L.later(0.5, () => { if (e.dead || L.state() !== 'play') return; L.bossShot(e, R.x + 10, yy, 0, 240, false, 8); }); } }
+  else if (a === 'rain') { L.toast('雪花雨！', 1.2); for (let i = 0; i < 14; i++) L.later(i * 0.16, () => { if (e.dead || L.state() !== 'play') return; L.bossShot(e, R.x + rand() * R.w, R.y + 10, Math.PI / 2 + (rand() - 0.5) * 0.3, 200, false, 8); }); }
+  else if (a === 'bake') { const n = phase === 3 ? 5 : 4; if (alive < 11) for (let i = 0; i < n; i++) { const sp = L.freeSpot(13), m = L.spawnEnemy('crawler', sp.x, sp.y); m.sleep = false; m.noRez = true; m.spawn = 0.8; } L.toast('出爐了！薑餅人列隊！', 1.4); }
+  else if (a === 'rally') { L.toast('糖霜加速——薑餅人衝鋒！', 1.8); for (const q of L.enemies) if (!q.dead && q.type !== 'boss' && !q.rally) { q.rally = true; q.spd *= 1.5; L.later(3.2, () => { q.spd /= 1.5; q.rally = false; }); } }
+  else if (a === 'army') { if (alive < 14) for (let i = 0; i < 8; i++) { const sp = L.freeSpot(13), m = L.spawnEnemy('crawler', sp.x, sp.y); m.sleep = false; m.noRez = true; m.spawn = 0.8; } L.toast('整盤出爐！', 1.6); }
+  else if (a === 'sugar') { for (let w = 0; w < 2; w++) L.later(w * 0.5, () => { if (e.dead || L.state() !== 'play') return; const aa = aim(); for (let i = -2; i <= 2; i++) L.bossShot(e, e.x, e.y, aa + i * 0.2, 205, false, 7); }); L.toast('糖粒彈！', 1.1); }
+  else if (a === 'crack') { e.tl = { t: 0.9, act: 'charge', ang: aim() }; e.open = L.time + 4.2; e.openOff = false; L.toast('胡桃鉗張開大嘴——衝撞後的 3 秒是弱點，傷害 ×2！', 2.6); }
+  else if (a === 'soldiers') { if (alive < 9) for (let i = 0; i < 3; i++) { const sp = L.freeSpot(13), m = L.spawnEnemy('crawler', sp.x, sp.y); m.sleep = false; m.noRez = true; m.spawn = 0.8; } L.toast('玩具兵列隊！', 1.4); }
+  else if (a === 'nuts') { for (let w = 0; w < 2; w++) L.later(w * 0.6, () => { if (e.dead || L.state() !== 'play') return; const n = 16, off = rand() * TAU; for (let i = 0; i < n; i++) L.bossShot(e, e.x, e.y, off + i / n * TAU, 150, false, 8); }); L.toast('堅果彈！', 1.2); }
+  else { L.toast('發條重擊！', 1.4); e.open = L.time + 3.4; e.openOff = false; for (let k = 0; k < 7; k++) { const aa = k / 7 * TAU, d = 130 + (k % 2) * 90; L.markStrike(e, e.x + Math.cos(aa) * d, e.y + Math.sin(aa) * d, 56, 1.1, {}); } }
+}
+function drawXmBoss(e) {
+  const c = L.ctx, fl = e.flash > 0, t = e.t, b = Math.sin(t * 2) * 4, ol = '#2a1810';
+  if (e.xk === 'xmsanta') {
+    c.fillStyle = 'rgba(214,58,58,.14)'; circ(c, 0, b, 105); c.fillStyle = ol; c.beginPath(); c.ellipse(0, 36 + b, 66, 66, 0, 0, TAU); c.fill(); c.fillStyle = fl ? C.paper : RED; c.beginPath(); c.ellipse(0, 36 + b, 60, 60, 0, 0, TAU); c.fill(); c.fillStyle = '#1a1a2a'; c.fillRect(-60, 30 + b, 120, 12); c.fillStyle = '#ffd24a'; c.fillRect(-12, 28 + b, 24, 16);
+    c.fillStyle = fl ? C.paper : '#f2c9a0'; circ(c, 0, -30 + b, 34); c.fillStyle = SNOW; c.beginPath(); c.moveTo(-34, -24 + b); c.quadraticCurveTo(0, 50 + b, 34, -24 + b); c.quadraticCurveTo(0, -4 + b, -34, -24 + b); c.fill(); circ(c, -24, -40 + b, 11); circ(c, 24, -40 + b, 11);
+    c.fillStyle = fl ? C.paper : RED; poly(c, [[-36, -48 + b], [-4, -96 + b], [36, -48 + b]]); c.fillStyle = SNOW; c.fillRect(-38, -52 + b, 76, 12); circ(c, -4, -98 + b, 8); c.fillStyle = ol; circ(c, -12, -34 + b, 3); circ(c, 12, -34 + b, 3); c.fillStyle = '#e8a090'; circ(c, 0, -26 + b, 4);
+  } else if (e.xk === 'xmfact') {
+    const n = L.enemies.filter(q => !q.dead && q.type !== 'boss' && q.skin === 'ginger' && q.spawn <= 0).length;
+    if (n >= 4) { c.strokeStyle = 'rgba(255,255,255,' + (0.55 + 0.2 * Math.sin(t * 8)) + ')'; c.lineWidth = 6; c.beginPath(); c.arc(0, b, 90, 0, TAU); c.stroke(); }
+    c.fillStyle = ol; circ(c, 0, -34 + b, 44); rrect(c, -62, -4 + b, 124, 88, 8); rrect(c, -86, 0 + b, 30, 60, 6); rrect(c, 56, 0 + b, 30, 60, 6);
+    c.fillStyle = fl ? C.paper : '#b9702e'; circ(c, 0, -34 + b, 40); rrect(c, -58, 0 + b, 116, 80, 6); rrect(c, -82, 4 + b, 22, 52, 5); rrect(c, 60, 4 + b, 22, 52, 5);
+    c.fillStyle = '#fff'; circ(c, -14, -40 + b, 7); circ(c, 14, -40 + b, 7); c.strokeStyle = '#fff'; c.lineWidth = 4; c.beginPath(); c.arc(0, -26 + b, 16, 0.2, Math.PI - 0.2); c.stroke(); c.fillStyle = RED; for (let k = 0; k < 3; k++) circ(c, 0, 10 + k * 20 + b, 6);
+    c.fillStyle = '#fff'; rrect(c, -30, -90 + b, 60, 34, 6); circ(c, -22, -92 + b, 14); circ(c, 0, -98 + b, 16); circ(c, 22, -92 + b, 14);
+  } else {
+    const open = e.open && L.time < e.open; c.fillStyle = open ? 'rgba(255,230,120,.22)' : 'rgba(214,58,58,.12)'; circ(c, 0, b, 108);
+    c.fillStyle = ol; rrect(c, -58, -6 + b, 116, 100, 8); c.fillStyle = fl ? C.paper : RED; rrect(c, -54, -2 + b, 108, 92, 6); c.fillStyle = '#ffd24a'; c.fillRect(-40, 20 + b, 80, 5); c.fillRect(-40, 50 + b, 80, 5); for (const s of [-1, 1]) { c.fillStyle = fl ? C.paper : '#1a1a2a'; c.fillRect(s * 36 - 12, 90 + b, 24, 20); }
+    c.fillStyle = ol; rrect(c, -40, -78 + b, 80, 80, 6); c.fillStyle = fl ? C.paper : '#f2c9a0'; rrect(c, -36, -74 + b, 72, 56, 5); c.fillStyle = ol; circ(c, -14, -52 + b, 5); circ(c, 14, -52 + b, 5);
+    c.fillStyle = '#fff'; rrect(c, -30, -26 + b, 60, open ? 10 : 6, 2); c.fillStyle = open ? '#7a1a1a' : '#f2c9a0'; if (open) { rrect(c, -28, -16 + b, 56, 18, 3); c.fillStyle = '#fff'; for (let k = 0; k < 5; k++) c.fillRect(-26 + k * 11, -16 + b, 6, 7); }
+    c.fillStyle = fl ? C.paper : '#1a1a2a'; rrect(c, -42, -112 + b, 84, 36, 4); c.fillStyle = '#ffd24a'; c.fillRect(-42, -84 + b, 84, 5);
+  }
+}
+const XM_EVENTS = {
+  swap: {
+    toast: '交換禮物：花 3 燈芯，換一份神祕禮物', setup: (room, cx, cy) => xAdd(room, cx, cy, 'swap'),
+    info: it => ({ name: '交換禮物', desc: it.used ? '禮物已經拆開了' : '花 3 燈芯換一份神祕禮物：50% 強化、30% 燈芯 +8、20% 空盒子（只有 1 燈芯）；只能一次' }),
+    hint: it => it.used ? '' : 'F 交換（3 燈芯）',
+    use(it) { if (it.used) return; if (L.p.coins < 3) { L.toast('燈芯不夠'); L.sfx('tick'); return; } L.p.coins -= 3; it.used = true; const r = L.rand(); L.sfx('buy'); if (r < 0.5) { const u = L.rewardUpgrade(); L.toast('拆開禮物：強化「' + L.UPGN(u) + '」', 2.8); } else if (r < 0.8) { L.p.coins += 8; L.toast('禮物盒裡有燈芯 +8', 2.2); } else { L.p.coins += 1; L.toast('空盒子……還有一顆糖，燈芯 +1', 2.2); } },
+    draw: it => xProp(it, '#c0392b', '禮', it.used)
+  },
+  carol: {
+    toast: '聖誕合唱：站在合唱團旁聽 5 秒', setup: (room, cx, cy) => xAdd(room, cx, cy, 'carol', { t: 0 }),
+    info: it => ({ name: '聖誕合唱團', desc: it.used ? '歌唱完了' : '站在合唱團旁邊（150 像素內）聽 5 秒，離開會倒退。聽完：燈火 +1、燈芯 +10' }),
+    hint: it => it.used ? '' : '靠近合唱團（' + Math.floor(Math.min(5, it.t)) + ' / 5）',
+    use() { },
+    tick(dt, room) { const it = room.items.find(q => q.kind === 'xev' && q.id === 'carol'); if (!it || it.used) return; const p = L.p; if (Math.hypot(p.x - it.x, p.y - it.y) < 150) it.t += dt; else it.t = Math.max(0, it.t - dt * 2); if (it.t >= 5) { it.used = true; L.healP(1); p.coins += 10; L.sfx('clear'); L.toast('歌聲暖暖的：燈火 +1、燈芯 +10', 2.8); L.hintReset(); } },
+    draw: it => { const c = L.ctx; c.save(); c.translate(it.x, it.y); if (it.used) c.globalAlpha = 0.5; c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(0, 22, 40, 9, 0, 0, TAU); c.fill(); for (let k = -1; k <= 1; k++) { c.fillStyle = [RED, GRN, '#3a5fc0'][k + 1]; c.beginPath(); c.ellipse(k * 24, 8, 11, 16, 0, 0, TAU); c.fill(); c.fillStyle = '#f2c9a0'; circ(c, k * 24, -12, 8); c.fillStyle = '#1a1a2a'; c.beginPath(); c.ellipse(k * 24, -4 + Math.sin(L.time * 5 + k) * 1.5, 3, 4, 0, 0, TAU); c.fill(); } c.restore(); }
+  },
+  cocoa: {
+    toast: '熱可可攤：花 6 燈芯，喝一杯暖一暖', setup: (room, cx, cy) => xAdd(room, cx, cy, 'cocoa'),
+    info: it => ({ name: '熱可可攤', desc: it.used ? '可可賣完了' : '花 6 燈芯：燈火 +2、技能冷卻重置；只能一次' }),
+    hint: it => it.used ? '' : 'F 買熱可可（6 燈芯）',
+    use(it) { if (it.used) return; if (L.p.coins < 6) { L.toast('燈芯不夠'); L.sfx('tick'); return; } L.p.coins -= 6; it.used = true; L.healP(2); L.p.skillCd = 0; L.sfx('buy'); L.toast('熱可可：燈火 +2、技能冷卻重置', 2.6); },
+    draw: it => xProp(it, '#7a4a2a', '可', it.used)
+  }
+};
+L.registerWorld({
+  theme: 20, name: '耶誕節', pool: 'dlc', opt: '耶誕節（DLC5）', pal: PAL20, bigMap: true, ownStory: true, noDark: true, noPaper: true,
+  amb: ['bandpass', 1500, 1.2, 0.004], ev: r => { const n = [523, 659, 784, 1047][Math.floor(r() * 4)]; L.blip(n, n * 1.004, 0.7, 'triangle', 0.008); },
+  skin: { map: XM_SKIN, draw: drawXmEnemy, hue: false }, bg: xmBg, obsDraw: xmObsDraw, obs: xmObs, roomInit: xmInit, tick: xmTick, back: xmBack,
+  drawItem: xmDraw, info: xmInfo, hint: xmHint, useItem: xmUse, shards: XM_SHARDS, hitMod: xmHit,
+  arrows: edge => { const room = L.room; if (!room || room.kind !== 'combat' || !XM || !XM.live) return; for (const it of room.items) if (it.kind === 'tfac' && it.st === 'ready' && !it.taken) edge(it.x, it.y, '#ffd24a', false); for (const s of XM.slots) if (s.fk === 'market') edge(s.x, s.y, '#ff8a8a', false); },
+  mini: (mx, my, sc) => {
+    const room = L.room, c = L.ctx, R = L.ROOM; if (!room || room.kind !== 'combat' || !XM || !XM.live) return; c.save(); c.textAlign = 'center'; c.font = '700 9px sans-serif';
+    for (const s of XM.slots) { const x = mx + (s.x - R.x) * sc, y = my + (s.y - R.y) * sc; if (s.fk === 'market') { c.fillStyle = '#ff8a8a'; c.fillText('市', x, y + 3); } }
+    for (const it of room.items) if (it.kind === 'tfac') { const x = mx + (it.x - R.x) * sc, y = my + (it.y - R.y) * sc; c.fillStyle = it.st === 'done' ? 'rgba(180,180,180,.6)' : '#ffd24a'; c.beginPath(); c.moveTo(x, y - 4); c.lineTo(x + 3.5, y); c.lineTo(x, y + 4); c.lineTo(x - 3.5, y); c.fill(); }
+    c.restore();
+  },
+  enemies: { reindeer: { hp: 7, r: 15, name: '馴鹿', cost: 3, cap: 3, ai: reindeerAi }, snowman: { hp: 14, r: 18, name: '雪人', cost: 4, cap: 2, ai: snowmanAi } },
+  types: (types, L0, ci) => { types.length = 0; types.push('crawler', 'crawler', 'shooter', 'reindeer'); if (L0 > 0) types.push('snowman', 'brute', 'crawler', 'bomber'); if (L0 >= 2) types.push('reindeer', 'snowman', 'shooter', 'brute'); if (L0 >= 3) types.push('brute', 'brute', 'snowman', 'shooter', 'bomber'); },
+  extra: () => [],
+  boss: fin => xmBossDef(fin), boss2: xmMoves, drawBoss: drawXmBoss,
+  intro: def => (def.xk === 'xmsanta'
+    ? [{ who: '旁白', text: '雪橇的鈴聲由遠而近，一個巨大的紅色身影擋在路中間。' }, { who: '聖誕老人', text: '今年的禮物……全都送不出去了。來，你替我接住它們吧！' }]
+    : def.xk === 'xmfact'
+      ? [{ who: '旁白', text: '工廠的烤箱門一扇扇打開，熱氣裡走出整排薑餅人。' }, { who: '薑餅工廠長', text: '訂單沒做完，誰都別想走！出爐——' }, { who: '旁白', text: '只要薑餅人還站著，工廠長就有糖霜護體。' }]
+      : [{ who: '旁白', text: '玩具堆裡，一個比房子還高的木頭士兵慢慢轉過頭，發條咔啦咔啦地響。' }, { who: '巨型胡桃鉗', text: '咔、咔——想要我的心，就得先撬開我的嘴。' }, { who: '旁白', text: '牠張開嘴巴的瞬間，是最脆弱的時候。' }]),
+  onKill: e => {
+    const r = L.run;
+    if (e.skin === 'ginger' && L.enemies.some(q => !q.dead && q.type === 'boss' && q.xk === 'xmfact')) { const o = L.rand() * TAU; for (let i = 0; i < 4; i++) L.enemyShot(e, o + i * TAU / 4, 120); }
+    else if (e.skin === 'ginger') { r.xmGinger = (r.xmGinger || 0) + 1; }
+  },
+  events: XM_EVENTS,
+  weapons: {
+    candycane: { id: 'candycane', name: '拐杖糖', tag: '近戰', mode: 'tap', cd: 0.45, th: 20, col: '#ff6a6a', range: 135, half: 1.3, dmg: 3.7, kb: 340, desc: '大範圍的弧形揮砍（耶誕節專屬，類似提燈刃）' },
+    snowcannon: { id: 'snowcannon', name: '雪球砲', tag: '單發', mode: 'tap', cd: 0.38, th: 20, col: '#f4f8fc', desc: '單發的雪球，傷害高（耶誕節專屬，類似燈焰杖）',
+      fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang, 560, 9, 3.9 * dm, 'flame', 1.0); L.sfx('flame'); } },
+    jinglebow: { id: 'jinglebow', name: '鈴鐺弓', tag: '連射', mode: 'auto', cd: 0.11, th: 20, col: '#ffd24a', desc: '按住連射小鈴鐺，射速快（耶誕節專屬，類似螢火弓）',
+      fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang + (rand() - 0.5) * 0.07, 720, 4, 1.15 * dm, 'pellet', 0.8); L.sfx('tick'); } },
+    holly: { id: 'holly', name: '冬青散彈', tag: '散射', mode: 'tap', cd: 0.62, th: 20, col: '#2f9a58', desc: '五發冬青果散射，近距離很痛（耶誕節專屬，類似霰光杖）',
+      fire: (ox, oy, ang, dm) => { for (let i = -2; i <= 2; i++) L.shoot(ox, oy, ang + i * 0.16, 520, 6, 1.9 * dm, 'pellet', 0.55); L.sfx('blade'); } },
+    icicle: { id: 'icicle', name: '冰錐', tag: '貫穿', mode: 'tap', cd: 0.75, th: 20, col: '#9fe8ff', desc: '貫穿一整排敵人的冰錐（耶誕節專屬，類似穿光矛）',
+      fire: (ox, oy, ang, dm) => { L.shoot(ox, oy, ang, 700, 8, 4.6 * dm, 'lance', 0.95, true); L.sfx('blade'); } }
+  },
+  ach: [
+    { id: 'xmSanta', name: '送不出去的禮物', desc: '耶誕節：擊敗聖誕老人' },
+    { id: 'xmFact', name: '關掉烤箱', desc: '耶誕節：擊敗薑餅工廠長' },
+    { id: 'xmNut', name: '撬開那張嘴', desc: '耶誕節：擊敗巨型胡桃鉗' },
+    { id: 'xmFac', name: '聖誕小幫手', desc: '耶誕節：同一局完成許願聖誕樹與精靈工坊' }
+  ],
+  onMid: () => { if (L.th() !== 20) return; xmBossAch(); L.later(1.2, () => L.say([{ who: '精靈', text: '雪停了。下一個節日的鈴聲，已經在路的盡頭響起。' }])); },
+  onFinal: () => { if (L.th() === 20) xmBossAch(); },
+  outro: () => [{ who: '聖誕老人', text: '謝謝你替我接住了那些禮物。今年，終於有人拆開它們。' }, { who: '旁白', text: '雪地上的燈一盞一盞地熄了，只剩下你的那一盞，安靜地亮到天亮。' }]
+});
+function xmBossAch() { try { const k = L.bossDef().xk; if (k === 'xmsanta') L.unlockAch('xmSanta'); else if (k === 'xmfact') L.unlockAch('xmFact'); else if (k === 'xmnut') L.unlockAch('xmNut'); } catch (e) { /* optional */ } }
 })();
