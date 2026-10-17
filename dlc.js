@@ -599,6 +599,7 @@ function jpFx(g, tm, rm, R) { // 每間房一種氛圍：花瓣／煙火／楓�
     const cols = ['#ff6a8a', '#ffd23f', '#7fe0ff', '#b9a5ff', '#9ff0a0'];
     for (let k = 0; k < 4; k++) {
       const per = 3.4, t = (tm + k * 0.9) % per, id = Math.floor((tm + k * 0.9) / per), cx = X + 140 + ((id * 211 + k * 397) % Math.max(100, W - 280)), cy = Y + 90 + ((id * 131 + k * 173) % Math.max(60, H * 0.4)), c = cols[(id + k) % 5];
+      rm.jpSnd = rm.jpSnd || {}; if (t >= 0.7 && t < 1 && rm.jpSnd[k] !== id) { rm.jpSnd[k] = id; L.sfx('boom'); }
       if (t < 0.7) { const q = t / 0.7; g.globalAlpha = 0.9; g.fillStyle = '#fff6c0'; g.beginPath(); g.arc(cx, cy + (1 - q) * (H * 0.45), 2.5, 0, TAU); g.fill(); }
       else if (t < 2.2) { const q = (t - 0.7) / 1.5, r = 20 + 80 * (1 - Math.pow(1 - q, 2)); g.globalAlpha = Math.max(0, 1 - q) * 0.9; g.fillStyle = c; for (let a = 0; a < 18; a++) { const an = a / 18 * TAU; g.beginPath(); g.arc(cx + Math.cos(an) * r, cy + Math.sin(an) * r + q * q * 26, 2.6 * (1 - q * 0.5), 0, TAU); g.fill(); } }
     }
