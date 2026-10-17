@@ -307,7 +307,7 @@ const real = L.registerWorld; let cap = null; L.registerWorld = w => { cap = w; 
 try { makeFest(F); } finally { L.registerWorld = real; }
 if (!cap) return;
 
-cap.opt = '食材廚房（DLC7）'; cap.bigMap = false;
+cap.opt = '食材廚房（DLC7）'; cap.bigMap = false; cap.shopMul = 1.5; // 商店價格 ×1.5
 { const o0 = cap.obs; cap.obs = (kind, R, D) => { o0(kind, R, D); return []; }; }
 // 事件：只有「上鎖的箱子」
 cap.events = { kchest: chest };

@@ -12,17 +12,17 @@ const { TAU, circ, rr, pickOf, clamp, rand } = L;
 
 /* ---------- 區域與敵人池：[代號, 最低有效深度] ---------- */
 const ZONES = [
-  { n: '深海', es: [['blindbomb', 0], ['bloater', 0], ['blindshark', 2], ['abyss', 3]] },
-  { n: '火山', es: [['lavaslime', 0], ['firebat', 0], ['sparker', 1], ['fireelem', 1], ['lavaworm', 2], ['flion', 2]] },
-  { n: '夢境', es: [['sleepwalker', 0], ['ghost', 0], ['rusher', 1], ['mirrorman', 1], ['faceless', 2]] },
-  { n: '詛咒沼澤', es: [['spore', 0], ['wisp', 1], ['jumper', 1]] },
-  { n: '沙漠', es: [['duster', 0], ['mummy', 0], ['bandit', 1]] },
+  { n: '深海', es: [['blindbomb', 0], ['bloater', 0], ['blindshark', 1], ['abyss', 2]] },
+  { n: '火山', es: [['lavaslime', 0], ['firebat', 0], ['sparker', 1], ['fireelem', 1], ['lavaworm', 1], ['flion', 1]] },
+  { n: '夢境', es: [['sleepwalker', 0], ['ghost', 0], ['rusher', 0], ['mirrorman', 1], ['faceless', 1]] },
+  { n: '詛咒沼澤', es: [['spore', 0], ['wisp', 0], ['jumper', 0]] },
+  { n: '沙漠', es: [['duster', 0], ['mummy', 0], ['bandit', 0]] },
   { n: '糖果', es: [['syrup', 0], ['roller', 0]] },
-  { n: '電玩未來', es: [['glitch', 0], ['laser', 1]] },
-  { n: '彼岸', es: [['fanshade', 0], ['dartshade', 1], ['flameshade', 2]] },
-  { n: '希臘', es: [['centaur', 0], ['cyclops', 3]] }
+  { n: '電玩未來', es: [['glitch', 0], ['laser', 0]] },
+  { n: '彼岸', es: [['fanshade', 0], ['dartshade', 0], ['flameshade', 1]] },
+  { n: '希臘', es: [['centaur', 0], ['cyclops', 2]] }
 ];
-const NATIVE = [['frostfan', 1], ['stickfan', 1], ['thiefrog', 2]]; // 巢穴原生：每波都可能出現
+const NATIVE = [['frostfan', 0], ['stickfan', 0], ['thiefrog', 1]]; // 巢穴原生：每波都可能出現
 const CHEAP = ['lavaslime', 'firebat', 'spore', 'duster', 'sleepwalker', 'rusher'];
 const DARK = ['blindbomb', 'abyss']; // 致盲／吸光：同一波最多一種
 const SHADE = ['fanshade', 'dartshade', 'flameshade'];
@@ -169,7 +169,7 @@ L.registerWorld({
   // 9 隻基礎最終 Boss 輪流（和用餐層一樣用現成的）：每 3 層是完整血量的最終 Boss，其餘層縮小；越深血量越高
   boss: fin => {
     const r = L.run, o = ord(), def = L.THEMES[o[r.layer % 9]].boss(true), grow = 1 + 0.12 * Math.max(0, r.layer - 2);
-    return Object.assign({}, def, { hp: Math.round(def.hp * (fin ? 1.1 : 0.7) * grow) });
+    return Object.assign({}, def, { hp: Math.round(def.hp * 1.5 * (fin ? 1.1 : 0.7) * grow) });
   },
   intro: def => [{ who: '旁白', text: def.name + '從巢穴深處爬了出來。這一層的出口，在牠身後。' }],
   outro: () => [{ who: '旁白', text: '巢穴沒有盡頭。你的燈還亮著，這就夠走下一層了。' }],

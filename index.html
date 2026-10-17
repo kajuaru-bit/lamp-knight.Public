@@ -980,7 +980,7 @@ const CLS = [
   { id: 'knight', name: '提燈騎士', role: '均衡', weapon: 'flame', hp: 6, spd: 1, skill: '燈光爆發', sdesc: '放出光波，擊退敵人並清除敵方光球', cd: 9, detail: '光波半徑約 190，對範圍內敵人造成 2 點傷害並大幅擊退，清除範圍內的敵方光球；施放瞬間短暫無敵，可以打碎護盾影的盾。' },
   { id: 'shield', name: '紙盾衛', role: '護盾近戰', weapon: 'pblade', hp: 4, spd: 1, sh: 3, ach: 10, skill: '盾擊', sdesc: '向前衝撞，擊退並暈眩敵人，護盾瞬間回滿', cd: 10, detail: '擁有 3 點護盾（血量只有 4），受傷先扣護盾；脫離受傷 4 秒後，每秒恢復 0.5 點。盾擊向前衝撞約 150 像素，路徑上的敵人受到 2 點傷害、擊退並暈眩 0.5 秒，護盾立刻回滿。' },
   { id: 'watch', name: '守夜人', role: '高血量・視野增傷', weapon: 'watchlamp', hp: 9, spd: 0.85, ach: 14, skill: '燈火壓制', sdesc: '10 秒內光圈擴大、光圈內增傷更高', cd: 14, detail: '血量最高、移動慢。被動：對自己光圈內的敵人傷害 +30%（光圈外沒有加成）。燈火壓制：10 秒內光圈範圍 +40%、增傷提高到 +45%。血量越少光圈越小，增傷範圍也跟著縮小。' },
-  { id: 'hunter', name: '螢火獵人', role: '遠程', weapon: 'chaser', hp: 5, spd: 1.12, skill: '螢火蟲群', sdesc: '放出會追蹤敵人的螢火，持續數秒', cd: 12, detail: '放出 10 隻追蹤螢火，持續 5 秒，每隻最多命中 3 次、每次傷害 1.5；沒有敵人時會回到你身邊。' },
+  { id: 'hunter', name: '螢火獵人', role: '遠程', weapon: 'chaser', hp: 6, spd: 1.12, skill: '螢火蟲群', sdesc: '放出會追蹤敵人的螢火，持續數秒', cd: 12, detail: '放出 10 隻追蹤螢火，持續 5 秒，每隻最多命中 3 次、每次傷害 1.5；沒有敵人時會回到你身邊。' },
   { id: 'cutter', name: '剪紙匠', role: '近戰', weapon: 'shears', hp: 7, spd: 1, skill: '裁切衝刺', sdesc: '朝瞄準方向衝刺，路徑上的敵人受傷，衝刺中與衝刺後 1 秒內不會被打中', cd: 6, detail: '朝瞄準方向衝刺約 200 像素，路徑上的敵人各受到 5 點傷害；衝刺中與衝刺結束後 1 秒內都不會被打中，可以打碎護盾影的盾。' },
   { id: 'mage', name: '折紙術士', role: '控場', weapon: 'plane', hp: 5, spd: 0.9, skill: '折紙屏障', sdesc: '折出一面紙牆，擋住敵方子彈數秒', cd: 12, detail: '在面前折出一面約 160 寬的紙牆，持續 4 秒，擋住敵方子彈；你的子彈可以穿過。' },
   { id: 'oiler', name: '燈油師', role: '治療支援', weapon: 'oilgun', hp: 5, spd: 1, ach: 6, skill: '暖光', sdesc: '放出暖光：恢復自己與隊友的燈火；血量滿時改為護身 4 秒', cd: 18, detail: '暖光半徑約 170，自己恢復 1 點燈火（專屬強化後 2 點），範圍內隊友恢復 1 點，並清除敵方光球。血量已滿時改為給自己 4 秒護身（敵人的攻擊有一半無效）。油燈槍命中敵人會縮短暖光冷卻 0.3 秒。' },
@@ -2013,6 +2013,7 @@ function loadRoom() {
   }
   lampMates = []; cmarks = []; harbors = []; pongB = null; rewindH = [];
   p.orb = null; lure = null; lures = []; tbait = null; enemies = []; slows = []; sands = []; p.flowers = []; bullets = []; pickups = []; swings = []; beams = []; rings = []; walls = []; hazards = []; vials = []; ppools = []; timers = []; tobs = []; frosts = []; blinds = []; erupts = []; slows = []; tapT.on = false; absorbs = [];
+  if (endl() && kind === 'combat' && !run.practice) addSeal(); // 無盡：戰鬥房有一塊封印石，打碎後出現互動機關
   if (th() === 2 && kind === 'combat') placeDecor();
   if (th() === 7 && (kind === 'combat' || kind === 'boss')) placeSwamp();
   if (th() === 8 && (kind === 'combat' || kind === 'boss')) placeDesert();
@@ -2257,6 +2258,7 @@ function telW(id) { const T = tel(); return T.wp[id] || (T.wp[id] = { off: 0, ta
 function telU(id) { const T = tel(); return T.up[id] || (T.up[id] = { off: 0, pick: 0 }); }
 function makeItem(...a) {
   const it = makeItem0(...a);
+  if (it && it.group === 'shop' && it.price && THEMES[th()].shopMul) it.price = Math.ceil(it.price * THEMES[th()].shopMul); // 主題商店加價（食材廚房）
   try { if (it && it.kind === 'weapon' && it.id) telW(it.id).off++; else if (it && it.kind === 'upgrade' && it.id) telU(it.id).off++; } catch (e) { /* telemetry is optional */ }
   return it;
 }
@@ -2312,6 +2314,7 @@ function itemInfo(it) {
   if (it.kind === 'muyu') return { name: '木魚', desc: it.taps > 0 ? '縮圈到最小時再按 F：圓滿＝雜念清空，其他＝減半（剩 ' + it.taps + ' 次）' : '木魚裂了' };
   if (it.kind === 'shrine') return { name: '佛龕', desc: it.used ? '香已經燃盡' : '佈施 ' + shrineCost(it) + ' 功德，得到一份回禮（可能是佛寺專屬武器）；只能一次' };
   if (it.kind === 'xev') { const xe = xevOf(); return xe ? xe.info(it) : { name: '事件', desc: '' }; }
+  if (it.kind === 'sealdev') return { name: SEAL_DEV[it.dv].name + (it.used ? '（已使用）' : ''), desc: SEAL_DEV[it.dv].desc };
   if (it.kind === 'tfac') { const W0 = THEMES[th()]; return W0.info ? W0.info(it) : { name: '設施', desc: '' }; }
   if (it.kind === 'ding') return { name: '古鼎', desc: it.used ? '鼎已經安靜下來了' : '青銅古鼎，傳說摸一下會賜予一件寶物（只能一次）' };
   if (it.kind === 'well') return it.id === 'grand'
@@ -2380,6 +2383,7 @@ function interact(it) {
   if (it.kind === 'tzsw') { rec.ui.tz = (rec.ui.tz | 0) === 2 ? 1 : 2; saveRec(); applyUi(); sfx('pick'); toast(rec.ui.tz === 2 ? '觸控按鈕：大' : '觸控按鈕：標準'); hintSig = ''; return; }
   if (it.kind === 'tutsw') { rec.tutOff = !rec.tutOff; saveRec(); sfx('pick'); toast(rec.tutOff ? '教學已關閉' : '教學已開啟'); hintSig = ''; tutSig = ''; return; }
   if (it.kind === 'dlcMenu') { openDlcMenu(); return; }
+  if (it.kind === 'sealdev') { sealUse(it); return; }
   if (it.kind === 'mech') { mechUse(it); return; }
   if (it.kind === 'muyu') { muyuTap(it); return; }
   if (it.kind === 'shrine') { shrineUse(it); return; }
@@ -2516,6 +2520,7 @@ function updateHint() {
     else if (it.kind === 'muyu') act = it.taps <= 0 ? '' : room.path && room.path.ring && room.path.ring.it === it ? 'F 現在敲！（縮圈最小時）' : 'F 敲木魚';
     else if (it.kind === 'shrine') act = it.used ? '' : 'F 佈施 ' + shrineCost(it) + ' 功德（目前 ' + (run.merit || 0) + '）';
     else if (it.kind === 'xev') { const xe = xevOf(); act = xe ? xe.hint(it) : ''; }
+    else if (it.kind === 'sealdev') act = it.used ? '' : SEAL_DEV[it.dv].hint;
     else if (it.kind === 'tfac') { const W0 = THEMES[th()]; act = W0.hint ? W0.hint(it) : ''; }
     else if (it.kind === 'well') act = it.dry ? '池水已經乾涸' : (it.id === 'grand' ? (it.n >= 5 ? '池水平靜了' : 'F 投入 ' + (3 * (it.n + 1)) + ' 燈芯（第 ' + (it.n + 1) + ' / 5 次）') : (it.n >= 6 ? '池水平靜了' : 'F 投入 4 燈芯（第 ' + (it.n + 1) + ' / 6 次）')) + (!it.dry && it.n < (it.id === 'grand' ? 5 : 6) && p.coins < (it.id === 'grand' ? 3 * (it.n + 1) : 4) ? '（燈芯不夠）' : '');
     else if (it.kind === 'weapon') act = p.weapons.length < 3 ? 'F 拿取' : 'F 取代' + (run.path || run.guard ? '下一格的「' : '手上的「') + WDEF[p.weapons[repIdx()]].name + '」';
@@ -2657,9 +2662,50 @@ function drawJelly(j) {
   ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.ellipse(-5, -6, 5, 3, -0.5, 0, TAU); ctx.fill(); ctx.restore();
 }
 function tobHit(b) { for (const o of tobs) { if (o.hp <= 0) continue; const nx = clamp(b.x, o.x, o.x + o.w), ny = clamp(b.y, o.y, o.y + o.h); if ((b.x - nx) ** 2 + (b.y - ny) ** 2 < b.r * b.r) return o; } return null; }
+/* 無盡玩法：封印石與互動機關 */
+const SEAL_DEV = {
+  heal: { name: '補給拉桿', desc: '拉一下：燈火 +1、燈芯 +6（只能用一次）', hint: 'F 拉動拉桿' },
+  forge: { name: '強化機關', desc: '投入 3 燈芯換一個強化（只能用一次）', hint: 'F 投入 3 燈芯' },
+  blast: { name: '震盪機關', desc: '按下：震退並傷害場上所有敵人（Boss 傷害較少），並清除敵方子彈（只能用一次）', hint: 'F 按下機關' }
+};
+function addSeal() {
+  for (let t = 0; t < 80; t++) {
+    const w = 56, h = 56, x = rr(ROOM.x + 360, ROOM.x + ROOM.w - 360 - w), y = rr(ROOM.y + 110, ROOM.y + ROOM.h - 110 - h), o = { x, y, w, h };
+    if (room.obs.some(q => overlap(inflate(q, 70), o))) continue;
+    tobs.push({ kind: 'seal', x, y, w, h, hp: 12, maxHp: 12, t: 0, dur: 1e9, flash: 0 });
+    if (!run.sealTip) { run.sealTip = true; later(2.6, () => { if (state === 'play') toast('房間裡有一塊發光的封印石——打碎它，會出現互動機關', 3.2); }); }
+    return;
+  }
+}
+function sealBroken(o) {
+  const dv = pickOf(['heal', 'forge', 'blast']);
+  room.items.push({ kind: 'sealdev', id: 'sealdev', dv, x: o.x + o.w / 2, y: o.y + o.h / 2, group: 'prop', price: 0, taken: false, used: false });
+  sfx('clear'); shake = Math.max(shake, 5); burst(o.x + o.w / 2, o.y + o.h / 2, 18, ['#ffd24a', '#b9a5ff', C.paper], 190, true); hintSig = '';
+  toast('封印石碎裂了，裡面藏著「' + SEAL_DEV[dv].name + '」！', 2.6); rec.seals = (rec.seals || 0) + 1;
+}
+function sealUse(it) {
+  if (it.used) { toast('已經啟動過了', 1.2); return; }
+  if (it.dv === 'forge') { if (p.coins < 3) { toast('燈芯不夠（需要 3）', 1.4); sfx('tick'); return; } p.coins -= 3; const u = rewardUpgrade(); toast('機關吐出強化：' + (UPG[u] ? UPG[u].name : u), 2.4); }
+  else if (it.dv === 'heal') { healP(1); p.coins += 6; toast('燈火 +1、燈芯 +6', 2); }
+  else {
+    for (const e of enemies) { if (e.dead) continue; const dx = e.x - it.x, dy = e.y - it.y, d = Math.hypot(dx, dy) || 1; e.kx = (e.kx || 0) + dx / d * 420; e.ky = (e.ky || 0) + dy / d * 420; hitEnemy(e, e.type === 'boss' ? 6 : 14, dx / d, dy / d, 0); }
+    bullets = bullets.filter(b => b.own === 'p'); shake = Math.max(shake, 9); toast('震盪波掃過全場！', 2);
+    rings.push({ x: it.x, y: it.y, R: 520, t: 0.6, dur: 0.6, col: '#ffd24a' });
+  }
+  it.used = true; sfx('buy'); burst(it.x, it.y - 10, 16, ['#ffd24a', C.paper], 170, true); hintSig = '';
+}
+function drawSealDev(it) {
+  ctx.save(); ctx.translate(it.x, it.y); const on = !it.used, tm = time;
+  ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(0, 24, 30, 8, 0, 0, TAU); ctx.fill();
+  ctx.fillStyle = '#2b2940'; rrect(ctx, -26, -22, 52, 44, 8); ctx.fillStyle = '#4a4670'; rrect(ctx, -22, -18, 44, 36, 6);
+  ctx.globalAlpha = on ? 0.75 + 0.25 * Math.sin(tm * 5) : 0.35; ctx.fillStyle = it.dv === 'heal' ? '#7ae08a' : it.dv === 'forge' ? '#ffd24a' : '#ff7a6a';
+  if (it.dv === 'heal') { rrect(ctx, -3, -14, 6, 22, 3); circ(ctx, 0, -16, 6); } else if (it.dv === 'forge') { poly(ctx, [[0, -15], [11, 0], [0, 15], [-11, 0]]); } else { circ(ctx, 0, 0, 11); ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 0, 16 + (on ? 2 * Math.sin(tm * 6) : 0), 0, TAU); ctx.stroke(); }
+  ctx.restore();
+}
 function damageTob(o, dmg) {
   if (o.hp <= 0) return; o.hp -= dmg; o.flash = 0.12; sfx('tick');
   if (o.hp <= 0 && o.kind === 'ore') oreBroken(o);
+  else if (o.hp <= 0 && o.kind === 'seal') sealBroken(o);
   else if (o.hp <= 0) { rec.plants = (rec.plants || 0) + 1; if (rec.plants >= 10) unlockAch('plants'); if (rec.plants % 5 === 0) saveRec(); }
   burst(o.x + o.w / 2, o.y + o.h / 2, o.hp <= 0 ? 12 : 4, th() === 1 ? ['#bfe3f5', '#ffffff', '#8fc4e4'] : th() === 3 ? ['#2b292f', '#8e3b32', '#d8d0bb'] : th() === 5 ? ['#4a3a34', '#ee6a3c', '#ffd27a'] : th() === 4 ? ['#bfeaff', '#7fe0d0', '#f2a9c4'] : ['#6fae6b', '#9ac27a', '#f2a9c4'], 130);
 }
@@ -2705,7 +2751,13 @@ function drawTob(o) {
   ctx.save(); if (fade) ctx.globalAlpha = 0.45;
   ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(cx, o.y + o.h + 2, o.w * 0.6, 5, 0, 0, TAU); ctx.fill();
   setShadow(ctx, 2, 3, 0);
-  if (o.kind === 'ice') {
+  if (o.kind === 'seal') {
+    const fl = o.flash > 0, pu = 0.6 + 0.4 * Math.sin(time * 4), dmgF = 1 - o.hp / o.maxHp;
+    ctx.fillStyle = fl ? C.paper : '#2b2940'; rrect(ctx, o.x, o.y, o.w, o.h, 9); ctx.fillStyle = fl ? C.paper : '#4a4670'; rrect(ctx, o.x + 5, o.y + 5, o.w - 10, o.h - 10, 6);
+    ctx.globalAlpha = pu; ctx.strokeStyle = '#ffd24a'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(cx, cy, 12, 0, TAU); ctx.moveTo(cx, cy - 12); ctx.lineTo(cx, cy + 12); ctx.moveTo(cx - 12, cy); ctx.lineTo(cx + 12, cy); ctx.stroke(); ctx.globalAlpha = 1;
+    ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.lineWidth = 2; ctx.beginPath(); for (let k = 0; k < Math.floor(dmgF * 5); k++) { ctx.moveTo(o.x + 6 + k * 10, o.y + 4); ctx.lineTo(o.x + 14 + k * 8, o.y + o.h - 6); } ctx.stroke();
+    ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fillRect(o.x, o.y - 9, o.w, 5); ctx.fillStyle = '#ffd24a'; ctx.fillRect(o.x, o.y - 9, o.w * Math.max(0, o.hp / o.maxHp), 5);
+  } else if (o.kind === 'ice') {
     ctx.fillStyle = o.flash > 0 ? C.paper : '#8cc4e4'; poly(ctx, [[cx - 20, cy + 18], [cx - 14, cy - 8], [cx - 4, cy - 26], [cx + 6, cy - 10], [cx + 16, cy - 20], [cx + 20, cy + 18]]);
     ctx.fillStyle = o.flash > 0 ? C.paper : '#e6f6ff'; poly(ctx, [[cx - 10, cy + 14], [cx - 6, cy - 4], [cx - 2, cy - 18], [cx + 2, cy + 14]]);
   } else if (o.kind === 'icew') {
@@ -2890,7 +2942,7 @@ function selectClass(i) {
 }
 let subKind = '', subRow = 0, achPage = 0;
 const ACH_PER = 8;
-const ENAME = { collapse: '崩塌線', beacon: '燈塔熄滅', laser: '雷射機', glitch: '故障方塊', syrup: '糖漿罐', roller: '滾滾糖球', escort: '護送對象倒下', wisp: '鬼火精', jumper: '跳蛙', spore: '毒孢子', ghost: '幽靈', sleepwalker: '夢遊者', crawler: '小影', shooter: '射手影', brute: '蠻力影', splitter: '分裂影', splitter2: '大分裂影', bomber: '炸彈影', shield: '盾衛', shield2: '輕盾衛', summoner: '召喚影', budling: '花苞', moth: '飛蛾', vine: '藤蔓', frostneedle: '霜針', snowball: '雪球', mist: '霧靈', icecluster: '冰簇', crane: '紙鶴', blindbomb: '墨炸彈', bloater: '膨脹魚', blindshark: '盲鯊', deepworm: '深海蟲', trenchghost: '海溝幽靈', abyss: '深淵水母', sparker: '火星炮', lavaslime: '熔岩史萊姆', lizard: '火蜥蜴', firebat: '火蝠', ifrit: '炎魔', flion: '火焰獅', lavaworm: '熔岩蟲', fireelem: '火元素', firebird: '火鳥', faceless: '無臉人', rusher: '衝鋒怪', mirrorman: '鏡面人', fleer: '逃跑影', mimic: '寶相怪', fakemerch: '偽商人', mark: '地面預警攻擊', ground: '地面傷害', bullet: '敵方子彈', other: '其他',
+const ENAME = { snowlet: '雪團仔', goodsmon: '假貨怪', emberling: '火苗', wormlet: '幼蟲', scorpion: '沙蠍', mummy: '木乃伊', bandit: '沙漠強盜', duster: '沙塵怪', cactus: '刺仙人掌', collapse: '崩塌線', beacon: '燈塔熄滅', laser: '雷射機', glitch: '故障方塊', syrup: '糖漿罐', roller: '滾滾糖球', escort: '護送對象倒下', wisp: '鬼火精', jumper: '跳蛙', spore: '毒孢子', ghost: '幽靈', sleepwalker: '夢遊者', crawler: '小影', shooter: '射手影', brute: '蠻力影', splitter: '分裂影', splitter2: '大分裂影', bomber: '炸彈影', shield: '盾衛', shield2: '輕盾衛', summoner: '召喚影', budling: '花苞', moth: '飛蛾', vine: '藤蔓', frostneedle: '霜針', snowball: '雪球', mist: '霧靈', icecluster: '冰簇', crane: '紙鶴', blindbomb: '墨炸彈', bloater: '膨脹魚', blindshark: '盲鯊', deepworm: '深海蟲', trenchghost: '海溝幽靈', abyss: '深淵水母', sparker: '火星炮', lavaslime: '熔岩史萊姆', lizard: '火蜥蜴', firebat: '火蝠', ifrit: '炎魔', flion: '火焰獅', lavaworm: '熔岩蟲', fireelem: '火元素', firebird: '火鳥', faceless: '無臉人', rusher: '衝鋒怪', mirrorman: '鏡面人', fleer: '逃跑影', mimic: '寶相怪', fakemerch: '偽商人', mark: '地面預警攻擊', ground: '地面傷害', bullet: '敵方子彈', other: '其他',
   'B:keeper': '守燈人', 'B:lmid': '燈影看守', 'B:dragon': '冰龍', 'B:giant': '風雪巨人', 'B:shan': '山靈', 'B:idragon': '水墨龍', 'B:nian': '年獸', 'B:kraken': '古代海怪', 'B:serpent': '深海巨蛇', 'B:golem': '熔岩魔像', 'B:toad': '巨大蟾蜍', 'B:mummyking': '木乃伊王', 'B:scorpking': '巨大蠍王', 'B:rootking': '腐根樹妖', 'B:vdragon': '炎龍', 'B:nightmare': '夢魘看守', 'B:mirrorgiant': '巨大鏡面人', 'B:gardener': '荊棘園丁', 'B:bloom': '花王', 'B:hive': '蜂巢后' };
 const enameOf = k => ENAME[k] || (k.startsWith('B:') ? 'Boss' : k);
 function statHtml() {
@@ -3323,10 +3375,20 @@ function endRun(win) {
   }
   settlePaper(); saveRec();
 }
+/* 無盡玩法的死亡結局：依到達層數不同 */
+const ENDINGS = {
+  arcade: [[1, 'INSERT COIN', '螢幕閃了兩下，遊戲才剛開始就 GAME OVER。投幣口還亮著，再來一次吧。'], [3, '暖身結束', '你拿到了第一批分數，卻在關卡變難的瞬間被打回選單。真正的遊戲才要開始。'], [6, '高分榜上的名字', '排行榜上多了一行縮寫。它不夠亮，但是是你的。'], [9, '像素之上', '背景音樂換了一輪又一輪，你已經記得住每一種彈幕。可惜這一關，你沒記住最後一種。'], [12, '無限關卡', '關卡編號早就超過螢幕寬度。你不是輸給敵人，是輸給了沒有盡頭。'], [15, '隱藏關卡', '你走到了製作者都沒打算讓人看見的地方。螢幕暗下去之前，閃過一行小字：「謝謝你玩到這裡。」'], [20, '傳說玩家', '街機老闆親自把你的名字刻在機台側面。那盞燈，從此成了這間店的鎮店之寶。']],
+  lair: [[1, '還沒走進黑暗', '巢穴入口的影子連頭都沒轉。你的燈剛亮起，就滅了。'], [3, '回聲', '你聽見自己的腳步在更深處響起——那不是回聲，是下一批影子在模仿你。'], [6, '燈芯變短了', '你走過了六層，燈芯卻比預期短得多。巢穴記住了你的味道。'], [9, '第二次循環', '你看過了每一個世界的影子，它們也看過了你。再往下，就是重複。'], [12, '影子認得你', '深處的影子不再撲上來，而是讓出一條路，直到你的燈熄滅。牠們似乎有點惋惜。'], [15, '巢穴的一部分', '你的影子留在了這一層。下一個走進來的人，會看見它替你提著燈。'], [20, '燈是巢穴的心臟', '巢穴不再有盡頭，因為你的燈就是它的盡頭。它安靜下來，像是睡了。']]
+};
+function endlEnding() {
+  if (!endl()) return null; const list = ENDINGS[run.lair ? 'lair' : 'arcade'], n = run.layer + 1; let k = 0; for (let i = 0; i < list.length; i++) if (n >= list[i][0]) k = i;
+  rec.endSeen = rec.endSeen || {}; const key = (run.lair ? 'lair' : 'arcade') + k; if (!rec.endSeen[key]) { rec.endSeen[key] = 1; saveRec(); }
+  return { t: list[k][1], x: list[k][2], n, cnt: Object.keys(rec.endSeen).length };
+}
 function showOver() {
   if (run.practice) { showPrac(false); return; }
   endRun(false); settlePaper(); $('overCards').innerHTML = sumCards(false); $('overRecap').textContent = recapText(false);
-  $('overLine').textContent = STORY.deaths[Math.min(deaths - 1, STORY.deaths.length - 1)] || STORY.deaths[0];
+  { const en = endlEnding(), h3 = document.querySelector('#over h3'); if (en) { h3.textContent = '結局：' + en.t; $('overLine').textContent = '第 ' + en.n + ' 層。' + en.x + '（已收集結局 ' + en.cnt + ' / 14）'; } else { h3.textContent = '燈滅了'; $('overLine').textContent = STORY.deaths[Math.min(deaths - 1, STORY.deaths.length - 1)] || STORY.deaths[0]; } }
   show('over', true); setState('over');
 }
 function restart() { show('over', false); fadeThen(() => { newRun(); p.x = ROOM.x + 70; announceRoom(); }); }
@@ -5861,6 +5923,7 @@ function drawItem(it) {
   if (it.kind === 'beacon') return;
   if (it.taken) return;
   if (it.kind === 'muyu' || it.kind === 'shrine') { drawPathItem(it); return; }
+  if (it.kind === 'sealdev') { drawSealDev(it); return; }
   if (it.kind === 'xev') { const xe = xevOf(); if (xe && xe.draw) xe.draw(it); return; }
   if (it.kind === 'tfac') { const W0 = THEMES[th()]; if (W0.drawItem) W0.drawItem(it); return; }
   if (it.kind === 'switch') {

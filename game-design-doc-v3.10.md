@@ -1,6 +1,20 @@
-# 《燈火騎士》設計文件 v3.09（最新）
+# 《燈火騎士》設計文件 v3.10（最新）
 
-## v3.09 更新：DLC8「暗影巢穴」（無盡玩法，第 26 號主題，旗標 lair，檔案 dlc5.js）
+## v3.10 更新：暗影巢穴調整、無盡結局與封印石機關、食材廚房加價、螢火獵人 +1 HP
+- **暗影巢穴**：Boss 基礎血量 ×1.5（再乘最終 0.7／1.1 與深度成長）。精英提早出現（最低有效深度）：盲鯊 1、深淵水母 2、熔蟲 1、焰獅 1、衝刺者 0、無臉者 1、鬼火 0、跳蛙 0、強盜 0、雷射兵 0、鏢影 0、火影 1、獨眼巨人 2、凍人扇影 0、黏人扇影 0、偷燈芯的跳蛙 1。
+- **食材廚房**：商店價格 ×1.5（回血 4→6，武器 9→14，強化跟著變貴；換一批的價格不變）。
+- **螢火獵人**：起始 HP 5 → 6。
+- **無盡玩法死亡結局**（電玩無盡、暗影巢穴各 7 個，依到達層數）：第 1～2、3～5、6～8、9～11、12～14、15～19、20 層以上。死亡畫面標題改為「結局：○○」，並顯示已收集結局數（共 14 個，記在存檔）。
+  - 電玩無盡：INSERT COIN／暖身結束／高分榜上的名字／像素之上／無限關卡／隱藏關卡／傳說玩家
+  - 暗影巢穴：還沒走進黑暗／回聲／燈芯變短了／第二次循環／影子認得你／巢穴的一部分／燈是巢穴的心臟
+- **封印石與互動機關**（無盡玩法的每間戰鬥房，電玩無盡和暗影巢穴都有）：房間內有一塊發光的封印石（12 點耐久，可用子彈、近戰、技能打碎，會擋路），打碎後原地出現隨機一種機關（各只能用一次）：
+  - 補給拉桿：燈火 +1、燈芯 +6
+  - 強化機關：花 3 燈芯換一個強化
+  - 震盪機關：震退並傷害全場敵人（一般 14、Boss 6），清除敵方子彈
+- **敵人中文名補上**：snowlet＝雪團仔、goodsmon＝假貨怪、emberling＝火苗、wormlet＝幼蟲、scorpion＝沙蠍、mummy＝木乃伊、bandit＝沙漠強盜、duster＝沙塵怪、cactus＝刺仙人掌。
+- **測試**：只有機械測試（暗影巢穴、食材廚房、電玩無盡掃描 0 錯誤；封印石生成、三種機關效果、結局文字、商店價格皆驗證），**沒有真人試玩**。
+
+## v3.09（較舊）更新：DLC8「暗影巢穴」（無盡玩法，第 26 號主題，旗標 lair，檔案 dlc5.js）
 - **進入方式**：DLC 之門第 2 頁「暗影巢穴（DLC8・無盡）」；選到才下載 dlc5.js（連帶載入 dlc.js～dlc4.js）。
 - **結構**：沒有終點，一層接一層（和電玩無盡同一套）。每層＝1 間大戰鬥房（5～8 波）＋商人／事件／寶箱＋Boss 房；每 3 層（第 3、6、9…層）是完整血量的「最終 Boss」，其餘層 Boss 血量 ×0.7。
 - **Boss**：9 隻基礎最終 Boss（花園～沙漠等）每局隨機排序輪流出；血量隨深度 +12%／層（第 3 層起）。
@@ -50,7 +64,7 @@
 - 沒有中文名的敵人已記錄在下方附錄，待補名字。
 - **附錄：目前全部敵人種類**（由遊戲內敵人表整理；括號為內部代號）
   - 基礎與舊 DLC 敵人（56 種）：小影(crawler)、射手影(shooter)、蠻力影(brute)、分裂影(splitter)、大分裂影(splitter2)、炸彈影(bomber)、盾衛(shield)、輕盾衛(shield2)、召喚影(summoner)、花苞(budling)、飛蛾(moth)、藤蔓(vine)、逃跑影(fleer)、霜針(frostneedle)、雪球(snowball)、snowlet(snowlet)、霧靈(mist)、寶相怪(mimic)、冰簇(icecluster)、紙鶴(crane)、goodsmon(goodsmon)、偽商人(fakemerch)、墨炸彈(blindbomb)、膨脹魚(bloater)、盲鯊(blindshark)、火星炮(sparker)、熔岩史萊姆(lavaslime)、火蜥蜴(lizard)、火蝠(firebat)、炎魔(ifrit)、emberling(emberling)、火焰獅(flion)、熔岩蟲(lavaworm)、火元素(fireelem)、火鳥(firebird)、海溝幽靈(trenchghost)、深淵水母(abyss)、深海蟲(deepworm)、wormlet(wormlet)、無臉人(faceless)、衝鋒怪(rusher)、鏡面人(mirrorman)、幽靈(ghost)、夢遊者(sleepwalker)、鬼火精(wisp)、跳蛙(jumper)、毒孢子(spore)、scorpion(scorpion)、mummy(mummy)、bandit(bandit)、duster(duster)、cactus(cactus)、糖漿罐(syrup)、滾滾糖球(roller)、故障方塊(glitch)、雷射機(laser)
-  - 尚未設定中文名（目前畫面顯示英文代號，待補）：snowlet、goodsmon、emberling、wormlet、scorpion、mummy、bandit、duster、cactus
+  - （v3.10 已補上中文名）原先沒有中文名：snowlet、goodsmon、emberling、wormlet、scorpion、mummy、bandit、duster、cactus
   - DLC 專屬敵人：
   - 電玩世界（主題 10）：彩蛋方塊(egg)
   - 彼岸（主題 13）：扇影(fanshade)、鏢影(dartshade)、火影(flameshade)
