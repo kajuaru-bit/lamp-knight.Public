@@ -428,6 +428,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
     <div class="screen center" id="dlcmenu" hidden>
       <div class="card">
         <h3>DLC 之門</h3>
+        <button class="btn alt" id="btnDlcPg" type="button" style="margin:0 0 6px"></button>
         <p>選一種這一局要走的世界</p>
         <div id="dlcList"></div>
         <p class="quiet">W／S 選擇，F 確定，Esc 返回</p>
@@ -2990,7 +2991,7 @@ const DLC = [
 const DLC_FLAGS = ['kitchen', 'fest2', 'escort', 'endless', 'escape', 'guard', 'dl2', 'path', 'greek', 'karma', 'season'];
 const dlcOf = id => DLC.find(q => q.id === id);
 const DLC_MENU = DLC.map(q => ({ id: q.id, name: q.name, desc: q.desc })).concat([{ id: 'random', name: 'DLC 隨機', desc: '從以上全部隨機抽一種' }]);
-$('dlcList').innerHTML = DLC_MENU.map((q, i) => '<button class="btn" id="btnDlc' + i + '" type="button"></button>').join('') + '<button class="btn alt" id="btnDlc' + DLC_MENU.length + '" type="button"></button><button class="btn alt" id="btnDlcPg" type="button"></button>';
+$('dlcList').innerHTML = DLC_MENU.map((q, i) => '<button class="btn" id="btnDlc' + i + '" type="button"></button>').join('') + '<button class="btn alt" id="btnDlc' + DLC_MENU.length + '" type="button"></button>';
 const DLC_PS = 10; let dlcPage = 0; const dlcPages = () => Math.ceil(DLC_MENU.length / DLC_PS); // DLC 之門分頁：每頁 10 個
 function dlcPageApply() { DLC_MENU.forEach((q, i) => { $('btnDlc' + i).hidden = Math.floor(i / DLC_PS) !== dlcPage; }); $('btnDlcPg').textContent = '換頁（' + (dlcPage + 1) + ' / ' + dlcPages() + '）→ 看另一頁'; }
 function dlcFlip() { dlcPage = (dlcPage + 1) % dlcPages(); dlcPageApply(); scrSel = DLC_MENU.length + 1; scrRender(); sfx('tick'); }

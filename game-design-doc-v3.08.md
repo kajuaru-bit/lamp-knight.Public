@@ -1,6 +1,23 @@
-# 《燈火騎士》設計文件 v3.07（最新）
+# 《燈火騎士》設計文件 v3.08（最新）
 
-## v3.07 更新：修正「普通玩法也變四層」、DLC 分頁真的分頁
+## v3.08 更新：DLC 換頁鈕移到標題旁、敵人行為模式分類
+- DLC 之門的「換頁」按鈕移到標題下方，手機不用捲動。
+- 敵人行為模式共 12 類：
+  1. 直線／蛇行追擊（crawler、emberling、wormlet、goodsmon、splitter、lavaslime、firebat…）
+  2. 保持距離遠程射擊（shooter、mirrorman、trenchghost、frostneedle、bandit、sparker、moth、centaur、rose）
+  3. 蓄力衝鋒（rusher、brute、snowball、splitter2、dasher 系：小年獸、蟾蜍、小牛、香腸）
+  4. 自爆（blindbomb、bomber、kamikaze 系）
+  5. 召喚／生成（summoner、ifrit、fakemerch）
+  6. 區域／地面危害（fireelem、bloater、cactus、abyss、spore、cyclops）
+  7. 潛行／地下突襲（lavaworm、deepworm、blindshark）
+  8. 瞬移／傳送（glitch、mimic 類）
+  9. 護盾朝向（shield、shield2）
+  10. 控制型（mist 凍結、blackhole 吸引、clinger 黏附）
+  11. 逃跑／偷竊（fleer、偷燈芯的跳蛙、吃食物的貪食怪）
+  12. 環繞／彈跳等特殊移動（orbiter、firebird、satellite、comet、hop、bat）
+  （分類為粗略歸納，同一敵人可跨類；本版只跑機械測試，沒有實際遊玩。）
+
+## v3.07（較舊）更新：修正「普通玩法也變四層」、DLC 分頁真的分頁
 - **修正：普通玩法變成四層、第三層全是 Boss**。原因：開新局時只重設了部分 DLC 旗標，漏掉「食材廚房」（kitchen）和「傳統節慶」（fest2），選過食材廚房後旗標一直殘留。現在開新局會把所有 DLC 旗標（DLC_FLAGS 全部）清掉；已用「先載入食材廚房 → 開新局」重現並驗證回到 3 層。
 - **修正：DLC 之門分頁其實沒有隱藏另一頁**（按鈕的 CSS display 蓋掉了 hidden 屬性），現在真的每頁 10／9 項、可換頁；列表改成兩欄、可捲動、背景不透明，手機橫向也看得到。
 - 速度上限：維持 340（你回覆「不會」太高／太低）。
