@@ -475,6 +475,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
         <div class="pausegrid">
           <div class="pcol">
             <div class="pausebox"><b id="pClass"></b><span id="pSkillName"></span><span id="pSkillDesc"></span><em id="pSkillCd"></em></div>
+            <div class="pausebox"><b id="pWName"></b><span id="pWDesc"></span><em id="pWInfo"></em></div>
             <div class="pausebox"><b>目前的狀態與強化</b><span id="pBuffs" class="pre"></span></div>
           </div>
           <div class="pcol">
@@ -1214,7 +1215,7 @@ const gOwned = g => !!(rec.cosOwn && rec.cosOwn[g.id]);
 function slotSet(slot) { const o = slot === 'head' ? Object.assign({}, HEADS) : { none: { name: '無' } }; for (const g of G) if (g.slot === slot && gOwned(g)) o[g.id] = g; return o; }
 const gcOf = key => { const g = GBY[rec.cos[key]]; return g && gOwned(g) ? g : null; };
 const headCos = () => { const v = rec.cos.head; return GBY[v] ? (gOwned(GBY[v]) ? v : 'none') : (HEADS[v] && cosOk(HEADS, v) ? v : 'none'); };
-let gLast = [], fuseSel = '';
+let gLast = [], fuseSel = '', cosFilter = 'all';
 function gachaPull(n) {
   const cost = n === 10 ? 90 : 10; if ((rec.paper || 0) < cost) { toast('紙片不夠', 1.4); return; }
   rec.paper -= cost; const gs = rec.gacha, res = []; let best = 'n';
@@ -3031,7 +3032,9 @@ function renderSub() {
   const body = $('subBody'); $('prevCost').hidden = subKind !== 'cost';
   if (subKind === 'cost') {
     $('subTitle').textContent = '造型'; $('subHint').textContent = 'W／S 選項目，A／D 換造型，F 返回。第一列可以直接換職業（最後一列是該職業的專屬造型）；造型只改外觀，灰色的在成就或通關後解鎖';
-    body.innerHTML = cosRows().map((r, i) => '<div class="subrow' + (i === subRow ? ' on' : '') + '"><b>' + r.name + '</b>' + Object.keys(r.set).map(id => {
+    { const RR = cosRows(); if (cosFilter !== 'all' && !RR.some(r => r.key === cosFilter)) cosFilter = 'all'; if (cosFilter !== 'all' && RR[subRow].key !== cosFilter) subRow = RR.findIndex(r => r.key === cosFilter); }
+    body.innerHTML = '<div class="achbar">' + [['all', '全部']].concat(cosRows().map(r => [r.key, r.name.length > 8 ? '專屬' : r.name])).map(q => '<button type="button" class="' + (cosFilter === q[0] ? 'on' : '') + '" data-cf="' + q[0] + '">' + q[1] + '</button>').join('') + '</div>'
+    + cosRows().map((r, i) => cosFilter !== 'all' && r.key !== cosFilter ? '' : '<div class="subrow' + (i === subRow ? ' on' : '') + '"><b>' + r.name + '</b>' + Object.keys(r.set).map(id => {
       const o = r.set[id], ok = cosOk(r.set, id), cur = r.key === '__cls' ? +id === chosen : (r.key.startsWith('c_') ? clsCos(r.key.slice(2)) : rec.cos[r.key]) === id;
       return '<button type="button" class="opt' + (cur ? ' cur' : '') + (ok ? '' : ' lock') + '" data-r="' + i + '" data-id="' + id + '">' + o.name + (ok ? '' : '（' + cosLockText(o) + '）') + '</button>';
     }).join('') + '</div>').join('');
@@ -3070,7 +3073,7 @@ function subMove(k) {
     achPage += (k === 'w' || k === 'a') ? -1 : 1; renderSub(); sfx('tick'); return;
   }
   if (subKind !== 'cost') return;
-  if (k === 'w' || k === 's') { subRow = (subRow + (k === 'w' ? -1 : 1) + cosRows().length) % cosRows().length; }
+  if (k === 'w' || k === 's') { const RR = cosRows(); let n = subRow; for (let q = 0; q < RR.length; q++) { n = (n + (k === 'w' ? -1 : 1) + RR.length) % RR.length; if (cosFilter === 'all' || RR[n].key === cosFilter) break; } subRow = n; }
   else if (cosRows()[subRow].key === '__cls') { const ids = Object.keys(cosRows()[0].set).map(Number); const i = ids.indexOf(chosen); selectClass(ids[(i + (k === 'a' ? -1 : 1) + ids.length) % ids.length]); }
   else { const r = cosRows()[subRow], ids = Object.keys(r.set).filter(id => cosOk(r.set, id)), i = ids.indexOf(r.key.startsWith('c_') ? clsCos(r.key.slice(2)) : rec.cos[r.key]); rec.cos[r.key] = ids[(i + (k === 'a' ? -1 : 1) + ids.length) % ids.length]; saveRec(); }
   renderSub(); sfx('tick');
@@ -3167,6 +3170,9 @@ function fillPause() {
   $('pSkillName').textContent = '空白鍵　' + c.skill + '　（' + (c.id === 'beater' || c.id === 'starc' ? '需要能量 ' + Math.round(c.cd * p.cdMul * 10) / 10 + '，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd) + ' 點' : '已就緒') + (c.id === 'starc' ? '；已累積 ' + p.starN + ' / 3 次' : '') : c.id === 'matchm' ? '需要攻擊 ' + Math.round(c.cd * p.cdMul) + ' 次，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd) + ' 次' : '已就緒') : c.id === 'courier' ? '需要移動 ' + Math.round(c.cd * p.cdMul * 100) + ' 像素，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd * 100) + ' 像素' : '已就緒') : '冷卻 ' + Math.round(c.cd * p.cdMul * 10) / 10 + ' 秒，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd) + ' 秒' : '已就緒')) + '）';
   $('pSkillDesc').textContent = c.sdesc + '。';
   $('pSkillCd').textContent = c.detail;
+  { const wd = WDEF[p.weapons[p.w]]; if (wd) { const itv = Math.round(wd.cd * p.rateMul * 100) / 100, auto = wd.mode === 'auto' || (wd.mode === 'tap' && upN('trig') >= 1 && wd.cd * p.rateMul <= 0.2);
+    $('pWName').textContent = '目前武器：' + wd.name + '　' + (wd.tag || ''); $('pWDesc').textContent = wd.desc || '';
+    $('pWInfo').textContent = '攻擊方式：' + (auto ? '連續（按住）' : ({ tap: '單發（點按）', auto: '連續（按住）', charge: '蓄力（按住蓄力、放開發射）', hold: '按住特殊', spin: '按住旋轉' }[wd.mode] || wd.mode)) + '　攻擊間隔 ' + itv + ' 秒' + (wd.dmg ? '　基礎傷害 ' + wd.dmg : '') + (wd.cls ? '　（職業專屬）' : ''); } }
   $('pBuffs').textContent = buffLines(); refreshPauseOpts();
 }
 function pauseGame() {
@@ -5631,7 +5637,7 @@ btn('btnExport', () => exportSave());
 btn('btnImport', () => { if (state === 'menu') $('fileImport').click(); });
 $('fileImport').addEventListener('change', ev => { importSave(ev.target.files && ev.target.files[0]); ev.target.value = ''; });
 btn('btnSubClose', () => { if (state === 'sub') closeSub(); });
-$('subBody').addEventListener('click', ev => { const pg = ev.target && ev.target.dataset && ev.target.dataset.pg; if (state === 'sub' && subKind === 'ach' && pg) { achPage += parseInt(pg, 10); renderSub(); sfx('tick'); return; } const t = ev.target; if (state !== 'sub' || subKind !== 'cost' || !t.dataset || t.dataset.id === undefined) return; const r = cosRows()[parseInt(t.dataset.r, 10)]; subRow = parseInt(t.dataset.r, 10); if (r.key === '__cls') { selectClass(+t.dataset.id); } else if (cosOk(r.set, t.dataset.id)) { rec.cos[r.key] = t.dataset.id; saveRec(); sfx('tick'); } renderSub(); });
+$('subBody').addEventListener('click', ev => { const cf = ev.target && ev.target.dataset && ev.target.dataset.cf; if (state === 'sub' && subKind === 'cost' && cf) { cosFilter = cf; renderSub(); sfx('tick'); return; } const pg = ev.target && ev.target.dataset && ev.target.dataset.pg; if (state === 'sub' && subKind === 'ach' && pg) { achPage += parseInt(pg, 10); renderSub(); sfx('tick'); return; } const t = ev.target; if (state !== 'sub' || subKind !== 'cost' || !t.dataset || t.dataset.id === undefined) return; const r = cosRows()[parseInt(t.dataset.r, 10)]; subRow = parseInt(t.dataset.r, 10); if (r.key === '__cls') { selectClass(+t.dataset.id); } else if (cosOk(r.set, t.dataset.id)) { rec.cos[r.key] = t.dataset.id; saveRec(); sfx('tick'); } renderSub(); });
 $('subBody').addEventListener('change', ev => { if (state === 'sub' && subKind === 'gacha' && ev.target && ev.target.id === 'fuseSel') { fuseSel = ev.target.value; } });
 $('subBody').addEventListener('click', ev => {
   const t = ev.target; if (state !== 'sub' || !t || !t.dataset) return;
