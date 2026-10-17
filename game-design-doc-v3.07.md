@@ -1,6 +1,30 @@
-# 《燈火騎士》設計文件 v3.06（最新）
+# 《燈火騎士》設計文件 v3.07（最新）
 
-## v3.06 更新：全職業同一個最高速度、新職業解鎖與專屬強化、用餐 Boss 改最終 Boss
+## v3.07 更新：修正「普通玩法也變四層」、DLC 分頁真的分頁
+- **修正：普通玩法變成四層、第三層全是 Boss**。原因：開新局時只重設了部分 DLC 旗標，漏掉「食材廚房」（kitchen）和「傳統節慶」（fest2），選過食材廚房後旗標一直殘留。現在開新局會把所有 DLC 旗標（DLC_FLAGS 全部）清掉；已用「先載入食材廚房 → 開新局」重現並驗證回到 3 層。
+- **修正：DLC 之門分頁其實沒有隱藏另一頁**（按鈕的 CSS display 蓋掉了 hidden 屬性），現在真的每頁 10／9 項、可換頁；列表改成兩欄、可捲動、背景不透明，手機橫向也看得到。
+- 速度上限：維持 340（你回覆「不會」太高／太低）。
+- 沒有中文名的敵人已記錄在下方附錄，待補名字。
+- **附錄：目前全部敵人種類**（由遊戲內敵人表整理；括號為內部代號）
+  - 基礎與舊 DLC 敵人（56 種）：小影(crawler)、射手影(shooter)、蠻力影(brute)、分裂影(splitter)、大分裂影(splitter2)、炸彈影(bomber)、盾衛(shield)、輕盾衛(shield2)、召喚影(summoner)、花苞(budling)、飛蛾(moth)、藤蔓(vine)、逃跑影(fleer)、霜針(frostneedle)、雪球(snowball)、snowlet(snowlet)、霧靈(mist)、寶相怪(mimic)、冰簇(icecluster)、紙鶴(crane)、goodsmon(goodsmon)、偽商人(fakemerch)、墨炸彈(blindbomb)、膨脹魚(bloater)、盲鯊(blindshark)、火星炮(sparker)、熔岩史萊姆(lavaslime)、火蜥蜴(lizard)、火蝠(firebat)、炎魔(ifrit)、emberling(emberling)、火焰獅(flion)、熔岩蟲(lavaworm)、火元素(fireelem)、火鳥(firebird)、海溝幽靈(trenchghost)、深淵水母(abyss)、深海蟲(deepworm)、wormlet(wormlet)、無臉人(faceless)、衝鋒怪(rusher)、鏡面人(mirrorman)、幽靈(ghost)、夢遊者(sleepwalker)、鬼火精(wisp)、跳蛙(jumper)、毒孢子(spore)、scorpion(scorpion)、mummy(mummy)、bandit(bandit)、duster(duster)、cactus(cactus)、糖漿罐(syrup)、滾滾糖球(roller)、故障方塊(glitch)、雷射機(laser)
+  - 尚未設定中文名（目前畫面顯示英文代號，待補）：snowlet、goodsmon、emberling、wormlet、scorpion、mummy、bandit、duster、cactus
+  - DLC 專屬敵人：
+  - 電玩世界（主題 10）：彩蛋方塊(egg)
+  - 彼岸（主題 13）：扇影(fanshade)、鏢影(dartshade)、火影(flameshade)
+  - 希臘神話（主題 16）：半人馬弓手(centaur)、獨眼巨人(cyclops)
+  - 愛情（主題 17）：黏人愛心(clinger)、連線雙胞胎(twin)、玫瑰射手(rose)
+  - 星座宇宙（主題 18）：彗星(comet)、衛星(satellite)、黑洞(blackhole)
+  - 萬聖節（主題 19）：蝙蝠(bat)、黑貓(cat)
+  - 耶誕節（主題 20）：馴鹿(reindeer)、雪人(snowman)、發條玩具盒(jackbox)
+  - 復活節（主題 21）：母雞(hen)、蝴蝶(butterfly)、跳跳兔(hopbun)
+  - 春節（主題 22）：小年獸(nianling)、煙火筒(firework)、爆竹串(poppop)
+  - 中秋（主題 23）：蟾蜍(toad)、月影(spirit)、月蝕輪(eclipse)
+  - 七夕（主題 24）：小牛(calf)、銀河水靈(rwater)、觀星射手(stargazer)
+  - 食材廚房（主題 25）：香腸衝鋒(sausage)、噴氣水壺(kettle)、爆米花(popcorn)、偷燈芯的跳蛙(thiefrog)、貪吃鬼(glutton)、食材精(foodbit)
+  - 另有各主題「換外觀」的基礎敵人（食材廚房的小廚師／胡椒罐／鍋子精／雞蛋、節慶與季節主題的對應外觀等），血量與行為同基礎敵人。
+
+---
+## v3.06（較舊）更新：全職業同一個最高速度、新職業解鎖與專屬強化、用餐 Boss 改最終 Boss
 - **全職業相同的實際最高移動速度**：移動輸入速度上限 **340 像素／秒**（基礎 215）；不論職業倍率、靴子疊多少都一樣。衝刺、擊退不受此限。
 - 新職業解鎖條件：星圖師＝愛情＋星座宇宙各通關一次；提燈信使＝傳統節慶＋季節慶典各通關一次。
 - 專屬強化（各 2 層，可精良化「・極」）：
