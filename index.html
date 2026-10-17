@@ -781,7 +781,7 @@ const slpSpd = () => (p.clingT > 0 ? 0.6 : 1) * (slpOn() ? (upN('c_slp') >= 1 ? 
 const inQuick = () => !!(typeof room !== 'undefined' && room && room.sw && room.sw.some(z => z.k === 'quick' && Math.hypot(p.x - z.x, p.y - z.y) < z.r));
 const inMud = () => !!(typeof room !== 'undefined' && room && room.sw && room.sw.some(z => z.k === 'mud' && Math.hypot(p.x - z.x, p.y - z.y) < z.r));
 const shieldMax = () => (CLS[p.cls].sh || 0) + (upN('c_shield') >= 1 ? 1 : 0);
-const lightR = () => (120 + (p.sleepT > 0 ? (upN('c_slp') >= 1 ? 2 : 1) : p.hp) * 30) * p.lightMul * (p.dim ? 0.55 : 1) * (p.skillLight > 0 ? 1.4 : 1) * (CLS[p.cls].id === 'watch' && upN('c_watch') >= 2 ? 1.15 : 1) * (p.mushT > 0 ? 1.2 : 1) * (th() === 7 ? 0.85 : 1);
+const lightR = () => (120 + (p.sleepT > 0 ? (upN('c_slp') >= 1 ? 2 : 1) : p.hp) * 30) * p.lightMul * (p.dim ? 0.55 : 1) * (p.skillLight > 0 ? 1.4 : 1) * (CLS[p.cls].id === 'watch' && upN('c_watch') >= 2 ? 1.15 : 1) * (p.mushT > 0 ? 1.2 : 1) * (th() === 7 ? 0.85 : 1) * (THEMES[th()].lightMul ? THEMES[th()].lightMul() : 1);
 const clsOk = i => !UPG[i].cls || UPG[i].cls === CLS[p.cls].id;
 const reachMul = () => 1 + 0.2 * upN('reach');
 const bigMul = () => 1 + 0.25 * upN('big');
@@ -1269,7 +1269,8 @@ const mateChance = id => Math.min(1, 0.5 + 0.25 * ((rec.mates[id] || {}).fails |
 const dlcDone = k => !!((rec.dlcWin || {})[k] || rec.ach[{ arcade: 'endless6', escape: 'escapeWin', future: 'guardWin', candy: 'escortWin' }[k]]);
 const dlcReqOk = c => c.dlcReq.some(g => g.every(dlcDone));
 const clsUnlocked = i => !!optUnlock.checked || (CLS[i].ach2 && achCount() >= CLS[i].ach2) || (CLS[i].dlcReq ? dlcReqOk(CLS[i]) : CLS[i].achId ? !!rec.ach[CLS[i].achId] : CLS[i].mate ? mateOpen(CLS[i].mate) : CLS[i].ach ? achCount() >= CLS[i].ach : (i === 0 || cleared));
-const lastL = () => run.endless ? 9999 : run.kitchen ? 3 : run.season ? 3 : run.long ? (run.ext ? 8 : 5) : 2;
+const endl = () => run.endless || run.lair; // 無盡類玩法：電玩無盡、暗影巢穴
+const lastL = () => endl() ? 9999 : run.kitchen ? 3 : run.season ? 3 : run.long ? (run.ext ? 8 : 5) : 2;
 const thIdx = () => run.season ? Math.min(1, run.layer >> 1) : run.dl2 ? (run.layer >= 3 ? 1 : 0) : run.long ? (run.layer >= 6 ? run.layer - 3 : Math.min(2, run.layer >> 1)) : Math.min(run.layer, 2);
 const dL = () => run.long ? (run.layer >= 6 ? 3 : Math.min(2, (run.layer + 1) >> 1)) : Math.min(3, run.layer);
 const th = () => run.themes[thIdx()];
@@ -1314,7 +1315,7 @@ const LANTERN_MID = { kind: 'lmid', name: '燈影看守', hp: 120 };
 const POLAR_FINAL = { dragon: { kind: 'dragon', name: '冰龍', hp: 190 }, giant: { kind: 'giant', name: '風雪巨人', hp: 210 } };
 const INKB = { shan: { kind: 'shan', name: '山靈', hp: 120 }, idragon: { kind: 'idragon', name: '水墨龍', hp: 130 }, nian: { kind: 'nian', name: '年獸', hp: 110 } };
 function bossDef(finO) {
-  const t = th(), fin = finO !== undefined ? finO : run.endless ? run.layer % 3 === 2 : run.kitchen ? run.layer === 3 : run.season ? run.layer === 3 : run.dl2 ? (run.layer === 2 || run.layer === 5) : run.long ? ((run.layer & 1) === 1 || run.layer >= 6) : run.layer === 2;
+  const t = th(), fin = finO !== undefined ? finO : endl() ? run.layer % 3 === 2 : run.kitchen ? run.layer === 3 : run.season ? run.layer === 3 : run.dl2 ? (run.layer === 2 || run.layer === 5) : run.long ? ((run.layer & 1) === 1 || run.layer >= 6) : run.layer === 2;
   return THEMES[t].boss(fin);
 }
 
@@ -1769,8 +1770,8 @@ function drawDreamEnemy(e) {
 }
 function drawInkEnemy(e, body) {
   const r = e.r, f = e.flash > 0;
-  if (th() === 4 && DEEP_SKIN[e.type]) { drawDeepEnemy(e); return; }
-  if (th() === 5 && VOL_SKIN[e.type]) { drawVolEnemy(e); return; }
+  if ((th() === 4 || (th() === 26 && e.skin)) && DEEP_SKIN[e.type]) { drawDeepEnemy(e); return; }
+  if ((th() === 5 || (th() === 26 && e.skin)) && VOL_SKIN[e.type]) { drawVolEnemy(e); return; }
   if (th() === 6 && DREAM_SKIN[e.type]) { drawDreamSkin(e); return; }
   if (th() === 7 && SW_SKIN[e.type]) { drawSwampEnemy(e); return; }
   if (th() === 8 && e.skin === 'beetle') { drawDesertEnemy(e); return; }
@@ -1953,12 +1954,12 @@ function makeLayerPlan(layer) {
   const rest = shuffle(['combat', 'combat'].concat(specials));
   if (layer > 0 && optNpc.checked && specials.indexOf('event') < 0) rest.push('event');
   if (run.noShop) shopless(rest, 0);
-  if (th() === 18 || run.endless) { const rr2 = rest.filter(k => k !== 'combat'); return (layer === 0 ? ['start', 'combat'] : ['combat']).concat(rr2).concat(['boss']); } // 星座宇宙：每層只有一間大戰鬥房（多波）
+  if (th() === 18 || endl()) { const rr2 = rest.filter(k => k !== 'combat'); return (layer === 0 ? ['start', 'combat'] : ['combat']).concat(rr2).concat(['boss']); } // 星座宇宙：每層只有一間大戰鬥房（多波）
   return (layer === 0 ? ['start', 'combat'] : ['combat']).concat(rest).concat(['boss']);
 }
 function scaleFor() {
   const L = dL(), ci = room ? room.combatIdx : 0;
-  return { hp: SCALE.hp[L] * (run.long ? 1 + 0.08 * Math.max(0, run.layer - 2) : run.endless ? 1 + 0.12 * Math.max(0, run.layer - 3) : 1) * (1 + 0.08 * ci), spd: SCALE.spd[L], fire: SCALE.fire[L], bul: SCALE.bul[L] };
+  return { hp: SCALE.hp[L] * (run.long ? 1 + 0.08 * Math.max(0, run.layer - 2) : endl() ? 1 + 0.12 * Math.max(0, run.layer - 3) : 1) * (1 + 0.08 * ci), spd: SCALE.spd[L], fire: SCALE.fire[L], bul: SCALE.bul[L] };
 }
 function loadRoom() {
   const kind = run.plan[run.step];
@@ -1986,8 +1987,8 @@ function loadRoom() {
   room = { variant, big, expl: {}, camInit: false, kind, layer: run.layer, theme: th(), step: run.step, combatIdx, seed: Math.floor(rand() * 1e9), obs: makeObstacles(kindObs), chase: chase ? { t: 20, active: true, killed: 0, n: 0, last: null } : null, wave: -1, delay: 0.9, waves: 1, cleared: special, final: kind === 'boss' && run.layer === lastL(), bg: null, items: [] };
   if (kind === 'combat') {
     const pr = [0.25, 0.45, 0.65, 0.8][dL()];
-    room.waves = (combatIdx === 0 && run.layer === 0) ? 2 : (rand() < pr ? 3 : 2); if (run.escape || run.endless) room.waves += 1; // 長戰鬥：逃離與無盡多一波
-    if (run.endless && th() !== 18) room.waves = Math.min(8, 5 + Math.floor(run.layer / 2)); // 電玩無盡：每層一間大戰鬥房
+    room.waves = (combatIdx === 0 && run.layer === 0) ? 2 : (rand() < pr ? 3 : 2); if (run.escape || endl()) room.waves += 1; // 長戰鬥：逃離與無盡多一波
+    if (endl() && th() !== 18) room.waves = Math.min(8, 5 + Math.floor(run.layer / 2)); // 電玩無盡：每層一間大戰鬥房
     if (th() === 18) room.waves = Math.min(7, 5 + run.layer); // 星座宇宙：5/6/7 波
   }
   if (run.escape && (kind === 'boss' || (kind === 'combat' && !run.path))) { room.col = { x: ROOM.x - 12, v: 13 + 2 * run.layer, delay: kind === 'boss' ? 1e9 : 5 }; if (kind === 'boss') room.escT = 60; }
@@ -2985,10 +2986,11 @@ const DLC = [
   { id: 'love', name: '愛情（DLC4）', desc: '貼身糾纏＋配對羈絆；黏人愛心與連線雙胞胎；選到才下載', theme: 17, flag: null, pack: 'dlc.js', say: ['愛情：愛心怪會黏上你、雙胞胎成對衝來——一隻倒下，另一隻會暴怒；一起倒下有獎勵', 3.4] },
   { id: 'season', name: '季節慶典（DLC5）', desc: '萬聖節・耶誕節・復活節三選二，每個主題兩層超大地圖；選到才下載', theme: 19, flag: 'season', themes: [19, 20, 21], pack: 'dlc2.js', pre: 'dlc.js', preTheme: 18, say: ['季節慶典：這一局從三個節日裡抽兩個，每個節日兩層超大地圖', 3.4] },
   { id: 'kitchen', name: '食材廚房（DLC7）', desc: '打敵人撿食材、交給大廚換道具；偷燈芯的跳蛙、護盾再生的 Boss；選到才下載', theme: 25, flag: 'kitchen', pack: 'dlc4.js', pres: [['dlc.js', 18], ['dlc2.js', 21], ['dlc3.js', 24]], say: ['食材廚房：打倒敵人會掉食材，撿起來交給中央的大廚換道具', 3.4] },
+  { id: 'lair', name: '暗影巢穴（DLC8・無盡）', desc: '一路往深處走：每層輪流面對各世界的影子，越深越多越強；選到才下載', theme: 26, flag: 'lair', pack: 'dlc5.js', pres: [['dlc.js', 18], ['dlc2.js', 21], ['dlc3.js', 24], ['dlc4.js', 25]], say: ['暗影巢穴：沒有盡頭，只有更深。每一層輪流出現各世界的影子，燈光也會越來越暗', 3.4] },
   { id: 'fest2', name: '傳統節慶（DLC6）', desc: '春節・中秋・七夕三選二，每個主題兩層超大地圖；選到才下載', theme: 22, themes: [22, 23, 24], flag: 'fest2', pack: 'dlc3.js', pres: [['dlc.js', 18], ['dlc2.js', 21]], say: ['傳統節慶：這一局從三個節日裡抽兩個，每個節日兩層超大地圖', 3.4] },
   { id: 'cosmos', name: '星座宇宙（DLC4）', desc: '踩星點連星座、黑洞與彗星；選到才下載', theme: 18, flag: null, pack: 'dlc.js', say: ['星座宇宙：地上散著星點，依序踩過去連成星座；小心被黑洞拉走', 3.4] },
 ];
-const DLC_FLAGS = ['kitchen', 'fest2', 'escort', 'endless', 'escape', 'guard', 'dl2', 'path', 'greek', 'karma', 'season'];
+const DLC_FLAGS = ['kitchen', 'fest2', 'escort', 'endless', 'escape', 'guard', 'dl2', 'path', 'greek', 'karma', 'season', 'lair'];
 const dlcOf = id => DLC.find(q => q.id === id);
 const DLC_MENU = DLC.map(q => ({ id: q.id, name: q.name, desc: q.desc })).concat([{ id: 'random', name: 'DLC 隨機', desc: '從以上全部隨機抽一種' }]);
 $('dlcList').innerHTML = DLC_MENU.map((q, i) => '<button class="btn" id="btnDlc' + i + '" type="button"></button>').join('') + '<button class="btn alt" id="btnDlc' + DLC_MENU.length + '" type="button"></button>';
@@ -3191,6 +3193,7 @@ function goNext() {
     else run.step++;
     loadRoom(); placeEntry(); p.vx = p.vy = p.kx = p.ky = 0; placeAllies();
     if (p.roomCd > 0 && !run.escape) { p.roomCd--; hudSig = ''; }
+    if (layerChanged && run.lair) { rec.lairMax = Math.max(rec.lairMax || 0, run.layer + 1); toast('暗影巢穴：深度 ' + (run.layer + 1), 2); if (run.layer >= 5) { unlockAch('lair6'); rec.dlcWin.lair = 1; saveRec(); } if (run.layer >= 11) unlockAch('lair12'); healP(1); }
     if (layerChanged && run.endless) { rec.endlessMax = Math.max(rec.endlessMax || 0, run.layer + 1); toast('無盡：第 ' + (run.layer + 1) + ' 層', 2); if (run.layer >= 5) { unlockAch('endless6'); rec.dlcWin.arcade = 1; saveRec(); } healP(1); }
     if (layerChanged) { if (run.long && !run.dl2) { rec.longMax = Math.max(rec.longMax || 0, run.layer + 1); saveRec(); } writeSave(); }
     const lines = [];
@@ -3275,7 +3278,7 @@ function die() {
 function fmtT(t) { t = Math.round(t); return Math.floor(t / 60) + ':' + ('0' + (t % 60)).slice(-2); }
 function sumCards(win) {
   const c = CLS[p.cls], up = Object.keys(p.upg).reduce((a, k) => a + (p.upg[k] || 0), 0);
-  const items = [['職業', c.name], ['模式', run.kitchen ? '食材廚房' : run.fest2 ? '傳統節慶' : run.season ? '季節慶典' : run.dl2 ? 'DLC2 長線' : run.guard ? '未來守燈' : run.escape ? '電玩逃離' : run.endless ? '電玩無盡' : run.escort ? '糖果護送' : run.long ? (run.ext ? '長線＋追加' : '長線作戰') : '一般'], [win ? '結果' : '倒在', win ? '通關' : '第 ' + (run.layer + 1) + ' 層・' + (KIND_NAME[room.kind] || '')], ['用時', fmtT(run.t)], ['擊敗', run.kills + ' 隻'], ['總傷害', Math.round(run.dmgOut || 0)], ['紙片', '＋' + (run.paperGiven || 0) + '（共 ' + (rec.paper || 0) + '）'], ['受傷', (run.hurtN || 0) + ' 次（−' + Math.round((run.dmgIn || 0) * 10) / 10 + '）'], ['燈芯', '＋' + (run.cIn || 0) + '／－' + (run.cOut || 0)], ['強化', up + ' 個'], ['武器', p.weapons.map(id => WDEF[id].name).join('、')]];
+  const items = [['職業', c.name], ['模式', run.lair ? '暗影巢穴' : run.kitchen ? '食材廚房' : run.fest2 ? '傳統節慶' : run.season ? '季節慶典' : run.dl2 ? 'DLC2 長線' : run.guard ? '未來守燈' : run.escape ? '電玩逃離' : run.endless ? '電玩無盡' : run.escort ? '糖果護送' : run.long ? (run.ext ? '長線＋追加' : '長線作戰') : '一般'], [win ? '結果' : '倒在', win ? '通關' : '第 ' + (run.layer + 1) + ' 層・' + (KIND_NAME[room.kind] || '')], ['用時', fmtT(run.t)], ['擊敗', run.kills + ' 隻'], ['總傷害', Math.round(run.dmgOut || 0)], ['紙片', '＋' + (run.paperGiven || 0) + '（共 ' + (rec.paper || 0) + '）'], ['受傷', (run.hurtN || 0) + ' 次（−' + Math.round((run.dmgIn || 0) * 10) / 10 + '）'], ['燈芯', '＋' + (run.cIn || 0) + '／－' + (run.cOut || 0)], ['強化', up + ' 個'], ['武器', p.weapons.map(id => WDEF[id].name).join('、')]];
   if (!win && run.deathBy) items.push(['死因', enameOf(run.deathBy)]);
   return items.map(a => '<span><small>' + a[0] + '</small><b>' + a[1] + '</b></span>').join('');
 }
@@ -3299,14 +3302,14 @@ function rollMates() {
   saveRec();
 }
 function paperTotal() {
-  let t = 5 + (run.won ? 10 : 0) + 5 * (run.newAch || 0) + (run.endless ? 3 * Math.min(12, run.layer) : 0);
+  let t = 5 + (run.won ? 10 : 0) + 5 * (run.newAch || 0) + (endl() ? 3 * Math.min(12, run.layer) : 0);
   if (run.long) { const done = run.fin ? run.layer + 1 : run.layer; t += 3 * Math.min(6, done) + 5 * Math.max(0, done - 6); }
   return t;
 }
 function settlePaper() { if (run.practice) return; const t = paperTotal(), d = t - (run.paperGiven || 0); if (d > 0) { rec.paper = (rec.paper || 0) + d; run.paperGiven = t; saveRec(); } }
 function endRun(win) {
   if (run.practice || run.ended) return; run.ended = true; run.won = !!win; clearSave();
-  const cl = CLS[p.cls]; rec.runs++; rec.time += run.t; if (run.endless) rec.endlessMax = Math.max(rec.endlessMax || 0, run.layer + 1);
+  const cl = CLS[p.cls]; rec.runs++; rec.time += run.t; if (run.endless) rec.endlessMax = Math.max(rec.endlessMax || 0, run.layer + 1); if (run.lair) rec.lairMax = Math.max(rec.lairMax || 0, run.layer + 1); if (run.lair) rec.lairMax = Math.max(rec.lairMax || 0, run.layer + 1);
   const bc = rec.byCls[cl.id] = rec.byCls[cl.id] || { runs: 0, clears: 0 }; bc.runs++;
   if (win) {
     if (cleared) rollMates();
@@ -3355,6 +3358,7 @@ function bossDefeated() {
 function midBossDefeated() {
   { const W = THEMES[th()]; if (W && W.onMid && !run.practice) W.onMid(); }
   if (th() === 10 && !run.practice && bossDef().name === '像素魔王') unlockAch('arcBoss');
+  if (run.lair && !run.practice) { rec.lairMax = Math.max(rec.lairMax || 0, run.layer + 1); toast('深度 ' + (run.layer + 1) + ' 通過', 1.6); later(1.2, () => say([{ who: SPR, text: '更深的地方還有東西在動。' }])); }
   if (run.endless && !run.practice) { rec.endlessMax = Math.max(rec.endlessMax || 0, run.layer + 1); toast('LEVEL CLEAR', 1.6); later(1.2, () => say([{ who: SPR, text: '還沒結束，下一關更難。' }])); }
   if (run.practice) { bullets = []; room.cleared = true; toast(bossDef().name + '倒下了（練習）'); clearAdds(); sfx('clear'); later(1.8, () => showPrac(true)); return; }
   recBoss(); wickDrop();
@@ -3834,7 +3838,7 @@ function hurtPlayer(dmg, nx, ny, frz) {
   burst(p.x, p.y, 10, [C.paper, C.cape], 160);
   if (p.hp > 0 && p.sleepT > 0 && (upN('c_slp') < 2 || rand() < 0.5)) wakeUp(true);
   if (p.hp <= 0) die();
-  else if (th() === 1 && frz !== -1 && rand() < (frz === 1 ? 1 : 0.15 * (CLS[p.cls].id === 'bellman' ? 0.5 : 1))) freezePlayer(0.8);
+  else if ((th() === 1 || (th() === 26 && frz === 1)) && frz !== -1 && rand() < (frz === 1 ? 1 : 0.15 * (CLS[p.cls].id === 'bellman' ? 0.5 : 1))) freezePlayer(0.8);
 }
 
 /* ---------- allies (NPC teammates) ---------- */
@@ -3901,6 +3905,7 @@ function spawnEnemy(type, x, y) {
   if (th() === 6 && DREAM_SKIN[type]) e.skin = DREAM_SKIN[type];
   if (th() === 7 && SW_SKIN[type]) e.skin = SW_SKIN[type];
   if (th() === 8 && type === 'crawler') e.skin = 'beetle';
+  if (th() === 26) { if (['blindbomb', 'bloater', 'blindshark', 'abyss'].indexOf(type) >= 0) e.skin = DEEP_SKIN[type]; else if (['lavaslime', 'sparker', 'firebat', 'flion', 'lavaworm', 'fireelem'].indexOf(type) >= 0) e.skin = VOL_SKIN[type]; } // 暗影巢穴：沿用深海、火山的外觀
   { const sk = THEMES[th()].skin; if (sk && sk.map[type]) { e.skin = sk.map[type]; if (sk.hue) e.hue = Math.floor(rand() * 4); } }
   if (th() === 7 && type === 'brute') { e.hp = e.maxHp = Math.round(e.hp * 1.3); }
   if (type === 'sparker' || type === 'faceless' || type === 'sleepwalker') e.noTouch = true;
@@ -3960,6 +3965,7 @@ function composeWave() {
     list.push(t); budget -= cost[t];
   }
   if (!list.length) list.push('crawler');
+  { const W = THEMES[th()]; if (W.post) W.post(list); } // 主題後處理（暗影巢穴：把填充用的小影換成區域敵人）
   { const W = THEMES[th()]; if (W.extra) for (const x of W.extra(L, ci)) list.push(x); } // 主題額外追加（不佔預算）
   return list;
 }
@@ -5750,7 +5756,7 @@ function updatePlay(dt) {
         }
       }
     } else if (Math.hypot(p.x - b.x, p.y - b.y) < p.r + b.r - 2) {
-      const l = Math.hypot(b.vx, b.vy) || 1; if (b.fan) b.fan.hit = true; hurtFrom(b.src || 'bullet', b.dmg, b.vx / l, b.vy / l, b.frz ? 1 : undefined); if (b.root) { p.rootT = 0.5; toast(b.wrap ? '被繃帶纏住了' : '被藤蔓纏住了', 1.2); } if (p.iframes > 0.9 || b.root) b.dead = true;
+      const l = Math.hypot(b.vx, b.vy) || 1; if (b.fan) b.fan.hit = true; hurtFrom(b.src || 'bullet', b.dmg, b.vx / l, b.vy / l, b.frz ? 1 : undefined); if (b.cling) { p.clingT = 2.2; toast('被黏住了，行動變慢', 1.2); } if (b.root) { p.rootT = 0.5; toast(b.wrap ? '被繃帶纏住了' : '被藤蔓纏住了', 1.2); } if (p.iframes > 0.9 || b.root) b.dead = true;
     }
   }
   for (const b of bullets) if (b.own === 'e' && !b.dead) for (const n of allies) if (!n.down && n.iframes <= 0 && Math.hypot(n.x - b.x, n.y - b.y) < n.r + b.r) { hurtNpc(n, 1); b.dead = true; break; }
@@ -6532,7 +6538,7 @@ function render() {
         if (b.kind === 'bloat') { ctx.strokeStyle = '#d8f4ff'; ctx.lineWidth = 2; ctx.globalAlpha = 0.8; ctx.beginPath(); ctx.arc(b.x, b.y, b.r + 2, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
       }
     } else {
-      const ec = b.root ? '#8fd45a' : b.frz ? '#8fd8ff' : C.violet; ctx.globalAlpha = 0.3; ctx.fillStyle = ec; circ(ctx, b.x, b.y, b.r * 1.9); ctx.globalAlpha = 1; ctx.fillStyle = ec; circ(ctx, b.x, b.y, b.r); ctx.fillStyle = '#efe0ff'; circ(ctx, b.x, b.y, b.r * 0.45);
+      const ec = b.root ? '#8fd45a' : b.frz ? '#8fd8ff' : b.cling ? '#ff8ac8' : C.violet; ctx.globalAlpha = 0.3; ctx.fillStyle = ec; circ(ctx, b.x, b.y, b.r * 1.9); ctx.globalAlpha = 1; ctx.fillStyle = ec; circ(ctx, b.x, b.y, b.r); ctx.fillStyle = '#efe0ff'; circ(ctx, b.x, b.y, b.r * 0.45);
     }
   }
   if (tbait) {
