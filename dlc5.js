@@ -123,6 +123,7 @@ function lairObs(g, o, rng) {
 
 /* ---------- 世界 ---------- */
 L.registerWorld({
+  noPool: true,
   theme: 26, name: '暗影巢穴', pool: 'dlc', opt: '暗影巢穴（DLC8）',
   pal: { ink: '#06050a', floor: '#1b1a26', floor2: '#222131', wall1: '#0f0e17', wall2: '#2a2840', top: '#9a94c8', door: '#7a5cff' },
   amb: ['lowpass', 190, 1.1, 0.012], ev: r => { const n = [196, 233, 262][Math.floor(r() * 3)]; L.blip(n, n * 0.97, 1.0, 'sine', 0.007); },

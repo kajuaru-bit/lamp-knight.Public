@@ -100,6 +100,7 @@ body.mobile .bar{display:none}
 .btn.alt{background:var(--paper);color:#2a2236}
 .btn kbd{font:inherit;opacity:.65;margin-left:.8em}
 #dlcmenu .btn[hidden]{display:none}#dlcmenu{background:#0e0b18}#dlcmenu .card{max-width:94cqw;width:100%}#dlcList{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;max-height:64vh;overflow:auto;width:100%}#dlcmenu .btn{padding:6px 12px;margin:0;font-size:15px;display:block;text-align:left}body.port #dlcList{grid-template-columns:1fr;max-height:72dvh}
+#themepick{background:#0e0b18}#themepick .card{max-width:94cqw;width:100%}#tpList{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px 10px;max-height:64vh;overflow:auto;width:100%}#themepick .btn{padding:6px 12px;margin:0;font-size:15px;display:block;text-align:left}#themepick .card h3{margin-bottom:4px}#themepick .card p{margin:2px 0 8px}body.port #tpList{grid-template-columns:1fr 1fr;max-height:72dvh}
 #dlcmenu .btn small{font-size:11px;opacity:.75;font-weight:400}
 #dlcmenu .card h3{margin-bottom:4px}
 #dlcmenu .card p{margin:2px 0 8px}
@@ -425,6 +426,15 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
       </div>
     </div>
 
+    <div class="screen center" id="themepick" hidden>
+      <div class="card">
+        <h3>主題路標</h3>
+        <p>選一個這一局一定會遇到的主題（選「隨機」＝取消）</p>
+        <div id="tpList"></div>
+        <p class="quiet">W／S 選擇，F 確定，Esc 返回</p>
+      </div>
+    </div>
+
     <div class="screen center" id="dlcmenu" hidden>
       <div class="card">
         <h3>DLC 之門</h3>
@@ -690,6 +700,8 @@ const WDEF = {
   pole:    { id: 'pole', name: '擺渡篙', tag: '戳刺・推開', mode: 'tap', cd: 0.7, cls: 'ferry', desc: '向前戳刺，射程長、貫穿一整列；戳中的敵人被推開' },
   beatstick: { id: 'beatstick', name: '節拍棒', tag: '近戰・快速', mode: 'tap', cd: 0.34, cls: 'beater', range: 118, half: 1.0, dmg: 2.6, kb: 420, desc: '快速的短棒揮擊，揮擊範圍內的敵方子彈會被打掉' },
   astrolabe: { id: 'astrolabe', name: '星盤', tag: '遠程・單發', mode: 'tap', cd: 0.42, cls: 'starc', desc: '射出一發星光彈（傷害 2.7）' },
+  sparkgun: { id: 'sparkgun', name: '鑄火槍', tag: '遠程・單發', mode: 'tap', cd: 0.45, cls: 'towerc', desc: '射出一發火花彈（傷害 2.3）' },
+  redneedle: { id: 'redneedle', name: '紅線針', tag: '遠程・單發', mode: 'tap', cd: 0.38, cls: 'matchm', desc: '射出一發紅線針（傷害 2.2）；每次攻擊都會縮短紅線光冷卻' },
   courierknife: { id: 'courierknife', name: '信使短刃', tag: '近戰・快速', mode: 'tap', cd: 0.3, cls: 'courier', range: 112, half: 1.1, dmg: 2.4, kb: 380, desc: '快速的短刃揮砍' },
   echobow: { id: 'echobow', name: '迴響弓', tag: '遠程・連射', mode: 'tap', cd: 0.4, cls: 'echoer', desc: '射出一發快速的迴響彈；共鳴期間可清除前方子彈（或追加遠距離彈）' },
   lure:    { id: 'lure',    name: '蟲餌', tag: '誘引', mode: 'hold', cd: 0.1, desc: '按住在前方放出氣味，最多同時兩個；吸引附近的蟲系敵人，70 像素內的敵人每秒受到 2.5 點傷害；放開後氣味還會留 3 秒' },
@@ -702,7 +714,7 @@ const UPG = {
   wick:   { name: '厚燈芯', desc: '最大血量 +1，並恢復 1' },
   oil:    { name: '烈焰油', desc: '傷害 +20%' },
   shoes:  { name: '輕紙靴', desc: '移動速度 +10%' },
-  hands:  { name: '巧手套', desc: '攻擊間隔 -12%' },
+  hands:  { name: '巧手套', desc: '攻擊間隔 -12%（最多 4 層）', max: 4 },
   shade:  { name: '寬燈罩', desc: '燈光範圍 +15%' },
   pierce: { name: '穿透彈', desc: '子彈多穿透 1 隻敵人；本來就會穿透的武器改為傷害 +15%（最多 3 層）', max: 3, price: 13 },
   big:    { name: '大子彈', desc: '子彈變大 25%，更好命中（最多 2 層）', max: 2, price: 8 },
@@ -720,6 +732,8 @@ const UPG = {
   c_fer:   { name: '渡口深處', cls: 'ferry', desc: '【擺渡人專屬】第 1 層：燈火隊員 +1 名、存在 +4 秒；第 2 層：隊員消失時留下 4 秒的「渡口」（站上去回血），射速 +30％', max: 2, price: 11 },
   c_beat:  { name: '強勁節拍', cls: 'beater', desc: '【擊節者專屬】第 1 層：起拍的加成次數 5 → 7 次；第 2 層：加成攻擊會震開附近敵人並清除範圍內的敵方子彈', max: 2, price: 11 },
   c_star:  { name: '星河回響', cls: 'starc', desc: '【星圖師專屬】第 1 層：星障存在 5 → 8 秒且寬度 +30%；第 2 層：衝擊波使敵人暈眩 0.8 秒（Boss 0.3 秒），且每次充能所需能量 −20%（120 → 96）', max: 2, price: 11 },
+  c_tower: { name: '堅固燈塔', cls: 'towerc', desc: '【鑄燈匠專屬】第 1 層：燈塔血量 +60%、範圍 +20%；第 2 層：邊緣傷害 ×2，閃光區 6 → 10 秒', max: 2, price: 11 },
+  c_match: { name: '緣分延長', cls: 'matchm', desc: '【月老專屬】第 1 層：紅線時間 +3 秒；第 2 層：同時牽 2 隻敵人', max: 2, price: 11 },
   c_cour:  { name: '疾風火痕', cls: 'courier', desc: '【提燈信使專屬】第 1 層：衝刺後的火光時間 2 → 3 秒，火光存在 1.8 → 3 秒；第 2 層：火光傷害 1.3 → 2，且疾送所需移動距離 −25%', max: 2, price: 11 },
   c_resn:  { name: '餘音繞樑', cls: 'echoer', desc: '【回響手專屬】第 1 層：共鳴持續 6 → 9 秒；第 2 層：清彈改為全向範圍，追加的遠距離彈傷害 ×1.5', max: 2, price: 11 },
   c_wall:  { name: '雙層屏障', cls: 'mage', desc: '【折紙術士專屬】同時立起兩道前後相隔的紙牆；紙牆也能擋住敵人（敵人無法穿過）', max: 2, price: 10 },
@@ -739,7 +753,7 @@ const PREM = {
   wick:   { name: '燈芯罐', desc: '最大血量 +2，並恢復 2', price: 13 },
   oil:    { name: '精煉烈焰油', desc: '傷害 +50%', price: 16 },
   shoes:  { name: '疾風紙靴', desc: '移動速度 +25%', price: 14 },
-  hands:  { name: '神速手套', desc: '攻擊間隔 −28%', price: 16 },
+  hands:  { name: '神速手套', desc: '攻擊間隔 −28%（占 2 層，最多 4 層）', price: 16, w: 2 },
   shade:  { name: '明燈罩', desc: '燈光範圍 +35%', price: 14 },
   pierce: { name: '雙重穿透彈', desc: '子彈多穿透 2 隻；本來就會穿透的武器傷害 +30%（占 2 層上限）', price: 22, w: 2 },
   big:    { name: '巨大子彈', desc: '子彈半徑 +50%（占 2 層上限）', price: 14, w: 2 },
@@ -757,6 +771,8 @@ const PREM = {
   c_fer:   { name: '渡口深處・極', cls: 'ferry', desc: '燈火隊員 +1 名、存在 +4 秒，消失時留下回血的渡口，射速 +30％（占 2 層）', price: 19, w: 2 },
   c_beat:  { name: '強勁節拍・極', cls: 'beater', desc: '起拍加成 7 次，加成攻擊震開敵人並清除範圍內子彈（占 2 層）', price: 19, w: 2 },
   c_star:  { name: '星河回響・極', cls: 'starc', desc: '星障 8 秒且更寬、衝擊波暈眩敵人、充能所需能量 −20%（占 2 層）', price: 19, w: 2 },
+  c_tower: { name: '堅固燈塔・極', cls: 'towerc', desc: '燈塔血量 +60%、範圍 +20%、邊緣傷害 ×2、閃光區 10 秒（占 2 層）', price: 19, w: 2 },
+  c_match: { name: '緣分延長・極', cls: 'matchm', desc: '紅線 +3 秒並同時牽 2 隻敵人（占 2 層）', price: 19, w: 2 },
   c_cour:  { name: '疾風火痕・極', cls: 'courier', desc: '火光與軌跡時間 3 秒、火光傷害 2、疾送距離需求 −25%（占 2 層）', price: 19, w: 2 },
   c_resn:  { name: '餘音繞樑・極', cls: 'echoer', desc: '共鳴持續 9 秒、清彈全向、追加遠距離彈傷害 ×1.5（占 2 層）', price: 19, w: 2 },
   c_wall:  { name: '分立屏障', cls: 'mage', desc: '【折紙術士專屬】兩道紙牆改成可以分開立起：施放後 6 秒內可以再立一道；紙牆也能擋住敵人', price: 18, w: 2 },
@@ -1000,7 +1016,10 @@ const CLS = [
   { id: 'starc', name: '星圖師', role: '控場・能量衝擊', weapon: 'astrolabe', hp: 5, spd: 1, dlcReq: [['love', 'cosmos']], need: '愛情＋星座宇宙各通關一次', skill: '星陣', sdesc: '施放衝擊波，並在面前立起存在 5 秒的星障；最多累積 3 次，每次需要 120 能量', cd: 120, detail: '星陣：以自己為中心放出衝擊波（半徑 200、傷害 3.4、擊退，並清除敵方子彈），同時在面前立起一道存在 5 秒的星障：擋住敵方子彈，也把靠近的敵人（Boss 除外）推開並灼傷。技能最多累積 3 次，一開始有 1 次；每一次充能需要 120 能量：每造成 1 點傷害 +1（單次最多 12），每損失 1 點燈火 +8（每間房最多靠受傷充能 2 次）。專屬武器星盤：單發的星光彈。' },
   { id: 'courier', name: '提燈信使', role: '高機動・火光軌跡', weapon: 'courierknife', hp: 4, spd: 1.3, dlcReq: [['fest2', 'season']], need: '傳統節慶＋季節慶典各通關一次', skill: '疾送', sdesc: '向前猛衝並撞傷敵人；之後 2 秒內只要移動就會留下火光灼傷敵人；冷卻改用「移動距離」', cd: 14, detail: '疾送：向前衝刺約 260 像素（途中無敵、撞到的敵人受 2.5 傷害）；衝刺後 2 秒內，只要在移動，就會在身後留下火光（每走約 26 像素一團，存在 1.8 秒），敵人碰到火光每 0.35 秒受 1.3 傷害。冷卻不看時間，而是累積移動距離（需要 1400 像素），衝刺也算。被動：移動速度 ×1.3、燈火只有 4。專屬武器信使短刃：快速短揮。' },
   { id: 'echoer', name: '回響手', role: '遠程・清彈', weapon: 'echobow', hp: 5, spd: 1.05, dlcReq: [['greek', 'japan']], need: '希臘神話＋日本觀光維護各通關一次', skill: '共鳴', sdesc: '6 秒內：武器本來無法清子彈的，攻擊時可清除前方子彈；本來就能清子彈的（近戰類），每次攻擊額外射出遠距離子彈', cd: 14, detail: '共鳴：持續 6 秒。手上武器是遠程（無法清子彈）時，每次攻擊會清除前方 230 像素內的敵方子彈；手上武器是近戰或戳刺（本來就能清子彈）時，每次攻擊額外射出一發遠距離貫穿彈（傷害 2.4）。專屬武器迴響弓：快速的遠程單發。' },
+  { id: 'towerc', name: '鑄燈匠', role: '控場・固定燈塔', weapon: 'sparkgun', hp: 5, spd: 1, ach: 34, skill: '立塔', sdesc: '在面前放置小燈塔：塔的範圍敵人無法進入，子彈可以穿過；邊緣的敵人會受傷；塔壞掉後留下閃光區', cd: 16, detail: '立塔：在面前放置燈塔（最多 2 座，放第 3 座時最舊的消失）。燈塔血量 10、範圍半徑約 110；敵人（含 boss）無法進入範圍，但子彈可以穿過；敵人子彈打到塔會損壞它，貼著邊緣的敵人每 0.5 秒受 1.2 傷害，也會慢慢磨損塔。塔壞掉後留下閃光區（6 秒），區內敵人持續受傷並提供光亮。冷卻 16 秒。專屬武器鑄火槍：單發火花彈。' },
+  { id: 'matchm', name: '月老', role: '輔助・反轉敵人', weapon: 'redneedle', hp: 5, spd: 1, ach: 38, skill: '紅線光', sdesc: '召喚紅線光附身敵人 8 秒（boss 4 秒）：它的子彈與碰撞傷害都算我方；冷卻改用「攻擊次數」', cd: 12, detail: '紅線光：對最近（優先瞄準中）的敵人綁上紅線，持續 8 秒（boss 減半為 4 秒）。被綁的敵人改為追著其他敵人跑，它發射的子彈變成我方子彈（傷害 ×2），碰到其他敵人也會造成傷害，不再傷害你。冷卻不看時間，每次攻擊減 1，需要 12 次攻擊。專屬武器紅線針：單發紅針。' },
 ];
+let towers = [], flashZones = [];
 let trailFires = [], fireRoom = null;
 let lampLost = false, lampBatch = 0, lampMates = [], cmarks = [], harbors = [], pongB = null, rewindH = [];
 let chosen = 0, cleared = false, menuAgain = false;
@@ -1016,7 +1035,7 @@ function loadRec() {
 }
 let rec = loadRec();
 const DLG_SPD = [0.7, 1, 1.8, 99], DLG_NAME = ['慢', '中', '快', '瞬間'], TOAST_M = [0.7, 1, 1.6], TOAST_NAME = ['短', '中', '長'], TZ_V = [0.85, 1, 1.2], TZ_NAME = ['小', '中', '大'], TO_V = [0.55, 0.8, 1], TO_NAME = ['淡', '中', '濃'];
-const CLS_TYPE = { starc: 'bal', courier: 'atk', knight: 'atk', hunter: 'atk', cutter: 'atk', inkhunter: 'atk', lanternc: 'atk', shield: 'def', watch: 'def', bellman: 'def', mage: 'bal', oiler: 'bal', lampist: 'bal', slowc: 'sup', florist: 'sup', shopc: 'sup', sleepc: 'sup', sugarc: 'def', pixelc: 'atk', calib: 'atk', ferry: 'sup', beater: 'atk', echoer: 'bal' };
+const CLS_TYPE = { starc: 'bal', courier: 'atk', knight: 'atk', hunter: 'atk', cutter: 'atk', inkhunter: 'atk', lanternc: 'atk', shield: 'def', watch: 'def', bellman: 'def', mage: 'bal', oiler: 'bal', lampist: 'bal', slowc: 'sup', florist: 'sup', shopc: 'sup', sleepc: 'sup', sugarc: 'def', pixelc: 'atk', calib: 'atk', ferry: 'sup', beater: 'atk', echoer: 'bal', towerc: 'def', matchm: 'sup' };
 const TYPE_INFO = { atk: { name: '攻擊型', col: '#ee6a3c' }, def: { name: '防守型', col: '#5aa6e0' }, bal: { name: '平衡型', col: '#a8d36a' }, sup: { name: '輔助型', col: '#c79bff' } };
 let clsFilter = 'all';
 function saveRec() { if (run.practice) return; try { localStorage.setItem(REC_KEY, JSON.stringify(rec)); } catch (e) { /* storage is optional */ } }
@@ -1156,7 +1175,29 @@ GT.forEach((t, i) => {
 });
 GCHARM.forEach((n, i) => G.push({ id: 'gc' + i, name: n, slot: 'charm', kind: 'charm', rar: 'n', c: GCHARM_C[i], c2: '#fff6d8', gc: true, theme: '通用', idx: i }));
 const GBY = {}; G.forEach(g => { GBY[g.id] = g; g.name0 = g.name; });
-const RAR_NAME = { n: '普通', r: '稀有', l: '傳說' }, RAR_COL = { n: '#b8b0a0', r: '#7fc4ff', l: '#ffd23f' }, SCRAP_GET = { n: 1, r: 3, l: 10 }, FUSE_COST = { n: 5, r: 15, l: 40 };
+cuInit();
+const CU_SLOTS = { head: [0, -30, '頭部'], body: [0, 4, '身體'], lampx: [0, 0, '燈具'], charm: [-14, -4, '掛飾'] };
+const CU_SAMPLE = 'LKC1:{"s":"head","n":"紅星冠","c":"#ff4a6a","c2":"#ffe9a0","p":[[-12,0],[-12,-8],[-6,-3],[0,-12],[6,-3],[12,-8],[12,0]],"q":[[-3,-4],[0,-9],[3,-4]]}';
+const cuColor = v => typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v);
+function cuParse(code) {
+  code = String(code || '').trim(); if (code.slice(0, 5) !== 'LKC1:') return { err: '代碼要以 LKC1: 開頭' };
+  let o; try { o = JSON.parse(code.slice(5)); } catch (e) { return { err: '代碼格式錯誤（不是合法的 JSON）' }; }
+  if (!o || typeof o !== 'object' || !CU_SLOTS[o.s]) return { err: 's 必須是 head／body／lampx／charm 其中之一' };
+  if (typeof o.n !== 'string' || !o.n.trim() || o.n.length > 10) return { err: 'n（名稱）需為 1～10 字' };
+  if (!cuColor(o.c) || !cuColor(o.c2)) return { err: 'c、c2 必須是 #rrggbb 色碼' };
+  const poly = (a, need) => { if (a === undefined && !need) return []; if (!Array.isArray(a) || a.length < 3 || a.length > 16) return null; const r = []; for (const q of a) { if (!Array.isArray(q) || q.length !== 2 || !isFinite(q[0]) || !isFinite(q[1])) return null; r.push([Math.max(-24, Math.min(24, +q[0])), Math.max(-24, Math.min(24, +q[1]))]); } return r; };
+  const p = poly(o.p, true), q = poly(o.q, false); if (!p) return { err: 'p 需為 3～16 個 [x,y] 點（座標 -24～24）' }; if (!q) return { err: 'q 需為 3～16 個 [x,y] 點' };
+  return { g: { id: 'cu_' + o.s, name: o.n.trim(), slot: o.s, kind: 'custom', rar: 'c', c: o.c, c2: o.c2, gc: true, theme: '自製', p, q, cu: true } };
+}
+function cuReg(g) { const i = G.findIndex(x => x.id === g.id); if (i >= 0) G.splice(i, 1); G.push(g); GBY[g.id] = g; g.name0 = g.name; }
+function cuInit() { try { if (typeof rec === 'undefined' || !rec) return; rec.cuCos = rec.cuCos || {}; for (const k in rec.cuCos) { const r = cuParse(rec.cuCos[k]); if (r.g) { cuReg(r.g); rec.cosOwn[r.g.id] = 1; } } } catch (e) {} }
+function cuImport() {
+  const ta = $('cuCode'); const r = cuParse(ta ? ta.value : ''); if (r.err) { toast(r.err, 2.6); return; }
+  rec.cuCos = rec.cuCos || {}; rec.cuCos[r.g.slot] = ta.value.trim(); cuReg(r.g); rec.cosOwn[r.g.id] = 1; saveRec(); renderSub(); sfx('buy'); toast('合成完成：' + r.g.name + '（' + CU_SLOTS[r.g.slot][2] + '，每個部位只能有 1 個，新的會取代舊的）', 3);
+}
+function cuDel(slot) { if (!rec.cuCos || !rec.cuCos[slot]) return; delete rec.cuCos[slot]; const id = 'cu_' + slot; delete rec.cosOwn[id]; const i = G.findIndex(x => x.id === id); if (i >= 0) G.splice(i, 1); delete GBY[id]; if (rec.cos.body === id) rec.cos.body = 'none'; if (rec.cos.lampx === id) rec.cos.lampx = 'none'; if (rec.cos.charm === id) rec.cos.charm = 'none'; if (rec.cos.head === id) rec.cos.head = 'none'; saveRec(); renderSub(); }
+function cuDraw(g, ax, ay) { if (!g || !g.cu) return; ctx.fillStyle = g.c; poly(ctx, g.p.map(q => [ax + q[0], ay + q[1]])); if (g.q.length) { ctx.fillStyle = g.c2; poly(ctx, g.q.map(q => [ax + q[0], ay + q[1]])); } }
+const RAR_NAME = { n: '普通', r: '稀有', l: '傳說', c: '自製' }, RAR_COL = { n: '#b8b0a0', r: '#7fc4ff', l: '#ffd23f', c: '#ff9ad0' }, SCRAP_GET = { n: 1, r: 3, l: 10 }, FUSE_COST = { n: 5, r: 15, l: 40 };
 const gachaOpen = () => !!optGacha.checked || (rec.longClears || 0) + (rec.extClears || 0) + (rec.dl2Clears || 0) > 0 || !!rec.ach.dictBoss || !!rec.ach.shoreBoss || !!rec.ach.zenBoss;
 const gOwned = g => !!(rec.cosOwn && rec.cosOwn[g.id]);
 function slotSet(slot) { const o = slot === 'head' ? Object.assign({}, HEADS) : { none: { name: '無' } }; for (const g of G) if (g.slot === slot && gOwned(g)) o[g.id] = g; return o; }
@@ -1198,6 +1239,8 @@ function gachaHtml() {
   return '<div class="datapg"><p><b>造型機</b>　紙片 <b>' + (rec.paper || 0) + '</b>　紙屑 <b>' + sc + '</b>　已擁有 <b>' + own + '／' + G.length + '</b>　累計抽取 ' + rec.gacha.n + ' 次（距離傳說保底還有 ' + (30 - rec.gacha.pity) + ' 抽）</p>'
     + '<p><button class="btn alt" type="button" data-g="p1">抽 1 次（10 紙片）</button> <button class="btn alt" type="button" data-g="p10">十連抽（90 紙片，至少 1 個稀有）</button> ' + (optGacha.checked ? '<button class="btn alt" type="button" data-g="paper">測試：＋100 紙片</button>' : '') + '</p>'
     + res + '<p>合成：用紙屑換一件還沒有的　<button class="btn alt" type="button" data-g="fusemenu">開啟合成選單（紙屑 ' + sc + '）</button></p>'
+    + '<p><b>自製造型</b>　每個部位（頭部／身體／燈具／掛飾）限 1 個，匯入代碼合成，新的會取代舊的。</p><p><textarea id="cuCode" rows="3" style="width:96%" placeholder="貼上 LKC1:{…} 代碼"></textarea></p><p><button class="btn alt" type="button" data-g="cuimp">匯入合成</button> <button class="btn alt" type="button" data-g="cusample">填入範例代碼</button> '
+    + Object.keys(CU_SLOTS).map(k => rec.cuCos && rec.cuCos[k] ? '<button class="btn alt" type="button" data-g="cudel:' + k + '">刪除' + CU_SLOTS[k][2] + '：' + (GBY['cu_' + k] ? GBY['cu_' + k].name : '') + '</button> ' : '').join('') + '</p><p class="quiet">格式：LKC1:{"s":部位,"n":名稱,"c":主色,"c2":副色,"p":[[x,y],…],"q":[[x,y],…]}；p 為主多邊形（3～16 點、座標 -24～24，原點在該部位錨點，y 向下），q 為選填的副色多邊形。</p>'
     + '<p class="quiet">機率：普通 70%、稀有 25%、傳說 5%；每 30 抽保底 1 個傳說；重複的外觀變成紙屑（普通 1、稀有 3、傳說 10）；合成價：普通 5、稀有 15、傳說 40 紙屑。抽到的外觀到「造型」頁裝備（頭飾、身衣、燈飾、小飾品四欄）。</p></div>';
 }
 const CLSCOS = {
@@ -1205,6 +1248,8 @@ const CLSCOS = {
   pixelc: { name: '帽子', opts: { plain: { name: '像素帽' }, crt: { name: 'CRT 螢幕帽', clears: 1 }, gold: { name: '金幣帽', req: 'perfectCatch' } } },
   calib: { name: '護目鏡', opts: { plain: { name: '校準鏡' }, visor: { name: '護目面罩', clears: 1 }, hud: { name: '抬頭顯示鏡', req: 'bullseye' } } },
   starc: { name: '星冠', opts: { plain: { name: '星圖冠' }, moon: { name: '月牙冠', clears: 1 } } },
+  towerc: { name: '鑄工帽', opts: { plain: { name: '鑄工帽' }, gog: { name: '鑄工護目鏡', clears: 1 } } },
+  matchm: { name: '月老髮飾', opts: { plain: { name: '紅線髮飾' }, knot: { name: '同心結', clears: 1 } } },
   courier: { name: '信使帽', opts: { plain: { name: '信使帽' }, wing: { name: '羽翼帽', clears: 1 } } },
   beater: { name: '髮帶', opts: { plain: { name: '節拍髮帶' }, drum: { name: '鼓點髮帶', clears: 1 } } },
   echoer: { name: '耳飾', opts: { plain: { name: '回聲耳環' }, ring: { name: '共鳴耳環', clears: 1 } } },
@@ -1974,7 +2019,8 @@ function loadRoom() {
     else { const W = [['chase', 3], ['mimic', 2], ['well', 2], ['grand', 1], ['normal', 2]].concat(run.noShop ? [] : [['fake', 2]]).concat(run.layer >= 1 ? [['rush', 2]] : []); let r0 = rand() * W.reduce((a0, q) => a0 + q[1], 0); for (const q of W) { r0 -= q[1]; if (r0 <= 0) { variant = q[0]; break; } } variant = variant || 'normal'; { const xe = THEMES[th()].events; if (xe && (rand() < 0.25 || run.karma || run.greek || run.season || run.kitchen)) variant = 'x:' + pickOf(Object.keys(xe)); } }
   }
   const chase = variant === 'chase', rush = variant === 'rush';
-  const small = (run.kitchen && kind === 'combat') || (th() === 17 && kind === 'combat') || (th() === 15 && kind === 'boss'); // 愛情戰鬥房、日本 Boss 房：特殊房大小
+  const smallMap = kind === 'combat' && !run.dlc && !run.path && !run.guard && !run.escape && !endl() && !THEMES[th()].bigMap && (run.layer === 0 || (run.layer === 1 && run.plan.slice(0, run.step).indexOf('combat') < 0)); // 普通／長線：第 1 層戰鬥房、第 2 層第一間戰鬥房用小地圖
+  const small = smallMap || (run.kitchen && kind === 'combat') || (th() === 17 && kind === 'combat') || (th() === 15 && kind === 'boss'); // 愛情戰鬥房、日本 Boss 房：特殊房大小
   const big = !small && (kind === 'combat' || kind === 'boss' || chase || rush), SZ = kind === 'boss' ? BOSSR : BIG;
   ROOM.w = big ? SZ.w : 820; ROOM.h = big ? SZ.h : 450; DOOR.y = ROOM.y + ROOM.h / 2;
   if (run.path && kind === 'combat') { if (port) { ROOM.w = 450; ROOM.h = PATH_LEN; DOOR.y = ROOM.y + 110; } else { ROOM.w = PATH_LEN; ROOM.h = 450; DOOR.y = ROOM.y + ROOM.h / 2; } }
@@ -2013,7 +2059,7 @@ function loadRoom() {
   }
   lampMates = []; cmarks = []; harbors = []; pongB = null; rewindH = [];
   p.orb = null; lure = null; lures = []; tbait = null; enemies = []; slows = []; sands = []; p.flowers = []; bullets = []; pickups = []; swings = []; beams = []; rings = []; walls = []; hazards = []; vials = []; ppools = []; timers = []; tobs = []; frosts = []; blinds = []; erupts = []; slows = []; tapT.on = false; absorbs = [];
-  if (endl() && kind === 'combat' && !run.practice) addSeal(); // 無盡：戰鬥房有一塊封印石，打碎後出現互動機關
+  if (kind === 'combat' && sealOk()) addSeal(); // 無盡：戰鬥房有一塊封印石，打碎後出現互動機關
   if (th() === 2 && kind === 'combat') placeDecor();
   if (th() === 7 && (kind === 'combat' || kind === 'boss')) placeSwamp();
   if (th() === 8 && (kind === 'combat' || kind === 'boss')) placeDesert();
@@ -2218,7 +2264,7 @@ function newRun() {
   run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.hurtL = 0; run.dsK = 0; run.znTip = false; run.merit = 0; run.zenDaze = false; run.muyuN = 0; run.spN = 0; run.pulseTip = false; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.dlc = false; run.escort = false; run.escFail = false; run.dlcPrev = null; run.escHurt = 0; run.escape = false; run.guard = false; run.endless = false; run.path = false; run.dl2 = false; run.greek = false; run.season = false; run.karma = false; for (const fl of DLC_FLAGS) run[fl] = false; run.karmaReborn = []; run.karmaSaved = []; run.modeSeen = {}; run.stickStun = 0; run.sugBreak = 0; run.catchN = 0; run.mateBlock = 0; run.syrupTip = false; run.wickN = 0; run.mechTip = false; run.revive = null; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
   for (const w of p.weapons) rec.seenW[w] = 1;
   allies = [];
-  { let t = cleared ? shuffle(run.long ? Object.keys(THEMES).map(Number).filter(i => THEMES[i].pool !== 'dlc' || optDlcPool.checked) : BASE_IDS.slice()).slice(0, 3) : [0, 1, 2];
+  { let t = cleared ? shuffle(run.long ? Object.keys(THEMES).map(Number).filter(i => !THEMES[i].noPool && (THEMES[i].pool !== 'dlc' || optDlcPool.checked)) : BASE_IDS.slice()).slice(0, 3) : [0, 1, 2];
     if (optTheme.value !== 'auto') { const f = +optTheme.value; t = t.filter(x => x !== f); while (t.length < 2) t.push(BASE_IDS.filter(x => x !== f && t.indexOf(x) < 0)[0]); t = t.slice(0, 2).concat([f]); }
     run.themes = t; run.themeBase = t.slice(); run.themePick = -1; }
   run.polarFinal = cleared ? pickOf(['dragon', 'giant']) : 'dragon'; run.inkKind = pickOf(['shan', 'nian', 'idragon']);
@@ -2393,9 +2439,7 @@ function interact(it) {
   if (it.kind === 'pracTh') { PRAC.th = (PRAC.th + 1) % TNAMES.length; sfx('pick'); toast('練習主題：' + TNAMES[PRAC.th], 1.6); hintSig = ''; return; }
   if (it.kind === 'pracLv') { PRAC.lv = (PRAC.lv + 1) % PLV.length; sfx('pick'); toast('練習層級：' + PLV[PRAC.lv].n, 2); hintSig = ''; return; }
   if (it.kind === 'pracGo') { sfx('pick'); fadeThen(() => { startPractice(); announceRoom(); }); return; }
-  if (it.kind === 'themesel') {
-    run.themePick = run.themePick >= TNAMES.length - 1 ? -1 : run.themePick + 1; applyThemePick(); sfx('pick');
-    toast(run.themePick >= 0 ? '這一局一定會遇到：' + TNAMES[run.themePick] : '主題：隨機', 2); hintSig = ''; return;
+  if (it.kind === 'themesel') { openThemePick(); return;
   }
   if (it.kind === 'noshop') {
     run.noShop = !run.noShop; sfx('pick');
@@ -2668,14 +2712,21 @@ const SEAL_DEV = {
   forge: { name: '強化機關', desc: '投入 3 燈芯換一個強化（只能用一次）', hint: 'F 投入 3 燈芯' },
   blast: { name: '震盪機關', desc: '按下：震退並傷害場上所有敵人（Boss 傷害較少），並清除敵方子彈（只能用一次）', hint: 'F 按下機關' }
 };
+function sealOk() { // 無盡玩法每間戰鬥房必定有；其他玩法 50%
+  if (run.practice || run.kitchen || run.fest2 || run.season || run.path || run.guard || run.escape || run.greek || run.karma || THEMES[th()].bigMap) return false;
+  return endl() ? true : rand() < 0.5;
+}
 function addSeal() {
-  for (let t = 0; t < 80; t++) {
-    const w = 56, h = 56, x = rr(ROOM.x + 360, ROOM.x + ROOM.w - 360 - w), y = rr(ROOM.y + 110, ROOM.y + ROOM.h - 110 - h), o = { x, y, w, h };
-    if (room.obs.some(q => overlap(inflate(q, 70), o))) continue;
-    tobs.push({ kind: 'seal', x, y, w, h, hp: 12, maxHp: 12, t: 0, dur: 1e9, flash: 0 });
-    if (!run.sealTip) { run.sealTip = true; later(2.6, () => { if (state === 'play') toast('房間裡有一塊發光的封印石——打碎它，會出現互動機關', 3.2); }); }
-    return;
+  const n = Math.min(4, 1 + Math.floor(run.layer / 3)), hp = Math.min(70, 10 + 4 * run.layer), m = ROOM.w > 900 ? 360 : 200; // 越深越多塊、越耐打
+  for (let k = 0; k < n; k++) {
+    for (let t = 0; t < 80; t++) {
+      const w = 56, h = 56, x = rr(ROOM.x + m, ROOM.x + ROOM.w - m - w), y = rr(ROOM.y + 110, ROOM.y + ROOM.h - 110 - h), o = { x, y, w, h };
+      if (room.obs.some(q => overlap(inflate(q, 70), o)) || tobs.some(q => overlap(inflate(q, 50), o))) continue;
+      tobs.push({ kind: 'seal', x, y, w, h, hp, maxHp: hp, t: 0, dur: 1e9, flash: 0 });
+      break;
+    }
   }
+  if (tobs.length && !run.sealTip) { run.sealTip = true; later(2.6, () => { if (state === 'play') toast('房間裡有發光的封印石——打碎它，會出現互動機關', 3.2); }); }
 }
 function sealBroken(o) {
   const dv = pickOf(['heal', 'forge', 'blast']);
@@ -3100,7 +3151,7 @@ function refreshPauseOpts() {
 function fillPause() {
   const c = CLS[p.cls];
   $('pClass').textContent = c.name + '　' + c.role + '　血量 ' + p.hp + ' / ' + p.maxHp;
-  $('pSkillName').textContent = '空白鍵　' + c.skill + '　（' + (c.id === 'beater' || c.id === 'starc' ? '需要能量 ' + Math.round(c.cd * p.cdMul * 10) / 10 + '，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd) + ' 點' : '已就緒') + (c.id === 'starc' ? '；已累積 ' + p.starN + ' / 3 次' : '') : c.id === 'courier' ? '需要移動 ' + Math.round(c.cd * p.cdMul * 100) + ' 像素，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd * 100) + ' 像素' : '已就緒') : '冷卻 ' + Math.round(c.cd * p.cdMul * 10) / 10 + ' 秒，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd) + ' 秒' : '已就緒')) + '）';
+  $('pSkillName').textContent = '空白鍵　' + c.skill + '　（' + (c.id === 'beater' || c.id === 'starc' ? '需要能量 ' + Math.round(c.cd * p.cdMul * 10) / 10 + '，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd) + ' 點' : '已就緒') + (c.id === 'starc' ? '；已累積 ' + p.starN + ' / 3 次' : '') : c.id === 'matchm' ? '需要攻擊 ' + Math.round(c.cd * p.cdMul) + ' 次，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd) + ' 次' : '已就緒') : c.id === 'courier' ? '需要移動 ' + Math.round(c.cd * p.cdMul * 100) + ' 像素，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd * 100) + ' 像素' : '已就緒') : '冷卻 ' + Math.round(c.cd * p.cdMul * 10) / 10 + ' 秒，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd) + ' 秒' : '已就緒')) + '）';
   $('pSkillDesc').textContent = c.sdesc + '。';
   $('pSkillCd').textContent = c.detail;
   $('pBuffs').textContent = buffLines(); refreshPauseOpts();
@@ -3292,6 +3343,21 @@ function startPractice() {
   p.coins = 25;
   toast('練習：' + TNAMES[PRAC.th] + '・' + v.n, 2.6);
 }
+/* 起始房的主題路標：跳出頁面選主題（只列出目前有的主題；暗影巢穴等不進長線池的不列） */
+function themeChoices() { const o = []; THEMES.forEach((t, i) => { if (t && !t.noPool && TNAMES[i]) o.push(i); }); return o; }
+function openThemePick() {
+  const ch = themeChoices(), ids = ['btnTp-1'], acts = [() => themePickGo(-1)];
+  let h = '<button class="btn alt" id="btnTp-1" type="button" data-tp="-1">隨機' + (run.themePick < 0 ? '（目前）' : '') + '</button>';
+  ch.forEach(i => { h += '<button class="btn" id="btnTp' + i + '" type="button" data-tp="' + i + '">' + TNAMES[i] + (run.themePick === i ? '（目前）' : '') + '</button>'; ids.push('btnTp' + i); acts.push(() => themePickGo(i)); });
+  $('tpList').innerHTML = h; SCR_IDS.themepick = ids; SCR_ACT.themepick = acts; scrSel = 0;
+  show('themepick', true); setState('themepick'); sfx('tick');
+}
+function themePickGo(i) {
+  if (state !== 'themepick') return;
+  show('themepick', false); setState('play'); hintSig = '';
+  run.themePick = i; applyThemePick(); sfx('pick'); toast(i >= 0 ? '這一局一定會遇到：' + TNAMES[i] : '主題：隨機', 2);
+}
+$('tpList').addEventListener('click', ev => { const b = ev.target && ev.target.closest ? ev.target.closest('[data-tp]') : null; if (b && state === 'themepick') themePickGo(parseInt(b.dataset.tp, 10)); });
 function openDlcMenu() {
   DLC_MENU.forEach((q, i) => { $('btnDlc' + i).innerHTML = q.name + (run.dlc === q.id ? '（目前）' : '') + '<small>　' + q.desc + '</small>'; });
   $('btnDlc' + DLC_MENU.length).textContent = run.dlc ? '取消 DLC，回到一般模式' : '不選，返回';
@@ -3440,7 +3506,7 @@ function pickEnding(k) {
 function startExt() {
   if (state !== 'ending' || !run.long || run.ext || run.layer !== 5) return;
   show('ending', false); run.ext = true;
-  const rest = shuffle(Object.keys(THEMES).map(Number).filter(t => run.themes.indexOf(t) < 0 && (THEMES[t].pool !== 'dlc' || optDlcPool.checked))).slice(0, 3);
+  const rest = shuffle(Object.keys(THEMES).map(Number).filter(t => run.themes.indexOf(t) < 0 && !THEMES[t].noPool && (THEMES[t].pool !== 'dlc' || optDlcPool.checked))).slice(0, 3);
   run.themes = run.themes.slice(0, 3).concat(rest);
   setState('play'); run.step = run.plan.length - 1; healP(3); hudSig = '';
   toast('繼續探索：高難度 3 層（敵人更強、精英更多）', 3);
@@ -3480,7 +3546,7 @@ const MELEE_W = { shears: 1, pillow: 1, blade: 1, pblade: 1, shadeblade: 1, fros
 function flMul(wid) { if (!enemies.some(e => e.type === 'faceless' && !e.dead && e.spawn <= 0)) return 1; return MELEE_W[wid] ? 1.12 : 1.24; }
 
 /* ---------- 四個 DLC 職業：糖衣師、像素客、校準員、擺渡人 ---------- */
-Object.assign(WCOL, { syrup: '#ff9ad0', pong: '#9fe8ff', calgun: '#9fe3ff', pole: '#e8dcc0', beatstick: '#ffd27a', bait: '#ffb36a', echobow: '#bfe8ff', astrolabe: '#bfe0ff', courierknife: '#ffb36a' });
+Object.assign(WCOL, { syrup: '#ff9ad0', pong: '#9fe8ff', calgun: '#9fe3ff', pole: '#e8dcc0', beatstick: '#ffd27a', bait: '#ffb36a', echobow: '#bfe8ff', astrolabe: '#bfe0ff', courierknife: '#ffb36a', sparkgun: '#ffcf70', redneedle: '#ff6a8a' });
 function stickHit(e, n) {
   if (!(e.stickT > 0)) e.stickN = 0;
   e.stickT = 2; e.stickN = (e.stickN || 0) + (n || 1); burst(e.x, e.y - e.r * 0.5, 3, ['#ff9ad0', C.paper], 70, true);
@@ -3535,6 +3601,20 @@ function castStar() {
 }
 function newSkill(c) {
   const id = c.id;
+  if (id === 'towerc') {
+    const a = p.aim, up = upN('c_tower'); const hp = 10 * (up >= 1 ? 1.6 : 1);
+    towers.push({ x: clamp(p.x + a.x * 70, ROOM.x + 30, ROOM.x + ROOM.w - 30), y: clamp(p.y + a.y * 70, ROOM.y + 30, ROOM.y + ROOM.h - 30), hp, maxHp: hp, R: 110 * (up >= 1 ? 1.2 : 1) * p.skillPow, tk: 0, fl: 0 });
+    if (towers.length > 2) towers.shift();
+    rings.push({ x: p.x + a.x * 70, y: p.y + a.y * 70, R: 110, t: 0.4, dur: 0.4 }); burst(p.x + a.x * 70, p.y + a.y * 70, 14, ['#ffcf70', '#fff6c0'], 150, true); sfx('clear'); toast('立起燈塔！', 1.2); return;
+  }
+  if (id === 'matchm') {
+    const n = upN('c_match') >= 2 ? 2 : 1, dur = 8 + (upN('c_match') >= 1 ? 3 : 0);
+    const cand = enemies.filter(e => !e.dead && e.spawn <= 0 && !e.charm).sort((A, B) => Math.hypot(A.x - p.x, A.y - p.y) - Math.hypot(B.x - p.x, B.y - p.y));
+    if (p.target && !p.target.dead && cand.indexOf(p.target) > 0) { cand.splice(cand.indexOf(p.target), 1); cand.unshift(p.target); }
+    if (!cand.length) { p.skillCd = 0; toast('沒有可牽的敵人', 1.2); return; }
+    for (const e of cand.slice(0, n)) { e.charm = e.type === 'boss' ? dur / 2 : dur; burst(e.x, e.y, 12, ['#ff4a6a', '#ffb3c6'], 140, true); }
+    sfx('clear'); toast('紅線光！', 1.2); return;
+  }
   if (id === 'courier') {
     const a = p.aim; p.dashT = 0.24; p.dashV = { x: a.x * 1100, y: a.y * 1100 }; p.dashHit = []; p.iframes = Math.max(p.iframes, 0.5); p.dashDmg = 2.5; p.dashStun = 0; p.trailT = 0.24 + (upN('c_cour') >= 1 ? 3 : 2); p.trailAcc = 0; p.skillCd = Math.max(2, c.cd * p.cdMul * (upN('c_cour') >= 2 ? 0.75 : 1)); sfx('blade');
     burst(p.x, p.y, 12, ['#ffb36a', '#ff6a3a', C.paper], 170, true); toast('疾送！2 秒內移動會留下火光', 1.8); hudSig = ''; return;
@@ -3565,7 +3645,28 @@ function newSkill(c) {
 }
 function updateNewCls(dt) {
   if (state !== 'play') return;
-  if (fireRoom !== room) { trailFires = []; fireRoom = room; }
+  if (fireRoom !== room) { trailFires = []; towers = []; flashZones = []; fireRoom = room; }
+  if (towers.length || flashZones.length) {
+    const up = upN('c_tower');
+    for (const T of towers) {
+      T.tk -= dt; T.fl = Math.max(0, T.fl - dt);
+      for (const b of bullets) if (b.own === 'e' && !b.dead && Math.hypot(b.x - T.x, b.y - T.y) < 18 + b.r) { b.dead = true; T.hp -= (b.dmg || 1) * 0.8; T.fl = 0.12; burst(b.x, b.y, 3, ['#ffcf70'], 80, true); }
+      let touch = T.tk <= 0; if (touch) T.tk = 0.5;
+      for (const e of enemies) {
+        if (e.dead || e.spawn > 0 || e.burrow) continue;
+        const dx = e.x - T.x, dy = e.y - T.y, d = Math.hypot(dx, dy) || 1, lim = T.R + e.r * 0.4;
+        if (d < lim) { e.x = T.x + dx / d * lim; e.y = T.y + dy / d * lim; }
+        if (touch && d < lim + 6) { hitEnemy(e, 1.2 * (up >= 2 ? 2 : 1) * p.dmgMul, 0, 0, 0, true); T.hp -= e.type === 'boss' ? 1 : 0.3; T.fl = 0.12; }
+      }
+      if (T.hp <= 0) { flashZones.push({ x: T.x, y: T.y, R: T.R * 0.8, t: up >= 2 ? 10 : 6, T: up >= 2 ? 10 : 6, tk: 0 }); burst(T.x, T.y, 22, ['#fff6c0', '#ffcf70'], 220, true); rings.push({ x: T.x, y: T.y, R: T.R, t: 0.5, dur: 0.5 }); sfx('clear'); T.gone = true; }
+    }
+    towers = towers.filter(T => !T.gone);
+    for (const Z of flashZones) {
+      Z.t -= dt; Z.tk -= dt; const hit = Z.tk <= 0; if (hit) Z.tk = 0.4;
+      if (hit) for (const e of enemies) if (!e.dead && e.spawn <= 0 && Math.hypot(e.x - Z.x, e.y - Z.y) < Z.R + e.r) hitEnemy(e, 1.0 * p.dmgMul, 0, 0, 0, true);
+    }
+    flashZones = flashZones.filter(Z => Z.t > 0);
+  }
   if (CLS[p.cls].id === 'starc' && p.starN < 3 && p.skillCd <= 0) { p.starN++; p.skillCd = p.starN < 3 ? starNeed() : 0; hudSig = ''; sfx('clear'); burst(p.x, p.y, 10, ['#bfe0ff', '#fff6c0'], 150, true); toast('星圖充能：' + p.starN + ' / 3', 1.4); }
   if (CLS[p.cls].id === 'courier') {
     if (p._lx === undefined) { p._lx = p.x; p._ly = p.y; }
@@ -3623,6 +3724,7 @@ function drawNewCls() {
 }
 function attack() {
   if (p.sleepT > 0) return;
+  if (CLS[p.cls].id === 'matchm' && p.skillCd > 0) { p.skillCd = Math.max(0, p.skillCd - 1); hudSig = ''; }
   const wid = p.weapons[p.w], w = WDEF[wid], a = p.aim, ang = Math.atan2(a.y, a.x), dm = p.dmgMul, pd = pierceDmg(), rm = reachMul();
   p.cd = w.cd * p.rateMul * flMul(wid); p.recoil = 0.1; p.noiseT = 0.8;
   const ox = p.x + a.x * 24, oy = p.y + a.y * 24 - 4;
@@ -3669,6 +3771,8 @@ function attack() {
   if (CLS[p.cls].id === 'echoer' && p.echoT > 0) echoAttack(w, ox, oy, ang, dm);
   if (wid === 'shears') later(0.15, () => { if (state === 'play' && p.sleepT <= 0) meleeSwing(w, Math.atan2(p.aim.y, p.aim.x), 1.5); });
 }
+WDEF.sparkgun.fire = (ox, oy, ang, dm) => { shoot(ox, oy, ang, 600, 6, 2.3 * dm, 'pellet', 0.9); sfx('tick'); };
+WDEF.redneedle.fire = (ox, oy, ang, dm) => { shoot(ox, oy, ang, 680, 5, 2.2 * dm, 'pellet', 1.0); sfx('tick'); };
 WDEF.astrolabe.fire = (ox, oy, ang, dm) => { shoot(ox, oy, ang, 620, 6, 2.7 * dm, 'pellet', 0.9); sfx('tick'); };
 WDEF.echobow.fire = (ox, oy, ang, dm) => { shoot(ox, oy, ang, 640, 5.5, 2.3 * dm, 'pellet', 0.95); sfx('tick'); };
 function weaponClears(w) { return !!(w.range || MELEE_W[w.id] || w.id === 'whip' || w.id === 'pole'); }
@@ -4053,7 +4157,7 @@ function spawnWave() {
     const n = Math.min(list.length - i, 2 + Math.floor(rand() * 3)), z = zs[gi % zs.length], g = ++grpSeq;
     for (const t of list.slice(i, i + n)) {
       const sp = zoneSpot(z, ENEMY[t].r) || freeSpot(ENEMY[t].r), e = spawnEnemy(t, sp.x, sp.y);
-      e.grp = g; e.zone = z; if (gi > 0) { e.sleep = true; sleepers++; }
+      e.grp = g; e.zone = z; // 所有敵人一出現就醒著（不再有睡著的影子）
       if (run.guard && room.beacon && room.beacon.hp > 0 && (t === 'crawler' || t === 'brute' || t === 'splitter' || t === 'splitter2') && enemies.filter(q => q.tgtB && !q.dead).length < 3) { e.tgtB = true; }
       if (run.guard && room.beacon) e.sleep = false;
       if (run.long && run.layer >= 2 && rand() < Math.min(0.4, 0.1 + 0.05 * (run.layer - 2))) { e.elite = true; e.hp = e.maxHp = e.hp * 2; e.r *= 1.4; if (!run.eliteTip) { run.eliteTip = true; toast('旁白：這個影子，披著舊提燈人的披風。', 3); } }
@@ -4337,6 +4441,7 @@ function updateEnemy(e, dt) {
   else if (BUG[e.type] && lures.length) { let bl = null, bd2 = 520; for (const L of lures) { const dd = Math.hypot(L.x - e.x, L.y - e.y); if (dd < bd2) { bd2 = dd; bl = L; } } if (bl) { tx = bl.x; ty = bl.y; lured = true; } }
   if (e.tgtB && room.beacon && room.beacon.hp > 0) { tx = room.beacon.x; ty = room.beacon.y; }
   if (e.tgtF && e.tgtF.st !== 'ruin' && Math.hypot(p.x - e.x, p.y - e.y) > 170) { tx = e.tgtF.x; ty = e.tgtF.y; }
+  if (e.charm > 0) { let bn = null, bd = 1e9; for (const o of enemies) { if (o === e || o.dead || o.spawn > 0) continue; const dd = Math.hypot(o.x - e.x, o.y - e.y); if (dd < bd) { bd = dd; bn = o; } } if (bn) { tx = bn.x; ty = bn.y; } }
   const dx = tx - e.x, dy = ty - e.y, d = Math.hypot(dx, dy) || 1, nx = dx / d, ny = dy / d;
   e.x += e.kx * dt; e.y += e.ky * dt; const kd = Math.exp(-9 * dt); e.kx *= kd; e.ky *= kd;
   let mx = 0, my = 0, touch = 1;
@@ -5295,7 +5400,7 @@ function useSkill() {
     p.chainLeft = (c.id === 'cutter' && upN('c_chain') >= 1) || (c.id === 'mage' && upN('c_wall') >= 2) ? 1 : 0;
     p.chainT = c.id === 'mage' ? 6 : 99;
   }
-  if (c.id === 'sugarc' || c.id === 'pixelc' || c.id === 'calib' || c.id === 'ferry' || c.id === 'beater' || c.id === 'echoer' || c.id === 'courier') { newSkill(c); return; }
+  if (c.id === 'sugarc' || c.id === 'pixelc' || c.id === 'calib' || c.id === 'ferry' || c.id === 'beater' || c.id === 'echoer' || c.id === 'courier' || c.id === 'towerc' || c.id === 'matchm') { newSkill(c); return; }
   if (c.id === 'lanternc') {
     p.lantT = 10 * Math.max(1, p.skillPow); if (p.lcombo > 0) toast('連擊重新計算', 0.9); p.lcombo = 0; p.lDashCd = 0; p.skillCd = p.lantT + c.cd * p.cdMul;
     rings.push({ x: p.x, y: p.y, R: 110, t: 0.45, dur: 0.45 }); sfx('clear'); burst(p.x, p.y, 14, ['#ee6a3c', '#ffd27a', C.paper], 170, true); toast('化身燈籠！按 F 衝刺', 1.8); hudSig = '';
@@ -5401,7 +5506,7 @@ function onKey(e, down) {
     else if (state === 'play' && !e.repeat) { if (i < p.weapons.length) { p.w = i; sfx('tick'); } }
   }
   else if (k === 'Escape' && state === 'dialog') { if (!e.repeat) skipDialog(); }
-  else if ((k === 'p' || k === 'Escape') && state === 'dlcmenu') { if (!e.repeat) { show('dlcmenu', false); setState('play'); hintSig = ''; } }
+  else if ((k === 'p' || k === 'Escape') && (state === 'dlcmenu' || state === 'themepick')) { if (!e.repeat) { show(state, false); setState('play'); hintSig = ''; } }
   else if (k === 'p' || k === 'Escape') { if (!e.repeat) { if (state === 'play') pauseGame(); else if (state === 'pause') resumeGame(); else if (state === 'sub') { const fm = $('fuseModal'); if (fm && !fm.hidden) fm.hidden = true; else closeSub(); } } }
   else if (k === 'c') { if (!e.repeat) { if (state === 'menu') openSub('cost'); else if (state === 'sub') closeSub(); } }
   else if (k === 'g') { if (!e.repeat && state === 'menu') { const d = readSaveLocal(); if (d) applySave(d); } }
@@ -5489,7 +5594,7 @@ $('subBody').addEventListener('click', ev => { const pg = ev.target && ev.target
 $('subBody').addEventListener('change', ev => { if (state === 'sub' && subKind === 'gacha' && ev.target && ev.target.id === 'fuseSel') { fuseSel = ev.target.value; } });
 $('subBody').addEventListener('click', ev => {
   const t = ev.target; if (state !== 'sub' || !t || !t.dataset) return;
-  if (subKind === 'gacha' && t.dataset.g) { const a = t.dataset.g; if (a === 'p1') gachaPull(1); else if (a === 'p10') gachaPull(10); else if (a === 'paper') { rec.paper = (rec.paper || 0) + 100; saveRec(); renderSub(); sfx('pick'); } else if (a === 'fuse') gachaFuse(); else if (a === 'fusemenu') fuseMenu(); return; }
+  if (subKind === 'gacha' && t.dataset.g) { const a = t.dataset.g; if (a === 'p1') gachaPull(1); else if (a === 'p10') gachaPull(10); else if (a === 'paper') { rec.paper = (rec.paper || 0) + 100; saveRec(); renderSub(); sfx('pick'); } else if (a === 'fuse') gachaFuse(); else if (a === 'fusemenu') fuseMenu(); else if (a === 'cuimp') cuImport(); else if (a === 'cusample') { $('cuCode').value = CU_SAMPLE; } else if (a.slice(0, 4) === 'cudel') cuDel(a.slice(5)); return; }
   if (subKind === 'ach' && (t.dataset.af || t.dataset.cat)) { if (t.dataset.af) achFilter = t.dataset.af; else achCat = t.dataset.cat; achPage = 0; renderSub(); sfx('tick'); }
   else if (subKind === 'data' && t.dataset.act) { if (t.dataset.act === 'folder') pickFolder(); else if (t.dataset.act === 'export') exportSave(); else $('fileImport').click(); }
 });
@@ -5749,10 +5854,10 @@ function updatePlay(dt) {
   run.t += dt; try { telTick(dt); } catch (e) { /* telemetry is optional */ }
   runTimers(dt);
   follow = !mouse.down;
-  p.iframes = Math.max(0, p.iframes - dt); p.stone = Math.max(0, (p.stone || 0) - dt); p.cd = Math.max(0, p.cd - dt); p.noiseT = Math.max(0, (p.noiseT || 0) - dt); p.skillCd = Math.max(0, p.skillCd - (CLS[p.cls].id === 'beater' || CLS[p.cls].id === 'starc' || CLS[p.cls].id === 'courier' ? 0 : dt)); if (p.sleepT > 0) { p.sleepT -= dt; p.skillCd = Math.max(0.01, p.sleepT); if (p.sleepT <= 0) wakeUp(false); } updateStall(dt); p.chainT = Math.max(0, p.chainT - dt); fEdge = Math.max(0, fEdge - dt); p.recoil = Math.max(0, p.recoil - dt);
+  p.iframes = Math.max(0, p.iframes - dt); p.stone = Math.max(0, (p.stone || 0) - dt); p.cd = Math.max(0, p.cd - dt); p.noiseT = Math.max(0, (p.noiseT || 0) - dt); p.skillCd = Math.max(0, p.skillCd - (CLS[p.cls].id === 'beater' || CLS[p.cls].id === 'starc' || CLS[p.cls].id === 'courier' || CLS[p.cls].id === 'matchm' ? 0 : dt)); if (p.sleepT > 0) { p.sleepT -= dt; p.skillCd = Math.max(0.01, p.sleepT); if (p.sleepT <= 0) wakeUp(false); } updateStall(dt); p.chainT = Math.max(0, p.chainT - dt); fEdge = Math.max(0, fEdge - dt); p.recoil = Math.max(0, p.recoil - dt);
   if (room.big) markExplored();
   playerMove(dt); updateAllies(dt); aimUpdate(); p.near = room.items.length ? nearestItem() : null; attackUpdate(dt); updateWeapons(dt); updateClassTimers(dt); updateNewCls(dt); updateWaves(dt); updatePath(dt); { const W0 = THEMES[th()]; if (W0.tick) W0.tick(dt); } updateChase(dt); updateRush(dt); updateDecor(dt); updateSwamp(dt); updateTimed(dt); updateBlooms(); updateModes(dt); updateMech(dt); updateMech(dt);
-  for (const e of enemies) { if (e.stickT > 0) e.stickT -= dt; updateEnemy(e, dt * slowAt(e.x, e.y, e.type === 'boss') * (e.stickT > 0 ? 0.6 : 1)); if (e.pin && !e.dead) { e.x = e.pin.x; e.y = e.pin.y; } }
+  for (const e of enemies) { if (e.stickT > 0) e.stickT -= dt; const nb0 = bullets.length, nt0 = e.noTouch; if (e.charm > 0) { e.charm -= dt; e.noTouch = true; if ((e.chT = (e.chT || 0) - dt) <= 0) { e.chT = 0.5; for (const o of enemies) if (o !== e && !o.dead && o.spawn <= 0 && !o.charm && Math.hypot(o.x - e.x, o.y - e.y) < e.r + o.r + 6) hitEnemy(o, 2 * p.dmgMul, (o.x - e.x), (o.y - e.y), 200, true); } } updateEnemy(e, dt * slowAt(e.x, e.y, e.type === 'boss') * (e.stickT > 0 ? 0.6 : 1)); if (e.charm > 0 || nt0 !== undefined) e.noTouch = nt0; if (e.charm > 0) for (let bi = nb0; bi < bullets.length; bi++) { const b = bullets[bi]; if (b.own === 'e') { b.own = 'p'; b.dmg = (b.dmg || 1) * 2; b.hit = [e]; b.pl = 0; b.kind = 'pellet'; b.life = Math.max(b.life || 2, 2); } } if (e.pin && !e.dead) { e.x = e.pin.x; e.y = e.pin.y; } }
   for (let i = 0; i < enemies.length; i++) for (let j = i + 1; j < enemies.length; j++) {
     const a = enemies[i], b = enemies[j]; if (a.type === 'boss' || b.type === 'boss') continue;
     const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1, m = a.r + b.r;
@@ -6114,6 +6219,8 @@ function drawPlayer() {
     else if (cc === 'hud') { ctx.strokeStyle = '#7dff9a'; ctx.lineWidth = 1.5; ctx.strokeRect(-13, -30, 26, 9); ctx.fillStyle = '#7dff9a'; ctx.fillRect(15, -31, 3, 3); ctx.fillRect(15, -26, 5, 2); } }
   if (cid === 'beater') { ctx.fillStyle = '#d6463a'; ctx.fillRect(-12, -30, 24, 4); ctx.fillStyle = '#ffd27a'; ctx.fillRect(-3, -30, 6, 4); if (cc === 'drum') { ctx.fillStyle = '#ffd27a'; circ(ctx, 14, -26, 3); circ(ctx, -14, -26, 3); } }
   if (cid === 'starc') { ctx.fillStyle = '#bfe0ff'; star4(ctx, 0, -33, 8, 0); if (cc === 'moon') { ctx.fillStyle = '#fff6c0'; ctx.beginPath(); ctx.arc(0, -30, 11, Math.PI * 1.1, Math.PI * 1.9); ctx.fill(); } }
+  if (cid === 'towerc') { ctx.fillStyle = '#c98a3c'; ctx.fillRect(-13, -30, 26, 5); ctx.fillStyle = '#ffcf70'; poly(ctx, [[-9, -30], [0, -42], [9, -30]]); if (cc === 'gog') { ctx.fillStyle = '#6adcff'; ctx.fillRect(-10, -24, 20, 5); } }
+  if (cid === 'matchm') { ctx.strokeStyle = '#ff4a6a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, -30, 11, Math.PI, TAU); ctx.stroke(); ctx.fillStyle = '#ff4a6a'; circ(ctx, 12, -28, 3); if (cc === 'knot') { circ(ctx, -12, -28, 3); ctx.beginPath(); ctx.moveTo(-12, -28); ctx.lineTo(12, -28); ctx.stroke(); } }
   if (cid === 'courier') { ctx.fillStyle = '#ffb36a'; ctx.fillRect(-12, -30, 24, 5); ctx.fillStyle = '#fff'; poly(ctx, [[-12, -28], [-24, -34], [-14, -24]]); poly(ctx, [[12, -28], [24, -34], [14, -24]]); if (cc === 'wing') { ctx.fillStyle = '#ffe9b0'; poly(ctx, [[-14, -32], [-30, -44], [-16, -26]]); poly(ctx, [[14, -32], [30, -44], [16, -26]]); } }
   if (cid === 'echoer') { ctx.strokeStyle = '#9fe3ff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(-13, -18, 4, 0, TAU); ctx.stroke(); if (cc === 'ring') { ctx.beginPath(); ctx.arc(-13, -18, 7, 0, TAU); ctx.stroke(); ctx.beginPath(); ctx.arc(13, -18, 4, 0, TAU); ctx.stroke(); } }
   if (cid === 'ferry') { ctx.fillStyle = '#c9a86a'; poly(ctx, [[-19, -26], [19, -26], [0, -41]]); ctx.fillStyle = '#ffd98a'; circ(ctx, 0, -42, 3);
@@ -6135,7 +6242,8 @@ function drawPlayer() {
     if (gb && gb.kind === 'cloth') { ctx.fillStyle = gb.c; rrect(ctx, -9, -10, 18, 24, 5); ctx.fillStyle = gb.c2; ctx.fillRect(-1, -10, 2, 24); circ(ctx, -4, 2, 1.4); circ(ctx, 4, 2, 1.4); }
     if (gh && gh.kind === 'hat') { ctx.fillStyle = gh.c; poly(ctx, [[-11, -26], [11, -26], [0, -39]]); ctx.fillStyle = gh.c2; ctx.fillRect(-13, -27, 26, 3); }
     else if (gh && gh.kind === 'mask') { ctx.fillStyle = gh.c; rrect(ctx, -10, -25, 20, 10, 4); ctx.fillStyle = gh.c2; rrect(ctx, -10, -25, 20, 3, 1.5); ctx.fillStyle = C.dark; ctx.fillRect(-6, -21, 4, 2.4); ctx.fillRect(2, -21, 4, 2.4); }
-    if (gch) { ctx.fillStyle = gch.c; const ci = gch.idx % 3, cx0 = -14, cy0 = -4; if (ci === 0) circ(ctx, cx0, cy0, 3); else if (ci === 1) star4(ctx, cx0, cy0, 4, 0); else poly(ctx, [[cx0, cy0 - 4], [cx0 + 3, cy0], [cx0, cy0 + 4], [cx0 - 3, cy0]]); }
+    { const gcu = gcOf('body'); if (gcu && gcu.cu) cuDraw(gcu, 0, 4); if (gh && gh.cu) cuDraw(gh, 0, -30); if (gch && gch.cu) cuDraw(gch, -14, -4); }
+    if (gch && !gch.cu) { ctx.fillStyle = gch.c; const ci = gch.idx % 3, cx0 = -14, cy0 = -4; if (ci === 0) circ(ctx, cx0, cy0, 3); else if (ci === 1) star4(ctx, cx0, cy0, 4, 0); else poly(ctx, [[cx0, cy0 - 4], [cx0 + 3, cy0], [cx0, cy0 + 4], [cx0 - 3, cy0]]); }
     if (gl && gl.kind === 'shade') { ctx.strokeStyle = gl.c; ctx.lineWidth = 2.2; const kk = p.aim.x * 24, kq = p.aim.y * 24 - 4; ctx.beginPath(); ctx.arc(kk, kq, 10, 0, TAU); ctx.stroke(); if (gl.rar === 'l') { ctx.fillStyle = gl.c2; for (let q = 0; q < 3; q++) { const a = time * 2 + q * 2.094; circ(ctx, kk + Math.cos(a) * 13, kq + Math.sin(a) * 13, 1.8); } } }
   }
   { const hd = headCos();
@@ -6151,7 +6259,7 @@ function drawPlayer() {
   ctx.strokeStyle = C.paperDim; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(p.aim.x * 8, -2); ctx.lineTo(lx, ly - 7); ctx.stroke();
   setShadow(ctx, 1.5, 2, 0); ctx.fillStyle = '#7a5a2e'; rrect(ctx, lx - 6, ly - 8, 12, 3, 1.5); noShadow(ctx);
   ctx.fillStyle = lampCol().c; circ(ctx, lx, ly, 7); ctx.fillStyle = lampCol().core; circ(ctx, lx, ly, 3.5);
-  { const gl2 = gcOf('lampx'); if (gl2 && gl2.kind === 'pend') { ctx.strokeStyle = gl2.c; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(lx, ly + 7); ctx.lineTo(lx, ly + 14); ctx.stroke(); ctx.fillStyle = gl2.c; ctx.beginPath(); ctx.arc(lx, ly + 16, 2.6, 0, TAU); ctx.fill(); ctx.fillStyle = gl2.c2; circ(ctx, lx, ly + 15.4, 0.9); } }
+  { const gl2 = gcOf('lampx'); if (gl2 && gl2.cu) cuDraw(gl2, lx, ly); if (gl2 && gl2.kind === 'pend') { ctx.strokeStyle = gl2.c; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(lx, ly + 7); ctx.lineTo(lx, ly + 14); ctx.stroke(); ctx.fillStyle = gl2.c; ctx.beginPath(); ctx.arc(lx, ly + 16, 2.6, 0, TAU); ctx.fill(); ctx.fillStyle = gl2.c2; circ(ctx, lx, ly + 15.4, 0.9); } }
   { const dc = lampCol().deco; if (dc === 'ink') { ctx.fillStyle = '#1b2350'; rrect(ctx, lx - 3, ly - 12, 6, 5, 1.5); ctx.strokeStyle = '#e8dcc0'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(lx + 1, ly - 12); ctx.lineTo(lx + 5, ly - 18); ctx.stroke(); } else if (dc === 'olive') { ctx.fillStyle = '#7fae4a'; poly(ctx, [[lx - 2, ly - 10], [lx + 7, ly - 16], [lx + 3, ly - 8]]); poly(ctx, [[lx - 3, ly - 9], [lx - 11, ly - 15], [lx - 6, ly - 7]]); ctx.fillStyle = '#3a4a22'; circ(ctx, lx + 1, ly - 9, 2.2); } else if (dc === 'lotus') { ctx.fillStyle = '#ffb8cf'; for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + (k - 2) * 0.55; ctx.beginPath(); ctx.ellipse(lx + Math.cos(a) * 7, ly - 11 + Math.sin(a) * 4 + 4, 2.6, 5, a + Math.PI / 2, 0, TAU); ctx.fill(); } } else if (dc === 'longlamp') { ctx.fillStyle = '#7a5a2e'; rrect(ctx, lx - 4, ly - 14, 8, 4, 1.5); ctx.fillStyle = '#ffd86a'; ctx.beginPath(); ctx.ellipse(lx, ly - 18 + Math.sin(time * 6) * 0.6, 2.6, 5, 0, 0, TAU); ctx.fill(); } else if (dc === 'wangsheng') { ctx.fillStyle = 'rgba(190,205,255,.85)'; for (let k = 0; k < 3; k++) { const a = time * 1.4 + k * 2.09; circ(ctx, lx + Math.cos(a) * 11, ly + Math.sin(a) * 5 - 3, 2); } } else if (dc === 'lily') { ctx.strokeStyle = '#ff7b8c'; ctx.lineWidth = 1.3; ctx.lineCap = 'round'; for (let k = 0; k < 8; k++) { const a = k / 8 * TAU + time * 0.4; ctx.beginPath(); ctx.moveTo(lx + Math.cos(a) * 7, ly + Math.sin(a) * 7); ctx.quadraticCurveTo(lx + Math.cos(a) * 10, ly + Math.sin(a) * 10 - 1, lx + Math.cos(a + 0.3) * 13, ly + Math.sin(a + 0.3) * 13); ctx.stroke(); } } }
   ctx.restore();
 }
@@ -6388,6 +6496,8 @@ function drawLight() {
   if (room.lampOn || THEMES[th()].noDark) { g.restore(); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H); return R; }
   hole(g, p.x, p.y, R, 1);
   for (const L of lures) hole(g, L.x, L.y, 70, 0.7);
+  for (const T of towers) hole(g, T.x, T.y, T.R * 1.3, 0.9);
+  for (const Z of flashZones) hole(g, Z.x, Z.y, Z.R * 1.4, 0.95 * Math.min(1, Z.t / 1.5));
   for (const m of lampMates) hole(g, m.x, m.y, 90, 0.9);
   if (state === 'play' && p.weapons[p.w] === 'dance') for (const off of [0, Math.PI]) hole(g, p.x + Math.cos((p.danceA || 0) + off) * 74, p.y - 4 + Math.sin((p.danceA || 0) + off) * 74, 60, 0.8);
   for (const b of bullets) if (b.own === 'p') hole(g, b.x, b.y, b.kind === 'flame' ? 70 : b.kind === 'lance' ? 60 : 38, 0.8); else hole(g, b.x, b.y, 34, 0.5);
@@ -6548,6 +6658,9 @@ function render() {
     ctx.fillStyle = w.star ? '#fff6c0' : C.paperDim; for (let x = -w.half + 10; x < w.half - 6; x += 20) poly(ctx, [[x, -8], [x + 10, 8], [x - 10, 8]]);
     ctx.restore();
   }
+  for (const Z of flashZones) { ctx.fillStyle = 'rgba(255,246,192,' + (0.18 + 0.12 * Math.sin(time * 14)) * Math.min(1, Z.t / 1.5) + ')'; circ(ctx, Z.x, Z.y, Z.R); ctx.strokeStyle = 'rgba(255,220,120,0.7)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(Z.x, Z.y, Z.R, 0, TAU); ctx.stroke(); }
+  for (const T of towers) { ctx.strokeStyle = 'rgba(255,207,112,' + (0.5 + 0.2 * Math.sin(time * 6)) + ')'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(T.x, T.y, T.R, 0, TAU); ctx.stroke(); ctx.fillStyle = 'rgba(255,207,112,0.08)'; circ(ctx, T.x, T.y, T.R); ctx.fillStyle = T.fl > 0 ? '#fff' : '#8a6a3c'; ctx.fillRect(T.x - 9, T.y - 4, 18, 18); ctx.fillStyle = T.fl > 0 ? '#fff' : '#c98a3c'; poly(ctx, [[T.x - 12, T.y - 4], [T.x, T.y - 22], [T.x + 12, T.y - 4]]); ctx.fillStyle = '#ffe9a0'; circ(ctx, T.x, T.y - 6, 4); ctx.fillStyle = '#000'; ctx.fillRect(T.x - 12, T.y + 18, 24, 3); ctx.fillStyle = '#7dff9a'; ctx.fillRect(T.x - 12, T.y + 18, 24 * Math.max(0, T.hp / T.maxHp), 3); }
+  for (const e of enemies) if (e.charm > 0 && !e.dead) { ctx.strokeStyle = 'rgba(255,74,106,0.8)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(e.x, e.y); ctx.stroke(); ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 8, 0, TAU); ctx.stroke(); }
   for (const f of trailFires) { const k = f.t / f.T; ctx.fillStyle = 'rgba(255,' + Math.round(120 + 100 * k) + ',50,' + (0.25 + 0.5 * k) + ')'; circ(ctx, f.x, f.y, 11 + 6 * k); ctx.fillStyle = 'rgba(255,240,170,' + (0.5 * k) + ')'; circ(ctx, f.x, f.y - 3, 5 * k + 2); }
   for (const r of rings) {
     const u = 1 - r.t / r.dur;
