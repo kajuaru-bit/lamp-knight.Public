@@ -743,8 +743,8 @@ const UPG = {
   c_shadow: { name: '影遁精進', cls: 'inkhunter', desc: '【影獵手專屬】第 1 層：影遁距離 +30%；第 2 層：殘影消失時爆炸（範圍傷害 3）', max: 2, price: 13 },
   c_flor:  { name: '花匠心得', cls: 'florist', desc: '【花匠專屬】第 1 層：花存在時間 +4 秒；第 2 層：花的射速 +40%，且同時最多 4 朵', max: 2, price: 13 },
   c_paperl: { name: '燈籠心得', cls: 'lanternc', desc: '【燈籠專屬】第 1 層：衝刺傷害 +20%，且變身期間不會死亡（血量最低保留 1）；第 2 層：再 +20%，且連擊每次增傷提高到 +40%', max: 2, price: 13 },
-  c_shop:  { name: '帳房心得', cls: 'shopc', desc: '【掌櫃專屬】第 1 層：攤位多一件商品、價格再 −1；第 2 層：攤位冷卻 2 個房間，且小商人會丟銅板攻擊附近敵人', max: 2, price: 13 },
-  c_slp:   { name: '安眠心得', cls: 'sleepc', desc: '【嗜睡者專屬】第 1 層：睡眠時移速 +30%、視野變大（約血量 2）；第 2 層：醒來的攻擊使範圍內敵人沉睡 2 秒，且睡眠被打到只有 50% 機率醒來', max: 2, price: 13 },
+  c_shop:  { name: '帳房心得', cls: 'shopc', desc: '【掌櫃專屬】第 1 層：攤位多一件商品、價格再 −1；第 2 層：攤位冷卻 2 個房間，小商人會丟銅板攻擊附近敵人，且小商人在場時自動有護身符效果（不用買）', max: 2, price: 13 },
+  c_slp:   { name: '安眠心得', cls: 'sleepc', desc: '【嗜睡者專屬】每層睡眠時間 −1 秒（5 → 4 → 3）；第 1 層：睡眠時移速 +30%、視野變大（約血量 2）；第 2 層：醒來的攻擊使範圍內敵人沉睡 2 秒，且睡眠被打到只有 50% 機率醒來', max: 2, price: 13 },
   c_slow:  { name: '時光心得', cls: 'slowc', desc: '【沙漏客專屬】第 1 層：緩速範圍 +20%；第 2 層：持續 +1.5 秒、冷卻 −2 秒，且釋放時清除範圍內敵方光球', max: 2, price: 13 },
   c_bell:  { name: '霜重', cls: 'bellman', desc: '【凜風客專屬】第 1 層：凍結時間 +0.4 秒；第 2 層：凍結的敵人受到的傷害加成再 +10%', max: 2, price: 13 },
   c_watch: { name: '守夜心得', cls: 'watch', desc: '【守夜人專屬】第 1 層：視野內增傷 +10%；第 2 層：光圈範圍 +15%，且燈火壓制自動施放（按空白鍵開關；關閉時會立刻手動施放一次，想自己抓節奏就保持關閉並在需要時再去開關）', max: 2, price: 10 }
@@ -782,8 +782,8 @@ const PREM = {
   c_shadow: { name: '影遁・極', cls: 'inkhunter', desc: '【影獵手專屬】影遁距離 +30% 且殘影消失時爆炸（占 2 層）', price: 22, w: 2 },
   c_flor:  { name: '花匠心得・極', cls: 'florist', desc: '【花匠專屬】花存在 +4 秒、射速 +40%、最多 4 朵（占 2 層）', price: 22, w: 2 },
   c_paperl: { name: '燈籠心得・極', cls: 'lanternc', desc: '【燈籠專屬】衝刺傷害 +40%，變身期間不會死亡（血量最低保留 1），連擊每次增傷提高到 +40%（占 2 層）', price: 22, w: 2 },
-  c_shop:  { name: '帳房心得・極', cls: 'shopc', desc: '【掌櫃專屬】攤位 +1 商品、價格再 −1、冷卻 2 個房間、小商人丟銅板（占 2 層）', price: 22, w: 2 },
-  c_slp:   { name: '安眠心得・極', cls: 'sleepc', desc: '【嗜睡者專屬】睡眠移速 +30%、視野變大、醒來使敵人沉睡 2 秒、被打只有 50% 機率醒來（占 2 層）', price: 22, w: 2 },
+  c_shop:  { name: '帳房心得・極', cls: 'shopc', desc: '【掌櫃專屬】攤位 +1 商品、價格再 −1、冷卻 2 個房間、小商人丟銅板、小商人在場自動護身（占 2 層）', price: 22, w: 2 },
+  c_slp:   { name: '安眠心得・極', cls: 'sleepc', desc: '【嗜睡者專屬】睡眠時間 −2 秒、睡眠移速 +30%、視野變大、醒來使敵人沉睡 2 秒、被打只有 50% 機率醒來（占 2 層）', price: 22, w: 2 },
   c_slow:  { name: '時光心得・極', cls: 'slowc', desc: '【沙漏客專屬】緩速範圍 +40%、持續 +1.5 秒、冷卻 −2 秒，且釋放時清除範圍內敵方光球（占 2 層）', price: 22, w: 2 },
   c_bell:  { name: '霜重・極', cls: 'bellman', desc: '【凜風客專屬】凍結時間 +0.4 秒且凍結的敵人受到的傷害加成再 +10%（占 2 層）', price: 22, w: 2 },
   c_watch: { name: '守夜心得・極', cls: 'watch', desc: '【守夜人專屬】增傷 +10%、光圈範圍 +15%，且燈火壓制自動施放（按空白鍵開關；關閉時會立刻手動施放一次，想自己抓節奏就保持關閉並在需要時再去開關）（占 2 層）', price: 18, w: 2 }
@@ -1177,6 +1177,7 @@ GCHARM.forEach((n, i) => G.push({ id: 'gc' + i, name: n, slot: 'charm', kind: 'c
 const GBY = {}; G.forEach(g => { GBY[g.id] = g; g.name0 = g.name; });
 cuInit();
 const CU_SLOTS = { head: [0, -30, '頭部'], body: [0, 4, '身體'], lampx: [0, 0, '燈具'], charm: [-14, -4, '掛飾'] };
+const CU_COST = 10;
 const CU_SAMPLE = 'LKC1:{"s":"head","n":"紅星冠","c":"#ff4a6a","c2":"#ffe9a0","p":[[-12,0],[-12,-8],[-6,-3],[0,-12],[6,-3],[12,-8],[12,0]],"q":[[-3,-4],[0,-9],[3,-4]]}';
 const cuColor = v => typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v);
 function cuParse(code) {
@@ -1193,7 +1194,9 @@ function cuReg(g) { const i = G.findIndex(x => x.id === g.id); if (i >= 0) G.spl
 function cuInit() { try { if (typeof rec === 'undefined' || !rec) return; rec.cuCos = rec.cuCos || {}; for (const k in rec.cuCos) { const r = cuParse(rec.cuCos[k]); if (r.g) { cuReg(r.g); rec.cosOwn[r.g.id] = 1; } } } catch (e) {} }
 function cuImport() {
   const ta = $('cuCode'); const r = cuParse(ta ? ta.value : ''); if (r.err) { toast(r.err, 2.6); return; }
-  rec.cuCos = rec.cuCos || {}; rec.cuCos[r.g.slot] = ta.value.trim(); cuReg(r.g); rec.cosOwn[r.g.id] = 1; saveRec(); renderSub(); sfx('buy'); toast('合成完成：' + r.g.name + '（' + CU_SLOTS[r.g.slot][2] + '，每個部位只能有 1 個，新的會取代舊的）', 3);
+  rec.cuCos = rec.cuCos || {}; rec.cuUnl = rec.cuUnl || {};
+  if (!rec.cuUnl[r.g.slot]) { if ((rec.paper || 0) < CU_COST) { toast('首次解鎖「' + CU_SLOTS[r.g.slot][2] + '」自製欄位需要 ' + CU_COST + ' 紙片', 2.4); return; } rec.paper -= CU_COST; rec.cuUnl[r.g.slot] = 1; }
+  rec.cuCos[r.g.slot] = ta.value.trim(); cuReg(r.g); rec.cosOwn[r.g.id] = 1; saveRec(); renderSub(); sfx('buy'); toast('合成完成：' + r.g.name + '（' + CU_SLOTS[r.g.slot][2] + '，每個部位只能有 1 個，新的會取代舊的）', 3);
 }
 function cuDel(slot) { if (!rec.cuCos || !rec.cuCos[slot]) return; delete rec.cuCos[slot]; const id = 'cu_' + slot; delete rec.cosOwn[id]; const i = G.findIndex(x => x.id === id); if (i >= 0) G.splice(i, 1); delete GBY[id]; if (rec.cos.body === id) rec.cos.body = 'none'; if (rec.cos.lampx === id) rec.cos.lampx = 'none'; if (rec.cos.charm === id) rec.cos.charm = 'none'; if (rec.cos.head === id) rec.cos.head = 'none'; saveRec(); renderSub(); }
 function cuDraw(g, ax, ay) { if (!g || !g.cu) return; ctx.fillStyle = g.c; poly(ctx, g.p.map(q => [ax + q[0], ay + q[1]])); if (g.q.length) { ctx.fillStyle = g.c2; poly(ctx, g.q.map(q => [ax + q[0], ay + q[1]])); } }
@@ -1239,7 +1242,7 @@ function gachaHtml() {
   return '<div class="datapg"><p><b>造型機</b>　紙片 <b>' + (rec.paper || 0) + '</b>　紙屑 <b>' + sc + '</b>　已擁有 <b>' + own + '／' + G.length + '</b>　累計抽取 ' + rec.gacha.n + ' 次（距離傳說保底還有 ' + (30 - rec.gacha.pity) + ' 抽）</p>'
     + '<p><button class="btn alt" type="button" data-g="p1">抽 1 次（10 紙片）</button> <button class="btn alt" type="button" data-g="p10">十連抽（90 紙片，至少 1 個稀有）</button> ' + (optGacha.checked ? '<button class="btn alt" type="button" data-g="paper">測試：＋100 紙片</button>' : '') + '</p>'
     + res + '<p>合成：用紙屑換一件還沒有的　<button class="btn alt" type="button" data-g="fusemenu">開啟合成選單（紙屑 ' + sc + '）</button></p>'
-    + '<p><b>自製造型</b>　每個部位（頭部／身體／燈具／掛飾）限 1 個，匯入代碼合成，新的會取代舊的。</p><p><textarea id="cuCode" rows="3" style="width:96%" placeholder="貼上 LKC1:{…} 代碼"></textarea></p><p><button class="btn alt" type="button" data-g="cuimp">匯入合成</button> <button class="btn alt" type="button" data-g="cusample">填入範例代碼</button> '
+    + '<p><b>自製造型</b>　每個部位（頭部／身體／燈具／掛飾）限 1 個，匯入代碼合成；每個部位首次解鎖花 10 紙片，之後免費更換。</p><p><textarea id="cuCode" rows="3" style="width:96%" placeholder="貼上 LKC1:{…} 代碼"></textarea></p><p><button class="btn alt" type="button" data-g="cuimp">匯入合成</button> <button class="btn alt" type="button" data-g="cusample">填入範例代碼</button> '
     + Object.keys(CU_SLOTS).map(k => rec.cuCos && rec.cuCos[k] ? '<button class="btn alt" type="button" data-g="cudel:' + k + '">刪除' + CU_SLOTS[k][2] + '：' + (GBY['cu_' + k] ? GBY['cu_' + k].name : '') + '</button> ' : '').join('') + '</p><p class="quiet">格式：LKC1:{"s":部位,"n":名稱,"c":主色,"c2":副色,"p":[[x,y],…],"q":[[x,y],…]}；p 為主多邊形（3～16 點、座標 -24～24，原點在該部位錨點，y 向下），q 為選填的副色多邊形。</p>'
     + '<p class="quiet">機率：普通 70%、稀有 25%、傳說 5%；每 30 抽保底 1 個傳說；重複的外觀變成紙屑（普通 1、稀有 3、傳說 10）；合成價：普通 5、稀有 15、傳說 40 紙屑。抽到的外觀到「造型」頁裝備（頭飾、身衣、燈飾、小飾品四欄）。</p></div>';
 }
@@ -2710,6 +2713,7 @@ function tobHit(b) { for (const o of tobs) { if (o.hp <= 0) continue; const nx =
 const SEAL_DEV = {
   heal: { name: '補給拉桿', desc: '拉一下：燈火 +1、燈芯 +6（只能用一次）', hint: 'F 拉動拉桿' },
   forge: { name: '強化機關', desc: '投入 3 燈芯換一個強化（只能用一次）', hint: 'F 投入 3 燈芯' },
+  wave: { name: '召喚機關', desc: '按下：立刻叫出下一波敵人（只能用一次）', hint: 'F 叫出下一波' },
   blast: { name: '震盪機關', desc: '按下：震退並傷害場上所有敵人（Boss 傷害較少），並清除敵方子彈（只能用一次）', hint: 'F 按下機關' }
 };
 function sealOk() { // 無盡玩法每間戰鬥房必定有；其他玩法 50%
@@ -2729,7 +2733,7 @@ function addSeal() {
   if (tobs.length && !run.sealTip) { run.sealTip = true; later(2.6, () => { if (state === 'play') toast('房間裡有發光的封印石——打碎它，會出現互動機關', 3.2); }); }
 }
 function sealBroken(o) {
-  const dv = pickOf(['heal', 'forge', 'blast']);
+  const dv = pickOf(['heal', 'forge', 'blast'].concat(room.kind === 'combat' && !room.gb && room.wave + 1 < room.waves ? ['wave'] : []));
   room.items.push({ kind: 'sealdev', id: 'sealdev', dv, x: o.x + o.w / 2, y: o.y + o.h / 2, group: 'prop', price: 0, taken: false, used: false });
   sfx('clear'); shake = Math.max(shake, 5); burst(o.x + o.w / 2, o.y + o.h / 2, 18, ['#ffd24a', '#b9a5ff', C.paper], 190, true); hintSig = '';
   toast('封印石碎裂了，裡面藏著「' + SEAL_DEV[dv].name + '」！', 2.6); rec.seals = (rec.seals || 0) + 1;
@@ -2737,6 +2741,7 @@ function sealBroken(o) {
 function sealUse(it) {
   if (it.used) { toast('已經啟動過了', 1.2); return; }
   if (it.dv === 'forge') { if (p.coins < 3) { toast('燈芯不夠（需要 3）', 1.4); sfx('tick'); return; } p.coins -= 3; const u = rewardUpgrade(); toast('機關吐出強化：' + (UPG[u] ? UPG[u].name : u), 2.4); }
+  else if (it.dv === 'wave') { if (room.wave + 1 < room.waves) { room.wave++; spawnWave(); { const W1 = THEMES[th()]; if (W1.onWave) W1.onWave(room); } room.delay = 0.9; toast('第 ' + (room.wave + 1) + ' / ' + room.waves + ' 波來了！', 2); } else toast('已經沒有下一波了', 1.6); }
   else if (it.dv === 'heal') { healP(1); p.coins += 6; toast('燈火 +1、燈芯 +6', 2); }
   else {
     for (const e of enemies) { if (e.dead) continue; const dx = e.x - it.x, dy = e.y - it.y, d = Math.hypot(dx, dy) || 1; e.kx = (e.kx || 0) + dx / d * 420; e.ky = (e.ky || 0) + dy / d * 420; hitEnemy(e, e.type === 'boss' ? 6 : 14, dx / d, dy / d, 0); }
@@ -2749,8 +2754,8 @@ function drawSealDev(it) {
   ctx.save(); ctx.translate(it.x, it.y); const on = !it.used, tm = time;
   ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(0, 24, 30, 8, 0, 0, TAU); ctx.fill();
   ctx.fillStyle = '#2b2940'; rrect(ctx, -26, -22, 52, 44, 8); ctx.fillStyle = '#4a4670'; rrect(ctx, -22, -18, 44, 36, 6);
-  ctx.globalAlpha = on ? 0.75 + 0.25 * Math.sin(tm * 5) : 0.35; ctx.fillStyle = it.dv === 'heal' ? '#7ae08a' : it.dv === 'forge' ? '#ffd24a' : '#ff7a6a';
-  if (it.dv === 'heal') { rrect(ctx, -3, -14, 6, 22, 3); circ(ctx, 0, -16, 6); } else if (it.dv === 'forge') { poly(ctx, [[0, -15], [11, 0], [0, 15], [-11, 0]]); } else { circ(ctx, 0, 0, 11); ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 0, 16 + (on ? 2 * Math.sin(tm * 6) : 0), 0, TAU); ctx.stroke(); }
+  ctx.globalAlpha = on ? 0.75 + 0.25 * Math.sin(tm * 5) : 0.35; ctx.fillStyle = it.dv === 'heal' ? '#7ae08a' : it.dv === 'forge' ? '#ffd24a' : it.dv === 'wave' ? '#9fc4ff' : '#ff7a6a';
+  if (it.dv === 'heal') { rrect(ctx, -3, -14, 6, 22, 3); circ(ctx, 0, -16, 6); } else if (it.dv === 'forge') { poly(ctx, [[0, -15], [11, 0], [0, 15], [-11, 0]]); } else if (it.dv === 'wave') { poly(ctx, [[-12, -12], [0, 0], [-12, 12]]); poly(ctx, [[0, -12], [12, 0], [0, 12]]); } else { circ(ctx, 0, 0, 11); ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 0, 16 + (on ? 2 * Math.sin(tm * 6) : 0), 0, TAU); ctx.stroke(); }
   ctx.restore();
 }
 function damageTob(o, dmg) {
@@ -5356,8 +5361,8 @@ function drawStall() {
   ctx.restore();
 }
 function startSleep() {
-  p.sleepT = 5; p.skillCd = 5; sfx('sleep'); rings.push({ x: p.x, y: p.y, R: 60, t: 0.5, dur: 0.5 }); hudSig = '';
-  toast(room.kind === 'boss' ? '入眠中……Boss 房睡著很危險！（再按一次可提前醒來）' : '入眠 5 秒：不能攻擊、視野很小（再按一次可提前醒來）', 2.4);
+  const sl = 5 - upN('c_slp'); p.sleepT = sl; p.skillCd = sl; sfx('sleep'); rings.push({ x: p.x, y: p.y, R: 60, t: 0.5, dur: 0.5 }); hudSig = '';
+  toast(room.kind === 'boss' ? '入眠中……Boss 房睡著很危險！（再按一次可提前醒來）' : '入眠 ' + sl + ' 秒：不能攻擊、視野很小（再按一次可提前醒來）', 2.4);
 }
 function wakeUp(early) {
   const c = CLS[p.cls], lv = upN('c_slp'), R = 130 * reachMul() * p.skillPow, dm = p.dmgMul * p.skillPow;
@@ -5768,6 +5773,7 @@ function updateClassTimers(dt) {
     p.lanterns = p.lanterns.filter(L => !L.gone);
   }
   if (p.ward > 0) p.ward -= dt;
+  if (CLS[p.cls].id === 'shopc' && upN('c_shop') >= 2 && room.tstall && room.tstall.t > 0) { p.ward = Math.max(p.ward, 0.5); }
   if (CLS[p.cls].sh) {
     const mx = shieldMax(); p.shieldT += dt;
     if (p.shieldT > 4 && p.shield < mx) { p.shield = Math.min(mx, p.shield + 0.5 * dt * (upN('c_shield') >= 2 ? 1.3 : 1)); }
