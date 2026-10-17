@@ -580,6 +580,31 @@ function jpObsDraw(g, o, rng) {
   }
   g.restore();
 }
+function jpFx(g, tm, rm, R) { // 每間房一種氛圍：花瓣／煙火／楓葉／雪／螢火
+  if (rm.jpFx === undefined) rm.jpFx = Math.floor(L.rand() * 5);
+  const v = rm.jpFx, X = R.x, Y = R.y, W = R.w, H = R.h;
+  if (v === 0 || v === 2 || v === 3) { // 櫻花瓣、楓葉、雪
+    const n = v === 3 ? 70 : 46, col = v === 0 ? ['#ffc9d9', '#ffb3c6'] : v === 2 ? ['#d9532b', '#e8903a'] : ['#ffffff', '#e6f2ff'];
+    for (let i = 0; i < n; i++) {
+      const sp = 24 + (i % 7) * 7, ph = i * 53.7, fx = ((i * 137.5 + tm * sp * (v === 3 ? 0.4 : 0.9) + Math.sin(tm * 0.8 + ph) * 26) % (W + 60) + W + 60) % (W + 60) - 30;
+      const fy = ((i * 71.3 + tm * (v === 3 ? 38 : 30 + (i % 5) * 9)) % (H + 40) + H + 40) % (H + 40) - 20;
+      g.save(); g.translate(X + fx, Y + fy); g.rotate(tm * 1.5 + ph); g.globalAlpha = 0.75; g.fillStyle = col[i % 2];
+      if (v === 3) g.beginPath(), g.arc(0, 0, 2 + (i % 3) * 0.7, 0, TAU), g.fill(); else { g.beginPath(); g.ellipse(0, 0, v === 0 ? 5 : 6, v === 0 ? 2.8 : 3.4, 0, 0, TAU); g.fill(); }
+      g.restore();
+    }
+  } else if (v === 4) { // 螢火
+    for (let i = 0; i < 26; i++) { const ph = i * 91.1, x = X + ((i * 163 + Math.sin(tm * 0.4 + ph) * 60) % W + W) % W, y = Y + ((i * 97 + Math.cos(tm * 0.5 + ph) * 50) % H + H) % H; g.globalAlpha = 0.25 + 0.45 * Math.max(0, Math.sin(tm * 2 + ph)); g.fillStyle = '#d8ff7a'; g.beginPath(); g.arc(x, y, 3, 0, TAU); g.fill(); g.globalAlpha *= 0.4; g.beginPath(); g.arc(x, y, 8, 0, TAU); g.fill(); }
+  }
+  if (v === 1) { // 煙火
+    const cols = ['#ff6a8a', '#ffd23f', '#7fe0ff', '#b9a5ff', '#9ff0a0'];
+    for (let k = 0; k < 4; k++) {
+      const per = 3.4, t = (tm + k * 0.9) % per, id = Math.floor((tm + k * 0.9) / per), cx = X + 140 + ((id * 211 + k * 397) % Math.max(100, W - 280)), cy = Y + 90 + ((id * 131 + k * 173) % Math.max(60, H * 0.4)), c = cols[(id + k) % 5];
+      if (t < 0.7) { const q = t / 0.7; g.globalAlpha = 0.9; g.fillStyle = '#fff6c0'; g.beginPath(); g.arc(cx, cy + (1 - q) * (H * 0.45), 2.5, 0, TAU); g.fill(); }
+      else if (t < 2.2) { const q = (t - 0.7) / 1.5, r = 20 + 80 * (1 - Math.pow(1 - q, 2)); g.globalAlpha = Math.max(0, 1 - q) * 0.9; g.fillStyle = c; for (let a = 0; a < 18; a++) { const an = a / 18 * TAU; g.beginPath(); g.arc(cx + Math.cos(an) * r, cy + Math.sin(an) * r + q * q * 26, 2.6 * (1 - q * 0.5), 0, TAU); g.fill(); } }
+    }
+  }
+  g.globalAlpha = 1;
+}
 function jpBg(g, rm, rng, arR) {
   const R = L.ROOM, ly = rm.layer % 3, cy = R.y + R.h / 2;
   if (ly === 0) { // 京都石板街
@@ -821,7 +846,7 @@ L.registerWorld({
   theme: 15, name: '日本', pool: 'dlc', opt: '日本・觀光維護（DLC3）',
   pal: { ink: '#1a1210', floor: '#8a7a62', floor2: '#93836a', wall1: '#3a2418', wall2: '#6a4430', top: '#f0e0c0', door: '#c0392b' },
   amb: ['bandpass', 1800, 2, 0.004], ev: r => { const n = [523, 587, 784, 880][Math.floor(r() * 4)]; L.blip(n, n * 0.995, 0.7, 'sine', 0.008); },
-  noDark: true, bg: jpBg, obsDraw: jpObsDraw, obs: jpObs, roomInit: jpInit, tick: jpTick, back: jpBack, drawItem: jpDrawFac, info: jpInfo, hint: jpHint, useItem: jpUse,
+  noDark: true, fx: jpFx, bg: jpBg, obsDraw: jpObsDraw, obs: jpObs, roomInit: jpInit, tick: jpTick, back: jpBack, drawItem: jpDrawFac, info: jpInfo, hint: jpHint, useItem: jpUse,
   skin: { map: { crawler: 'kasa', shooter: 'chochin', brute: 'oni', splitter: 'tanuki', splitter2: 'tanuki', bomber: 'hitodama' }, draw: drawYokai, hue: false },
   weapons: {
     broom: { id: 'broom', name: '竹掃帚', tag: '掃圈', mode: 'tap', cd: 0.45, th: 15, range: 122, half: 1.7, dmg: 3.4, kb: 420, desc: '近戰橫掃，範圍很寬；揮動時順便把周圍 150 像素內的垃圾掃乾淨（日本專屬）',

@@ -700,6 +700,8 @@ const WDEF = {
   pole:    { id: 'pole', name: '擺渡篙', tag: '戳刺・推開', mode: 'tap', cd: 0.7, cls: 'ferry', desc: '向前戳刺，射程長、貫穿一整列；戳中的敵人被推開' },
   beatstick: { id: 'beatstick', name: '節拍棒', tag: '近戰・快速', mode: 'tap', cd: 0.34, cls: 'beater', range: 118, half: 1.0, dmg: 2.6, kb: 420, desc: '快速的短棒揮擊，揮擊範圍內的敵方子彈會被打掉' },
   astrolabe: { id: 'astrolabe', name: '星盤', tag: '遠程・單發', mode: 'tap', cd: 0.42, cls: 'starc', desc: '射出一發星光彈（傷害 2.7）' },
+  capacitor: { id: 'capacitor', name: '蓄電燈', tag: '充放電', mode: 'hold', cd: 0.1, price: 12, desc: '不用攻擊：走路累積 10000 距離充滿電（沒拿著也會充），之後自動進入放電模式；手持時放電，500 距離內的敵人每秒受到 5 點傷害，累計造成 100 傷害後回到充電模式。放電期間不會充電' },
+  wispcall: { id: 'wispcall', name: '引火燈', tag: '召喚', mode: 'hold', cd: 0.1, price: 11, desc: '長按 F 每滿 3 秒召喚 2 隻火光：火光沒有血量，自動追最近的敵人，碰到造成 9 點傷害後消失；打到之前不會消失，數量沒有上限' },
   sparkgun: { id: 'sparkgun', name: '鑄火槍', tag: '遠程・單發', mode: 'tap', cd: 0.45, cls: 'towerc', desc: '射出一發火花彈（傷害 2.3）' },
   redneedle: { id: 'redneedle', name: '紅線針', tag: '遠程・單發', mode: 'tap', cd: 0.38, cls: 'matchm', desc: '射出一發紅線針（傷害 2.2）；每次攻擊都會縮短紅線光冷卻' },
   courierknife: { id: 'courierknife', name: '信使短刃', tag: '近戰・快速', mode: 'tap', cd: 0.3, cls: 'courier', range: 112, half: 1.1, dmg: 2.4, kb: 380, desc: '快速的短刃揮砍' },
@@ -732,6 +734,7 @@ const UPG = {
   c_fer:   { name: '渡口深處', cls: 'ferry', desc: '【擺渡人專屬】第 1 層：燈火隊員 +1 名、存在 +4 秒；第 2 層：隊員消失時留下 4 秒的「渡口」（站上去回血），射速 +30％', max: 2, price: 11 },
   c_beat:  { name: '強勁節拍', cls: 'beater', desc: '【擊節者專屬】第 1 層：起拍的加成次數 5 → 7 次；第 2 層：加成攻擊會震開附近敵人並清除範圍內的敵方子彈', max: 2, price: 11 },
   c_star:  { name: '星河回響', cls: 'starc', desc: '【星圖師專屬】第 1 層：星障存在 5 → 8 秒且寬度 +30%；第 2 層：衝擊波使敵人暈眩 0.8 秒（Boss 0.3 秒），且每次充能所需能量 −20%（120 → 96）', max: 2, price: 11 },
+  trig:    { name: '連發扳機', desc: '單發（點按）武器的攻擊間隔 ≤ 0.2 秒時，改為按住就連續發射（最多 1 層）', max: 1, price: 9 },
   c_tower: { name: '堅固燈塔', cls: 'towerc', desc: '【鑄燈匠專屬】第 1 層：燈塔血量 +60%、範圍 +20%；第 2 層：邊緣傷害 ×2，閃光區 6 → 10 秒', max: 2, price: 11 },
   c_match: { name: '緣分延長', cls: 'matchm', desc: '【月老專屬】第 1 層：紅線時間 +3 秒；第 2 層：同時牽 2 隻敵人', max: 2, price: 11 },
   c_cour:  { name: '疾風火痕', cls: 'courier', desc: '【提燈信使專屬】第 1 層：衝刺後的火光時間 2 → 3 秒，火光存在 1.8 → 3 秒；第 2 層：火光傷害 1.3 → 2，且疾送所需移動距離 −25%', max: 2, price: 11 },
@@ -750,6 +753,7 @@ const UPG = {
   c_watch: { name: '守夜心得', cls: 'watch', desc: '【守夜人專屬】第 1 層：視野內增傷 +10%；第 2 層：光圈範圍 +15%，且燈火壓制自動施放（按空白鍵開關；關閉時會立刻手動施放一次，想自己抓節奏就保持關閉並在需要時再去開關）', max: 2, price: 10 }
 };
 const PREM = {
+  trig:    { name: '連發扳機', desc: '單發武器的攻擊間隔 ≤ 0.2 秒時改為連續發射', price: 12 },
   wick:   { name: '燈芯罐', desc: '最大血量 +2，並恢復 2', price: 13 },
   oil:    { name: '精煉烈焰油', desc: '傷害 +50%', price: 16 },
   shoes:  { name: '疾風紙靴', desc: '移動速度 +25%', price: 14 },
@@ -1019,7 +1023,8 @@ const CLS = [
   { id: 'towerc', name: '鑄燈匠', role: '控場・固定燈塔', weapon: 'sparkgun', hp: 5, spd: 1, ach: 34, skill: '立塔', sdesc: '在面前放置小燈塔：塔的範圍敵人無法進入，子彈可以穿過；邊緣的敵人會受傷；塔壞掉後留下閃光區', cd: 16, detail: '立塔：在面前放置燈塔（最多 2 座，放第 3 座時最舊的消失）。燈塔血量 10、範圍半徑約 110；敵人（含 boss）無法進入範圍，但子彈可以穿過；敵人子彈打到塔會損壞它，貼著邊緣的敵人每 0.5 秒受 1.2 傷害，也會慢慢磨損塔。塔壞掉後留下閃光區（6 秒），區內敵人持續受傷並提供光亮。冷卻 16 秒。專屬武器鑄火槍：單發火花彈。' },
   { id: 'matchm', name: '月老', role: '輔助・反轉敵人', weapon: 'redneedle', hp: 5, spd: 1, ach: 38, skill: '紅線光', sdesc: '召喚紅線光附身敵人 8 秒（boss 4 秒）：它的子彈與碰撞傷害都算我方；冷卻改用「攻擊次數」', cd: 12, detail: '紅線光：對最近（優先瞄準中）的敵人綁上紅線，持續 8 秒（boss 減半為 4 秒）。被綁的敵人改為追著其他敵人跑，它發射的子彈變成我方子彈（傷害 ×2），碰到其他敵人也會造成傷害，不再傷害你。冷卻不看時間，每次攻擊減 1，需要 12 次攻擊。專屬武器紅線針：單發紅針。' },
 ];
-let towers = [], flashZones = [];
+let towers = [], flashZones = [], fireWisps = [], wispRun = null, wispRoom = null;
+const CAP_NEED = 10000;
 let trailFires = [], fireRoom = null;
 let lampLost = false, lampBatch = 0, lampMates = [], cmarks = [], harbors = [], pongB = null, rewindH = [];
 let chosen = 0, cleared = false, menuAgain = false;
@@ -1079,6 +1084,9 @@ ACH.push(
   { id: 'purifier', name: '淨化者', desc: '身上有 3 個詛咒印記的狀態下，打倒詛咒沼澤的 Boss' },
   { id: 'mimicSlay', name: '識破寶相', desc: '在同一個房間不受傷地擊敗兩隻寶相怪' },
   { id: 'inkIn', name: '墨裡來去', desc: '在致盲區域裡擊敗一隻敵人（技能、隊友或火舞棍）' },
+  { id: 'capDis3', name: '滿載放電', desc: '一局內完成 3 次蓄電燈的放電循環' },
+  { id: 'wisp30', name: '星火燎原', desc: '一局內用引火燈的火光擊中敵人 30 次' },
+  { id: 'wispMany', name: '火光滿天', desc: '同時有 20 隻以上的火光在場' },
   { id: 'balloon', name: '氣球洩氣', desc: '用已經脹到最大的膨脹燈球擊敗一隻敵人' },
   { id: 'fullHouse', name: '滿載而歸', desc: '華麗許願池撐到第 5 次，並拿走精良強化' },
   { id: 'dodge', name: '側身而過', desc: '一局中完全躲開 20 次散彈敵人的扇形彈' },
@@ -2316,7 +2324,7 @@ function makeItem0(slot, x, y, group, avoid, forcePrem) {
   if (slot === 'heal') return { kind: 'heal', id: 'heal', slot, x, y, price: shop ? 4 - ((affinity() || {}).heal || 0) : 0, group, amount: shop ? 2 : 3, taken: false };
   if (slot === 'weapon') {
     const ex0 = shelfIds('weapon', avoid), wid = (group === 'choose' && room.kind === 'treasure' && rand() < 0.35 && weaponOffer(ex0, true)) || weaponOffer(ex0);
-    if (wid) return { kind: 'weapon', id: wid, slot, x, y, price: shop ? 9 - (affinity() && affinity().w.indexOf(wid) >= 0 ? 2 : 0) : 0, group, taken: false };
+    if (wid) return { kind: 'weapon', id: wid, slot, x, y, price: shop ? (WDEF[wid].price || 9) - (affinity() && affinity().w.indexOf(wid) >= 0 ? 2 : 0) : 0, group, taken: false };
   }
   const chance = forcePrem ? 1 : shop ? PREM_CHANCE.shop : PREM_CHANCE[room.kind] || 0, excl = shelfIds('upgrade', avoid);
   let uid = rand() < chance ? upgradeOffer(excl, true) : null;
@@ -3551,7 +3559,7 @@ const MELEE_W = { shears: 1, pillow: 1, blade: 1, pblade: 1, shadeblade: 1, fros
 function flMul(wid) { if (!enemies.some(e => e.type === 'faceless' && !e.dead && e.spawn <= 0)) return 1; return MELEE_W[wid] ? 1.12 : 1.24; }
 
 /* ---------- 四個 DLC 職業：糖衣師、像素客、校準員、擺渡人 ---------- */
-Object.assign(WCOL, { syrup: '#ff9ad0', pong: '#9fe8ff', calgun: '#9fe3ff', pole: '#e8dcc0', beatstick: '#ffd27a', bait: '#ffb36a', echobow: '#bfe8ff', astrolabe: '#bfe0ff', courierknife: '#ffb36a', sparkgun: '#ffcf70', redneedle: '#ff6a8a' });
+Object.assign(WCOL, { syrup: '#ff9ad0', pong: '#9fe8ff', calgun: '#9fe3ff', pole: '#e8dcc0', beatstick: '#ffd27a', bait: '#ffb36a', echobow: '#bfe8ff', astrolabe: '#bfe0ff', courierknife: '#ffb36a', sparkgun: '#ffcf70', capacitor: '#9fe8ff', wispcall: '#ff9a4a', redneedle: '#ff6a8a' });
 function stickHit(e, n) {
   if (!(e.stickT > 0)) e.stickN = 0;
   e.stickT = 2; e.stickN = (e.stickN || 0) + (n || 1); burst(e.x, e.y - e.r * 0.5, 3, ['#ff9ad0', C.paper], 70, true);
@@ -3648,8 +3656,36 @@ function newSkill(c) {
     burst(p.x, p.y, 14, ['#ffe9a0', C.amber, C.paper], 170, true); rings.push({ x: p.x, y: p.y, R: 70, t: 0.3, dur: 0.3 }); sfx('clear'); toast('渡燈！燈火隊員登場', 1.6);
   }
 }
+function gadgetUpdate(dt) {
+  if (wispRun !== run) { fireWisps = []; wispRun = run; wispRoom = null; }
+  if (p.weapons.indexOf('capacitor') >= 0) {
+    const c = p.cap = p.cap || { c: 0, dis: false, dealt: 0, tk: 0, n: 0, lx: p.x, ly: p.y };
+    const mv = Math.hypot(p.x - c.lx, p.y - c.ly); c.lx = p.x; c.ly = p.y;
+    if (!c.dis) { if (mv < 150) c.c = Math.min(CAP_NEED, c.c + mv); if (c.c >= CAP_NEED) { c.dis = true; c.dealt = 0; toast('蓄電完成！進入放電模式（手持蓄電燈才會放電）', 2.4); sfx('clear'); } }
+    else if (p.weapons[p.w] === 'capacitor') {
+      c.tk -= dt;
+      if (c.tk <= 0) { c.tk = 0.2; for (const e of enemies) if (!e.dead && e.spawn <= 0 && !e.burrow && Math.hypot(e.x - p.x, e.y - p.y) < 500 + e.r) { const d1 = 1 * p.dmgMul; hitEnemy(e, d1, 0, 0, 0, true); c.dealt += d1; } }
+      if (c.dealt >= 100) { c.dis = false; c.c = 0; c.n++; run.discharges = (run.discharges || 0) + 1; toast('放電完畢，回到充電模式', 2); sfx('kill'); if (run.discharges >= 3) unlockAch('capDis3'); }
+    }
+  }
+  if (p.weapons[p.w] === 'wispcall' && keys.f && !p.near && p.sleepT <= 0) {
+    p.wispH = (p.wispH || 0) + dt;
+    if (p.wispH >= 3) { p.wispH = 0; for (let i = 0; i < 2; i++) fireWisps.push({ x: p.x + rr(-24, 24), y: p.y - 12, vx: 0, vy: 0, a: rand() * TAU }); sfx('fly'); burst(p.x, p.y - 10, 8, ['#ff9a4a', '#ffe9a0'], 120, true); if (fireWisps.length >= 20) unlockAch('wispMany'); }
+  } else p.wispH = 0;
+  if (wispRoom !== room) { wispRoom = room; for (const w of fireWisps) { w.x = p.x; w.y = p.y - 10; w.vx = w.vy = 0; } }
+  for (const w of fireWisps) {
+    w.a += dt * 3; let tg = null, bd = 1e9;
+    for (const e of enemies) { if (e.dead || e.spawn > 0 || e.burrow) continue; const d0 = Math.hypot(e.x - w.x, e.y - w.y); if (d0 < bd) { bd = d0; tg = e; } }
+    let tx, ty, sp = 330; if (tg) { tx = tg.x; ty = tg.y; } else { tx = p.x + Math.cos(w.a) * 56; ty = p.y - 10 + Math.sin(w.a) * 56; sp = 240; }
+    const dx = tx - w.x, dy = ty - w.y, dd = Math.hypot(dx, dy) || 1; w.vx += (dx / dd * sp - w.vx) * Math.min(1, dt * 6); w.vy += (dy / dd * sp - w.vy) * Math.min(1, dt * 6);
+    w.x += w.vx * dt; w.y += w.vy * dt;
+    if (tg && bd < tg.r + 9) { w.dead = true; killKind = 'wisp'; hitEnemy(tg, 9 * p.dmgMul, dx / dd, dy / dd, 220); killKind = null; burst(w.x, w.y, 8, ['#ff9a4a', '#ffe9a0'], 150, true); run.wispHits = (run.wispHits || 0) + 1; if (run.wispHits >= 30) unlockAch('wisp30'); }
+  }
+  if (fireWisps.some(w => w.dead)) fireWisps = fireWisps.filter(w => !w.dead);
+}
 function updateNewCls(dt) {
   if (state !== 'play') return;
+  gadgetUpdate(dt);
   if (fireRoom !== room) { trailFires = []; towers = []; flashZones = []; fireRoom = room; }
   if (towers.length || flashZones.length) {
     const up = upN('c_tower');
@@ -5699,7 +5735,7 @@ function attackUpdate(dt) {
   if (w.mode === 'spin' || w.mode === 'hold') return;
   if (p.cd > 0 || p.near) return;
   const held = keys.f;
-  if (w.mode === 'auto') { if (held || fEdge > 0) { attack(); fEdge = 0; } }
+  if (w.mode === 'auto' || (w.mode === 'tap' && upN('trig') >= 1 && w.cd * p.rateMul <= 0.2)) { if (held || fEdge > 0) { attack(); fEdge = 0; } }
   else if (fEdge > 0) { attack(); fEdge = 0; }
 }
 const BUG = { crawler: 1, splitter: 1, splitter2: 1, bomber: 1, budling: 1 };
@@ -6664,6 +6700,11 @@ function render() {
     ctx.fillStyle = w.star ? '#fff6c0' : C.paperDim; for (let x = -w.half + 10; x < w.half - 6; x += 20) poly(ctx, [[x, -8], [x + 10, 8], [x - 10, 8]]);
     ctx.restore();
   }
+  { const W0 = THEMES[th()]; if (W0.fx) W0.fx(ctx, time, room, ROOM); }
+  for (const w of fireWisps) { ctx.fillStyle = 'rgba(255,154,74,.35)'; circ(ctx, w.x, w.y, 11 + 2 * Math.sin(time * 14 + w.a)); ctx.fillStyle = '#ffd27a'; circ(ctx, w.x, w.y, 5); ctx.fillStyle = '#fff'; circ(ctx, w.x, w.y, 2); }
+  if (p.cap && p.weapons.indexOf('capacitor') >= 0 && state === 'play') { const c = p.cap; if (c.dis && p.weapons[p.w] === 'capacitor') { ctx.strokeStyle = 'rgba(159,232,255,' + (0.25 + 0.15 * Math.sin(time * 20)) + ')'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(p.x, p.y, 500, 0, TAU); ctx.stroke(); for (const e of enemies) if (!e.dead && e.spawn <= 0 && Math.hypot(e.x - p.x, e.y - p.y) < 500 + e.r) { ctx.strokeStyle = 'rgba(200,245,255,.7)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(p.x, p.y - 4); ctx.lineTo((p.x + e.x) / 2 + rr(-10, 10), (p.y + e.y) / 2 + rr(-10, 10)); ctx.lineTo(e.x, e.y); ctx.stroke(); } }
+    ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fillRect(p.x - 18, p.y + 22, 36, 4); ctx.fillStyle = c.dis ? '#ffd24a' : '#9fe8ff'; ctx.fillRect(p.x - 18, p.y + 22, 36 * (c.dis ? Math.max(0, 1 - c.dealt / 100) : c.c / CAP_NEED), 4); }
+  if (p.wispH > 0 && state === 'play') { ctx.strokeStyle = '#ff9a4a'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(p.x, p.y - 4, 30, -Math.PI / 2, -Math.PI / 2 + TAU * p.wispH / 3); ctx.stroke(); }
   for (const Z of flashZones) { ctx.fillStyle = 'rgba(255,246,192,' + (0.18 + 0.12 * Math.sin(time * 14)) * Math.min(1, Z.t / 1.5) + ')'; circ(ctx, Z.x, Z.y, Z.R); ctx.strokeStyle = 'rgba(255,220,120,0.7)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(Z.x, Z.y, Z.R, 0, TAU); ctx.stroke(); }
   for (const T of towers) { ctx.strokeStyle = 'rgba(255,207,112,' + (0.5 + 0.2 * Math.sin(time * 6)) + ')'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(T.x, T.y, T.R, 0, TAU); ctx.stroke(); ctx.fillStyle = 'rgba(255,207,112,0.08)'; circ(ctx, T.x, T.y, T.R); ctx.fillStyle = T.fl > 0 ? '#fff' : '#8a6a3c'; ctx.fillRect(T.x - 9, T.y - 4, 18, 18); ctx.fillStyle = T.fl > 0 ? '#fff' : '#c98a3c'; poly(ctx, [[T.x - 12, T.y - 4], [T.x, T.y - 22], [T.x + 12, T.y - 4]]); ctx.fillStyle = '#ffe9a0'; circ(ctx, T.x, T.y - 6, 4); ctx.fillStyle = '#000'; ctx.fillRect(T.x - 12, T.y + 18, 24, 3); ctx.fillStyle = '#7dff9a'; ctx.fillRect(T.x - 12, T.y + 18, 24 * Math.max(0, T.hp / T.maxHp), 3); }
   for (const e of enemies) if (e.charm > 0 && !e.dead) { ctx.strokeStyle = 'rgba(255,74,106,0.8)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(e.x, e.y); ctx.stroke(); ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 8, 0, TAU); ctx.stroke(); }
