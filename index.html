@@ -704,6 +704,9 @@ const WDEF = {
   capacitor: { id: 'capacitor', name: '蓄電燈', tag: '充放電', mode: 'hold', cd: 0.1, price: 12, desc: '不用攻擊：走路累積 10000 距離充滿電（沒拿著也會充），之後自動進入放電模式；手持時放電，500 距離內的敵人每秒受到 5 點傷害，累計造成 100 傷害後回到充電模式。放電期間不會充電' },
   wispcall: { id: 'wispcall', name: '引火燈', tag: '召喚', mode: 'hold', cd: 0.1, price: 11, desc: '長按 F 每滿 3 秒召喚 2 隻火光：火光沒有血量，自動追最近的敵人，碰到造成 9 點傷害後消失；打到之前不會消失，數量沒有上限' },
   alcflask: { id: 'alcflask', name: '煉金試管', tag: '遠程・單發', mode: 'tap', cd: 0.4, cls: 'alchemist', desc: '射出一發試管彈（傷害 2.4）' },
+  frostbolt: { id: 'frostbolt', name: '冷光箭', tag: '遠程連射・緩速', mode: 'auto', cd: 0.16, th: 1, price: 10, desc: '極地主題武器：按住連射冷光箭（傷害 1.3），命中的敵人緩速 40%（1.6 秒）' },
+  chainblade: { id: 'chainblade', name: '連刃', tag: '連射近戰・連擊', mode: 'auto', cd: 0.22, range: 120, half: 1.0, dmg: 2, kb: 200, price: 10, desc: '按住連續揮砍；連續命中敵人時傷害逐層提高（每層 +10%，最多 10 層 = ×2），1.2 秒沒命中就歸零' },
+  lightbow: { id: 'lightbow', name: '光續弓', tag: '遠程連射・連擊', mode: 'auto', cd: 0.14, price: 10, desc: '按住連射光箭（傷害 1.1）；連續命中敵人時傷害逐層提高（每層 +8%，最多 10 層 = ×1.8），1.2 秒沒命中就歸零' },
   sparkgun: { id: 'sparkgun', name: '鑄火槍', tag: '遠程・單發', mode: 'tap', cd: 0.45, cls: 'towerc', desc: '射出一發火花彈（傷害 2.3）' },
   redneedle: { id: 'redneedle', name: '紅線針', tag: '遠程・單發', mode: 'tap', cd: 0.38, cls: 'matchm', desc: '射出一發紅線針（傷害 2.2）；每次攻擊都會縮短紅線光冷卻' },
   courierknife: { id: 'courierknife', name: '信使短刃', tag: '近戰・快速', mode: 'tap', cd: 0.3, cls: 'courier', range: 112, half: 1.1, dmg: 2.4, kb: 380, desc: '快速的短刃揮砍' },
@@ -2411,6 +2414,7 @@ function itemInfo(it) {
   if (it.kind === 'pracGo') return { name: '練習房的門', desc: '進入練習：' + TNAMES[PRAC.th] + '・' + PLV[PRAC.lv].n + '。打完 Boss 後可選回起始房或再來一次（不限次數）' };
   if (it.kind === 'themesel') return { name: '主題路標', desc: run.themePick >= 0 ? '這一局一定會遇到「' + TNAMES[run.themePick] + '」。再按換下一個，輪到「隨機」就取消' : '目前是隨機。按一下可以指定一個主題，這一局一定會遇到（通關一次後才有）' };
   if (it.kind === 'visitpad') return { name: '傳送陣', desc: visitOk() ? '站上去按 F：傳送到隨機主題的超大地圖參觀。不會戰鬥，可以看看敵人、NPC 與各職業的隊友' : '達成 ' + VISIT_NEED + ' 個成就後啟用（目前 ' + achCount() + ' 個）' };
+  if (it.kind === 'visitroll') return { name: '換個地圖', desc: '傳送到另一個隨機主題的大地圖' };
   if (it.kind === 'visitexit') return { name: '回程傳送陣', desc: '回到起點房' };
   if (it.kind === 'noshop') return { name: '商人休息中', desc: run.noShop ? '這一局不會遇到商人房（改成事件房或寶箱房）。再按一次恢復' : '掛上木牌後，這一局不會遇到商人房，原本的位置會換成事件房或寶箱房（挑戰「沒有補給」）' };
   if (it.kind === 'switch') return { name: '電燈開關', desc: room.lampOn ? '燈開著，整個房間都亮。關掉就回到提燈的視野' : '開燈後，這個房間的可見範圍不受限制' };
@@ -2479,6 +2483,7 @@ function interact(it) {
   if (it.kind === 'themesel') { openThemePick(); return;
   }
   if (it.kind === 'visitpad') { if (!visitOk()) { toast('傳送陣還沒啟用：需要 ' + VISIT_NEED + ' 個成就（目前 ' + achCount() + '）', 2.2); sfx('tick'); return; } startVisit(); return; }
+  if (it.kind === 'visitroll') { startVisit(); return; }
   if (it.kind === 'visitexit') { exitVisit(); return; }
   if (it.kind === 'noshop') {
     run.noShop = !run.noShop; sfx('pick');
@@ -2606,6 +2611,7 @@ function updateHint() {
     else if (it.kind === 'sealdev') act = it.used ? '' : SEAL_DEV[it.dv].hint;
     else if (it.kind === 'visitpad') act = visitOk() ? 'F 啟動傳送陣' : '';
     else if (it.kind === 'visitexit') act = 'F 回到起點房';
+    else if (it.kind === 'visitroll') act = 'F 換個地圖';
     else if (it.kind === 'tfac') { const W0 = THEMES[th()]; act = W0.hint ? W0.hint(it) : ''; }
     else if (it.kind === 'well') act = it.dry ? '池水已經乾涸' : (it.id === 'grand' ? (it.n >= 5 ? '池水平靜了' : 'F 投入 ' + (3 * (it.n + 1)) + ' 燈芯（第 ' + (it.n + 1) + ' / 5 次）') : (it.n >= 6 ? '池水平靜了' : 'F 投入 4 燈芯（第 ' + (it.n + 1) + ' / 6 次）')) + (!it.dry && it.n < (it.id === 'grand' ? 5 : 6) && p.coins < (it.id === 'grand' ? 3 * (it.n + 1) : 4) ? '（燈芯不夠）' : '');
     else if (it.kind === 'weapon') act = p.weapons.length < 3 ? 'F 拿取' : 'F 取代' + (run.path || run.guard ? '下一格的「' : '手上的「') + WDEF[p.weapons[repIdx()]].name + '」';
@@ -3408,6 +3414,8 @@ function startVisit() {
     room.vis = []; const ids2 = Object.keys(NPCS);
     ids2.forEach(id => room.vis.push({ npc: id, def: NPCS[id], x: rr(ROOM.x + 200, ROOM.x + ROOM.w - 200), y: rr(ROOM.y + 150, ROOM.y + ROOM.h - 150), vx: 0, vy: 0, r: 11, t: rand() * 9, face: 1, wt: 0, down: false, iframes: 0 }));
     CLS.forEach((c, i) => { if (i !== p.cls) room.vis.push({ cls: i, x: rr(ROOM.x + 200, ROOM.x + ROOM.w - 200), y: rr(ROOM.y + 150, ROOM.y + ROOM.h - 150), vx: 0, vy: 0, r: 11, t: rand() * 9, face: 1, wt: 0, down: false, iframes: 0 }); });
+    room.items.push({ kind: 'switch', id: 'switch', x: ROOM.x + 90, y: DOOR.y - 70, group: 'prop', price: 0, taken: false });
+    room.items.push({ kind: 'visitroll', id: 'visitroll', x: ROOM.x + 90, y: DOOR.y + 150, group: 'prop', price: 0, taken: false });
     room.items.push({ kind: 'visitexit', id: 'visitexit', x: ROOM.x + 90, y: DOOR.y + 70, group: 'prop', price: 0, taken: false });
     p.x = ROOM.x + 140; p.y = DOOR.y; p.hp = p.maxHp;
     toast('參觀：' + TNAMES[tid] + '（不會戰鬥；回程傳送陣在入口附近）', 3.2); announceRoom();
@@ -3629,11 +3637,11 @@ function fireBeam(ch) {
   for (const b of bullets) if (b.own === 'e' && segDist(b.x, b.y, ox, oy, x2, y2) <= b.r + w0 / 2) { b.dead = true; burst(b.x, b.y, 5, [C.violet, C.paper], 120, true); }
   p.noiseT = 0.8; p.cd = WDEF.beam.cd * p.rateMul; p.recoil = 0.16; shake = Math.max(shake, 2 + ch * 3); sfx('blade');
 }
-const MELEE_W = { shears: 1, pillow: 1, blade: 1, pblade: 1, shadeblade: 1, frostcane: 1, dance: 1 };
+const MELEE_W = { chainblade: 1, shears: 1, pillow: 1, blade: 1, pblade: 1, shadeblade: 1, frostcane: 1, dance: 1 };
 function flMul(wid) { if (!enemies.some(e => e.type === 'faceless' && !e.dead && e.spawn <= 0)) return 1; return MELEE_W[wid] ? 1.12 : 1.24; }
 
 /* ---------- 四個 DLC 職業：糖衣師、像素客、校準員、擺渡人 ---------- */
-Object.assign(WCOL, { syrup: '#ff9ad0', pong: '#9fe8ff', calgun: '#9fe3ff', pole: '#e8dcc0', beatstick: '#ffd27a', bait: '#ffb36a', echobow: '#bfe8ff', astrolabe: '#bfe0ff', courierknife: '#ffb36a', sparkgun: '#ffcf70', alcflask: '#9ff0a0', capacitor: '#9fe8ff', wispcall: '#ff9a4a', redneedle: '#ff6a8a' });
+Object.assign(WCOL, { syrup: '#ff9ad0', pong: '#9fe8ff', calgun: '#9fe3ff', pole: '#e8dcc0', beatstick: '#ffd27a', bait: '#ffb36a', echobow: '#bfe8ff', astrolabe: '#bfe0ff', courierknife: '#ffb36a', sparkgun: '#ffcf70', frostbolt: '#bfe8ff', chainblade: '#ffd9a0', lightbow: '#fff2a8', alcflask: '#9ff0a0', capacitor: '#9fe8ff', wispcall: '#ff9a4a', redneedle: '#ff6a8a' });
 function stickHit(e, n) {
   if (!(e.stickT > 0)) e.stickN = 0;
   e.stickT = 2; e.stickN = (e.stickN || 0) + (n || 1); burst(e.x, e.y - e.r * 0.5, 3, ['#ff9ad0', C.paper], 70, true);
@@ -3794,6 +3802,8 @@ function gadgetUpdate(dt) {
   }
   if (alcTools.length) alcUpdate(dt);
   if (bossFlash > 0) bossFlash -= dt;
+  if (p.chT > 0 && (p.chT -= dt) <= 0) p.chN = 0;
+  if (p.lbT > 0 && (p.lbT -= dt) <= 0) p.lbN = 0;
   if (wispRoom !== room) { wispRoom = room; for (const w of fireWisps) { w.x = p.x; w.y = p.y - 10; w.vx = w.vy = 0; } }
   for (const w of fireWisps) {
     w.a += dt * 3; let tg = null, bd = 1e9;
@@ -3930,12 +3940,15 @@ function attack() {
       if (Math.abs(dx * a.y - dy * a.x) <= wd / 2 + b.r) { b.dead = true; burst(b.x, b.y, 5, [C.violet, C.paper], 120, true); }
     }
   }
+  else if (wid === 'chainblade') { const n = meleeSwing(w, ang, 1 + 0.1 * (p.chN || 0)); if (n > 0) { p.chN = Math.min(10, (p.chN || 0) + 1); p.chT = 1.2; } }
   else if (w.fire) w.fire(ox, oy, ang, dm, pd);
   else meleeSwing(w, ang, CLS[p.cls].id === 'beater' && p.beatN > 0 ? beatGo() : 1);
   if (CLS[p.cls].id === 'echoer' && p.echoT > 0) echoAttack(w, ox, oy, ang, dm);
   if (wid === 'shears') later(0.15, () => { if (state === 'play' && p.sleepT <= 0) meleeSwing(w, Math.atan2(p.aim.y, p.aim.x), 1.5); });
 }
 WDEF.alcflask.fire = (ox, oy, ang, dm) => { shoot(ox, oy, ang, 600, 6, 2.4 * dm, 'pellet', 0.9); sfx('tick'); };
+WDEF.frostbolt.fire = (ox, oy, ang, dm) => { const b = shoot(ox, oy, ang + (rand() - .5) * 0.06, 640, 5, 1.3 * dm, 'pellet', 0.9); b.slow = 1.6; sfx('fly'); };
+WDEF.lightbow.fire = (ox, oy, ang, dm) => { const b = shoot(ox, oy, ang + (rand() - .5) * 0.05, 680, 4.5, 1.1 * dm, 'fly', 1.0); b.stk = 1; sfx('fly'); };
 WDEF.sparkgun.fire = (ox, oy, ang, dm) => { shoot(ox, oy, ang, 600, 6, 2.3 * dm, 'pellet', 0.9); sfx('tick'); };
 WDEF.redneedle.fire = (ox, oy, ang, dm) => { shoot(ox, oy, ang, 680, 5, 2.2 * dm, 'pellet', 1.0); sfx('tick'); };
 WDEF.astrolabe.fire = (ox, oy, ang, dm) => { shoot(ox, oy, ang, 620, 6, 2.7 * dm, 'pellet', 0.9); sfx('tick'); };
@@ -3965,12 +3978,13 @@ function beatGo() {
 function meleeSwing(w, ang, mul) {
   const dm = p.dmgMul, rm = reachMul();
     const range = (w.range || 150) * rm, half = (w.half || 1.1) + 0.1 * upN('reach'), mdm = (w.dmg || 4) * mul;
-    swings.push({ x: p.x, y: p.y, ang, range, half, t: 0.18, dur: 0.18 }); sfx('blade');
+    swings.push({ x: p.x, y: p.y, ang, range, half, t: 0.18, dur: 0.18 }); sfx('blade'); let nHit = 0;
     for (const e of enemies) {
       if (e.spawn > 0) continue;
       const dx = e.x - p.x, dy = e.y - p.y, d = Math.hypot(dx, dy);
       if (d > range + e.r) continue;
       let da = Math.atan2(dy, dx) - ang; da = Math.atan2(Math.sin(da), Math.cos(da));
+      if (Math.abs(da) <= half) nHit++;
       if (Math.abs(da) <= half) hitEnemy(e, mdm * dm, dx / (d || 1), dy / (d || 1), (w.kb || 520) * (CLS[p.cls].id === 'bellman' ? 1.3 : 1), true);
       if (w.id === 'syrup' && !e.dead) stickHit(e);
       if (w.id === 'pillow' && !e.dead && e.type !== 'boss' && !e.elite) { e.stun = Math.max(e.stun || 0, 1); burst(e.x, e.y - e.r, 5, ['#b9b3ff', C.paper], 90, true); }
@@ -3985,6 +3999,7 @@ function meleeSwing(w, ang, mul) {
         else { b.dead = true; burst(b.x, b.y, 5, [C.violet, C.paper], 120, true); }
       }
     }
+    return nHit;
 }
 function hitLayer(e, dmg, dx, dy, melee) {
   const L0 = e.layers[0], l = Math.hypot(dx, dy) || 1;
@@ -6087,7 +6102,7 @@ function updatePlay(dt) {
         if (b.imm > 0) break;
         if (Math.hypot(e.x - b.x, e.y - b.y) < e.r + b.r) {
           if ((e.type === 'mirrorman' || e.kind === 'mirrorgiant') && b.pl !== Infinity && !b.mr && b.kind !== 'rang' && b.kind !== 'lure') { { const l0 = Math.hypot(b.vx, b.vy) || 1; hitEnemy(e, b.dmg * (e.type === 'mirrorman' ? 1 : 0.3), b.vx / l0, b.vy / l0, 0); } b.own = 'e'; b.vx *= -1.1; b.vy *= -1.1; b.dmg = 1; b.r = Math.max(5, Math.min(b.r, 9)); b.mr = true; b.life = 4; b.kind = 'orb'; burst(b.x, b.y, 6, ['#e8f0ff', '#ffffff'], 130, true); sfx('tick'); if (!run.mtoast) { run.mtoast = true; toast('鏡面會反彈子彈，但它自己也會受傷——近戰與貫穿武器可以直接打'); } break; }
-          const l = Math.hypot(b.vx, b.vy) || 1; killKind = b.refl ? 'refl' : b.kind; const blocked = hitEnemy(e, b.dmg, b.vx / l, b.vy / l, kb); killKind = null; if (e.dead && b.kind === 'bloat' && b.grow && b.age >= b.grow.T) unlockAch('balloon');
+          if (b.stk) { b.d0 = b.d0 || b.dmg; b.dmg = b.d0 * (1 + 0.08 * (p.lbN || 0)); } const l = Math.hypot(b.vx, b.vy) || 1; killKind = b.refl ? 'refl' : b.kind; const blocked = hitEnemy(e, b.dmg, b.vx / l, b.vy / l, kb); killKind = null; if (b.slow && !e.dead) { e.stickT = Math.max(e.stickT || 0, b.slow); burst(e.x, e.y, 2, ['#dff3ff'], 60, true); } if (b.stk) { p.lbN = Math.min(10, (p.lbN || 0) + 1); p.lbT = 1.2; } if (e.dead && b.kind === 'bloat' && b.grow && b.age >= b.grow.T) unlockAch('balloon');
           if (blocked) { if (b.kind === 'rang') { b.back = true; b.hit = []; } else b.dead = true; break; }
           if (b.oil) p.skillCd = Math.max(0, p.skillCd - 0.3);
           if (b.sticky) stickHit(e, 1);
@@ -6203,7 +6218,7 @@ function drawItem(it) {
   if (it.kind === 'beacon') return;
   if (it.taken) return;
   if (it.kind === 'muyu' || it.kind === 'shrine') { drawPathItem(it); return; }
-  if (it.kind === 'visitpad' || it.kind === 'visitexit') { const on = it.kind === 'visitexit' || visitOk(); ctx.save(); ctx.translate(it.x, it.y); ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(0, 12, 34, 12, 0, 0, TAU); ctx.fill(); ctx.strokeStyle = on ? '#9fe8ff' : '#6a6478'; ctx.lineWidth = 3; ctx.globalAlpha = on ? 0.8 + 0.2 * Math.sin(time * 4) : 0.6; ctx.beginPath(); ctx.ellipse(0, 6, 32, 14, 0, 0, TAU); ctx.stroke(); ctx.beginPath(); ctx.ellipse(0, 6, 20, 8, 0, 0, TAU); ctx.stroke(); if (on) { ctx.fillStyle = 'rgba(159,232,255,.25)'; ctx.beginPath(); ctx.ellipse(0, 6, 32, 14, 0, 0, TAU); ctx.fill(); for (let k = 0; k < 5; k++) { const a = time * 1.5 + k * 1.26; ctx.fillStyle = '#e8fbff'; circ(ctx, Math.cos(a) * 24, 6 + Math.sin(a) * 10 - ((time * 20 + k * 9) % 30), 2); } } ctx.restore(); return; }
+  if (it.kind === 'visitpad' || it.kind === 'visitexit' || it.kind === 'visitroll') { const on = it.kind !== 'visitpad' || visitOk(); ctx.save(); ctx.translate(it.x, it.y); ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(0, 12, 34, 12, 0, 0, TAU); ctx.fill(); ctx.strokeStyle = on ? '#9fe8ff' : '#6a6478'; ctx.lineWidth = 3; ctx.globalAlpha = on ? 0.8 + 0.2 * Math.sin(time * 4) : 0.6; ctx.beginPath(); ctx.ellipse(0, 6, 32, 14, 0, 0, TAU); ctx.stroke(); ctx.beginPath(); ctx.ellipse(0, 6, 20, 8, 0, 0, TAU); ctx.stroke(); if (on) { ctx.fillStyle = 'rgba(159,232,255,.25)'; ctx.beginPath(); ctx.ellipse(0, 6, 32, 14, 0, 0, TAU); ctx.fill(); for (let k = 0; k < 5; k++) { const a = time * 1.5 + k * 1.26; ctx.fillStyle = '#e8fbff'; circ(ctx, Math.cos(a) * 24, 6 + Math.sin(a) * 10 - ((time * 20 + k * 9) % 30), 2); } } ctx.restore(); return; }
   if (it.kind === 'sealdev') { drawSealDev(it); return; }
   if (it.kind === 'xev') { const xe = xevOf(); if (xe && xe.draw) xe.draw(it); return; }
   if (it.kind === 'tfac') { const W0 = THEMES[th()]; if (W0.drawItem) W0.drawItem(it); return; }
