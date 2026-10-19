@@ -50,7 +50,7 @@ P=[
 ]
 seen={}; 
 for z,e in P: seen[z]=e
-import sys; sys.path.insert(0,'/tmp/claude-0/-home-claude-lamp-knight-public/38bcb795-50e3-5eb3-a6fe-22f18509ed72/scratchpad')
+import sys, os; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ph import PH
 from ph2 import E2,PH2
 from ph3 import PH3
