@@ -1,0 +1,23 @@
+T22=[
+("偶像","Idol","アイドル"),
+("攻擊・受傷增傷","Attack・Hurt boost","攻撃・被弾強化"),
+("閃光舞台","Flash Stage","フラッシュステージ"),
+("10 秒內攻擊 ×1.5、閃光環繞；冷卻改用「受到攻擊與回復燈火的次數」","For 10 s attacks ×1.5 with sparkles circling you; cooldown uses “times attacked and lamplight restored”","10秒間攻撃×1.5、きらめきが周囲を回る。クールダウンは「攻撃を受けた回数と灯火を回復した回数」を使う"),
+("被動：受到攻擊時有機率不扣燈火（燈火高於一半 30%、低於一半 50%；專屬強化後最高 40%／70%）；持續追擊（業障牆、崩塌線）不適用。技能：10 秒內攻擊傷害 ×1.5（強化後 ×1.7、×2），閃光環繞角色。冷卻不看時間，而是累積次數（需要 6 次）：每次受到攻擊（含免扣血的）+1，每回復 1 點燈火 +1（燈火已滿、溢出的也算；每間房最多靠受傷充能 3 次）。專屬武器麥克風槍：按住連射音波彈。",
+ "Passive: when attacked, a chance to lose no lamplight (30% above half HP, 50% below half; up to 40%/70% with the class upgrade); doesn't apply to relentless chasers (karma wall, collapse line). Skill: for 10 s attack damage ×1.5 (×1.7 and ×2 with upgrades) with sparkles circling you. Cooldown ignores time and counts events (6 needed): each time you're attacked (including negated hits) +1, and each point of lamplight restored +1 (overflow when full counts too; at most 3 charges per room from being hurt). Exclusive weapon Mic Gun: hold to rapid-fire sound-wave shots.",
+ "パッシブ:攻撃を受けたとき、確率で灯火が減らない(灯火が半分より上なら30%、半分以下なら50%。専用強化で最大40%/70%)。追い立ててくる攻撃(業障の壁、崩落ライン)には適用されない。スキル:10秒間、攻撃ダメージ×1.5(強化後は×1.7、×2)で、きらめきが周囲を回る。クールダウンは時間ではなく回数(必要6回):攻撃を受けるたび(ダメージ無効になった場合も含む)+1、灯火を1回復するたび+1(満タンであふれた分も数える。被弾でのチャージは1部屋につき最大3回)。専用武器のマイクガン:長押しで音波弾を連射する。"),
+("麥克風槍","Mic Gun","マイクガン"),
+("按住連射音波彈（傷害 1.6）","Hold to rapid-fire sound-wave shots (damage 1.6)","長押しで音波弾を連射(ダメージ1.6)"),
+("人氣加成","Popularity Boost","人気ブースト"),
+("【偶像專屬】第 1 層：免扣血機率 +5%（血量過半 30→35%、低於一半 50→60%），技能攻擊 ×1.5 → ×1.7；第 2 層：再 +5%（40%／70%），技能攻擊 ×2","[Idol only] Lv1: negate chance +5% (above half HP 30→35%, below half 50→60%), skill attack ×1.5 → ×1.7; Lv2: another +5% (40%/70%), skill attack ×2","【アイドル専用】Lv1:被弾無効の確率+5%(半分より上で30→35%、半分以下で50→60%)、スキル攻撃×1.5→×1.7。Lv2:さらに+5%(40%/70%)、スキル攻撃×2"),
+("人氣加成・極","Popularity Boost・Max","人気ブースト・極"),
+("免扣血機率 40%／70%，技能攻擊 ×2（占 2 層）","Negate chance 40%/70%, skill attack ×2 (takes 2 stacks)","被弾無効の確率40%/70%、スキル攻撃×2(2段を占める)"),
+("百折不撓","Unbreakable","百折不撓"),
+("一局內累計受到 50 點傷害（解鎖職業：偶像）","Take 50 damage in total in one run (unlocks class: Idol)","1回のプレイで累計50ダメージを受ける(職業解放:アイドル)"),
+("舞台髮飾","Stage Hair Ornament","ステージの髪飾り"),("星形髮飾","Star Hair Ornament","星形の髪飾り"),("耳麥","Headset Mic","ヘッドセット"),
+("偶像光環：這一下沒有扣燈火！","Idol aura: that hit cost no lamplight!","アイドルのオーラ:今の一撃で灯火は減らなかった!"),
+("閃光舞台！10 秒內攻擊 ×","Flash Stage! For 10 s attacks ×","フラッシュステージ!10秒間攻撃×"),
+("閃光 ","Sparkle ","きらめき "),
+("需要受傷或回血 ","Needs hits taken or heals: ","必要な被弾か回復:"),
+]
+PX22=[("閃光 ","Sparkle ","きらめき "),("需要受傷或回血 ","Needs hits taken or heals: ","必要な被弾か回復:"),("閃光舞台！10 秒內攻擊 ×","Flash Stage! For 10 s attacks ×","フラッシュステージ!10秒間攻撃×")]
