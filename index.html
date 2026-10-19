@@ -1201,6 +1201,7 @@ const HEADS = {
   book: { name: '書僮帽', req: 'dictBoss' },
   hat: { name: '擺渡人斗笠', req: 'shoreBoss' },
   lily: { name: '紅花髮飾（傳說）', req: 'copyFree', own: 'lily' },
+  cloud: { name: '雲朵髮飾（傳說）', req: 'skyfish', own: 'cloud', lockTxt: '？？？（天空島的秘密）' },
   monk: { name: '小沙彌頭', req: 'zenBoss' },
   laurel: { name: '月桂冠', req: 'gkMino' },
   helm: { name: '科林斯頭盔', req: 'gkBreak' },
@@ -1362,7 +1363,7 @@ function cosRows() { const cid = CLS[state === 'menu' || state === 'sub' ? chose
 function clsCos(cid) { const o = CLSCOS[cid].opts, v = rec.cos['c_' + cid]; return o[v] && cosOk(o, v) ? v : Object.keys(o)[0]; }
 function cosOk(set, id) { const o = set[id]; if (o.gc) return gOwned(o); if (o.cl) return (o.alt && !!rec.ach[o.alt]) || (!o.clears || ((rec.byCls[o.cl] || {}).clears || 0) >= o.clears) && (!o.req || !!rec.ach[o.req]); return !o.req || !!rec.ach[o.req] || !!(o.own && rec.cosOwn && rec.cosOwn[o.own]); }
 const achNm = id => (ACH_BY[id] || { name: 'DLC 成就（要先載入該 DLC）' }).name; // DLC 成就在套件還沒載入時查不到
-function cosLockText(o) { return o.cl && o.req ? achNm(o.req) : o.cl ? '用' + CLS.find(c => c.id === o.cl).name + '通關 ' + o.clears + ' 次' : achNm(o.req); }
+function cosLockText(o) { if (o.lockTxt) return o.lockTxt; return o.cl && o.req ? achNm(o.req) : o.cl ? '用' + CLS.find(c => c.id === o.cl).name + '通關 ' + o.clears + ' 次' : achNm(o.req); }
 function lampCol() { return LAMPS[rec.cos.lamp] || LAMPS.warm; }
 function capeCol() { return (CAPES[rec.cos.cape] || CAPES.red).c; }
 try { cleared = localStorage.getItem('lampknight.cleared') === '1'; } catch (e) { cleared = false; }
@@ -3435,6 +3436,7 @@ function endPractice() {
   if (!PRAC.on) return;
   try { const o = JSON.parse(recBak); for (const k of Object.keys(rec)) delete rec[k]; Object.assign(rec, o); } catch (e) { /* keep */ }
   PRAC.on = false; run.practice = false; recBak = null;
+  if (skyReward) { skyReward = false; if (!rec.cosOwn) rec.cosOwn = {}; if (!rec.cosOwn.cloud) { rec.cosOwn.cloud = 1; saveRec(); setTimeout(() => toast('獲得傳說造型：雲朵髮飾（天空島的禮物）', 3.5), 600); } }
 }
 function setDlc(k) {
   if (run.dlc) { const v = run.dlcPrev; if (v) { run.themes = v.themes; run.themeBase = v.base; run.long = v.long; run.themePick = v.pick; } allies = allies.filter(a => !(dlcOf(run.dlc) && a.id === dlcOf(run.dlc).ally)); for (const fl of DLC_FLAGS) run[fl] = false; run.dlc = false; run.dlcPrev = null; }
@@ -3490,6 +3492,7 @@ function startVisit() {
     toast(tid === SKY_ID ? '參觀：天空島（彩蛋！雲上的小花園，找找小鳥、雲羊和許願星）' : '參觀：' + TNAMES[tid] + '（不會戰鬥；回程傳送陣在入口附近）', 3.2); announceRoom();
   });
 }
+let skyReward = false;
 const SKY_FISH = ['雲鰻', '棉花糖魚', '星星魚', '月亮碎片', '一隻破掉的紙靴', '會發光的小雲魚', '迷路的風鈴魚', '半條彩虹'];
 function skyAct(it) {
   if (it.kind !== 'skyfish') return SKY_ITEMS[it.kind].act;
@@ -3503,7 +3506,7 @@ function skyFishUpdate(it, dt) {
 function skyInteract(it) {
   if (it.kind === 'skyfish') {
     if (!it.fs) { it.fs = 'wait'; it.ft = rr(2, 5); it.cast = time; if (!it.dex) it.dex = {}; sfx('tick'); toast('浮標輕輕落在雲面上。', 1.4); }
-    else if (it.fs === 'bite') { if (!it.dex) it.dex = {}; const f = pickOf(SKY_FISH); it.fs = null; it.jump = time; it.n = (it.n || 0) + 1; const nw = !it.dex[f]; it.dex[f] = 1; const dn = Object.keys(it.dex).length; sfx('pick'); burst(it.x, it.y, 14, ['#bfe6ff', '#ffffff', '#ffe27a'], 170, true); toast('釣到了：' + f + '！（累計 ' + it.n + '）' + (nw ? '　新發現 ' + dn + ' / 8' : ''), 2.4); if (dn >= SKY_FISH.length && !it.done) { it.done = true; room.rainbow = time; toast('圖鑑集滿了！天空出現了彩虹，小鳥們一起唱起歌來', 4); for (let q = 0; q < 6; q++) setTimeout(() => blip(1046 + q * 220, 1046 + q * 220, 0.5, 'sine', 0.025), q * 160); for (const v of room.vis) if (v.bird) { v.fly = 2.2; v.vy = -90; } } }
+    else if (it.fs === 'bite') { if (!it.dex) it.dex = {}; const f = pickOf(SKY_FISH); it.fs = null; it.jump = time; it.n = (it.n || 0) + 1; const nw = !it.dex[f]; it.dex[f] = 1; const dn = Object.keys(it.dex).length; sfx('pick'); burst(it.x, it.y, 14, ['#bfe6ff', '#ffffff', '#ffe27a'], 170, true); toast('釣到了：' + f + '！（累計 ' + it.n + '）' + (nw ? '　新發現 ' + dn + ' / 8' : ''), 2.4); if (dn >= SKY_FISH.length && !it.done) { it.done = true; room.rainbow = time; skyReward = true; toast('圖鑑集滿了！天空出現了彩虹，小鳥們一起唱起歌來', 4); for (let q = 0; q < 6; q++) setTimeout(() => blip(1046 + q * 220, 1046 + q * 220, 0.5, 'sine', 0.025), q * 160); for (const v of room.vis) if (v.bird) { v.fly = 2.2; v.vy = -90; } } }
     else { it.fs = null; toast('太早收竿了，什麼都沒有。', 1.6); }
     return;
   }
@@ -6605,6 +6608,7 @@ function drawPlayer() {
     else if (hd === 'straw') { ctx.fillStyle = '#d9c27a'; poly(ctx, [[-20, -23], [20, -23], [0, -40]]); ctx.fillStyle = '#b89d52'; ctx.fillRect(-20, -24, 40, 2); ctx.fillStyle = '#f4efe0'; ctx.fillRect(-9, -28, 18, 2); }
     else if (hd === 'laurel') { ctx.strokeStyle = '#5f8a3a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, -23, 13, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke(); ctx.fillStyle = '#7fae4a'; for (let k = 0; k < 7; k++) { const a = Math.PI * 1.1 + k * 0.13; poly(ctx, [[Math.cos(a) * 13, -23 + Math.sin(a) * 13], [Math.cos(a) * 17, -23 + Math.sin(a) * 17 - 2], [Math.cos(a + 0.12) * 14, -23 + Math.sin(a + 0.12) * 14]]); } }
     else if (hd === 'helm') { ctx.fillStyle = '#b08a52'; ctx.beginPath(); ctx.arc(0, -22, 13, Math.PI, TAU); ctx.fill(); ctx.fillRect(-13, -23, 26, 3); ctx.fillStyle = '#8a6a3a'; ctx.fillRect(-2, -23, 4, 11); ctx.fillStyle = '#c0392b'; poly(ctx, [[-3, -35], [3, -35], [6, -42], [-6, -42]]); }
+    else if (hd === 'cloud') { ctx.fillStyle = '#ffffff'; circ(ctx, -7, -29, 6); circ(ctx, 0, -32, 7.5); circ(ctx, 8, -29, 6); ctx.fillStyle = '#dcecff'; circ(ctx, -3, -27, 4); circ(ctx, 5, -27, 4); ctx.fillStyle = '#9fd0ff'; circ(ctx, 12, -36 + Math.sin(time * 3) * 1.2, 1.6); }
     else if (hd === 'lily') { const hx = -9, hy = -27; ctx.strokeStyle = '#d2324a'; ctx.lineWidth = 1.6; ctx.lineCap = 'round'; for (let k = 0; k < 7; k++) { const a = -Math.PI * 0.95 + k * 0.5; ctx.beginPath(); ctx.moveTo(hx, hy); ctx.quadraticCurveTo(hx + Math.cos(a) * 6, hy + Math.sin(a) * 6 - 3, hx + Math.cos(a) * 11, hy + Math.sin(a) * 9 - 2); ctx.stroke(); } ctx.fillStyle = '#ffd7dc'; circ(ctx, hx, hy, 1.6); } }
   const kick = p.recoil > 0 ? p.recoil * 40 : 0, lx = p.aim.x * (24 + kick), ly = p.aim.y * (24 + kick) - 4;
   ctx.strokeStyle = C.paperDim; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(p.aim.x * 8, -2); ctx.lineTo(lx, ly - 7); ctx.stroke();
