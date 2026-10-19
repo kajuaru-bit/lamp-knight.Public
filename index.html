@@ -118,6 +118,7 @@ body.mobile .bar{display:none}
 @keyframes pulse{50%{outline:3px solid var(--amber);outline-offset:4px}}
 .menurow{display:flex;gap:1.2cqw;margin-top:.8cqw;align-items:center}
 .menurow .btn.alt{font-size:clamp(calc(11px*var(--fz,1)),1.5cqw,18px);padding:.6cqw 1.6cqw}
+.ovpic{display:flex;gap:2cqw;justify-content:center;margin:.4cqw 0}.ovpic>div{text-align:center}.stage .ovpic canvas.prev{width:8cqw;height:8cqw}.ovpic small{display:block;opacity:.8}
 .sumcards{display:flex;flex-wrap:wrap;gap:.6cqw;justify-content:center;margin:.6cqw 0}.sumcards span{background:#241d34;border:1px solid var(--line);padding:.4cqw .9cqw;min-width:6cqw;text-align:center}.sumcards small{display:block;color:#8d8099;font-size:clamp(calc(9px*var(--fz,1)),1.1cqw,13px)}.sumcards b{font-size:clamp(calc(11px*var(--fz,1)),1.5cqw,18px);color:var(--paper)}
 .achbar{display:flex;flex-wrap:wrap;gap:.5cqw;margin-bottom:.6cqw}.achbar button,.datapg button{font:inherit;font-size:clamp(calc(10px*var(--fz,1)),1.3cqw,16px);background:#241d34;color:var(--paper-dim);border:1px solid var(--line);padding:.3cqw .8cqw;cursor:pointer}.achbar button.on{background:#3b2f1c;color:var(--paper);border-color:var(--paper)}.achbar .sep{width:1.2cqw}.ach .nw{background:#b24a32;color:#fff;font-size:.7em;padding:0 .4em;margin-left:.4em}
 .flv{margin:.8cqw 0 0;color:#cdbfa0;font-size:clamp(calc(11px*var(--fz,1)),1.6cqw,19px);min-height:1.6em}.telt{border-collapse:collapse;font-size:clamp(calc(10px*var(--fz,1)),1.25cqw,15px);margin-bottom:.8cqw}.telt td,.telt th{padding:.15cqw .7cqw;text-align:right;border-bottom:1px solid #3a3350}.telt td:first-child,.telt th:first-child{text-align:left}.datapg p{margin:.5cqw 0;font-size:clamp(calc(10px*var(--fz,1)),1.4cqw,17px)}
@@ -410,6 +411,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
       <div class="card">
         <h3>燈滅了</h3>
         <p id="overLine"></p>
+        <div class="ovpic"><div><canvas class="prev" id="ovPlayer" width="120" height="120"></canvas><small>你</small></div><div id="ovFoeBox" hidden><canvas class="prev" id="ovFoe" width="120" height="120"></canvas><small id="ovFoeName"></small></div></div>
         <div class="sumcards" id="overCards"></div>
         <p class="recap" id="overRecap"></p>
         <button class="btn" id="btnRetry" type="button">再試一次<kbd>F</kbd></button>
@@ -516,6 +518,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
       <div class="card">
         <h3 id="endTitle"></h3>
         <p id="endLine"></p>
+        <div class="ovpic"><div><canvas class="prev" id="endPlayer" width="120" height="120"></canvas><small>你</small></div></div>
         <div class="sumcards" id="endCards"></div>
         <p class="recap" id="endRecap"></p>
         <p class="quiet">這是原型的結尾。正式版的第二輪會出現不同的洞窟與故事。</p>
@@ -1049,7 +1052,7 @@ function holdMul() { if (CLS[p.cls].id !== 'holder') return 1; if (holdIn()) { p
 let alcRoom = null, towers = [], flashZones = [], fireWisps = [], wispRun = null, wispRoom = null, alcTools = [], bossFlash = 0;
 const ALC_BP = [{ id: 'barrel', name: '火藥桶', cost: 6 }, { id: 'frost', name: '冰霜瓶', cost: 5 }, { id: 'gas', name: '毒氣罐', cost: 7 }, { id: 'oil', name: '燈油陷阱', cost: 8 }, { id: 'mirror', name: '鏡面反射板', cost: 10 }];
 const alcN = () => Math.min(5, 3 + upN('c_alch')), alcBp = () => ALC_BP[Math.min(p.bp || 0, alcN() - 1)];
-const CAP_NEED = 10000;
+const CAP_NEED = 10000, ALC_BANK_MAX = 10;
 let trailFires = [], fireRoom = null;
 let lampLost = false, lampBatch = 0, lampMates = [], cmarks = [], harbors = [], pongB = null, rewindH = [];
 let chosen = 0, cleared = false, menuAgain = false;
@@ -2316,7 +2319,7 @@ function updateChase(dt) {
 function newRun() {
   if (PRAC.on && !PRAC.starting) endPractice();
   run.visit = false;
-  resetPlayer(); follow = true; fEdge = 0; hudSig = ''; parts = [];
+  resetPlayer(); p.alcBank = 0; follow = true; fEdge = 0; hudSig = ''; parts = [];
   run.long = !!(optLong.checked && (cleared || optUnlock.checked)); run.hurtAny = false; run.newAch = 0; run.fin = false; run.paperGiven = 0; run.dmgOut = 0; run.dmgIn = 0; run.hurtN = 0; run.hurtL = 0; run.dsK = 0; run.znTip = false; run.merit = 0; run.zenDaze = false; run.muyuN = 0; run.spN = 0; run.pulseTip = false; run.telSeen = {}; run.cPrev = undefined; run.cIn = 0; run.cOut = 0; run.deathBy = ''; run.roomN = 0; run.ext = false; run.dlc = false; run.escort = false; run.escFail = false; run.dlcPrev = null; run.escHurt = 0; run.escape = false; run.guard = false; run.endless = false; run.path = false; run.dl2 = false; run.greek = false; run.season = false; run.karma = false; for (const fl of DLC_FLAGS) run[fl] = false; run.karmaReborn = []; run.karmaSaved = []; run.modeSeen = {}; run.stickStun = 0; run.sugBreak = 0; run.catchN = 0; run.mateBlock = 0; run.syrupTip = false; run.wickN = 0; run.mechTip = false; run.revive = null; run.eliteTip = false; run.layer = 0; run.step = 0; run.combats = 0; run.shards = 0; run.focus = 0; run.t = 0; run.frz = 0; run.lightKills = 0; run.dodged = 0; run.shieldZero = false; run.forceVariant = run.forceVariant; run.kills = 0; run.bought = 0; run.wGot = 0; run.ended = false; run.won = false; run.noShop = false; run.mateMsg = null; run.sleepTip = false; run.poolHitL = -1; run.plan = makeLayerPlan(0); run.planFull = run.plan.slice();
   for (const w of p.weapons) rec.seenW[w] = 1;
   allies = [];
@@ -2998,6 +3001,7 @@ const shNodes = []; for (let i = 0; i < 5; i++) { const d = document.createEleme
   const e = document.createElement('div'); e.className = 'wk'; e.textContent = 'E'; weaponsEl.appendChild(e);
 }
 let hudSig = '';
+function capTxt() { const c = p.cap; if (!c) return '充電中 0%'; if (!c.dis) return '充電中 ' + Math.floor(c.c / CAP_NEED * 100) + '%'; return p.weapons[p.w] === 'capacitor' ? '放電中 ' + Math.min(100, Math.floor(c.dealt)) + '/100' : '充滿電'; }
 function updateHud() {
   const aimTxt = p.aimSrc === 'wasd' ? '瞄準：WASD' : optAuto.checked ? '自動瞄準：開（T 關閉）' : '自動瞄準：關（T 開啟）';
   const roomTxt = '第 ' + (room.layer + 1) + ' 層　' + (room.variant === 'fake' ? KIND_NAME.merchant : room.variant === 'mimic' ? KIND_NAME.treasure : KIND_NAME[room.kind]) + '　' + (room.step + 1) + '/' + run.plan.length + (p.curse > 0 ? '　詛咒 ×' + p.curse : '');
@@ -3008,19 +3012,19 @@ function updateHud() {
     if (pc > 0) chips.push('★' + PREM[id].name + (pc > 1 ? '×' + pc : ''));
   }
   const upgTxt = chips.join('|');
-  const C0 = CLS[p.cls], skTxt = (C0.id === 'charger' ? '能量 ' + Math.floor(p.en || 0) + '/100　' : '') + (C0.id === 'holder' ? (holdIn() ? '光圈內　' : '光圈外　') : '') + (C0.id === 'alchemist' ? '圖紙：' + alcBp().name + '　' : '') + (p.beatN > 0 ? '加成 ' + p.beatN + ' 下　' : '') + (p.echoT > 0 ? '共鳴 ' + Math.ceil(p.echoT) + ' 秒　' : '') + (p.lantT > 0 ? '變身 ' + Math.ceil(p.lantT) + ' 秒　' : '') + (p.sleepT > 0 ? '睡眠 ' + Math.ceil(p.sleepT) + ' 秒　' : '') + C0.skill + (C0.id === 'shopc' ? (p.roomCd > 0 ? '　' + (run.escape ? Math.ceil(p.stallMove / (upN('c_shop') >= 2 ? 3.2 : 4.8)) + '%' : p.roomCd + ' 房') : '') : (C0.id === 'starc' ? '　星 ' + p.starN + '/3' + (p.starN < 3 ? '（' + Math.ceil(p.skillCd) + '）' : '') : C0.id === 'courier' ? (p.skillCd > 0 ? '　' + Math.ceil(p.skillCd * 100) + ' 距離' : '') : p.skillCd > 0 ? '　' + Math.ceil(p.skillCd) + ' 秒' : ''));
+  const C0 = CLS[p.cls], skTxt = (C0.id === 'charger' ? '能量 ' + Math.floor(p.en || 0) + '/100　' : '') + (C0.id === 'holder' ? (holdIn() ? '光圈內　' : '光圈外　') : '') + (C0.id === 'alchemist' ? '圖紙：' + alcBp().name + '　' + (p.alcBank > 0 ? '已存 ' + p.alcBank + ' 隻　' : '') : '') + (p.beatN > 0 ? '加成 ' + p.beatN + ' 下　' : '') + (p.echoT > 0 ? '共鳴 ' + Math.ceil(p.echoT) + ' 秒　' : '') + (p.lantT > 0 ? '變身 ' + Math.ceil(p.lantT) + ' 秒　' : '') + (p.sleepT > 0 ? '睡眠 ' + Math.ceil(p.sleepT) + ' 秒　' : '') + C0.skill + (C0.id === 'shopc' ? (p.roomCd > 0 ? '　' + (run.escape ? Math.ceil(p.stallMove / (upN('c_shop') >= 2 ? 3.2 : 4.8)) + '%' : p.roomCd + ' 房') : '') : (C0.id === 'starc' ? '　星 ' + p.starN + '/3' + (p.starN < 3 ? '（' + Math.ceil(p.skillCd) + '）' : '') : C0.id === 'courier' ? (p.skillCd > 0 ? '　' + Math.ceil(p.skillCd * 100) + ' 距離' : '') : p.skillCd > 0 ? '　' + Math.ceil(p.skillCd) + ' 秒' : ''));
   const cdFrac = C0.id === 'charger' ? Math.max(0, 1 - (p.en || 0) / 100) : C0.id === 'shopc' ? (p.roomCd > 0 ? (run.escape ? p.stallMove / (upN('c_shop') >= 2 ? 320 : 480) : p.roomCd / (upN('c_shop') >= 2 ? 2 : 3)) : 0) : (C0.id === 'starc' && p.starN > 0) ? 0 : p.skillCd > 0 ? Math.min(1, p.skillCd / Math.max(0.01, C0.cd * p.cdMul)) : 0;
   $('skFill').style.height = (cdFrac > 0 ? (1 - cdFrac) * 100 : 100) + '%'; $('skill').classList.toggle('cool', cdFrac > 0);
   const autoOn = C0.id === 'watch' && upN('c_watch') >= 2; $('skill').classList.toggle('auto', autoOn && p.autoSkill !== false); $('skill').classList.toggle('autooff', autoOn && p.autoSkill === false);
   $('tSkFill').style.height = (cdFrac > 0 ? (1 - cdFrac) * 100 : 100) + '%'; $('tSkTxt').textContent = C0.id === 'shopc' ? (p.roomCd > 0 ? (run.escape ? Math.ceil(p.stallMove / (upN('c_shop') >= 2 ? 3.2 : 4.8)) + '%' : p.roomCd + '房') : '技能') : C0.id === 'starc' ? '星' + p.starN : C0.id === 'courier' && p.skillCd > 0 ? Math.ceil(p.skillCd / Math.max(0.01, C0.cd * p.cdMul) * 100) + '%' : p.skillCd > 0 ? Math.ceil(p.skillCd) : (autoOn ? (p.autoSkill === false ? '手動' : '自動') : '技能');
-  const sig = [p.hp, p.maxHp, Math.floor(p.shield * 2), shieldMax(), p.ward > 0, p.w, p.weapons.join(), follow, aimTxt, roomTxt, p.coins, upgTxt, skTxt, p.curse || 0].join('/');
+  const sig = [p.hp, p.maxHp, Math.floor(p.shield * 2), shieldMax(), p.ward > 0, p.w, p.weapons.join(), follow, aimTxt, roomTxt, p.coins, upgTxt, skTxt, p.curse || 0, p.weapons.indexOf('capacitor') >= 0 ? capTxt() : ''].join('/');
   if (sig === hudSig) return; hudSig = sig;
   lampNodes.forEach((n, i) => { n.classList.toggle('off', i >= p.maxHp); n.classList.toggle('on', i < p.hp); });
   shNodes.forEach((n, i) => { n.classList.toggle('off', i >= shieldMax()); n.classList.toggle('on', p.shield >= i + 1); n.classList.toggle('half', p.shield >= i + 0.5 && p.shield < i + 1); });
   slotNodes.forEach((n, i) => {
     const id = p.weapons[i];
     n.classList.toggle('on', i === p.w && !!id); n.classList.toggle('empty', !id);
-    n.innerHTML = id ? WDEF[id].name + '<small>' + WDEF[id].tag + '</small>' : '空<small>—</small>';
+    n.innerHTML = id ? WDEF[id].name + '<small>' + (id === 'capacitor' ? capTxt() : WDEF[id].tag) + '</small>' : '空<small>—</small>';
   });
   $('skName').textContent = skTxt; $('pRoom').textContent = roomTxt; $('pCoin').textContent = '燈芯 ' + p.coins;
   $('pFollow').textContent = follow ? '追隨游標中（按住滑鼠暫停）' : '暫停追隨中'; $('pAim').textContent = aimTxt;
@@ -3222,7 +3226,7 @@ function refreshPauseOpts() {
 function fillPause() {
   const c = CLS[p.cls];
   $('pClass').textContent = c.name + '　' + c.role + '　血量 ' + p.hp + ' / ' + p.maxHp;
-  $('pSkillName').textContent = '空白鍵　' + c.skill + '　（' + (c.id === 'beater' || c.id === 'starc' ? '需要能量 ' + Math.round(c.cd * p.cdMul * 10) / 10 + '，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd) + ' 點' : '已就緒') + (c.id === 'starc' ? '；已累積 ' + p.starN + ' / 3 次' : '') : c.id === 'charger' ? '能量 ' + Math.floor(p.en || 0) + ' / 100，' + ((p.en || 0) >= 100 ? '已就緒' : '命中敵人累積') : c.id === 'alchemist' ? '圖紙：' + alcBp().name + '，' + (p.skillCd > 0 ? '還要擊倒 ' + Math.ceil(p.skillCd) + ' 隻' : '已就緒（長按製作）') : c.id === 'matchm' ? '需要攻擊 ' + Math.round(c.cd * p.cdMul) + ' 次，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd) + ' 次' : '已就緒') : c.id === 'courier' ? '需要移動 ' + Math.round(c.cd * p.cdMul * 100) + ' 像素，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd * 100) + ' 像素' : '已就緒') : '冷卻 ' + Math.round(c.cd * p.cdMul * 10) / 10 + ' 秒，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd) + ' 秒' : '已就緒')) + '）';
+  $('pSkillName').textContent = '空白鍵　' + c.skill + '　（' + (c.id === 'beater' || c.id === 'starc' ? '需要能量 ' + Math.round(c.cd * p.cdMul * 10) / 10 + '，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd) + ' 點' : '已就緒') + (c.id === 'starc' ? '；已累積 ' + p.starN + ' / 3 次' : '') : c.id === 'charger' ? '能量 ' + Math.floor(p.en || 0) + ' / 100，' + ((p.en || 0) >= 100 ? '已就緒' : '命中敵人累積') : c.id === 'alchemist' ? '圖紙：' + alcBp().name + '，' + (p.skillCd > 0 ? '還要擊倒 ' + Math.ceil(p.skillCd) + ' 隻' : '已就緒（長按製作）') + (p.alcBank > 0 ? '；已存 ' + p.alcBank + ' 隻' : '') : c.id === 'matchm' ? '需要攻擊 ' + Math.round(c.cd * p.cdMul) + ' 次，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd) + ' 次' : '已就緒') : c.id === 'courier' ? '需要移動 ' + Math.round(c.cd * p.cdMul * 100) + ' 像素，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd * 100) + ' 像素' : '已就緒') : '冷卻 ' + Math.round(c.cd * p.cdMul * 10) / 10 + ' 秒，' + (p.skillCd > 0 ? '還要 ' + Math.ceil(p.skillCd) + ' 秒' : '已就緒')) + '）';
   $('pSkillDesc').textContent = c.sdesc + '。';
   $('pSkillCd').textContent = c.detail;
   { const wd = WDEF[p.weapons[p.w]]; if (wd) { const itv = Math.round(wd.cd * p.rateMul * 100) / 100, auto = wd.mode === 'auto' || (wd.mode === 'tap' && upN('trig') >= 1 && wd.cd * p.rateMul <= 0.2);
@@ -3568,7 +3572,7 @@ function endlEnding() {
 }
 function showOver() {
   if (run.practice) { showPrac(false); return; }
-  endRun(false); settlePaper(); $('overCards').innerHTML = sumCards(false); $('overRecap').textContent = recapText(false);
+  run.foeDrawn = 0; endRun(false); settlePaper(); $('overCards').innerHTML = sumCards(false); $('overRecap').textContent = recapText(false);
   { const en = endlEnding(), h3 = document.querySelector('#over h3'); if (en) { h3.textContent = '結局：' + en.t; $('overLine').textContent = '第 ' + en.n + ' 層。' + en.x + '（已收集結局 ' + en.cnt + ' / 14）'; } else { h3.textContent = '燈滅了'; $('overLine').textContent = STORY.deaths[Math.min(deaths - 1, STORY.deaths.length - 1)] || STORY.deaths[0]; } }
   show('over', true); setState('over');
 }
@@ -3840,7 +3844,7 @@ function gadgetUpdate(dt) {
   if (alcRoom !== room) { alcRoom = room; alcTools = []; }
   if (p.alcHold > 0) {
     p.alcHold += dt;
-    if (p.alcHold >= 1 && CLS[p.cls].id === 'alchemist') { const bp = alcBp(); if (p.skillCd > 0) { toast('還要擊倒 ' + Math.ceil(p.skillCd) + ' 隻敵人才能製作', 1.6); sfx('tick'); } else { alcCraft(bp); p.skillCd = Math.max(1, Math.round(bp.cost * p.cdMul)); hudSig = ''; } p.alcHold = 0; }
+    if (p.alcHold >= 1 && CLS[p.cls].id === 'alchemist') { const bp = alcBp(); if (p.skillCd > 0) { toast('還要擊倒 ' + Math.ceil(p.skillCd) + ' 隻敵人才能製作', 1.6); sfx('tick'); } else { alcCraft(bp); const need = Math.max(1, Math.round(bp.cost * p.cdMul)), bk = p.alcBank || 0; p.skillCd = Math.max(0, need - bk); p.alcBank = Math.max(0, bk - need); hudSig = ''; } p.alcHold = 0; }
   }
   if (alcTools.length) alcUpdate(dt);
   if (bossFlash > 0) bossFlash -= dt;
@@ -4184,7 +4188,7 @@ function killEnemy(e) {
     toast('他裂成了兩個！'); return;
   }
   if (e.kind === 'guard' && e.allBroken !== undefined && run.t - e.allBroken <= 10) unlockAch('triple');
-  if (CLS[p.cls].id === 'alchemist' && p.skillCd > 0) { p.skillCd = Math.max(0, p.skillCd - 1); hudSig = ''; }
+  if (CLS[p.cls].id === 'alchemist') { if (p.skillCd > 0) p.skillCd = Math.max(0, p.skillCd - 1); else p.alcBank = Math.min(ALC_BANK_MAX, (p.alcBank || 0) + 1); hudSig = ''; }
   e.dead = true; run.kills++; rec.kills[e.type] = (rec.kills[e.type] || 0) + 1; { const W = THEMES[th()]; if (W && W.onKill && !run.practice) W.onKill(e); }
   if (run.kills % 10 === 0) { const nk = Object.keys(rec.kills).reduce((a, k) => a + rec.kills[k], 0); if (nk >= 500) unlockAch('kill500'); if (nk >= 2000) unlockAch('kill2000'); if (nk >= 10000) unlockAch('kill10000'); }
   burst(e.x, e.y, boss ? 70 : 16, [C.paper, C.amber, '#6b5d96', C.dark], boss ? 300 : 200, boss); sfx('kill'); shake = Math.max(shake, boss ? 14 : 3);
@@ -7028,9 +7032,9 @@ function render() {
 }
 
 /* ---------- preview ---------- */
-function drawPrev(el) {
+function drawPrev(el, useCls) {
   if (!el || el.hidden) return; const pc = el.getContext('2d'), w = el.width, h = el.height;
-  const keep = ctx, bak = {}, set = { x: 0, y: 0, vx: 0, vy: 0, speed: 0, iframes: 0, lantT: 0, dashT: 0, cls: chosen, aim: { x: 1, y: 0 }, hp: 4, walkT: 0, recoil: 0, frozenT: 0, decoy: null };
+  const keep = ctx, bak = {}, set = { x: 0, y: 0, vx: 0, vy: 0, speed: 0, iframes: 0, lantT: 0, dashT: 0, cls: useCls === undefined ? chosen : useCls, aim: { x: 1, y: 0 }, hp: 4, walkT: 0, recoil: 0, frozenT: 0, decoy: null };
   for (const k in set) { bak[k] = p[k]; p[k] = set[k]; }
   ctx = pc; pc.setTransform(1, 0, 0, 1, 0, 0); pc.clearRect(0, 0, w, h);
   try { pc.save(); pc.translate(w / 2, h * 0.7); pc.scale(w / 80, w / 80); drawPlayer(); pc.restore(); } catch (e) { /* preview is cosmetic */ }
@@ -7038,10 +7042,17 @@ function drawPrev(el) {
 }
 /* ---------- main loop ---------- */
 let last = 0;
+function drawFoe(el, type) {
+  const pc = el.getContext('2d'), w = el.width, h = el.height; pc.setTransform(1, 0, 0, 1, 0, 0); pc.clearRect(0, 0, w, h);
+  if (!type || type === 'boss' || !ENEMY[type]) return;
+  const keep = ctx, n0 = enemies.length, sf = shake, bf = bossFlash;
+  try { spawnEnemy(type, 0, 0); const e = enemies.splice(n0)[0]; if (!e) return; e.spawn = 0; e.dead = false; ctx = pc; pc.translate(w / 2, h * 0.55); const k = Math.min(1.8, 44 / Math.max(10, e.r)); pc.scale(k * w / 120, k * w / 120); drawEnemy(e); } catch (er) { /* portrait is cosmetic */ }
+  ctx = keep; enemies.length = Math.min(enemies.length, n0); shake = sf; bossFlash = bf;
+}
 function frame(ts) {
   const dt = Math.min(0.05, last ? (ts - last) / 1000 : 0.016); last = ts;
   update(dt); render(); syncTouch(); AMB.tick(dt);
-  if (state === 'menu') drawPrev($('prevMenu')); else if (state === 'sub' && subKind === 'cost') drawPrev($('prevCost'));
+  if (state === 'over') { drawPrev($('ovPlayer'), p.cls); if (!run.foeDrawn) { run.foeDrawn = 1; const fb = $('ovFoeBox'), k = run.deathBy; fb.hidden = !(k && ENEMY[k] && k !== 'boss'); if (!fb.hidden) { $('ovFoeName').textContent = enameOf(k); } } if (!$('ovFoeBox').hidden) drawFoe($('ovFoe'), run.deathBy); } else if (state === 'ending') drawPrev($('endPlayer'), p.cls); else if (state === 'menu') drawPrev($('prevMenu')); else if (state === 'sub' && subKind === 'cost') drawPrev($('prevCost'));
   requestAnimationFrame(frame);
 }
 run.plan = makeLayerPlan(0);
