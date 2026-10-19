@@ -1409,6 +1409,18 @@ const THEMES = [
 const EXT_AI = {}, EXT_COST = {}, EXT_CAP = {}, PACKS = {};
 const TNAMES = THEMES.map(t => t.name);
 const SKY_ID = 27;
+const SKY_ITEMS = {
+  skywish: { name: '許願星', act: 'F 許願', desc: '雲上的一顆小星星，對它說出願望（不會真的實現，但會閃一下）' },
+  skysheep: { name: '雲羊', act: 'F 摸摸雲羊', desc: '用雲做的小羊，軟綿綿的，被摸會開心地咩一聲' },
+  skyswing: { name: '雲上鞦韆', act: 'F 坐上去盪一下', desc: '掛在雲朵下面的鞦韆，風很舒服' },
+  skybell: { name: '風鈴', act: 'F 搖風鈴', desc: '掛在小樹上的玻璃風鈴，聲音會飄很遠' }
+};
+const SKY_SAY = {
+  skywish: ['星星閃了三下，好像聽到了。', '願望收好了——不過星星今天有點睏。', '一顆流星剛好劃過，是巧合吧？', '許願星說：先把燈火顧好再說。'],
+  skysheep: ['咩～（軟綿綿）', '雲羊蹭了蹭你的手，掉了一小團雲。', '雲羊翻過身來，要你再摸一下。', '咩！（它大概在說謝謝）'],
+  skyswing: ['盪高一點，看到了下面的紙之世界。', '風把披風吹得鼓鼓的。', '鞦韆停下來之前，時間好像也慢了一點。'],
+  skybell: ['叮——叮鈴——', '風鈴多響了一聲，像是在回答。', '清脆的鈴聲飄過雲海。']
+};
 const SKY = { name: '天空島', pool: 'dlc', noPool: true, sky: true, noDark: true, noPaper: true,
   pal: { ink: '#5d93d6', floor: '#a8d58a', floor2: '#b9e09d', wall1: '#eaf4ff', wall2: '#ffffff', top: '#ffffff', door: '#ffe08a' },
   amb: ['bandpass', 1800, 0.8, 0.004], boss: () => ({ kind: 'golem', name: '雲朵', hp: 50 }),
@@ -2463,6 +2475,7 @@ function itemInfo(it) {
   if (it.kind === 'themesel') return { name: '主題路標', desc: run.themePick >= 0 ? '這一局一定會遇到「' + TNAMES[run.themePick] + '」。再按換下一個，輪到「隨機」就取消' : '目前是隨機。按一下可以指定一個主題，這一局一定會遇到（通關一次後才有）' };
   if (it.kind === 'visitpad') return { name: '傳送陣', desc: visitOk() ? '站上去按 F：傳送到隨機主題的超大地圖參觀。不會戰鬥，可以看看敵人、NPC 與各職業的隊友' : '達成 ' + VISIT_NEED + ' 個成就後啟用（目前 ' + achCount() + ' 個）' };
   if (it.kind === 'visitroll') return { name: '換個地圖', desc: '傳送到另一個隨機主題的大地圖' };
+  if (SKY_ITEMS[it.kind]) return { name: SKY_ITEMS[it.kind].name, desc: SKY_ITEMS[it.kind].desc };
   if (it.kind === 'visitexit') return { name: '回程傳送陣', desc: '回到起點房' };
   if (it.kind === 'noshop') return { name: '商人休息中', desc: run.noShop ? '這一局不會遇到商人房（改成事件房或寶箱房）。再按一次恢復' : '掛上木牌後，這一局不會遇到商人房，原本的位置會換成事件房或寶箱房（挑戰「沒有補給」）' };
   if (it.kind === 'switch') return { name: '電燈開關', desc: room.lampOn ? '燈開著，整個房間都亮。關掉就回到提燈的視野' : '開燈後，這個房間的可見範圍不受限制' };
@@ -2532,6 +2545,7 @@ function interact(it) {
   }
   if (it.kind === 'visitpad') { if (!visitOk()) { toast('傳送陣還沒啟用：需要 ' + VISIT_NEED + ' 個成就（目前 ' + achCount() + '）', 2.2); sfx('tick'); return; } startVisit(); return; }
   if (it.kind === 'visitroll') { startVisit(); return; }
+  if (SKY_ITEMS[it.kind]) { skyInteract(it); return; }
   if (it.kind === 'visitexit') { exitVisit(); return; }
   if (it.kind === 'noshop') {
     run.noShop = !run.noShop; sfx('pick');
@@ -2659,7 +2673,7 @@ function updateHint() {
     else if (it.kind === 'sealdev') act = it.used ? '' : SEAL_DEV[it.dv].hint;
     else if (it.kind === 'visitpad') act = visitOk() ? 'F 啟動傳送陣' : '';
     else if (it.kind === 'visitexit') act = 'F 回到起點房';
-    else if (it.kind === 'visitroll') act = 'F 換個地圖';
+    else if (it.kind === 'visitroll') act = 'F 換個地圖'; else if (SKY_ITEMS[it.kind]) act = SKY_ITEMS[it.kind].act;
     else if (it.kind === 'tfac') { const W0 = THEMES[th()]; act = W0.hint ? W0.hint(it) : ''; }
     else if (it.kind === 'well') act = it.dry ? '池水已經乾涸' : (it.id === 'grand' ? (it.n >= 5 ? '池水平靜了' : 'F 投入 ' + (3 * (it.n + 1)) + ' 燈芯（第 ' + (it.n + 1) + ' / 5 次）') : (it.n >= 6 ? '池水平靜了' : 'F 投入 4 燈芯（第 ' + (it.n + 1) + ' / 6 次）')) + (!it.dry && it.n < (it.id === 'grand' ? 5 : 6) && p.coins < (it.id === 'grand' ? 3 * (it.n + 1) : 4) ? '（燈芯不夠）' : '');
     else if (it.kind === 'weapon') act = p.weapons.length < 3 ? 'F 拿取' : 'F 取代' + (run.path || run.guard ? '下一格的「' : '手上的「') + WDEF[p.weapons[repIdx()]].name + '」';
@@ -3469,15 +3483,38 @@ function startVisit() {
     room.items.push({ kind: 'switch', id: 'switch', x: ROOM.x + 90, y: DOOR.y - 70, group: 'prop', price: 0, taken: false });
     room.items.push({ kind: 'visitroll', id: 'visitroll', x: ROOM.x + 90, y: DOOR.y + 150, group: 'prop', price: 0, taken: false });
     room.items.push({ kind: 'visitexit', id: 'visitexit', x: ROOM.x + 90, y: DOOR.y + 70, group: 'prop', price: 0, taken: false });
+    if (tid === SKY_ID) { skySetup(); }
     p.x = ROOM.x + 140; p.y = DOOR.y; p.hp = p.maxHp;
-    toast(tid === SKY_ID ? '參觀：天空島（彩蛋！雲上的小花園）' : '參觀：' + TNAMES[tid] + '（不會戰鬥；回程傳送陣在入口附近）', 3.2); announceRoom();
+    toast(tid === SKY_ID ? '參觀：天空島（彩蛋！雲上的小花園，找找小鳥、雲羊和許願星）' : '參觀：' + TNAMES[tid] + '（不會戰鬥；回程傳送陣在入口附近）', 3.2); announceRoom();
   });
+}
+function skyInteract(it) {
+  const k = it.kind, L = SKY_SAY[k]; toast(pickOf(L), 2.2); it.fx = time;
+  if (k === 'skywish') { sfx('pick'); burst(it.x, it.y - 14, 16, ['#fff2a8', '#ffffff', '#ffe27a'], 160, true); it.wish = (it.wish || 0) + 1; if (it.wish >= 5) { it.wish = 0; toast('許願星被你問煩了，飛走了一下又飛回來。', 2.6); } }
+  else if (k === 'skysheep') { sfx('tick'); burst(it.x, it.y - 12, 8, ['#ffb6d0', '#ffffff'], 90, true); it.hop = time; }
+  else if (k === 'skyswing') { sfx('tick'); it.swing = time; }
+  else if (k === 'skybell') { blip(1568, 1568, 0.7, 'sine', 0.03); setTimeout(() => blip(2093, 2093, 0.9, 'sine', 0.02), 180); setTimeout(() => blip(1760, 1760, 1, 'sine', 0.015), 420); it.swing = time; }
+}
+function drawSkyItem(it) {
+  const k = it.kind, t = time, dt0 = it.fx ? Math.max(0, 1 - (t - it.fx) * 1.5) : 0;
+  ctx.save(); ctx.translate(it.x, it.y); ctx.fillStyle = 'rgba(60,90,140,.22)'; ctx.beginPath(); ctx.ellipse(0, 14, 22, 7, 0, 0, TAU); ctx.fill();
+  if (k === 'skywish') { const y = -16 + Math.sin(t * 2 + it.x) * 4, r = 11 + dt0 * 5; ctx.globalAlpha = 0.35; ctx.fillStyle = '#fff2a8'; circ(ctx, 0, y, r + 8); ctx.globalAlpha = 1; ctx.fillStyle = '#ffe27a'; star4(ctx, 0, y, r, t); ctx.fillStyle = '#fffbe0'; circ(ctx, 0, y, 3); }
+  else if (k === 'skysheep') { const hop = it.hop ? Math.max(0, Math.sin((t - it.hop) * 9)) * Math.max(0, 1 - (t - it.hop) * 1.2) * 8 : 0; ctx.translate(0, -hop); ctx.fillStyle = '#ffffff'; for (const [x, y, r] of [[-9, -4, 9], [3, -8, 10], [11, -2, 8], [-2, 2, 10], [7, 4, 8]]) circ(ctx, x, y, r); ctx.fillStyle = '#3a3350'; circ(ctx, 16, 0, 6); ctx.fillStyle = '#fff'; circ(ctx, 18, -1, 1.4); ctx.fillStyle = '#3a3350'; ctx.fillRect(-8, 8, 3, 6); ctx.fillRect(4, 8, 3, 6); if (dt0 > 0) { ctx.fillStyle = '#ff7aa8'; ctx.globalAlpha = dt0; circ(ctx, 4, -24 - (1 - dt0) * 10, 4); circ(ctx, 9, -24 - (1 - dt0) * 10, 4); } }
+  else if (k === 'skyswing') { const a = Math.sin(t * 1.6) * 0.12 + (it.swing ? Math.sin((t - it.swing) * 5) * 0.5 * Math.max(0, 1 - (t - it.swing) * 0.5) : 0); ctx.fillStyle = '#ffffff'; circ(ctx, -14, -58, 12); circ(ctx, 0, -62, 14); circ(ctx, 14, -58, 12); ctx.save(); ctx.translate(0, -52); ctx.rotate(a); ctx.strokeStyle = '#a07a4a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-12, 0); ctx.lineTo(-12, 52); ctx.moveTo(12, 0); ctx.lineTo(12, 52); ctx.stroke(); ctx.fillStyle = '#c99a5c'; ctx.fillRect(-15, 50, 30, 6); ctx.restore(); }
+  else if (k === 'skybell') { ctx.strokeStyle = '#8a6a3f'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(0, 12); ctx.lineTo(0, -52); ctx.lineTo(18, -52); ctx.stroke(); ctx.fillStyle = '#6fbf6a'; circ(ctx, 0, -58, 16); circ(ctx, -10, -50, 12); circ(ctx, 10, -50, 12); const a = Math.sin(t * 2.2) * 0.1 + (it.swing ? Math.sin((t - it.swing) * 14) * 0.5 * Math.max(0, 1 - (t - it.swing) * 0.8) : 0); ctx.save(); ctx.translate(18, -52); ctx.rotate(a); ctx.strokeStyle = '#9fd8ee'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, 12); ctx.stroke(); ctx.fillStyle = 'rgba(159,216,238,.85)'; ctx.beginPath(); ctx.moveTo(-7, 24); ctx.lineTo(-4, 12); ctx.lineTo(4, 12); ctx.lineTo(7, 24); ctx.closePath(); ctx.fill(); ctx.restore(); }
+  ctx.restore();
+}
+function skySetup() {
+  const sp = () => ({ x: rr(ROOM.x + 260, ROOM.x + ROOM.w - 160), y: rr(ROOM.y + 140, ROOM.y + ROOM.h - 140) });
+  for (const k of ['skywish', 'skywish', 'skysheep', 'skysheep', 'skysheep', 'skyswing', 'skybell']) { const q = sp(); room.items.push({ kind: k, id: k, x: q.x, y: q.y, group: 'prop', price: 0, taken: false }); }
+  for (let i = 0; i < 9; i++) { const q = sp(); room.vis.push({ bird: true, hue: i % 3, x: q.x, y: q.y, vx: 0, vy: 0, r: 8, t: rand() * 9, face: 1, wt: 0, fly: 0 }); }
 }
 function exitVisit() { endPractice(); fadeThen(() => { newRun(); p.x = ROOM.x + 70; announceRoom(); }); }
 function visitUpdate(dt) {
   if (!room.vis) return; p.iframes = 9;
   for (const v of room.vis) {
     v.t += dt; v.wt -= dt;
+    if (v.bird) { const d = Math.hypot(p.x - v.x, p.y - v.y); if (d < 120 && v.fly <= 0) { v.fly = 1.6; const a = Math.atan2(v.y - p.y, v.x - p.x) + rr(-0.5, 0.5); v.vx = Math.cos(a) * 190; v.vy = Math.sin(a) * 190 - 40; v.face = v.vx > 0 ? 1 : -1; if (rand() < 0.4) blip(1800 + rand() * 900, 2400, 0.08, 'sine', 0.012); } if (v.fly > 0) { v.fly -= dt; if (v.fly <= 0) { v.vx = 0; v.vy = 0; } } else if (v.wt <= 0) { v.wt = rr(1, 4); const hop = rand() < 0.5; v.vx = hop ? rr(-30, 30) : 0; v.vy = 0; if (Math.abs(v.vx) > 5) v.face = v.vx > 0 ? 1 : -1; } v.x = clamp(v.x + v.vx * dt, ROOM.x + 30, ROOM.x + ROOM.w - 30); v.y = clamp(v.y + v.vy * dt, ROOM.y + 40, ROOM.y + ROOM.h - 30); continue; }
     if (v.wt <= 0) { v.wt = rr(2, 6); const a = rand() * TAU, sp = rand() < 0.45 ? 0 : rr(35, 70); v.vx = Math.cos(a) * sp; v.vy = Math.sin(a) * sp; if (Math.abs(v.vx) > 5) v.face = v.vx > 0 ? 1 : -1; if (v.npc && rand() < 0.35) { const L = v.def.chat; v.say = pickOf(L); v.sayT = 3.2; } }
     v.x = clamp(v.x + v.vx * dt, ROOM.x + 30, ROOM.x + ROOM.w - 30); v.y = clamp(v.y + v.vy * dt, ROOM.y + 40, ROOM.y + ROOM.h - 30);
     if (v.sayT > 0) v.sayT -= dt;
@@ -3486,6 +3523,7 @@ function visitUpdate(dt) {
 function drawVisitors() {
   if (!room.vis) return;
   for (const v of room.vis) {
+    if (v.bird) { ctx.save(); ctx.translate(v.x, v.y - (v.fly > 0 ? 14 + Math.sin(v.fly * 6) * 3 : 0)); ctx.scale(v.face, 1); ctx.fillStyle = 'rgba(60,90,140,.2)'; ctx.beginPath(); ctx.ellipse(0, v.fly > 0 ? 24 : 8, 8, 3, 0, 0, TAU); ctx.fill(); ctx.fillStyle = ['#ff9bb5', '#7fc4ff', '#ffd45e'][v.hue]; circ(ctx, 0, 0, 7); circ(ctx, 7, -4, 4.5); ctx.fillStyle = '#ffb347'; ctx.beginPath(); ctx.moveTo(11, -4); ctx.lineTo(15, -3); ctx.lineTo(11, -2); ctx.fill(); ctx.fillStyle = '#222'; circ(ctx, 8, -5, 1); ctx.fillStyle = 'rgba(255,255,255,.85)'; const w = v.fly > 0 ? Math.sin(time * 28) * 6 : 1; ctx.beginPath(); ctx.ellipse(-2, -2, 5, 3 + Math.abs(w), -0.4, 0, TAU); ctx.fill(); ctx.restore(); continue; }
     if (v.npc) { drawAllyFig(v); if (v.sayT > 0 && v.say) { ctx.save(); ctx.font = '700 12px sans-serif'; ctx.textAlign = 'center'; const w = Math.min(260, v.say.length * 12 + 14); ctx.fillStyle = 'rgba(244,236,214,.95)'; rrect(ctx, v.x - w / 2, v.y - 52, w, 20, 6); ctx.fillStyle = C.dark; ctx.textBaseline = 'middle'; ctx.fillText(v.say.slice(0, 20), v.x, v.y - 42); ctx.restore(); } }
     else { const sv = { cls: p.cls, x: p.x, y: p.y, aim: p.aim, vx: p.vx, speed: p.speed, walkT: p.walkT, iframes: p.iframes, sleepT: p.sleepT, stone: p.stone, lantT: p.lantT, recoil: p.recoil, w: p.w, weapons: p.weapons }; p.cls = v.cls; p.x = v.x; p.y = v.y; p.aim = { x: v.face, y: 0 }; p.vx = v.vx; p.speed = Math.hypot(v.vx, v.vy); p.walkT = v.t; p.iframes = 0; p.sleepT = 0; p.stone = 0; p.lantT = 0; p.recoil = 0; p.weapons = [CLS[v.cls].weapon]; p.w = 0; try { drawPlayer(); } finally { Object.assign(p, sv); } ctx.save(); ctx.font = '600 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(244,236,214,.8)'; ctx.fillText(CLS[v.cls].name, v.x, v.y - 44); ctx.restore(); }
   }
@@ -6304,6 +6342,7 @@ function drawItem(it) {
   if (it.kind === 'beacon') return;
   if (it.taken) return;
   if (it.kind === 'muyu' || it.kind === 'shrine') { drawPathItem(it); return; }
+  if (SKY_ITEMS[it.kind]) { drawSkyItem(it); return; }
   if (it.kind === 'visitpad' || it.kind === 'visitexit' || it.kind === 'visitroll') { const on = it.kind !== 'visitpad' || visitOk(); ctx.save(); ctx.translate(it.x, it.y); ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(0, 12, 34, 12, 0, 0, TAU); ctx.fill(); ctx.strokeStyle = on ? '#9fe8ff' : '#6a6478'; ctx.lineWidth = 3; ctx.globalAlpha = on ? 0.8 + 0.2 * Math.sin(time * 4) : 0.6; ctx.beginPath(); ctx.ellipse(0, 6, 32, 14, 0, 0, TAU); ctx.stroke(); ctx.beginPath(); ctx.ellipse(0, 6, 20, 8, 0, 0, TAU); ctx.stroke(); if (on) { ctx.fillStyle = 'rgba(159,232,255,.25)'; ctx.beginPath(); ctx.ellipse(0, 6, 32, 14, 0, 0, TAU); ctx.fill(); for (let k = 0; k < 5; k++) { const a = time * 1.5 + k * 1.26; ctx.fillStyle = '#e8fbff'; circ(ctx, Math.cos(a) * 24, 6 + Math.sin(a) * 10 - ((time * 20 + k * 9) % 30), 2); } } ctx.restore(); return; }
   if (it.kind === 'sealdev') { drawSealDev(it); return; }
   if (it.kind === 'xev') { const xe = xevOf(); if (xe && xe.draw) xe.draw(it); return; }
