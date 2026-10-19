@@ -492,6 +492,7 @@ body.port .card,body.port .screen.center .card,body.port .card.wide{margin:0 0 a
               <button class="btn alt" id="btnTz" type="button" hidden></button>
               <button class="btn alt" id="btnTo" type="button" hidden></button>
               <button class="btn alt" id="btnLefty" type="button" hidden></button>
+              <button class="btn alt" id="btnTapMv" type="button" hidden></button>
             </div>
             <button class="btn alt" id="btnLeave" type="button">中途離開（匯出探索進度）</button>
             <button class="btn alt" id="btnQuit" type="button">放棄這局，換職業</button>
@@ -1067,7 +1068,7 @@ function loadRec() {
   r.runs = r.runs || 0; r.clears = r.clears || 0; r.time = r.time || 0; r.best = r.best || 0;
   r.deaths = r.deaths || {}; r.kills = r.kills || {}; r.byCls = r.byCls || {}; r.ach = r.ach || {}; r.seenW = r.seenW || {}; r.allies = r.allies || {}; r.endings = r.endings || {};
   r.dlcWin = r.dlcWin || {}; r.paper = r.paper || 0; r.scrap = r.scrap || 0; r.tutKeys = r.tutKeys || {}; r.mates = r.mates || {}; r.bossK = r.bossK || {}; r.themesSeen = r.themesSeen || {}; r.sleepKills = r.sleepKills || 0; r.fanKills = r.fanKills || 0; r.cos = r.cos || { lamp: 'warm', cape: 'red' }; r.cosOwn = r.cosOwn || {}; r.gacha = r.gacha || { n: 0, pity: 0 }; r.seenC = !!r.seenC; r.seenV = !!r.seenV;
-  r.ui = Object.assign({ autoDlg: false, dlgSpd: 1, toast: 1, tz: 1, to: 2, lefty: false }, r.ui || {});
+  r.ui = Object.assign({ autoDlg: false, dlgSpd: 1, toast: 1, tz: 1, to: 2, lefty: false, tapMove: true }, r.ui || {});
   return r;
 }
 let rec = loadRec();
@@ -1136,7 +1137,7 @@ ACH.push(
   { id: 'mirror', name: '以彼之道', desc: '用紙盾刃反彈敵人的子彈，並用它擊敗一隻敵人' },
   { id: 'fanFame', name: '紙扇風華', desc: '用紙扇累計擊敗 100 隻敵人（之後可獲得職業專屬造型）' },
   { id: 'dingKnock', name: '叩鼎問天', desc: '一局中觸摸 3 座古鼎（中華古代主題）' },
-  { id: 'tank', name: '百折不撓', desc: '一局內累計受到 15 點傷害（解鎖職業：偶像）' },
+  { id: 'tank', name: '百折不撓', desc: '一局內累計受到 50 點傷害（解鎖職業：偶像）' },
   { id: 'bizBoom', name: '生意興隆', desc: '累計在商人房花掉 50 燈芯（解鎖職業：掌櫃）' },
   { id: 'goodSleep', name: '好眠', desc: '嗜睡者一局中用醒來的範圍攻擊擊敗 20 隻敵人（之後可獲得造型）' },
   { id: 'dictBoss', name: '大辭典闔上了', desc: '擊敗大辭典（字母書房的最後 Boss；可獲得書僮帽）' },
@@ -1407,6 +1408,22 @@ const THEMES = [
 ];
 const EXT_AI = {}, EXT_COST = {}, EXT_CAP = {}, PACKS = {};
 const TNAMES = THEMES.map(t => t.name);
+const SKY_ID = 27;
+const SKY = { name: '天空島', pool: 'dlc', noPool: true, sky: true, noDark: true, noPaper: true,
+  pal: { ink: '#5d93d6', floor: '#a8d58a', floor2: '#b9e09d', wall1: '#eaf4ff', wall2: '#ffffff', top: '#ffffff', door: '#ffe08a' },
+  amb: ['bandpass', 1800, 0.8, 0.004], boss: () => ({ kind: 'golem', name: '雲朵', hp: 50 }),
+  ev: r => { const n = [784, 988, 1175, 1568][Math.floor(r() * 4)]; blip(n, n * 1.005, 0.4, 'sine', 0.008); },
+  bg(g, rm, rng, arR) {
+    for (let i = 0; i < 40 * arR; i++) { g.fillStyle = 'rgba(255,255,255,' + (0.35 + rng() * 0.3) + ')'; const x = rng() * WORLD.w, y = rng() * WORLD.h, w = 40 + rng() * 90; circ(g, x, y, w * 0.28); circ(g, x + w * 0.3, y + 4, w * 0.22); circ(g, x - w * 0.3, y + 5, w * 0.2); }
+    for (let i = 0; i < Math.round(26 * arR); i++) { g.fillStyle = i % 2 ? '#98c97a' : '#c4e8a8'; const x = ROOM.x + rng() * ROOM.w, y = ROOM.y + rng() * ROOM.h; circ(g, x, y, 14 + rng() * 26); }
+    for (let i = 0; i < Math.round(22 * arR); i++) { g.fillStyle = ['#ffd3e6', '#fff1b8', '#ffffff', '#e6d9ff'][i % 4]; const x = ROOM.x + 20 + rng() * (ROOM.w - 40), y = ROOM.y + 20 + rng() * (ROOM.h - 40); for (let k = 0; k < 5; k++) circ(g, x + Math.cos(k * 1.256) * 3.2, y + Math.sin(k * 1.256) * 3.2, 2.4); g.fillStyle = '#ffc94d'; circ(g, x, y, 1.8); }
+  },
+  obsDraw(g, o, rng) {
+    const n = Math.ceil((o.w + o.h) / 22);
+    setShadow(g, 3, 6, 0, 'rgba(60,90,140,.35)'); g.fillStyle = '#ffffff';
+    for (let i = 0; i < n; i++) circ(g, o.x + 14 + rng() * Math.max(1, o.w - 28), o.y + 14 + rng() * Math.max(1, o.h - 28), 16 + rng() * 10);
+    noShadow(g); g.fillStyle = '#e4f0ff'; for (let i = 0; i < n; i++) circ(g, o.x + 14 + rng() * Math.max(1, o.w - 28), o.y + 20 + rng() * Math.max(1, o.h - 28), 8 + rng() * 6);
+  } };
 const BASE_IDS = THEMES.map((t, i) => i).filter(i => THEMES[i].pool === 'base');
 optTheme.innerHTML = '<option value="auto">自動</option>' + [0, 1, 2, 4, 5, 6, 7, 8, 3].map(i => '<option value="' + i + '">' + THEMES[i].opt + '</option>').join('');
 function applyThemePick() {
@@ -2508,7 +2525,7 @@ function interact(it) {
   if (it.kind === 'xev') { const xe = xevOf(); if (xe) xe.use(it); hudSig = ''; hintSig = ''; return; }
   if (it.kind === 'tfac') { const W0 = THEMES[th()]; if (W0.useItem) W0.useItem(it); return; }
   if (it.kind === 'beacon') { const g = room.gb; if (!g) return; if (!g.started) { g.started = true; room.delay = 0.6; toast('敵人來了！守住燈塔', 2.2); } else if (g.rest) { g.rest = false; room.delay = 0.6; g.extraT = 14; toast('下一輪開始！', 2); } sfx('pick'); hintSig = ''; return; }
-  if (it.kind === 'pracTh') { PRAC.th = (PRAC.th + 1) % TNAMES.length; sfx('pick'); toast('練習主題：' + TNAMES[PRAC.th], 1.6); hintSig = ''; return; }
+  if (it.kind === 'pracTh') { do { PRAC.th = (PRAC.th + 1) % TNAMES.length; } while (THEMES[PRAC.th] && THEMES[PRAC.th].sky); sfx('pick'); toast('練習主題：' + TNAMES[PRAC.th], 1.6); hintSig = ''; return; }
   if (it.kind === 'pracLv') { PRAC.lv = (PRAC.lv + 1) % PLV.length; sfx('pick'); toast('練習層級：' + PLV[PRAC.lv].n, 2); hintSig = ''; return; }
   if (it.kind === 'pracGo') { sfx('pick'); fadeThen(() => { startPractice(); announceRoom(); }); return; }
   if (it.kind === 'themesel') { openThemePick(); return;
@@ -3185,13 +3202,13 @@ $('dlcList').innerHTML = DLC_MENU.map((q, i) => '<button class="btn" id="btnDlc'
 const DLC_PS = 10; let dlcPage = 0; const dlcPages = () => Math.ceil(DLC_MENU.length / DLC_PS); // DLC 之門分頁：每頁 10 個
 function dlcPageApply() { DLC_MENU.forEach((q, i) => { $('btnDlc' + i).hidden = Math.floor(i / DLC_PS) !== dlcPage; }); $('btnDlcPg').textContent = '換頁（' + (dlcPage + 1) + ' / ' + dlcPages() + '）→ 看另一頁'; }
 function dlcFlip() { dlcPage = (dlcPage + 1) % dlcPages(); dlcPageApply(); scrSel = DLC_MENU.length + 1; scrRender(); sfx('tick'); }
-const SCR_IDS = { dlcmenu: Array.from({ length: DLC_MENU.length + 1 }, (_, i) => 'btnDlc' + i).concat(['btnDlcPg']), prac: ['btnPracAgain', 'btnPracBack'], over: ['btnRetry', 'btnMenu1'], ending: ['btnExt', 'btnAgain', 'btnMenu2'], pause: ['btnResume', 'btnAuto', 'btnSnd', 'btnDlg', 'btnDlgSpd', 'btnToast', 'btnTz', 'btnTo', 'btnLefty', 'btnLeave', 'btnQuit'], choice: ['btnLight', 'btnDark'] };
+const SCR_IDS = { dlcmenu: Array.from({ length: DLC_MENU.length + 1 }, (_, i) => 'btnDlc' + i).concat(['btnDlcPg']), prac: ['btnPracAgain', 'btnPracBack'], over: ['btnRetry', 'btnMenu1'], ending: ['btnExt', 'btnAgain', 'btnMenu2'], pause: ['btnResume', 'btnAuto', 'btnSnd', 'btnDlg', 'btnDlgSpd', 'btnToast', 'btnTz', 'btnTo', 'btnLefty', 'btnTapMv', 'btnLeave', 'btnQuit'], choice: ['btnLight', 'btnDark'] };
 const SCR_ACT = {
   dlcmenu: Array.from({ length: DLC_MENU.length + 1 }, (_, i) => () => dlcPick(i)).concat([() => dlcFlip()]),
   prac: [() => pracAgain(), () => pracBack()],
   over: [() => restart(), () => toMenu()],
   ending: [() => startExt(), () => { show('ending', false); restart(); }, () => toMenu()],
-  pause: [() => resumeGame(), () => { optAuto.checked = !optAuto.checked; refreshPauseOpts(); sfx('tick'); }, () => { optSound.checked = !optSound.checked; refreshPauseOpts(); sfx('tick'); }, () => uiOpt('dlg'), () => uiOpt('dlgSpd'), () => uiOpt('toast'), () => uiOpt('tz'), () => uiOpt('to'), () => uiOpt('lefty'), () => leaveMidway(), () => { show('pause', false); endRun(false); toMenu(); }],
+  pause: [() => resumeGame(), () => { optAuto.checked = !optAuto.checked; refreshPauseOpts(); sfx('tick'); }, () => { optSound.checked = !optSound.checked; refreshPauseOpts(); sfx('tick'); }, () => uiOpt('dlg'), () => uiOpt('dlgSpd'), () => uiOpt('toast'), () => uiOpt('tz'), () => uiOpt('to'), () => uiOpt('lefty'), () => uiOpt('tapMove'), () => leaveMidway(), () => { show('pause', false); endRun(false); toMenu(); }],
   choice: [() => pickEnding(0), () => pickEnding(1)]
 };
 function scrRender() { const ids = SCR_IDS[state]; if (!ids) return; ids.forEach((id, i) => $(id).classList.toggle('on', i === scrSel)); }
@@ -3217,7 +3234,7 @@ function buffLines() {
 }
 function uiOpt(k) {
   const u = rec.ui;
-  if (k === 'dlg') u.autoDlg = !u.autoDlg; else if (k === 'lefty') u.lefty = !u.lefty;
+  if (k === 'dlg') u.autoDlg = !u.autoDlg; else if (k === 'lefty') u.lefty = !u.lefty; else if (k === 'tapMove') u.tapMove = !u.tapMove;
   else if (k === 'dlgSpd') u.dlgSpd = (u.dlgSpd + 1) % 4; else if (k === 'toast') u.toast = (u.toast + 1) % 3; else if (k === 'tz') u.tz = (u.tz + 1) % 3; else if (k === 'to') u.to = (u.to + 1) % 3;
   saveRec(); refreshPauseOpts(); sfx('tick');
 }
@@ -3227,8 +3244,8 @@ function applyUi() {
 }
 function refreshPauseOpts() {
   $('btnDlg').innerHTML = '<i class="plamp' + (rec.ui.autoDlg ? ' on' : '') + '"></i>自動對話'; $('btnDlgSpd').textContent = '對話速度：' + DLG_NAME[rec.ui.dlgSpd | 0]; $('btnToast').textContent = '提示停留：' + TOAST_NAME[rec.ui.toast | 0];
-  $('btnTz').textContent = '觸控按鈕大小：' + TZ_NAME[rec.ui.tz | 0]; $('btnTo').textContent = '觸控按鈕濃度：' + TO_NAME[rec.ui.to | 0]; $('btnLefty').innerHTML = '<i class="plamp' + (rec.ui.lefty ? ' on' : '') + '"></i>左手模式';
-  for (const id of ['btnTz', 'btnTo', 'btnLefty']) $(id).hidden = !mobile;
+  $('btnTz').textContent = '觸控按鈕大小：' + TZ_NAME[rec.ui.tz | 0]; $('btnTo').textContent = '觸控按鈕濃度：' + TO_NAME[rec.ui.to | 0]; $('btnLefty').innerHTML = '<i class="plamp' + (rec.ui.lefty ? ' on' : '') + '"></i>左手模式'; $('btnTapMv').innerHTML = '<i class="plamp' + (rec.ui.tapMove !== false ? ' on' : '') + '"></i>點擊螢幕移動';
+  for (const id of ['btnTz', 'btnTo', 'btnLefty', 'btnTapMv']) $(id).hidden = !mobile;
   applyUi();
   $('btnAuto').innerHTML = '<i class="plamp' + (optAuto.checked ? ' on' : '') + '"></i>自動瞄準（T）';
   $('btnSnd').innerHTML = '<i class="plamp' + (optSound.checked ? ' on' : '') + '"></i>音效（M）';
@@ -3434,7 +3451,8 @@ function startPractice() {
 /* 起始房的主題路標：跳出頁面選主題（只列出目前有的主題；暗影巢穴等不進長線池的不列） */
 const VISIT_NEED = 60, visitOk = () => !!optUnlock.checked || achCount() >= VISIT_NEED;
 function startVisit() {
-  const ids = []; THEMES.forEach((t, i) => { if (t && TNAMES[i]) ids.push(i); }); const tid = pickOf(ids);
+  const ids = []; THEMES.forEach((t, i) => { if (t && TNAMES[i] && !t.sky) ids.push(i); }); let tid = pickOf(ids);
+  if (rand() < 0.1) { THEMES[SKY_ID] = SKY; TNAMES[SKY_ID] = SKY.name; tid = SKY_ID; }
   if (!PRAC.on) recBak = JSON.stringify(rec);
   PRAC.on = true; PRAC.starting = true; run.practice = true;
   fadeThen(() => {
@@ -3452,7 +3470,7 @@ function startVisit() {
     room.items.push({ kind: 'visitroll', id: 'visitroll', x: ROOM.x + 90, y: DOOR.y + 150, group: 'prop', price: 0, taken: false });
     room.items.push({ kind: 'visitexit', id: 'visitexit', x: ROOM.x + 90, y: DOOR.y + 70, group: 'prop', price: 0, taken: false });
     p.x = ROOM.x + 140; p.y = DOOR.y; p.hp = p.maxHp;
-    toast('參觀：' + TNAMES[tid] + '（不會戰鬥；回程傳送陣在入口附近）', 3.2); announceRoom();
+    toast(tid === SKY_ID ? '參觀：天空島（彩蛋！雲上的小花園）' : '參觀：' + TNAMES[tid] + '（不會戰鬥；回程傳送陣在入口附近）', 3.2); announceRoom();
   });
 }
 function exitVisit() { endPractice(); fadeThen(() => { newRun(); p.x = ROOM.x + 70; announceRoom(); }); }
@@ -4243,7 +4261,7 @@ function hurtPlayer(dmg, nx, ny, frz) {
     idolCharge(1, true);
     if (hitSrc !== 'karma' && hitSrc !== 'collapse') { const pr = IDOL_P[idolLv()][p.hp * 2 <= p.maxHp ? 1 : 0]; if (rand() < pr) { p.iframes = 0.8; p.kx = nx * 120; p.ky = ny * 120; burst(p.x, p.y, 10, ['#ff7ac8', '#fff2a8', C.paper], 150, true); sfx('tick'); if (!run.idolTip) { run.idolTip = true; toast('偶像光環：這一下沒有扣燈火！', 2); } return; } }
   }
-  run.hurtN = (run.hurtN || 0) + 1; run.dmgIn = (run.dmgIn || 0) + dmg; if (run.dmgIn >= 15 && !run.practice) unlockAch('tank');
+  run.hurtN = (run.hurtN || 0) + 1; run.dmgIn = (run.dmgIn || 0) + dmg; if (run.dmgIn >= 50 && !run.practice) unlockAch('tank');
   if (p.shield > 0) {
     p.shield = Math.max(0, p.shield - dmg); if (p.shield <= 0) run.shieldZero = true; p.shieldT = 0; room.hurt = true; p.iframes = 1.0; p.kx = nx * 220; p.ky = ny * 220; shake = 5; sfx('hurt'); hudSig = '';
     burst(p.x, p.y, 10, ['#8fd0ff', C.paper], 150, true); return;
@@ -5790,7 +5808,7 @@ function tapWorld(ev) {
   const ox = cover ? (r.width - W * sc) / 2 : 0, oy = cover ? (r.height - H * sc) / 2 : 0;
   tapT.x = (ev.clientX - r.left - ox) / sc + cam.x + 14; tapT.y = (ev.clientY - r.top - oy) / sc + cam.y - 14; return true;
 }
-cv.addEventListener('pointerdown', ev => { if (!mobile || state !== 'play') return; if (tapWorld(ev)) { tapT.on = true; tapT.id = ev.pointerId; tapT.t = 0; } });
+cv.addEventListener('pointerdown', ev => { if (!mobile || state !== 'play' || rec.ui.tapMove === false) return; if (tapWorld(ev)) { tapT.on = true; tapT.id = ev.pointerId; tapT.t = 0; } });
 cv.addEventListener('pointermove', ev => { if (tapT.on && ev.pointerId === tapT.id) tapWorld(ev); });
 const tapEnd = ev => { if (ev.pointerId === tapT.id) { tapT.id = null; tapT.keep = true; } };
 cv.addEventListener('pointerup', tapEnd); cv.addEventListener('pointercancel', tapEnd);
@@ -5857,7 +5875,7 @@ btn('btnMenu2', () => { if (state === 'ending') toMenu(); });
 btn('btnResume', () => resumeGame());
 btn('btnAuto', () => { if (state === 'pause') { optAuto.checked = !optAuto.checked; refreshPauseOpts(); } });
 btn('btnSnd', () => { if (state === 'pause') { optSound.checked = !optSound.checked; refreshPauseOpts(); } });
-for (const [id, k] of [['btnDlg', 'dlg'], ['btnDlgSpd', 'dlgSpd'], ['btnToast', 'toast'], ['btnTz', 'tz'], ['btnTo', 'to'], ['btnLefty', 'lefty']]) btn(id, () => { if (state === 'pause') uiOpt(k); });
+for (const [id, k] of [['btnDlg', 'dlg'], ['btnDlgSpd', 'dlgSpd'], ['btnToast', 'toast'], ['btnTz', 'tz'], ['btnTo', 'to'], ['btnLefty', 'lefty'], ['btnTapMv', 'tapMove']]) btn(id, () => { if (state === 'pause') uiOpt(k); });
 function askTwice(id, label, fn) {
   const b = $(id); let armed = 0;
   const reset = () => { armed = 0; b.classList.remove('ask'); b.textContent = label; };
